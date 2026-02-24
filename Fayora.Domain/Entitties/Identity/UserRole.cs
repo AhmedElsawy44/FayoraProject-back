@@ -1,0 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Fayora.Domain.Entitties.Identity;
+
+public class UserRole : BaseEntity<int>
+{
+    public Guid UserId { get; init; }
+    public DateTimeOffset AssignedAt { get; init; } = DateTimeOffset.UtcNow;
+
+    public UserRole(Guid userId)
+    {
+        UserId = userId;
+    }
+}
