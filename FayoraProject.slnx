@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Fayora.Api/Fayora.Api.csproj" />
+  <Project Path="Fayora.Application/Fayora.Application.csproj" />
+  <Project Path="Fayora.Contracts/Fayora.Contracts.csproj" />
+  <Project Path="Fayora.Domain/Fayora.Domain.csproj" />
+  <Project Path="Fayora.Infrastructure/Fayora.Infrastructure.csproj" />
+</Solution>

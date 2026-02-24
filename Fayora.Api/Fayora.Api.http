@@ -1,0 +1,6 @@
+@Fayora.Api_HostAddress = http://localhost:5098
+
+GET {{Fayora.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
