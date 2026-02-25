@@ -3,18 +3,15 @@ using Fayora.Domain.Common;
 using Fayora.Domain.Enums;
 using System;
 
-namespace Fayora.Domain.Entities.Security; // أو Identity حسب ما تحب
+namespace Fayora.Domain.Entities.Identity; 
 
 public class BannedItem : BaseEntity<int>
 {
     public Guid? UserId { get; private set; }
-
     public BanType BanType { get; private set; }
-
     public string BanValue { get; init; }
-
     public string Reason { get; private set; } = string.Empty;
-    public DateTimeOffset CreatedAt { get; init; }
+    public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
     public DateTimeOffset? ExpiresAt { get; private set; }
     public bool IsActive { get; private set; }
 
@@ -39,7 +36,6 @@ public class BannedItem : BaseEntity<int>
             BanValue = banValue,
             Reason = string.IsNullOrWhiteSpace(reason) ? "No reason provided" : reason,
             UserId = userId,
-            CreatedAt = DateTimeOffset.UtcNow,
             ExpiresAt = expiresAt,
             IsActive = true
         };

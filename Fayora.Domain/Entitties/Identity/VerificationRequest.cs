@@ -28,25 +28,32 @@ namespace Fayora.Domain.Entitties.Identity
 
         public static ErrorOr<VerificationRequest> Create(Guid userId, RequestType requestType, List<(DocumentType Type, string Url)> uploadedDocuments)
         {
-            if (requestType == RequestType.TourGuide)
+            List<DocumentType> requiredDocs = requestType switch
             {
-                var requiredDocsForGuide = new[]
+                RequestType.TourGuide => new List<DocumentType>
                 {
                     DocumentType.NationalId,
                     DocumentType.TourGuideLicense,
                     DocumentType.CriminalRecord
-                };
-
-                var uploadedTypes = uploadedDocuments.Select(d => d.Type).ToList();
-                var missingDocs = requiredDocsForGuide.Except(uploadedTypes).ToList();
-
-                if (missingDocs.Any())
+                },
+                RequestType.HousingUnit => new List<DocumentType>
                 {
-                    string missingNames = string.Join(", ", missingDocs);
-                    return Error.Validation(
-                        code: "Verification.MissingDocuments",
-                        description: $"Cannot create Tour Guide request. Missing required documents: {missingNames}");
+                    DocumentType.NationalId,
+                    DocumentType.PropertyOwnership,
+                    DocumentType.Photos
                 }
+            };
+
+
+            var uploadedTypes = uploadedDocuments.Select(d => d.Type).ToList();
+            var missingDocs = requiredDocs.Except(uploadedTypes).ToList();
+
+            if (missingDocs.Any())
+            {
+                string missingNames = string.Join(", ", missingDocs);
+                return Error.Validation(
+                    code: "Verification.MissingDocuments",
+                    description: $"Cannot create Tour Guide request. Missing required documents: {missingNames}");
             }
 
             var request = new VerificationRequest(userId, requestType);
