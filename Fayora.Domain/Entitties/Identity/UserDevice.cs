@@ -1,4 +1,4 @@
-﻿namespace Fayora.Domain.Entitties.Identity;
+﻿namespace Fayora.Domain.Entities.Identity;
 
 public class UserDevice : BaseEntity<int>
 {
@@ -10,7 +10,7 @@ public class UserDevice : BaseEntity<int>
     public DateTimeOffset LastUsedAt { get; private set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
 
-    internal UserDevice(Guid userId, string fcmToken, string deviceType, string deviceModel, string deviceLanguage)
+    public UserDevice(Guid userId, string fcmToken, string deviceType, string deviceModel, string deviceLanguage)
     {
         UserId = userId;
         FCMToken = fcmToken;
@@ -19,7 +19,7 @@ public class UserDevice : BaseEntity<int>
         DeviceLanguage = deviceLanguage;
     }
 
-    internal void UpdateUsage(string newLanguage)
+    public void UpdateUsage(string newLanguage)
     {
         DeviceLanguage = newLanguage;
         LastUsedAt = DateTimeOffset.UtcNow;

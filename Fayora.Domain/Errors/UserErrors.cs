@@ -1,4 +1,4 @@
-﻿using ErrorOr;
+﻿using Fayora.Domain.Common.Results;
 
 namespace Fayora.Domain.Errors;
 
@@ -39,6 +39,19 @@ public static class UserErrors
         "The lock duration must be greater than zero."
     );
 
-    //write a code to errors related to user registration, login, and account management
+    public static readonly Error TooManyIdentities = Error.Validation(
+        "User.TooManyIdentities",
+        "User cannot have more than 2 identity providers."
+    );
 
+
+    public static readonly Error EmailAlreadyExists = Error.Conflict(
+        "User.EmailAlreadyExists",
+        "A user with this email already exists"
+    );
+
+    public static readonly Error PhoneAlreadyExists = Error.Conflict(
+        "User.PhoneNumberAlreadyExists",
+        "A user with this phone number already exists"
+    );
 }

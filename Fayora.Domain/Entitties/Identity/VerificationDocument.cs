@@ -1,7 +1,7 @@
 ﻿using Fayora.Domain.Enums;
 using System;
 
-namespace Fayora.Domain.Entitties.Identity;
+namespace Fayora.Domain.Entities.Identity;
 
 public class VerificationDocument : BaseEntity<int>
 {
@@ -11,8 +11,6 @@ public class VerificationDocument : BaseEntity<int>
     public string DocumentUrl { get; init; } = string.Empty;
     public RequestStatus DocumentStatus { get; private set; }
     public DateOnly? ExpireDate { get; private set; }
-
-    // التعديل: خليناها Nullable وشيلنا الـ string.Empty
     public string? RejectionReason { get; private set; }
     public DateTimeOffset UploadAt { get; init; }
 

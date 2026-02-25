@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Fayora.Application\Fayora.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Auth\Models\" />
+  </ItemGroup>
+
 </Project>

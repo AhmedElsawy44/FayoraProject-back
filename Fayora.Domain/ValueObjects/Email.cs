@@ -1,4 +1,4 @@
-﻿using ErrorOr;
+﻿using Fayora.Domain.Common.Results;
 using Fayora.Domain.Errors;
 
 namespace Fayora.Domain.ValueObjects;
@@ -12,7 +12,7 @@ public class Email
         Value = value;
     }
 
-    public static ErrorOr<Email> Create(string email)
+    public static Result<Email> Create(string email)
     {
         if (!email.Contains("@"))
             return UserErrors.InvalidEmail;

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Fayora.Domain.Entitties.Identity;
+namespace Fayora.Domain.Entities.Identity;
 
 public class Role : BaseEntity<int>
 {

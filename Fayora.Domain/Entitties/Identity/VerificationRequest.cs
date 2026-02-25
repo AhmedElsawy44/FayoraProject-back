@@ -1,11 +1,8 @@
-﻿using ErrorOr;
-using Fayora.Domain.Common;
+﻿using Fayora.Domain.Common;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace Fayora.Domain.Entitties.Identity
+namespace Fayora.Domain.Entities.Identity
 {
     public class VerificationRequest : AuditableEntity<int>
     {
@@ -26,7 +23,7 @@ namespace Fayora.Domain.Entitties.Identity
             RequestStatus = RequestStatus.Pending;
         }
 
-        public static ErrorOr<VerificationRequest> Create(Guid userId, RequestType requestType, List<(DocumentType Type, string Url)> uploadedDocuments)
+        public static Result<VerificationRequest> Create(Guid userId, RequestType requestType, List<(DocumentType Type, string Url)> uploadedDocuments)
         {
             List<DocumentType> requiredDocs = requestType switch
             {
@@ -39,8 +36,7 @@ namespace Fayora.Domain.Entitties.Identity
                 RequestType.HousingUnit => new List<DocumentType>
                 {
                     DocumentType.NationalId,
-                    DocumentType.PropertyOwnership,
-                    DocumentType.Photos
+                    DocumentType.PropertyOwnership
                 }
             };
 
@@ -53,7 +49,7 @@ namespace Fayora.Domain.Entitties.Identity
                 string missingNames = string.Join(", ", missingDocs);
                 return Error.Validation(
                     code: "Verification.MissingDocuments",
-                    description: $"Cannot create Tour Guide request. Missing required documents: {missingNames}");
+                    description: $"Cannot create {requestType} request. Missing required documents: {missingNames}");
             }
 
             var request = new VerificationRequest(userId, requestType);
@@ -66,29 +62,34 @@ namespace Fayora.Domain.Entitties.Identity
             return request;
         }
 
-        public ErrorOr<Success> ReviewRequest(Guid adminId, RequestStatus newStatus, string? adminComment = null)
+        public void ReviewRequest(Guid adminId, RequestStatus newStatus, string? adminComment = null)
         {
-            if (!_verificationDocuments.Any())
-                return Error.Validation("Request.NoDocuments", "Cannot review a request with no documents.");
-
             ReviewedBy = adminId;
             RequestStatus = newStatus;
             AdminComment = adminComment;
             ReviewedAt = DateTimeOffset.UtcNow;
-
             Updated();
-            return Result.Success;
         }
 
-        public ErrorOr<Success> AddVerificationDocument(DocumentType documentType, string documentUrl)
+        public Result<Success> AddVerificationDocument(DocumentType documentType, string documentUrl)
         {
-            if (RequestStatus != RequestStatus.Pending)
+            if (RequestStatus != RequestStatus.Pending && RequestStatus != RequestStatus.Rejected)
                 return Error.Validation("Request.Closed", "Cannot add documents to a closed request.");
 
             var document = new VerificationDocument(documentType, documentUrl);
             _verificationDocuments.Add(document);
             Updated();
             return Result.Success;
+        }
+
+        public void RemoveVerificationDocument(int documentId)
+        {
+            var document = _verificationDocuments.FirstOrDefault(d => d.Id == documentId);
+            if (document != null)
+            {
+                _verificationDocuments.Remove(document);
+                Updated();
+            }
         }
 
         private VerificationRequest() { }

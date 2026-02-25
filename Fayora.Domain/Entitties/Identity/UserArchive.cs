@@ -1,4 +1,4 @@
-﻿namespace Fayora.Domain.Entitties.Identity;
+﻿namespace Fayora.Domain.Entities.Identity;
 
 public class UserArchive : BaseEntity<int>
 {
@@ -6,8 +6,8 @@ public class UserArchive : BaseEntity<int>
     public string? Email { get; init; }
     public string? Phone { get; init; }
     public string FullName { get; init; } = string.Empty;
-    public string DeletionReason { get; init; } = string.Empty;
-    public string DeletedBy { get; init; } = string.Empty;
+    public string? DeletionReason { get; init; }
+    public string DeletedBy { get; init; }
     public bool IsRejoinable { get; init; }
     public string FullUserDataBackup { get; init; } = string.Empty;
     public DateTimeOffset OriginalCreatedAt { get; init; }
@@ -20,7 +20,7 @@ public class UserArchive : BaseEntity<int>
         string? email,
         string? phone,
         string fullName,
-        string deletionReason,
+        string? deletionReason,
         string deletedBy,
         bool isRejoinable,
         string fullUserDataBackup,

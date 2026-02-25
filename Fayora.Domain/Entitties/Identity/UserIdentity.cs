@@ -1,7 +1,7 @@
 ﻿using Fayora.Domain.Enums;
 using Fayora.Domain.ValueObjects;
 
-namespace Fayora.Domain.Entitties.Identity;
+namespace Fayora.Domain.Entities.Identity;
 
 public class UserIdentity : BaseEntity<int>
 {

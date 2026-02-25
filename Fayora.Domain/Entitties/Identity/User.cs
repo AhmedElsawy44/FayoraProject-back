@@ -1,68 +1,50 @@
-﻿using System.Net.Http.Json;
-using ErrorOr;
-using Fayora.Domain.Common;
+﻿using Fayora.Domain.Common;
+using Fayora.Domain.Common.Events;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums;
 using Fayora.Domain.Errors;
 using Fayora.Domain.ValueObjects;
 
-namespace Fayora.Domain.Entitties.Identity;
+namespace Fayora.Domain.Entities.Identity;
 
 public class User : AuditableEntity<Guid>
 {
-    private string _passwordHash = string.Empty;
-
-    private User()
-    {
-    }
-
     public string FirstName { get; private set; } = string.Empty;
     public string LastName { get; private set; } = string.Empty;
     public DateOnly? BirthDate { get; private set; }
     public Gender? Gender { get; private set; }
-
     public Email? PrimaryEmail { get; private set; }
     public string? PhoneNumber { get; private set; }
-
     public DateTimeOffset? PasswordChangedAt { get; private set; }
-
     public DateTimeOffset? LastOtpSentAt { get; private set; }
     public DateTimeOffset? LockedUntil { get; private set; }
-
     public bool IsEmailVerified { get; private set; }
     public bool IsPhoneVerified { get; private set; }
-
     public UserStatus Status { get; private set; } = UserStatus.Active;
-
     public decimal CurrentBalance { get; private set; } = 0;
-
     public string? NationalityCode { get; private set; }
     public string? SimCountryIsoCode { get; private set; }
-
     public string PreferredLanguage { get; private set; } = string.Empty;
     public string TimeZone { get; private set; } = string.Empty;
-
     public string? ProfileImageUrl { get; private set; }
     public string? Description { get; private set; }
-
     public DateTimeOffset? LastLogin { get; private set; }
-
     public DateTimeOffset? DeletedAt { get; private set; }
-
     public bool IsProfileComplete { get; private set; }
-
     public int ViolationCount { get; private set; }
     public DateTimeOffset? LastViolationDate { get; private set; }
 
     private readonly List<UserIdentity> _userIdentities = new();
     public IReadOnlyCollection<UserIdentity> UserIdentities => _userIdentities.AsReadOnly();
 
-    public static ErrorOr<User> Create(
+    private string _passwordHash = string.Empty;
+
+    public static Result<User> Create(
         string firstName,
         string lastName,
         string? email,
         string? phoneNumber,
         string passwordHash,
-        string nationalityCode,
         string? simCountryIsoCode,
         string preferredLanguage,
         string timeZone)
@@ -87,8 +69,7 @@ public class User : AuditableEntity<Guid>
             PhoneNumber = string.IsNullOrWhiteSpace(phoneNumber) ? null : phoneNumber,
             _passwordHash = passwordHash,
             Status = UserStatus.Active,
-            NationalityCode = nationalityCode,
-            SimCountryIsoCode = string.IsNullOrWhiteSpace(simCountryIsoCode) ? null : simCountryIsoCode,
+            SimCountryIsoCode = simCountryIsoCode,
             PreferredLanguage = preferredLanguage,
             TimeZone = timeZone
         };
@@ -96,12 +77,7 @@ public class User : AuditableEntity<Guid>
         return user;
     }
 
-    public User(string firstName, string lastName, string? email, string? phoneNumber, string passwordHash, string nationalityCode, string? simCountryIsoCode, string preferredLanguage, string timeZone)
-    {
-        
-    }
-
-    public ErrorOr<Success> VerifyEmail()
+    public Result<Success> VerifyEmail()
     {
         if (PrimaryEmail == null) return UserErrors.EmailNotProvided;
 
@@ -111,7 +87,7 @@ public class User : AuditableEntity<Guid>
         return Result.Success;
     }
 
-    public ErrorOr<Success> VerifyPhone()
+    public Result<Success> VerifyPhone()
     {
         if (string.IsNullOrWhiteSpace(PhoneNumber)) return UserErrors.PhoneNotProvided;
 
@@ -121,7 +97,7 @@ public class User : AuditableEntity<Guid>
         return Result.Success;
     }
 
-    public ErrorOr<Success> ChangePassword(string newPasswordHash)
+    public Result<Success> ChangePassword(string newPasswordHash)
     {
         if (string.IsNullOrWhiteSpace(newPasswordHash)) return UserErrors.InvalidPassword;
         _passwordHash = newPasswordHash;
@@ -130,10 +106,13 @@ public class User : AuditableEntity<Guid>
         return Result.Success;
     }
 
-    public ErrorOr<Success> ChangeEmail(string email)
+    public Result<Success> ChangeEmail(string email)
     {
         var emailResult = Email.Create(email);
         if (emailResult.IsError) return emailResult.Errors;
+
+        if (PrimaryEmail != null && PrimaryEmail.Value == emailResult.Value.Value)
+            return Result.Success;
 
         PrimaryEmail = emailResult.Value;
         IsEmailVerified = false;
@@ -141,21 +120,23 @@ public class User : AuditableEntity<Guid>
         return Result.Success;
     }
 
-    public ErrorOr<Success> ChangePhoneNumber(string phoneNumber)
+    public Result<Success> ChangePhoneNumber(string phoneNumber)
     {
         if (string.IsNullOrWhiteSpace(phoneNumber)) return UserErrors.InvalidPhone;
+
+        if (PhoneNumber == phoneNumber)
+            return Result.Success;
+
         PhoneNumber = phoneNumber;
         IsPhoneVerified = false;
         Updated();
         return Result.Success;
     }
 
-    public ErrorOr<Success> LockAccount(TimeSpan lockDuration)
+    private void LockAccount(TimeSpan lockDuration)
     {
-        if (lockDuration <= TimeSpan.Zero) return UserErrors.InvalidLockDuration;
         LockedUntil = DateTimeOffset.UtcNow.Add(lockDuration);
         Status = UserStatus.Locked;
-        return Result.Success;
     }
 
     public void UnlockAccount()
@@ -164,30 +145,50 @@ public class User : AuditableEntity<Guid>
         Status = UserStatus.Active;
     }
 
-    public ErrorOr<Success> IncrementViolation()
+    public void IncrementViolation()
     {
+        if (LastViolationDate.HasValue && DateTimeOffset.UtcNow > LastViolationDate.Value.AddDays(30))
+        {
+            ViolationCount = 0;
+        }
+
         ViolationCount++;
         LastViolationDate = DateTimeOffset.UtcNow;
-        return Result.Success;
+
+        switch (ViolationCount)
+        {
+            case >= 5:
+                LockAccount(TimeSpan.FromDays(30));
+                break;
+
+            case 4:
+                LockAccount(TimeSpan.FromDays(7));
+                break;
+
+            case 3:
+                LockAccount(TimeSpan.FromDays(1));
+                break;
+
+            default:
+                break;
+        }
     }
 
-    public ErrorOr<Success> ResetViolations()
+    public void ResetViolations()
     {
         ViolationCount = 0;
         LastViolationDate = null;
-        return Result.Success;
     }
 
-    public ErrorOr<Success> MarkAsDeleted()
+    public void MarkAsDeleted()
     {
         DeletedAt = DateTimeOffset.UtcNow;
         Status = UserStatus.Deleted;
-        return Result.Success;
     }
 
-    public ErrorOr<Success> UpdateProfile(
-        string? firstName,
-        string? lastName,
+    public void UpdateProfile(
+        string firstName,
+        string lastName,
         DateOnly? birthDate,
         Gender? gender,
         string? nationalityCode,
@@ -196,20 +197,27 @@ public class User : AuditableEntity<Guid>
         string? preferredLanguage,
         string? timeZone)
     {
-        if (!string.IsNullOrWhiteSpace(firstName)) FirstName = firstName;
-        if (!string.IsNullOrWhiteSpace(lastName)) LastName = lastName;
-        if (birthDate.HasValue) BirthDate = birthDate;
-        if (gender.HasValue) Gender = gender;
-        if (!string.IsNullOrWhiteSpace(nationalityCode)) NationalityCode = nationalityCode;
-        if (!string.IsNullOrWhiteSpace(profileImageUrl)) ProfileImageUrl = profileImageUrl;
-        if (!string.IsNullOrWhiteSpace(preferredLanguage)) PreferredLanguage = preferredLanguage;
-        if (!string.IsNullOrWhiteSpace(timeZone)) TimeZone = timeZone;
 
+        FirstName = firstName;
+        LastName = lastName;
+
+        BirthDate = birthDate;
+        Gender = gender;
+        NationalityCode = nationalityCode;
+        if (profileImageUrl != ProfileImageUrl)
+        {
+            if (!string.IsNullOrWhiteSpace(ProfileImageUrl))
+            {
+                AddDomainEvent(new DeleteMediaEvent(ProfileImageUrl));
+            }
+            ProfileImageUrl = profileImageUrl;
+        }
         Description = description;
+        PreferredLanguage = preferredLanguage ?? PreferredLanguage;
+        TimeZone = timeZone ?? TimeZone;
 
         IsProfileComplete = CheckIfProfileComplete();
         Updated();
-        return Result.Success;
     }
 
     private bool CheckIfProfileComplete()
@@ -226,11 +234,14 @@ public class User : AuditableEntity<Guid>
 
     public void DeleteImage()
     {
-        ProfileImageUrl = null;
-        Updated();
+        if (ProfileImageUrl != null)
+        {
+            AddDomainEvent(new DeleteMediaEvent(ProfileImageUrl));
+            ProfileImageUrl = null;
+        }
     }
 
-    public ErrorOr<Success> AddOrUpdateUserIdentity(
+    public Result<Success> AddOrUpdateUserIdentity(
     IdentityProvider provider,
     string providerKey,
     string email,
@@ -248,30 +259,27 @@ public class User : AuditableEntity<Guid>
         }
         else
         {
+            if(_userIdentities.Count >= 2) return UserErrors.TooManyIdentities;
             var newIdentity = new UserIdentity(Id, provider, providerKey, emailResult.Value, profileDataJson);
             _userIdentities.Add(newIdentity);
         }
-        Updated();
         return Result.Success;
     }
 
     public void RecordLogin()
     {
         LastLogin = DateTimeOffset.UtcNow;
-        Updated();
     }
-
 
     public void UpdateBalance(decimal amount)
     {
         CurrentBalance += amount;
-        Updated();
     }
 
-    public void SendOtp()
+    public void RecordOtpSent()
     {
         LastOtpSentAt = DateTimeOffset.UtcNow;
-        Updated();
-
     }
+
+    private User() { }
 }
