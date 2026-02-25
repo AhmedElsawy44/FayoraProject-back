@@ -7,7 +7,7 @@ namespace Fayora.Application.Common.Interfaces.Presistance;
 
 public interface IUserRepository
 {
-    Task<bool> IsEmailExistAsync(string email);
-    Task<bool> IsPhoneExistAsync(string phoneNumber);
-    Task AddUserAsync(User user);
+    Task<bool> IsEmailExistAsync(string email, CancellationToken cancellationToken);
+    Task<bool> IsPhoneExistAsync(string phoneNumber, CancellationToken cancellationToken);
+    Task AddUserAsync(User user, CancellationToken cancellationToken);
 }

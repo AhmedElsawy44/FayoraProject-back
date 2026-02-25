@@ -54,4 +54,9 @@ public static class UserErrors
         "User.PhoneNumberAlreadyExists",
         "A user with this phone number already exists"
     );
+
+    public static readonly Error DeviceIdMissing = Error.Validation(
+        "User.DeviceIdMissing",
+        "Device ID is missing."
+    );
 }

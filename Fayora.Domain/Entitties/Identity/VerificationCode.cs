@@ -5,7 +5,7 @@ namespace Fayora.Domain.Entities.Identity;
 
 public class VerificationCode : BaseEntity<int>
 {
-    public const int MaxAllowedAttempts = 3;
+    public static readonly int MaxAllowedAttempts = 3;
     public string Target { get; init; }
     public string CodeHash { get; init; }
     public CodeType Type { get; init; }

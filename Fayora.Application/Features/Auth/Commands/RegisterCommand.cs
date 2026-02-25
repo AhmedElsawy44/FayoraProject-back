@@ -4,4 +4,7 @@ using MediatR;
 
 namespace Fayora.Application.Features.Auth.Commands;
 
-public record RegisterCommand(string FirstName, string LastName, string? Email, string? PhoneNumber, string Password, string? SimCountryIsoCode, string PreferredLanguage, string TimeZone) : IRequest<Result<AuthResult>>;
+public record RegisterCommand(string FirstName, string LastName, string? Email, string? PhoneNumber, string Password, string? SimCountryIsoCode, string TimeZone, DeviceInfoDto DeviceInfo) : IRequest<Result<AuthResult>>;
+
+
+public record DeviceInfoDto(string FcmToken, string DeviceType, string DeviceModel, string DeviceLanguage);

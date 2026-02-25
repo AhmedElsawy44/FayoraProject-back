@@ -9,6 +9,7 @@ namespace Fayora.Domain.Entities.Identity;
 
 public class User : AuditableEntity<Guid>
 {
+    public static readonly int MaxUserIdentities = 2;
     public string FirstName { get; private set; } = string.Empty;
     public string LastName { get; private set; } = string.Empty;
     public DateOnly? BirthDate { get; private set; }
@@ -259,7 +260,7 @@ public class User : AuditableEntity<Guid>
         }
         else
         {
-            if(_userIdentities.Count >= 2) return UserErrors.TooManyIdentities;
+            if(_userIdentities.Count >= MaxUserIdentities) return UserErrors.TooManyIdentities;
             var newIdentity = new UserIdentity(Id, provider, providerKey, emailResult.Value, profileDataJson);
             _userIdentities.Add(newIdentity);
         }

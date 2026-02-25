@@ -6,6 +6,7 @@ namespace Fayora.Domain.Entities.Identity;
 
 public class RefreshToken
 {
+    public static readonly int ExpiryDays = 7;
     public Guid UserId { get; set; }
     public string Token { get; init; } = string.Empty;
     public DateTime ExpiresAt { get; init; }
@@ -13,12 +14,12 @@ public class RefreshToken
     public string DeviceId { get; init; } = string.Empty;
     public string? IpAddress { get; init; }
 
-    public RefreshToken(string token, string deviceId, string? ipAddress)
+    public RefreshToken(Guid userId, string token, string deviceId, string? ipAddress)
     {
         Token = token;
         DeviceId = deviceId;
         IpAddress = ipAddress;
-        ExpiresAt = DateTime.UtcNow.AddDays(7);
+        ExpiresAt = DateTime.UtcNow.AddDays(ExpiryDays);
 
     }
 

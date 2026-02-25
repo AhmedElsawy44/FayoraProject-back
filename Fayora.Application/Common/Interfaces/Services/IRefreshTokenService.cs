@@ -4,5 +4,5 @@ namespace Fayora.Application.Common.Interfaces.Services;
 
 public interface IRefreshTokenService
 {
-    RefreshToken GenerateToken();
+    string GenerateTokenString();
 }

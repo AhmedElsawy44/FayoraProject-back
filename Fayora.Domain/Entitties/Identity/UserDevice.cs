@@ -3,6 +3,7 @@
 public class UserDevice : BaseEntity<int>
 {
     public Guid UserId { get; init; }
+    public string DeviceId { get; init; }
     public string FCMToken { get; private set; }
     public string DeviceType { get; init; }
     public string DeviceModel { get; init; }
@@ -10,9 +11,10 @@ public class UserDevice : BaseEntity<int>
     public DateTimeOffset LastUsedAt { get; private set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
 
-    public UserDevice(Guid userId, string fcmToken, string deviceType, string deviceModel, string deviceLanguage)
+    public UserDevice(Guid userId, string deviceId, string fcmToken, string deviceType, string deviceModel, string deviceLanguage)
     {
         UserId = userId;
+        DeviceId = deviceId;
         FCMToken = fcmToken;
         DeviceType = deviceType;
         DeviceModel = deviceModel;
@@ -22,6 +24,12 @@ public class UserDevice : BaseEntity<int>
     public void UpdateUsage(string newLanguage)
     {
         DeviceLanguage = newLanguage;
+        LastUsedAt = DateTimeOffset.UtcNow;
+    }
+
+    public void UpdateFcmToken(string newFcmToken)
+    {
+        FCMToken = newFcmToken;
         LastUsedAt = DateTimeOffset.UtcNow;
     }
 
