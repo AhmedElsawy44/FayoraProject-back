@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fayora.Infrastructure.Persistence;
 
-internal class ApplicationDbContext() : DbContext(), IUnitOfWork
+public class ApplicationDbContext() : DbContext(), IUnitOfWork
 {
-    public DbSet<User> users { get; set; }
+    public DbSet<User> Users { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<UserRole> UserRoles { get; set; }
     public DbSet<BannedItem> BannedItems { get; set; }

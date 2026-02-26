@@ -5,5 +5,4 @@ namespace Fayora.Application.Common.Interfaces.Presistance;
 public interface IDeviceRepository
 {
     Task AddDeviceAsync(UserDevice device, CancellationToken cancellationToken);
-    Task<UserDevice?> GetDeviceByIdAsync(string deviceId);
 }
