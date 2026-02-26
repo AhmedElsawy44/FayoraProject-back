@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Auth.Commands;
+namespace Fayora.Application.Features.Auth.Commands.Register;
 
 public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 {
@@ -38,7 +38,7 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
             .Length(2).WithMessage("SimCountryIsoCode must be exactly 2 characters (ISO code).")
             .When(x => !string.IsNullOrWhiteSpace(x.SimCountryIsoCode));
 
-        RuleFor(x => x.PreferredLanguage)
+        RuleFor(x => x.DeviceInfo.DeviceLanguage)
             .NotEmpty().WithMessage("Preferred language is required.")
             .Length(2).WithMessage("Preferred language should be a 2-letter ISO code (e.g., 'en', 'ar').");
 
@@ -46,7 +46,7 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
             .NotEmpty().WithMessage("Time zone is required.")
             .MaximumLength(100).WithMessage("Time zone name is too long.");
 
-        RuleFor(x => x.FCMToken)
+        RuleFor(x => x.DeviceInfo.FcmToken)
             .NotEmpty().WithMessage("FCM token is required.")
             .MaximumLength(255).WithMessage("FCM token is too long.");
     }

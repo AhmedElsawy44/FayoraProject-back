@@ -2,9 +2,9 @@
 using Fayora.Domain.Common.Results;
 using MediatR;
 
-namespace Fayora.Application.Features.Auth.Commands;
+namespace Fayora.Application.Features.Auth.Commands.Register;
 
 public record RegisterCommand(string FirstName, string LastName, string? Email, string? PhoneNumber, string Password, string? SimCountryIsoCode, string TimeZone, DeviceInfoDto DeviceInfo) : IRequest<Result<AuthResult>>;
 
 
-public record DeviceInfoDto(string FcmToken, string DeviceType, string DeviceModel, string DeviceLanguage);
+public record DeviceInfoDto(string DeviceId, string FcmToken, string DeviceType, string DeviceModel, string DeviceLanguage);

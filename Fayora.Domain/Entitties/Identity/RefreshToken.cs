@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace Fayora.Domain.Entities.Identity;
 
-namespace Fayora.Domain.Entities.Identity;
-
-public class RefreshToken
+public class RefreshToken : BaseEntity<int>
 {
     public static readonly int ExpiryDays = 7;
     public Guid UserId { get; set; }
@@ -29,4 +25,4 @@ public class RefreshToken
     }
 
     private RefreshToken() { }
-}   
+}

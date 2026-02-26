@@ -6,15 +6,15 @@ using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.Identity;
 using Fayora.Domain.Errors;
 using MediatR;
-using Microsoft.Extensions.Logging; // 👈 ضفنا الـ Namespace ده
+using Microsoft.Extensions.Logging;
 
-namespace Fayora.Application.Features.Auth.Commands;
+namespace Fayora.Application.Features.Auth.Commands.Register;
 
 public class RegisterCommandHandler(
     IPasswordHasher passwordHasher,
     IDeviceRepository deviceRepository,
     IRefreshTokenService refreshTokenService,
-    IJwtTokenService jwtTokenService,
+    IJwtService jwtTokenService,
     IClientContextProvider contextProvider,
     IUserRepository userRepository,
     IRefreshTokensRepository refreshTokensRepository,
@@ -26,13 +26,6 @@ public class RegisterCommandHandler(
     {
         try
         {
-            var context = contextProvider.GetContext();
-
-            if (string.IsNullOrWhiteSpace(context.DeviceId))
-            {
-                return UserErrors.DeviceIdMissing;
-            }
-
             if (!string.IsNullOrWhiteSpace(request.Email))
             {
                 if (await userRepository.IsEmailExistAsync(request.Email, cancellationToken))
@@ -45,9 +38,15 @@ public class RegisterCommandHandler(
                     return UserErrors.PhoneAlreadyExists;
             }
 
-            var passwordHash = passwordHasher.Hash(request.Password);
+            var passwordHashResult = passwordHasher.Hash(request.Password);
 
-            var userResult = User.Create(request.FirstName, request.LastName, request.Email, request.PhoneNumber, passwordHash, request.SimCountryIsoCode, request.DeviceInfo.DeviceLanguage, request.TimeZone);
+            if(passwordHashResult.IsError)
+            {
+                return UserErrors.InvalidPassword;
+            }
+
+
+            var userResult = User.Create(request.FirstName, request.LastName, request.Email, request.PhoneNumber, passwordHashResult.Value, request.SimCountryIsoCode, request.DeviceInfo.DeviceLanguage, request.TimeZone);
 
             if (userResult.IsError)
             {
@@ -55,11 +54,11 @@ public class RegisterCommandHandler(
             }
 
             var user = userResult.Value;
-            var jwtToken = jwtTokenService.GenerateToken(user);
+            var jwtToken = jwtTokenService.GenerateToken(request.DeviceInfo.DeviceId, user, null);
             var refreshTokenString = refreshTokenService.GenerateTokenString();
-            var refreshToken = new RefreshToken(user.Id, refreshTokenString, context.DeviceId, context.IpAddress);
+            var refreshToken = new RefreshToken(user.Id, refreshTokenString, request.DeviceInfo.DeviceId, contextProvider.GetContext().IpAddress);
 
-            var device = new UserDevice(user.Id, context.DeviceId, request.DeviceInfo.FcmToken, request.DeviceInfo.DeviceType, request.DeviceInfo.DeviceModel, request.DeviceInfo.DeviceLanguage);
+            var device = new UserDevice(user.Id, request.DeviceInfo.DeviceId, request.DeviceInfo.FcmToken, request.DeviceInfo.DeviceType, request.DeviceInfo.DeviceModel, request.DeviceInfo.DeviceLanguage);
 
             await userRepository.AddUserAsync(user, cancellationToken);
             await deviceRepository.AddDeviceAsync(device, cancellationToken);

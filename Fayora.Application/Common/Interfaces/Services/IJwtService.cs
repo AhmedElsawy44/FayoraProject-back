@@ -3,7 +3,7 @@ using Fayora.Domain.Entities.Identity;
 
 namespace Fayora.Application.Common.Interfaces.Services;
 
-public interface IJwtTokenService
+public interface IJwtService
 {
-    string GenerateToken(User user);
+    string GenerateToken(string deviceId, User user, IEnumerable<string>? roles);
 }
