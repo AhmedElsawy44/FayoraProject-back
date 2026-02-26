@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Fayora.Infrastructure.Services;
 
-public class LocalFileService(IWebHostEnvironment env, ILogger<LocalFileService> logger) : IFileService
+public class LocalFileService(IWebHostEnvironment env, ILogger<LocalFileService> logger) : IFileStorageService
 {
     public async Task<string> SaveFileAsync(IFormFile file, string folderName)
     {

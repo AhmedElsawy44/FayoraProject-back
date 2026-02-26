@@ -30,22 +30,29 @@ public class JwtService : IJwtService
             new(JwtRegisteredClaimNames.GivenName,  user.FirstName),
             new(JwtRegisteredClaimNames.FamilyName, user.LastName),
             new(JwtRegisteredClaimNames.Jti,        Guid.NewGuid().ToString()),
-            new("status",                           user.Status.ToString())
+            new("device_id",                        deviceId),
+            new("status",                           user.Status.ToString()),
+            new("email_verified",                   user.IsEmailVerified.ToString().ToLower(), ClaimValueTypes.Boolean),
+            new("phone_verified",                   user.IsPhoneVerified.ToString().ToLower(), ClaimValueTypes.Boolean),
+            new("profile_complete",                 user.IsProfileComplete.ToString().ToLower(), ClaimValueTypes.Boolean)
         };
 
-
-        if (!string.IsNullOrEmpty(user.PrimaryEmail?.Value) && user.IsEmailVerified)
-            claims.Add(new(JwtRegisteredClaimNames.EmailVerified, user.PrimaryEmail.Value));
-        else if (!string.IsNullOrEmpty(user.PrimaryEmail?.Value))
+        if (!string.IsNullOrEmpty(user.PrimaryEmail?.Value))
+        {
             claims.Add(new(JwtRegisteredClaimNames.Email, user.PrimaryEmail.Value));
+        }
 
         if (!string.IsNullOrEmpty(user.PhoneNumber))
-            claims.Add(new("phone", user.PhoneNumber));
+        {
+            claims.Add(new("phone_number", user.PhoneNumber));
+        }
 
-        if(roles is not null)
+        if (roles != null && roles.Any())
+        {
             claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+        }
 
-        
+
 
         var token = new JwtSecurityToken(
             issuer: _jwtSettings.Issuer,
