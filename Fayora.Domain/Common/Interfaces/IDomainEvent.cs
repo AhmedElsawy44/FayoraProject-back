@@ -1,3 +1,5 @@
-﻿namespace Fayora.Domain.Common.Interfaces;
+﻿using MediatR;
 
-public interface IDomainEvent;
+namespace Fayora.Domain.Common.Interfaces;
+
+public interface IDomainEvent : INotification;

@@ -3,7 +3,7 @@ using Fayora.Domain.Entities.Identity;
 
 namespace Fayora.Infrastructure.Persistence.Repositories;
 
-public class RefreshTokenRepository(ApplicationDbContext context) : BaseRepository<RefreshToken, int>(context), IRefreshTokensRepository
+public class RefreshTokenRepository(ApplicationDbContext context) : BaseRepository<RefreshToken, int>(context), IRefreshTokenRepository
 {
     public void AddToken(RefreshToken refreshToken) => Add(refreshToken);
 

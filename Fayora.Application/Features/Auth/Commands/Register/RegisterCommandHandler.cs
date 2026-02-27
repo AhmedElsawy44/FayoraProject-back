@@ -17,9 +17,10 @@ public class RegisterCommandHandler(
     IJwtService jwtTokenService,
     IClientContextProvider contextProvider,
     IVerificationCodeService codeService,
+    ICodeHasher codeHasher,
     IBannedItemRepository bannedItemRepository,
     IUserRepository userRepository,
-    IRefreshTokensRepository refreshTokensRepository,
+    IRefreshTokenRepository refreshTokensRepository,
     IDeviceRepository deviceRepository,
     IUnitOfWork unitOfWork,
     ILogger<RegisterCommandHandler> logger)
@@ -31,7 +32,7 @@ public class RegisterCommandHandler(
         {
             // ✨ Watch this video: https://www.youtube.com/watch?v=wpbFS6OC5bA
 
-            var deviceIdBannedTask = bannedItemRepository.IsBannedAsync(BanType.DeviceId, request.DeviceInfo.DeviceId, cancellationToken);
+            var deviceIdBannedTask = bannedItemRepository.IsBannedAsync(BanType.DeviceId, request.DeviceId, cancellationToken);
 
             var emailBannedTask = !string.IsNullOrWhiteSpace(request.Email)
                 ? bannedItemRepository.IsBannedAsync(BanType.Email, request.Email, cancellationToken)
@@ -58,7 +59,7 @@ public class RegisterCommandHandler(
             if (await emailCheckTask) return UserErrors.EmailAlreadyExists;
             if (await phoneCheckTask) return UserErrors.PhoneAlreadyExists;
 
-            var passwordHashResult = passwordHasher.Hash(request.Password);
+            var passwordHashResult = passwordHasher.HashPassword(request.Password);
 
             if(passwordHashResult.IsError)
             {
@@ -66,7 +67,7 @@ public class RegisterCommandHandler(
             }
 
 
-            var userResult = User.Create(request.FirstName, request.LastName, request.Email, request.PhoneNumber, passwordHashResult.Value, request.SimCountryIsoCode, request.DeviceInfo.DeviceLanguage, request.TimeZone);
+            var userResult = User.Create(request.FirstName, request.LastName, request.Email, request.PhoneNumber, passwordHashResult.Value, request.SimCountryIsoCode, request.DeviceLanguage, request.TimeZone);
 
             if (userResult.IsError)
             {
@@ -74,25 +75,25 @@ public class RegisterCommandHandler(
             }
 
             var user = userResult.Value;
-            var jwtToken = jwtTokenService.GenerateToken(request.DeviceInfo.DeviceId, user);
+            var jwtToken = jwtTokenService.GenerateToken(request.DeviceId, user);
             var refreshTokenString = refreshTokenService.GenerateTokenString();
-            var refreshToken = new RefreshToken(user.Id, refreshTokenString, request.DeviceInfo.DeviceId, contextProvider.GetContext().IpAddress);
+            var refreshToken = new RefreshToken(user.Id, refreshTokenString, request.DeviceId, contextProvider.GetContext().IpAddress);
 
-            var existDevice = await deviceRepository.GetDeviceByDeviceIdAsync(request.DeviceInfo.DeviceId, cancellationToken, IsTracking: true);
-            if (existDevice != null && existDevice.FCMToken != request.DeviceInfo.FcmToken)
+            var existDevice = await deviceRepository.GetDeviceByDeviceIdAsync(request.DeviceId, cancellationToken, IsTracking: true);
+            if (existDevice != null && existDevice.FCMToken != request.FcmToken)
             {
-                existDevice.UpdateFcmToken(request.DeviceInfo.FcmToken);
+                existDevice.UpdateFcmToken(request.FcmToken);
             }
             else
             {
-                var device = new UserDevice(user.Id, request.DeviceInfo.DeviceId, request.DeviceInfo.FcmToken, request.DeviceInfo.DeviceType, request.DeviceInfo.DeviceModel, request.DeviceInfo.DeviceLanguage);
+                var device = new UserDevice(user.Id, request.DeviceId, request.FcmToken, request.DeviceType, request.DeviceModel, request.DeviceLanguage);
                 deviceRepository.AddDevice(device); 
             }
 
 
             var target = !string.IsNullOrWhiteSpace(request.Email) ? request.Email : request.PhoneNumber;
             var vCode = codeService.GenerateCode();
-            var vCodeHash = passwordHasher.HashVerificationCode(vCode);
+            var vCodeHash = codeHasher.HashCode(vCode);
             var codeType = !string.IsNullOrWhiteSpace(request.Email) ? CodeType.Email : CodeType.SMS;
 
             var otpResult = user.RequestOtp(target!, vCodeHash, codeType, vCode, OtpPurpose.Registration);

@@ -35,14 +35,9 @@ public static class UserErrors
         "The password does not meet the complexity requirements."
     );
 
-    public static readonly Error InvalidLockDuration = Error.Validation(
-        "User.InvalidLockDuration",
-        "The lock duration must be greater than zero."
-    );
-
     public static readonly Error TooManyIdentities = Error.Validation(
         "User.TooManyIdentities",
-        "User cannot have more than 2 identity providers."
+        $"User cannot have more than {User.MaxUserIdentities} identity providers."
     );
 
 

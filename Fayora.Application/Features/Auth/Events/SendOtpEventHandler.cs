@@ -12,7 +12,7 @@ public class SendOtpEventHandler(
     ILogger<SendOtpEventHandler> logger)
     : INotificationHandler<OtpRequestedDomainEvent>
 {
-    public Task Handle(OtpRequestedDomainEvent notification, CancellationToken cancellationToken)
+    public async Task Handle(OtpRequestedDomainEvent notification, CancellationToken cancellationToken)
     {
         var message = notification.Purpose switch
         {
@@ -22,9 +22,23 @@ public class SendOtpEventHandler(
             _ => $"Your Fayora code is: {notification.Code}"
         };
 
-        if (notification.CodeType == CodeType.Email)
-            emailService.SendEmailAsync(notification.Target, notification.Purpose.ToString(), message);
-        else
-            smsService.SendSMSAsync(notification.Target, message);
+        try
+        {
+            if (notification.CodeType == CodeType.Email)
+            {
+                await emailService.SendEmailAsync(notification.Target, notification.Purpose.ToString(), message);
+                logger.LogInformation("OTP email sent successfully to {Target}", notification.Target);
+            }
+            else
+            {
+                await smsService.SendSMSAsync(notification.Target, message);
+                logger.LogInformation("OTP SMS sent successfully to {Target}", notification.Target);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to send OTP {CodeType} to {Target} for purpose {Purpose}",
+                notification.CodeType, notification.Target, notification.Purpose);
+        }
     }
 }

@@ -2,9 +2,9 @@
 using Fayora.Application.Common.Models;
 using Microsoft.AspNetCore.Http;
 
-namespace Fayora.Infrastructure.Services;
+namespace Fayora.Api.Services;
 
-public class ClientContextProvider(HttpContextAccessor accessor) : IClientContextProvider
+public class ClientContextProvider(IHttpContextAccessor accessor) : IClientContextProvider
 {
     public ClientContext GetContext()
     {

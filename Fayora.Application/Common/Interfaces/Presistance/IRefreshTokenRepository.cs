@@ -2,7 +2,7 @@
 
 namespace Fayora.Application.Common.Interfaces.Presistance;
 
-public interface IRefreshTokensRepository
+public interface IRefreshTokenRepository
 {
     void AddToken(RefreshToken refreshToken);
     Task<RefreshToken?> GetTokenAsync(string Token, CancellationToken cancellationToken, bool isTracking = false);

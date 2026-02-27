@@ -6,7 +6,7 @@ public class Result
 {
     private readonly List<Error> _errors = [];
 
-    public Error[] Errors => _errors.ToArray();
+    public Error[] Errors => [.. _errors];
 
     public bool IsSuccess => _errors.Count == 0;
     public bool IsError => _errors.Count > 0;
@@ -48,6 +48,7 @@ public class Result<TValue> : Result
     public static implicit operator Result<TValue>(TValue value) => new(value);
     public static implicit operator Result<TValue>(Error error) => new(error);
     public static implicit operator Result<TValue>(Error[] errors) => new(errors);
+    public static implicit operator Result<TValue>(List<Error> errors) => new(errors);
 
     public TNextValue Match<TNextValue>(Func<TValue, TNextValue> onValue, Func<IEnumerable<Error>, TNextValue> onError)
     {
