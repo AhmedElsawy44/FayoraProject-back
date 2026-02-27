@@ -16,6 +16,7 @@ public class RegisterCommandHandler(
     IRefreshTokenService refreshTokenService,
     IJwtService jwtTokenService,
     IClientContextProvider contextProvider,
+    IVerificationCodeService codeService,
     IBannedItemRepository bannedItemRepository,
     IUserRepository userRepository,
     IRefreshTokensRepository refreshTokensRepository,
@@ -88,9 +89,22 @@ public class RegisterCommandHandler(
                 deviceRepository.AddDevice(device); 
             }
 
+
+            var target = !string.IsNullOrWhiteSpace(request.Email) ? request.Email : request.PhoneNumber;
+            var vCode = codeService.GenerateCode();
+            var vCodeHash = passwordHasher.HashVerificationCode(vCode);
+            var codeType = !string.IsNullOrWhiteSpace(request.Email) ? CodeType.Email : CodeType.SMS;
+
+            var otpResult = user.RequestOtp(target!, vCodeHash, codeType, vCode, OtpPurpose.Registration);
+            if (otpResult.IsError)
+            {
+                return otpResult.Errors;
+            }
+
             userRepository.AddUser(user);
             refreshTokensRepository.AddToken(refreshToken);
             await unitOfWork.CommitChangesAsync(cancellationToken);
+
 
             return new AuthResult(user.Id, user.FirstName, user.LastName, user.PrimaryEmail?.Value, user.PhoneNumber, jwtToken, refreshTokenString);
         }

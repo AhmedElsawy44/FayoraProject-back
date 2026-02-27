@@ -284,14 +284,14 @@ public class User : AuditableEntity<Guid>
         CurrentBalance += amount;
     }
 
-    public Result<Success> RequestOtp(string target, string CodeHash, CodeType codeType, string code, OtpPurpose purpose)
+    public Result<Success> RequestOtp(string target, string code, CodeType codeType, string CodeHash, OtpPurpose purpose)
     {
         if (LastOtpSentAt.HasValue && DateTimeOffset.UtcNow < LastOtpSentAt.Value.Add(OtpResendCooldown))
             return UserErrors.OtpCooldownNotMet;
 
         var countCodesLast24Hours = _verificationCodes.Count(c => c.CreatedAt > DateTimeOffset.UtcNow.AddDays(-1));
 
-        if (countCodesLast24Hours <= MaxVerificationCodesPerDay)
+        if (countCodesLast24Hours >= MaxVerificationCodesPerDay)
             return UserErrors.DailyOtpLimitReached;
 
         var vCode = new VerificationCode(target, CodeHash, codeType);
