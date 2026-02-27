@@ -6,10 +6,12 @@ namespace Fayora.Domain.Entities.Identity;
 public class VerificationCode : BaseEntity<int>
 {
     public static readonly int MaxAllowedAttempts = 3;
+    public static readonly TimeSpan DefaultExpiration = TimeSpan.FromMinutes(15);
+
     public string Target { get; init; }
     public string CodeHash { get; init; }
     public CodeType Type { get; init; }
-    public DateTimeOffset ExpiresAt { get; init; }
+    public DateTimeOffset ExpiresAt { get; init; } = DateTimeOffset.UtcNow.Add(DefaultExpiration);
     public bool IsUsed { get; private set; } = false;
     public int AttemptCount { get; set; } = 0;
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
@@ -34,12 +36,11 @@ public class VerificationCode : BaseEntity<int>
         return Result.Success;
     }
 
-    public VerificationCode (string target, string codeHash, CodeType type, DateTimeOffset expiresAt)
+    internal VerificationCode (string target, string codeHash, CodeType type)
     {
         Target = target;
         CodeHash = codeHash;
         Type = type;
-        ExpiresAt = expiresAt;
     }
 
     private VerificationCode() { }

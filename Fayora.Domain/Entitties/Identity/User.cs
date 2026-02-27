@@ -10,6 +10,9 @@ namespace Fayora.Domain.Entities.Identity;
 public class User : AuditableEntity<Guid>
 {
     public static readonly int MaxUserIdentities = 2;
+    public static readonly int MaxVerificationCodesPerDay = 5;
+    public static readonly TimeSpan OtpResendCooldown = TimeSpan.FromMinutes(2);
+
     public string FirstName { get; private set; } = string.Empty;
     public string LastName { get; private set; } = string.Empty;
     public DateOnly? BirthDate { get; private set; }
@@ -35,8 +38,12 @@ public class User : AuditableEntity<Guid>
     public int ViolationCount { get; private set; }
     public DateTimeOffset? LastViolationDate { get; private set; }
 
-    private readonly List<UserIdentity> _userIdentities = new();
+    private readonly List<UserIdentity> _userIdentities = [];
     public IReadOnlyCollection<UserIdentity> UserIdentities => _userIdentities.AsReadOnly();
+
+    private readonly List<VerificationCode> _verificationCodes = [];
+    public IReadOnlyCollection<VerificationCode> VerificationCodes => _verificationCodes.AsReadOnly();
+
 
     private string _passwordHash = string.Empty;
 
@@ -209,7 +216,7 @@ public class User : AuditableEntity<Guid>
         {
             if (!string.IsNullOrWhiteSpace(ProfileImageUrl))
             {
-                AddDomainEvent(new DeleteMediaEvent(ProfileImageUrl));
+                RaiseDomainEvent(new DeleteMediaEvent(ProfileImageUrl));
             }
             ProfileImageUrl = profileImageUrl;
         }
@@ -237,7 +244,7 @@ public class User : AuditableEntity<Guid>
     {
         if (ProfileImageUrl != null)
         {
-            AddDomainEvent(new DeleteMediaEvent(ProfileImageUrl));
+            RaiseDomainEvent(new DeleteMediaEvent(ProfileImageUrl));
             ProfileImageUrl = null;
         }
     }
@@ -260,7 +267,7 @@ public class User : AuditableEntity<Guid>
         }
         else
         {
-            if(_userIdentities.Count >= MaxUserIdentities) return UserErrors.TooManyIdentities;
+            if (_userIdentities.Count >= MaxUserIdentities) return UserErrors.TooManyIdentities;
             var newIdentity = new UserIdentity(Id, provider, providerKey, emailResult.Value, profileDataJson);
             _userIdentities.Add(newIdentity);
         }
@@ -277,9 +284,25 @@ public class User : AuditableEntity<Guid>
         CurrentBalance += amount;
     }
 
-    public void RecordOtpSent()
+    public Result<Success> RequestOtp(string target, string CodeHash, CodeType codeType, string code, OtpPurpose purpose)
     {
+        if (LastOtpSentAt.HasValue && DateTimeOffset.UtcNow < LastOtpSentAt.Value.Add(OtpResendCooldown))
+            return UserErrors.OtpCooldownNotMet;
+
+        var countCodesLast24Hours = _verificationCodes.Count(c => c.CreatedAt > DateTimeOffset.UtcNow.AddDays(-1));
+
+        if (countCodesLast24Hours <= MaxVerificationCodesPerDay)
+            return UserErrors.DailyOtpLimitReached;
+
+        var vCode = new VerificationCode(target, CodeHash, codeType);
+
+        _verificationCodes.Add(vCode);
+
         LastOtpSentAt = DateTimeOffset.UtcNow;
+
+        RaiseDomainEvent(new OtpRequestedDomainEvent(Id, target, code, codeType, purpose));
+
+        return Result.Success;
     }
 
     private User() { }

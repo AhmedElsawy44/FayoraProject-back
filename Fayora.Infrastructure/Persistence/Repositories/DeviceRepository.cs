@@ -1,13 +1,13 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistance;
 using Fayora.Domain.Entities.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fayora.Infrastructure.Persistence.Repositories;
 
-public class DeviceRepository(ApplicationDbContext context) : IDeviceRepository
+public class DeviceRepository(ApplicationDbContext context) : BaseRepository<UserDevice, int>(context), IDeviceRepository
 {
-    public async Task AddDeviceAsync(UserDevice device, CancellationToken cancellationToken)
-    {
-        await context.UserDevices.AddAsync(device, cancellationToken);
-    }
+    public void AddDevice(UserDevice device) => Add(device);
+
+    public Task<UserDevice?> GetDeviceByDeviceIdAsync(string deviceId, CancellationToken cancellationToken, bool IsTracking = false) => GetSingleAsync(x => x.DeviceId == deviceId, cancellationToken, IsTracking);
+
+    public Task<bool> IsDeviceExistAsync(string deviceId, CancellationToken cancellationToken) => IsExistAsync(d => d.DeviceId == deviceId, cancellationToken);
 }

@@ -13,7 +13,7 @@ public abstract class BaseEntity<TKey>
         return copy;
     }
 
-    protected void AddDomainEvent(IDomainEvent domainEvent)
+    protected void RaiseDomainEvent(IDomainEvent domainEvent)
     {
         _domainEvents.Add(domainEvent);
     }

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fayora.Infrastructure.Persistence;
 
-public class ApplicationDbContext() : DbContext(), IUnitOfWork
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(), IUnitOfWork
 {
     public DbSet<User> Users { get; set; }
     public DbSet<Role> Roles { get; set; }
@@ -14,7 +14,6 @@ public class ApplicationDbContext() : DbContext(), IUnitOfWork
     public DbSet<UserArchive> UserArchives { get; set; }
     public DbSet<UserDevice> UserDevices { get; set; }
     public DbSet<UserIdentity> UserIdentities { get; set; }
-    public DbSet<VerificationCode> VerificationCode { get; set; }
     public DbSet<VerificationDocument> VerificationDocuments { get; set; }
     public DbSet<VerificationRequest> VerificationRequests { get; set; }
     public DbSet<VerificationCode> VerificationCodes { get; set; }

@@ -1,4 +1,5 @@
 ﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Entities.Identity;
 
 namespace Fayora.Domain.Errors;
 
@@ -58,5 +59,30 @@ public static class UserErrors
     public static readonly Error DeviceIdMissing = Error.Validation(
         "User.DeviceIdMissing",
         "Device ID is missing."
+    );
+
+    public static readonly Error DeviceBanned = Error.Failure(
+        "User.DeviceBanned",
+        "This device has been banned."
+    );
+
+    public static readonly Error EmailBanned = Error.Failure(
+        "User.EmailBanned",
+        "This email address has been banned."
+    );
+
+    public static readonly Error PhoneBanned = Error.Failure(
+        "User.PhoneBanned",
+        "This phone number has been banned."
+    );
+
+    public static readonly Error OtpCooldownNotMet = Error.Failure(
+        code: "User.OtpCooldownNotMet",
+        description: $"Please wait at least {User.OtpResendCooldown.TotalMinutes} minutes before requesting a new verification code."
+    );
+
+    public static readonly Error DailyOtpLimitReached = Error.Failure(
+        code: "User.DailyOtpLimitReached",
+        description: "You have reached the maximum number of verification codes allowed per day. Please try again after 24 hours."
     );
 }
