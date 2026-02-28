@@ -12,6 +12,7 @@ public class RefreshToken : BaseEntity<int>
 
     public RefreshToken(Guid userId, string token, string deviceId, string? ipAddress)
     {
+        UserId = userId;
         Token = token;
         DeviceId = deviceId;
         IpAddress = ipAddress;

@@ -54,7 +54,7 @@ internal class UserConfigurations : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.PhoneNumber).HasMaxLength(20);
         builder.HasIndex(u => u.PhoneNumber)
-            .IsUnique().HasFilter("[PhoneNumber IS NOT NULL");
+            .IsUnique().HasFilter("[PhoneNumber] IS NOT NULL");
 
         builder.HasMany(u => u.UserIdentities)
             .WithOne()

@@ -71,6 +71,7 @@ public class User : AuditableEntity<Guid>
 
         var user = new User
         {
+            Id = Guid.NewGuid(),
             FirstName = firstName,
             LastName = lastName,
             PrimaryEmail = validEmail,

@@ -8,7 +8,7 @@ public class BannedItemConfigurations : IEntityTypeConfiguration<BannedItem>
 {
     public void Configure(EntityTypeBuilder<BannedItem> builder)
     {
-        builder.ToTable("BanRecords");
+        builder.ToTable("BannedItems");
 
         builder.HasKey(b => b.Id);
 

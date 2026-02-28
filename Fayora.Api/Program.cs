@@ -23,7 +23,7 @@ public class Program
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Fayora API V1");
-                c.RoutePrefix = string.Empty; // 👈 كدة أول ما تفتح localhost:7235 هيفتح Swagger فوراً!
+                c.RoutePrefix = "swagger";
             });
             app.MapOpenApi();
         }
@@ -31,7 +31,6 @@ public class Program
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
-
 
         app.MapControllers();
 

@@ -10,8 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace Fayora.Infrastructure;
@@ -29,7 +27,7 @@ public static class DependencyInjection
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-        services.AddDbContext<ApplicationDbContext>(options =>
+        services.AddDbContextFactory<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
 
         services.AddScoped<IBannedItemRepository, BannedItemRepository>();
@@ -54,6 +52,7 @@ public static class DependencyInjection
 
         services.AddSingleton(Options.Create(jwtSettings));
         services.AddSingleton<IJwtService, JwtService>();
+        services.AddSingleton<IVerificationCodeService, VerificationCodeService>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<ICodeHasher, PasswordHasher>();
 

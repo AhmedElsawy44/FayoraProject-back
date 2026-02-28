@@ -1,7 +1,5 @@
 ﻿using Fayora.Application.Common.Interfaces.Services;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Security.Cryptography;
 
 namespace Fayora.Infrastructure.Services.Authentication;
 
@@ -9,6 +7,6 @@ public class VerificationCodeService : IVerificationCodeService
 {
     public string GenerateCode()
     {
-        throw new NotImplementedException();
+        return RandomNumberGenerator.GetInt32(100000, 999999).ToString();
     }
 }

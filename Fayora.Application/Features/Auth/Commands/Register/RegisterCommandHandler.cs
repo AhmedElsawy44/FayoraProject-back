@@ -30,34 +30,26 @@ public class RegisterCommandHandler(
     {
         try
         {
-            // ✨ Watch this video: https://www.youtube.com/watch?v=wpbFS6OC5bA
+            if (await bannedItemRepository.IsBannedAsync(BanType.DeviceId, request.DeviceId, cancellationToken))
+                return UserErrors.DeviceBanned;
 
-            var deviceIdBannedTask = bannedItemRepository.IsBannedAsync(BanType.DeviceId, request.DeviceId, cancellationToken);
+            if (IsProvided(request.Email))
+            {
+                if (await bannedItemRepository.IsBannedAsync(BanType.Email, request.Email!, cancellationToken))
+                    return UserErrors.EmailBanned;
 
-            var emailBannedTask = !string.IsNullOrWhiteSpace(request.Email)
-                ? bannedItemRepository.IsBannedAsync(BanType.Email, request.Email, cancellationToken)
-                : Task.FromResult(false);
+                if (await userRepository.IsEmailExistAsync(request.Email!, cancellationToken))
+                    return UserErrors.EmailAlreadyExists;
+            }
 
-            var phoneBannedTask = !string.IsNullOrWhiteSpace(request.PhoneNumber)
-                ? bannedItemRepository.IsBannedAsync(BanType.PhoneNumber, request.PhoneNumber, cancellationToken)
-                : Task.FromResult(false);
+            if (IsProvided(request.PhoneNumber))
+            {
+                if (await bannedItemRepository.IsBannedAsync(BanType.PhoneNumber, request.PhoneNumber!, cancellationToken))
+                    return UserErrors.PhoneBanned;
 
-            var emailCheckTask = !string.IsNullOrWhiteSpace(request.Email)
-                ? userRepository.IsEmailExistAsync(request.Email, cancellationToken)
-                : Task.FromResult(false);
-
-            var phoneCheckTask = !string.IsNullOrWhiteSpace(request.PhoneNumber)
-                ? userRepository.IsPhoneExistAsync(request.PhoneNumber, cancellationToken)
-                : Task.FromResult(false);
-
-            await Task.WhenAll(deviceIdBannedTask, emailBannedTask, phoneBannedTask, emailCheckTask, phoneCheckTask);
-
-            if (await phoneBannedTask) return UserErrors.PhoneBanned;
-            if (await deviceIdBannedTask) return UserErrors.DeviceBanned;
-            if (await emailBannedTask) return UserErrors.EmailBanned;
-
-            if (await emailCheckTask) return UserErrors.EmailAlreadyExists;
-            if (await phoneCheckTask) return UserErrors.PhoneAlreadyExists;
+                if (await userRepository.IsPhoneExistAsync(request.PhoneNumber!, cancellationToken))
+                    return UserErrors.PhoneAlreadyExists;
+            }
 
             var passwordHashResult = passwordHasher.HashPassword(request.Password);
 
@@ -91,10 +83,10 @@ public class RegisterCommandHandler(
             }
 
 
-            var target = !string.IsNullOrWhiteSpace(request.Email) ? request.Email : request.PhoneNumber;
+            var target = IsProvided(request.Email) ? request.Email : request.PhoneNumber;
             var vCode = codeService.GenerateCode();
             var vCodeHash = codeHasher.HashCode(vCode);
-            var codeType = !string.IsNullOrWhiteSpace(request.Email) ? CodeType.Email : CodeType.SMS;
+            var codeType = IsProvided(request.Email) ? CodeType.Email : CodeType.SMS;
 
             var otpResult = user.RequestOtp(target!, vCodeHash, codeType, vCode, OtpPurpose.Registration);
             if (otpResult.IsError)
@@ -111,9 +103,11 @@ public class RegisterCommandHandler(
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             logger.LogError(ex, "An error occurred while registering user {Email} or {Phone}", request.Email, request.PhoneNumber);
 
             return Error.Failure("Registration.Failed", "An error occurred during registration.");
         }
     }
+    static bool IsProvided(string? text) => !string.IsNullOrWhiteSpace(text);
 }

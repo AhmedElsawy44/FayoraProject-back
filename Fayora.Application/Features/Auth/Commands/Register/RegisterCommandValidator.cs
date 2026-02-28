@@ -39,8 +39,8 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
             .When(x => !string.IsNullOrWhiteSpace(x.SimCountryIsoCode));
 
         RuleFor(x => x.DeviceLanguage)
-            .NotEmpty().WithMessage("Preferred language is required.")
-            .Length(2).WithMessage("Preferred language should be a 2-letter ISO code (e.g., 'en', 'ar').");
+            .NotEmpty().WithMessage("Device language is required.")
+            .Length(2).WithMessage("Device language should be a 2-letter ISO code (e.g., 'en', 'ar').");
 
         RuleFor(x => x.TimeZone)
             .NotEmpty().WithMessage("Time zone is required.")

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260227162049_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260228154950_FixBanRecordsMapping")]
+    partial class FixBanRecordsMapping
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -66,7 +66,7 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.HasIndex("BanType", "BanValue");
 
-                    b.ToTable("BanRecords", (string)null);
+                    b.ToTable("BannedItems", (string)null);
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.Identity.RefreshToken", b =>
@@ -247,7 +247,7 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.HasIndex("PhoneNumber")
                         .IsUnique()
-                        .HasFilter("[PhoneNumber IS NOT NULL");
+                        .HasFilter("[PhoneNumber] IS NOT NULL");
 
                     b.HasIndex("PrimaryEmail")
                         .IsUnique()

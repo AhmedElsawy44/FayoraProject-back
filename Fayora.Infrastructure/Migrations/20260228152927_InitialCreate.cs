@@ -384,7 +384,7 @@ namespace Fayora.Infrastructure.Migrations
                 table: "Users",
                 column: "PhoneNumber",
                 unique: true,
-                filter: "[PhoneNumber IS NOT NULL");
+                filter: "[PhoneNumber] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VerificationCodes_Target_Type",

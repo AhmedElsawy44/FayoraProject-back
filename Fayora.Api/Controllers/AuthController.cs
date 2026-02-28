@@ -13,7 +13,7 @@ public class AuthController(ISender sender) : ApiController
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
-        var command = new RegisterCommand(request.FirstName, request.LastName, request.Email, request.PhoneNumber, request.PhoneNumber, request.Password, request.SimCountryIsoCode, request.TimeZone, request.DeviceInfo.DeviceId, request.DeviceInfo.DeviceType, request.DeviceInfo.DeviceModel, request.DeviceInfo.DeviceLanguage);
+        var command = new RegisterCommand(request.FirstName, request.LastName, request.Email, request.PhoneNumber, request.Password, request.SimCountryIsoCode, request.TimeZone,request.DeviceInfo.DeviceId, request.DeviceInfo.FcmToken,request.DeviceInfo.DeviceType, request.DeviceInfo.DeviceModel, request.DeviceInfo.DeviceLanguage);
 
         var authResult = await sender.Send(command);
 
