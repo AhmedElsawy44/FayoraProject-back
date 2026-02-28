@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Contracts.Auth;
+﻿namespace Fayora.Contracts.Auth;
 
 public record AuthResponse(
     UserDto User,
