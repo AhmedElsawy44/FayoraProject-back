@@ -1,5 +1,6 @@
-using Fayora.Infrastructure;
 using Fayora.Application;
+using Fayora.Infrastructure;
+using GymManagement.Infrastructure;
 
 namespace Fayora.Api;
 
@@ -16,6 +17,8 @@ public class Program
         }
 
         var app = builder.Build();
+
+        app.AddInfrastructureMiddleware();
 
         if (app.Environment.IsDevelopment())
         {

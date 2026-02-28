@@ -1,6 +1,5 @@
 ﻿using Fayora.Application.Common.Interfaces;
 using Fayora.Application.Common.Models;
-using Microsoft.AspNetCore.Http;
 
 namespace Fayora.Api.Services;
 

@@ -88,7 +88,7 @@ public class RegisterCommandHandler(
             var vCodeHash = codeHasher.HashCode(vCode);
             var codeType = IsProvided(request.Email) ? CodeType.Email : CodeType.SMS;
 
-            var otpResult = user.RequestOtp(target!, vCodeHash, codeType, vCode, OtpPurpose.Registration);
+            var otpResult = user.RequestOtp(target!, vCode, codeType, vCodeHash, OtpPurpose.Registration);
             if (otpResult.IsError)
             {
                 return otpResult.Errors;
