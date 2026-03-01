@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fayora.Infrastructure.Persistence;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor? httpContextAccessor, IPublisher? publisher) : DbContext(options), IUnitOfWork
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor, IPublisher publisher) : DbContext(options), IUnitOfWork
 {
     public DbSet<User> Users { get; set; }
     public DbSet<Role> Roles { get; set; }

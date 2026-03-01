@@ -20,14 +20,15 @@ public static class DependencyInjection
     {
         return services
             .AddAuthentication(configuration)
-            .AddPersistence(configuration);
+            .AddPersistence(configuration)
+            .AddService(configuration);
     }
 
     public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-        services.AddDbContextFactory<ApplicationDbContext>(options =>
+        services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
 
         services.AddScoped<IBannedItemRepository, BannedItemRepository>();
@@ -36,11 +37,18 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
 
-        services.AddScoped<IRefreshTokenService, RefreshTokenService>();
-        services.AddScoped<IVerificationCodeService, VerificationCodeService>();
+        return services;
+    }
 
-        services.AddScoped<IEmailService, EmailService>();
-        services.AddScoped<ISmsService, SmsService>();
+    public static IServiceCollection AddService(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddSingleton<IRefreshTokenService, RefreshTokenService>();
+        services.AddSingleton<IVerificationCodeService, VerificationCodeService>();
+        services.AddSingleton<ICodeHasher, HashingService>();
+
+        services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+        services.AddSingleton<IEmailService, EmailService>();
+        services.AddSingleton<ISmsService, SmsService>();
 
         return services;
     }
@@ -52,9 +60,7 @@ public static class DependencyInjection
 
         services.AddSingleton(Options.Create(jwtSettings));
         services.AddSingleton<IJwtService, JwtService>();
-        services.AddSingleton<IVerificationCodeService, VerificationCodeService>();
-        services.AddSingleton<IPasswordHasher, PasswordHasher>();
-        services.AddSingleton<ICodeHasher, PasswordHasher>();
+        services.AddSingleton<IPasswordHasher, HashingService>();
 
         services.AddAuthentication(defaultScheme: JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
@@ -69,7 +75,6 @@ public static class DependencyInjection
                     Encoding.UTF8.GetBytes(jwtSettings.Secret)),
             });
 
-        services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
 
 
         return services;

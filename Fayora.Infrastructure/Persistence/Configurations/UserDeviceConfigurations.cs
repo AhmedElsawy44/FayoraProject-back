@@ -20,14 +20,6 @@ partial class UserDeviceConfigurations : IEntityTypeConfiguration<UserDevice>
             .IsRequired()
             .HasMaxLength(512);
 
-        builder.Property(d => d.DeviceType)
-            .IsRequired()
-            .HasMaxLength(20);
-
-        builder.Property(d => d.DeviceModel)
-            .IsRequired()
-            .HasMaxLength(100);
-
         builder.Property(d => d.DeviceLanguage)
             .IsRequired()
             .HasMaxLength(100);

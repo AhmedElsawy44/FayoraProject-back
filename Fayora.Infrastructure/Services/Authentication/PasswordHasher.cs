@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Fayora.Infrastructure.Services.Authentication
 {
-    public partial class PasswordHasher : IPasswordHasher, ICodeHasher
+    public partial class HashingService : IPasswordHasher, ICodeHasher
     {
         private static readonly Regex PasswordRegex = StrongPasswordRegex();
         public Result<string> HashPassword(string password)

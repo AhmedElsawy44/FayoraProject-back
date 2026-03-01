@@ -78,7 +78,7 @@ public class RegisterCommandHandler(
             }
             else
             {
-                var device = new UserDevice(user.Id, request.DeviceId, request.FcmToken, request.DeviceType, request.DeviceModel, request.DeviceLanguage);
+                var device = new UserDevice(user.Id, request.DeviceId, request.FcmToken, request.DeviceLanguage);
                 deviceRepository.AddDevice(device); 
             }
 
