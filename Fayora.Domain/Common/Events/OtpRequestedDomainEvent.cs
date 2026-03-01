@@ -6,5 +6,4 @@ namespace Fayora.Domain.Common.Events;
 public record OtpRequestedDomainEvent(Guid UserId,
     string Target,
     string Code,
-    CodeType CodeType,
     OtpPurpose Purpose) : IDomainEvent;

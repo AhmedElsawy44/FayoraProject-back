@@ -11,9 +11,9 @@ namespace Fayora.Api.Controllers;
 public class AuthController(ISender sender) : ApiController
 {
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterRequest request)
+    public async Task<IActionResult> Register(RegisterRequestDto request)
     {
-        var command = new RegisterCommand(request.FirstName, request.LastName, request.Email, request.PhoneNumber, request.Password, request.SimCountryIsoCode, request.TimeZone, request.DeviceInfo.DeviceId, request.DeviceInfo.DeviceLanguage);
+        var command = new RegisterCommand(request.Email, request.PhoneNumber, request.Password, request.SimCountryIsoCode, request.TimeZone, request.DeviceInfo.DeviceId, request.DeviceInfo.DeviceLanguage);
 
         var authResult = await sender.Send(command);
 
@@ -22,15 +22,18 @@ public class AuthController(ISender sender) : ApiController
             errors => Problem(errors));
     }
 
-    private static AuthResponse MapToAuthResponse(AuthResult authResult)
+    //public async Task<IActionResult> VerifyOtp(VerifyOtpRequest request)
+    //{
+
+    //}
+
+    private static RegisterResponseDto MapToAuthResponse(AuthResult authResult)
     {
+        IdentifierType identifierType = !String.IsNullOrWhiteSpace(authResult.Email)
+            ? IdentifierType.Email
+            : IdentifierType.Phone;
         string identifier = authResult.Email ?? authResult.PhoneNumber!;
 
-        UserDto userDto = new(authResult.Id, identifier);
-
-        return new AuthResponse(
-            userDto,
-            authResult.AccessToken,
-            authResult.RefreshToken);
+        return new RegisterResponseDto(authResult.Id, identifier, identifierType.ToString());
     }
 }

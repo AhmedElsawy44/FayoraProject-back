@@ -11,13 +11,15 @@ public class VerificationCode : BaseEntity<int>
     public Guid UserId { get; init; }
     public string Target { get; init; } = string.Empty;
     public string CodeHash { get; init; } = string.Empty;
-    public CodeType Type { get; init; } = CodeType.Email;
+    public OtpPurpose Purpose { get; init; } = OtpPurpose.Registration;
     public DateTimeOffset ExpiresAt { get; init; } = DateTimeOffset.UtcNow.Add(DefaultExpiration);
     public bool IsUsed { get; private set; } = false;
     public int AttemptCount { get; private set; } = 0;
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
     public bool IsExpired => DateTimeOffset.UtcNow > ExpiresAt;
     public bool IsBlocked => AttemptCount >= MaxAllowedAttempts;
+    public bool IsEmailType => Target.Contains('@');
+    public bool IsSmsType => !IsEmailType && System.Text.RegularExpressions.Regex.IsMatch(Target, @"^\+?[0-9]{10,15}$");
 
     public Result<Success> Use(string codeHash)
     {
@@ -39,12 +41,12 @@ public class VerificationCode : BaseEntity<int>
         return Result.Success;
     }
 
-    internal VerificationCode(Guid userId, string target, string codeHash, CodeType type)
+    internal VerificationCode(Guid userId, string target, string codeHash, OtpPurpose purpose)
     {
         UserId = userId;
         Target = target;
         CodeHash = codeHash;
-        Type = type;
+        Purpose = purpose;
     }
 
     private VerificationCode() { }

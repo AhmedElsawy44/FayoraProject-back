@@ -284,7 +284,7 @@ public class User : AuditableEntity<Guid>
         CurrentBalance += amount;
     }
 
-    public Result<Success> RequestOtp(string target, string code, CodeType codeType, string CodeHash, OtpPurpose purpose)
+    public Result<Success> RequestOtp(string target, string code, OtpPurpose otpPurpose, string CodeHash)
     {
         if (LastOtpSentAt.HasValue && DateTimeOffset.UtcNow < LastOtpSentAt.Value.Add(OtpResendCooldown))
             return UserErrors.OtpCooldownNotMet;
@@ -294,13 +294,13 @@ public class User : AuditableEntity<Guid>
         if (countCodesLast24Hours >= MaxVerificationCodesPerDay)
             return UserErrors.DailyOtpLimitReached;
 
-        var vCode = new VerificationCode(Id, target, CodeHash, codeType);
+        var vCode = new VerificationCode(Id, target, CodeHash, otpPurpose);
 
         _verificationCodes.Add(vCode);
 
         LastOtpSentAt = DateTimeOffset.UtcNow;
 
-        RaiseDomainEvent(new OtpRequestedDomainEvent(Id, target, code, codeType, purpose));
+        RaiseDomainEvent(new OtpRequestedDomainEvent(Id, target, code, otpPurpose));
 
         return Result.Success;
     }

@@ -24,7 +24,7 @@ public class SendOtpEventHandler(
 
         try
         {
-            if (notification.CodeType == CodeType.Email)
+            if (notification.Target.Contains("@"))
             {
                 await emailService.SendEmailAsync(notification.Target, notification.Purpose.ToString(), message);
                 logger.LogInformation("OTP email sent successfully to {Target}", notification.Target);
@@ -37,8 +37,7 @@ public class SendOtpEventHandler(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to send OTP {CodeType} to {Target} for purpose {Purpose}",
-                notification.CodeType, notification.Target, notification.Purpose);
+            logger.LogError(ex, "Failed to send OTP to {Target} for purpose {Purpose}", notification.Target, notification.Purpose);
         }
     }
 }

@@ -20,7 +20,7 @@ public class VerificationCodeConfigurations : IEntityTypeConfiguration<Verificat
             .IsRequired()
             .HasMaxLength(512);
 
-        builder.Property(v => v.Type)
+        builder.Property(v => v.Purpose)
             .HasConversion<string>()
             .IsRequired();
 
@@ -42,6 +42,6 @@ public class VerificationCodeConfigurations : IEntityTypeConfiguration<Verificat
         builder.HasIndex(v => new { v.UserId, v.Target })
             .HasFilter("[IsUsed] = 0");
 
-        builder.HasIndex(v => new { v.Target, v.Type });
+        builder.HasIndex(v => new { v.Target, v.Purpose });
     }
 }

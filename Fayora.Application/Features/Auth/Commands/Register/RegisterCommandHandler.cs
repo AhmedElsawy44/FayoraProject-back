@@ -13,14 +13,10 @@ namespace Fayora.Application.Features.Auth.Commands.Register;
 
 public class RegisterCommandHandler(
     IPasswordHasher passwordHasher,
-    IRefreshTokenService refreshTokenService,
-    IJwtService jwtTokenService,
-    IClientContextProvider contextProvider,
     IVerificationCodeService codeService,
     ICodeHasher codeHasher,
     IBannedItemRepository bannedItemRepository,
     IUserRepository userRepository,
-    IRefreshTokenRepository refreshTokensRepository,
     IUnitOfWork unitOfWork,
     ILogger<RegisterCommandHandler> logger)
     : IRequestHandler<RegisterCommand, Result<AuthResult>>
@@ -66,27 +62,22 @@ public class RegisterCommandHandler(
             }
 
             var user = userResult.Value;
-            var jwtToken = jwtTokenService.GenerateToken(request.DeviceId, user);
-            var refreshTokenString = refreshTokenService.GenerateTokenString();
-            var refreshToken = new RefreshToken(user.Id, refreshTokenString, request.DeviceId, contextProvider.GetContext().IpAddress);
 
             var target = IsProvided(request.Email) ? request.Email : request.PhoneNumber;
             var vCode = codeService.GenerateCode();
             var vCodeHash = codeHasher.HashCode(vCode);
-            var codeType = IsProvided(request.Email) ? CodeType.Email : CodeType.SMS;
 
-            var otpResult = user.RequestOtp(target!, vCode, codeType, vCodeHash, OtpPurpose.Registration);
+            var otpResult = user.RequestOtp(target!, vCode, OtpPurpose.Registration, vCodeHash);
             if (otpResult.IsError)
             {
                 return otpResult.Errors;
             }
 
             userRepository.AddUser(user);
-            refreshTokensRepository.AddToken(refreshToken);
             await unitOfWork.CommitChangesAsync(cancellationToken);
 
 
-            return new AuthResult(user.Id, user.PrimaryEmail?.Value, user.PhoneNumber, jwtToken, refreshTokenString);
+            return new AuthResult(user.Id, user.PrimaryEmail?.Value, user.PhoneNumber);
         }
         catch (Exception ex)
         {

@@ -1,5 +1,6 @@
 using Fayora.Api.Services;
 using Fayora.Application.Common.Interfaces;
+using System.Text.Json.Serialization;
 
 namespace Fayora.Api;
 
@@ -8,7 +9,11 @@ public static class DependencyInjection
     public static IServiceCollection AddPresentation(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
-        services.AddControllers();
+        services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            });
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
         services.AddProblemDetails();

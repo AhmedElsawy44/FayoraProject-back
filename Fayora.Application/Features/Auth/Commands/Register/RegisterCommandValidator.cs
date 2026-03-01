@@ -6,13 +6,6 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 {
     public RegisterCommandValidator()
     {
-        RuleFor(x => x.FirstName)
-            .NotEmpty().WithMessage("First name is required.")
-            .Length(3, 50).WithMessage("First name must be between 3 and 50 characters.");
-
-        RuleFor(x => x.LastName)
-            .NotEmpty().WithMessage("Last name is required.")
-            .Length(3, 50).WithMessage("Last name must be between 3 and 50 characters.");
 
         RuleFor(x => x)
             .Must(x => !string.IsNullOrWhiteSpace(x.Email) || !string.IsNullOrWhiteSpace(x.PhoneNumber))
