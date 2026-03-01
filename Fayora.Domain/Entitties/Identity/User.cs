@@ -60,6 +60,9 @@ public class User : AuditableEntity<Guid>
         if (string.IsNullOrWhiteSpace(email) && string.IsNullOrWhiteSpace(phoneNumber))
             return UserErrors.EmailOrPhoneRequired;
 
+        if (!string.IsNullOrWhiteSpace(email) && !string.IsNullOrWhiteSpace(phoneNumber))
+            return UserErrors.OnlyOneAllowed;
+
         Email? validEmail = null;
 
         if (!string.IsNullOrWhiteSpace(email))

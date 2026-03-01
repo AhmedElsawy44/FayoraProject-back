@@ -80,4 +80,8 @@ public static class UserErrors
         code: "User.DailyOtpLimitReached",
         description: "You have reached the maximum number of verification codes allowed per day. Please try again after 24 hours."
     );
+
+    public static readonly Error OnlyOneAllowed = Error.Validation(
+        code: "User.OnlyOneAllowed",
+        description: "You can provide either Email or Phone Number, not both.");
 }
