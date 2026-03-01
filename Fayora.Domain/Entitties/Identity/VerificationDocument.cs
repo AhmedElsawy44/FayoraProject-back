@@ -1,5 +1,4 @@
 ﻿using Fayora.Domain.Enums;
-using System;
 
 namespace Fayora.Domain.Entities.Identity;
 
@@ -14,7 +13,7 @@ public class VerificationDocument : BaseEntity<int>
     public string? RejectionReason { get; private set; }
     public DateTimeOffset UploadAt { get; init; }
 
-    
+
     internal VerificationDocument(DocumentType documentType, string documentUrl)
     {
         DocumentType = documentType;

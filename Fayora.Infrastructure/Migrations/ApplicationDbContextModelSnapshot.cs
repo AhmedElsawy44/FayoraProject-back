@@ -139,25 +139,22 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateOnly?>("BirthDate")
-                        .HasColumnType("date");
+                        .HasColumnType("DATE");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<decimal>("CurrentBalance")
-                        .HasColumnType("decimal(18, 4)");
+                        .HasColumnType("DECIMAL(18, 4)");
 
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("NVARCHAR(1000)");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("NVARCHAR(50)");
 
                     b.Property<string>("Gender")
                         .HasMaxLength(10)
@@ -176,9 +173,7 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("NVARCHAR(50)");
 
                     b.Property<DateTimeOffset?>("LastOtpSentAt")
                         .HasColumnType("datetimeoffset");
@@ -202,8 +197,7 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.Property<string>("PreferredLanguage")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("NVARCHAR(20)");
 
                     b.Property<string>("PrimaryEmail")
                         .HasMaxLength(255)
@@ -330,16 +324,6 @@ namespace Fayora.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("DeviceModel")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("DeviceType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("FCMToken")
                         .IsRequired()
@@ -472,14 +456,15 @@ namespace Fayora.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<Guid?>("UserId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
                     b.HasIndex("Target", "Type");
+
+                    b.HasIndex("UserId", "Target")
+                        .HasFilter("[IsUsed] = 0");
 
                     b.ToTable("VerificationCodes", (string)null);
                 });
@@ -625,7 +610,9 @@ namespace Fayora.Infrastructure.Migrations
                 {
                     b.HasOne("Fayora.Domain.Entities.Identity.User", null)
                         .WithMany("VerificationCodes")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.Identity.VerificationDocument", b =>

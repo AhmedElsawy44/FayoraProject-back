@@ -1,10 +1,6 @@
 ﻿using Fayora.Domain.Entities.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Fayora.Infrastructure.Persistence.Configurations;
 
@@ -42,6 +38,9 @@ public class VerificationCodeConfigurations : IEntityTypeConfiguration<Verificat
 
         builder.Ignore(v => v.IsExpired);
         builder.Ignore(v => v.IsBlocked);
+
+        builder.HasIndex(v => new { v.UserId, v.Target })
+            .HasFilter("[IsUsed] = 0");
 
         builder.HasIndex(v => new { v.Target, v.Type });
     }

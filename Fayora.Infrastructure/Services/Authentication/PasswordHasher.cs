@@ -9,7 +9,7 @@ namespace Fayora.Infrastructure.Services.Authentication
         private static readonly Regex PasswordRegex = StrongPasswordRegex();
         public Result<string> HashPassword(string password)
         {
-            return PasswordRegex.IsMatch(password) 
+            return PasswordRegex.IsMatch(password)
                 ? BCrypt.Net.BCrypt.EnhancedHashPassword(password)
                 : Error.Validation("Password too weak");
         }

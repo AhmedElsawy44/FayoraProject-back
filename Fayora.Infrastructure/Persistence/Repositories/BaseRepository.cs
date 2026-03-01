@@ -19,7 +19,7 @@ public class BaseRepository<TEntity, TKey>
     public void Remove(TEntity entity) => DbSet.Remove(entity);
     public Task<bool> IsExistAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken) => DbSet.AnyAsync(predicate, cancellationToken);
 
-    public Task<TEntity?> GetSingleAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken, bool isTracking = false) => (isTracking? DbSet : DbSet.AsNoTracking()).FirstOrDefaultAsync(predicate, cancellationToken);
+    public Task<TEntity?> GetSingleAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken, bool isTracking = false) => (isTracking ? DbSet : DbSet.AsNoTracking()).FirstOrDefaultAsync(predicate, cancellationToken);
 
     public Task<TEntity?> GetByIdAsync(TKey id, CancellationToken cancellationToken, bool isTracking)
     {

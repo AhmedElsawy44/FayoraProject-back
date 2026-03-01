@@ -5,8 +5,4 @@ public record AuthResponse(
     string AccessToken,
     string RefreshToken);
 
-public record UserDto(Guid Id,
-    string FirstName,
-    string LastName,
-    string? Email,
-    string? PhoneNumber);
+public record UserDto(Guid Id, string Identifier);

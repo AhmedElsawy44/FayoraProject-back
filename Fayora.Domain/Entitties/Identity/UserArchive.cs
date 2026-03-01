@@ -2,12 +2,12 @@
 
 public class UserArchive : BaseEntity<int>
 {
-    public Guid OriginalUserId { get; init; }
+    public Guid OriginalUserId { get; init; } = Guid.Empty;
     public string? Email { get; init; }
     public string? Phone { get; init; }
     public string FullName { get; init; } = string.Empty;
     public string? DeletionReason { get; init; }
-    public string DeletedBy { get; init; }
+    public string DeletedBy { get; init; } = string.Empty;
     public bool IsRejoinable { get; init; }
     public string FullUserDataBackup { get; init; } = string.Empty;
     public DateTimeOffset OriginalCreatedAt { get; init; }
@@ -15,7 +15,7 @@ public class UserArchive : BaseEntity<int>
 
     private UserArchive() { }
 
-    public  UserArchive(
+    public UserArchive(
         Guid originalUserId,
         string? email,
         string? phone,

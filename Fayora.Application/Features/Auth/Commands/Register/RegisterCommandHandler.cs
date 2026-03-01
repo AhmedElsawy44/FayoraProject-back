@@ -21,7 +21,6 @@ public class RegisterCommandHandler(
     IBannedItemRepository bannedItemRepository,
     IUserRepository userRepository,
     IRefreshTokenRepository refreshTokensRepository,
-    IDeviceRepository deviceRepository,
     IUnitOfWork unitOfWork,
     ILogger<RegisterCommandHandler> logger)
     : IRequestHandler<RegisterCommand, Result<AuthResult>>
@@ -53,13 +52,13 @@ public class RegisterCommandHandler(
 
             var passwordHashResult = passwordHasher.HashPassword(request.Password);
 
-            if(passwordHashResult.IsError)
+            if (passwordHashResult.IsError)
             {
                 return UserErrors.InvalidPassword;
             }
 
 
-            var userResult = User.Create(request.FirstName, request.LastName, request.Email, request.PhoneNumber, passwordHashResult.Value, request.SimCountryIsoCode, request.DeviceLanguage, request.TimeZone);
+            var userResult = User.Create(request.Email, request.PhoneNumber, passwordHashResult.Value, request.SimCountryIsoCode, request.DeviceLanguage, request.TimeZone);
 
             if (userResult.IsError)
             {
@@ -70,18 +69,6 @@ public class RegisterCommandHandler(
             var jwtToken = jwtTokenService.GenerateToken(request.DeviceId, user);
             var refreshTokenString = refreshTokenService.GenerateTokenString();
             var refreshToken = new RefreshToken(user.Id, refreshTokenString, request.DeviceId, contextProvider.GetContext().IpAddress);
-
-            var existDevice = await deviceRepository.GetDeviceByDeviceIdAsync(request.DeviceId, cancellationToken, IsTracking: true);
-            if (existDevice != null && existDevice.FCMToken != request.FcmToken)
-            {
-                existDevice.UpdateFcmToken(request.FcmToken);
-            }
-            else
-            {
-                var device = new UserDevice(user.Id, request.DeviceId, request.FcmToken, request.DeviceLanguage);
-                deviceRepository.AddDevice(device); 
-            }
-
 
             var target = IsProvided(request.Email) ? request.Email : request.PhoneNumber;
             var vCode = codeService.GenerateCode();
@@ -99,7 +86,7 @@ public class RegisterCommandHandler(
             await unitOfWork.CommitChangesAsync(cancellationToken);
 
 
-            return new AuthResult(user.Id, user.FirstName, user.LastName, user.PrimaryEmail?.Value, user.PhoneNumber, jwtToken, refreshTokenString);
+            return new AuthResult(user.Id, user.PrimaryEmail?.Value, user.PhoneNumber, jwtToken, refreshTokenString);
         }
         catch (Exception ex)
         {

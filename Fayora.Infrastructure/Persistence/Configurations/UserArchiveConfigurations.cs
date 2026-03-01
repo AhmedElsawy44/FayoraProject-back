@@ -34,7 +34,7 @@ internal class UserArchiveConfigurations : IEntityTypeConfiguration<UserArchive>
 
         builder.Property(a => a.FullUserDataBackup)
             .IsRequired();
-        
+
         builder.Property(a => a.OriginalCreatedAt).IsRequired();
         builder.Property(a => a.ArchivedAt).IsRequired();
 

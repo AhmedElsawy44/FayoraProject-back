@@ -13,8 +13,8 @@ public class User : AuditableEntity<Guid>
     public static readonly int MaxVerificationCodesPerDay = 5;
     public static readonly TimeSpan OtpResendCooldown = TimeSpan.FromMinutes(2);
 
-    public string FirstName { get; private set; } = string.Empty;
-    public string LastName { get; private set; } = string.Empty;
+    public string? FirstName { get; private set; }
+    public string? LastName { get; private set; }
     public DateOnly? BirthDate { get; private set; }
     public Gender? Gender { get; private set; }
     public Email? PrimaryEmail { get; private set; }
@@ -48,8 +48,6 @@ public class User : AuditableEntity<Guid>
     private string _passwordHash = string.Empty;
 
     public static Result<User> Create(
-        string firstName,
-        string lastName,
         string? email,
         string? phoneNumber,
         string passwordHash,
@@ -74,9 +72,7 @@ public class User : AuditableEntity<Guid>
 
         var user = new User
         {
-            Id = Guid.NewGuid(),
-            FirstName = firstName,
-            LastName = lastName,
+            Id = Guid.CreateVersion7(),
             PrimaryEmail = validEmail,
             PhoneNumber = string.IsNullOrWhiteSpace(phoneNumber) ? null : phoneNumber,
             _passwordHash = passwordHash,
@@ -298,7 +294,7 @@ public class User : AuditableEntity<Guid>
         if (countCodesLast24Hours >= MaxVerificationCodesPerDay)
             return UserErrors.DailyOtpLimitReached;
 
-        var vCode = new VerificationCode(target, CodeHash, codeType);
+        var vCode = new VerificationCode(Id, target, CodeHash, codeType);
 
         _verificationCodes.Add(vCode);
 

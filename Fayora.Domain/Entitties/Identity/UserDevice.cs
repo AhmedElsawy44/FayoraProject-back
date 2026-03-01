@@ -2,10 +2,10 @@
 
 public class UserDevice : BaseEntity<int>
 {
-    public Guid UserId { get; init; }
-    public string DeviceId { get; init; }
-    public string FCMToken { get; private set; }
-    public string DeviceLanguage { get; private set; }
+    public Guid UserId { get; init; } = Guid.Empty;
+    public string DeviceId { get; init; } = string.Empty;
+    public string FCMToken { get; private set; } = string.Empty;
+    public string DeviceLanguage { get; private set; } = string.Empty;
     public DateTimeOffset LastUsedAt { get; private set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
 

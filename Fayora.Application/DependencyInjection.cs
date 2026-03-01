@@ -1,5 +1,5 @@
-﻿using FluentValidation;
-using Fayora.Application.Common.Behaviors;
+﻿using Fayora.Application.Common.Behaviors;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 namespace Fayora.Application;
 

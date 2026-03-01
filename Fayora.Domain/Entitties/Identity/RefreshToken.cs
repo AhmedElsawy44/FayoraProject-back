@@ -3,7 +3,7 @@
 public class RefreshToken : BaseEntity<int>
 {
     public static readonly int ExpiryDays = 7;
-    public Guid UserId { get; set; }
+    public Guid UserId { get; init; }
     public string Token { get; init; } = string.Empty;
     public DateTime ExpiresAt { get; init; }
     public DateTime? RevokedAt { get; private set; }

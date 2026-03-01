@@ -26,7 +26,7 @@ public class VerificationRequestConfigurations : IEntityTypeConfiguration<Verifi
             .IsRequired();
 
         builder.Property(v => v.AdminComment)
-            .HasMaxLength(1000); 
+            .HasMaxLength(1000);
 
         var navigation = builder.Metadata.FindNavigation(nameof(VerificationRequest.VerificationDocuments));
         navigation?.SetPropertyAccessMode(PropertyAccessMode.Field);
@@ -34,7 +34,7 @@ public class VerificationRequestConfigurations : IEntityTypeConfiguration<Verifi
         builder.HasMany(v => v.VerificationDocuments)
             .WithOne()
             .HasForeignKey("VerificationRequestId")
-            .OnDelete(DeleteBehavior.Cascade); 
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(v => v.UserId);
 

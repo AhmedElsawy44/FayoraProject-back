@@ -37,7 +37,8 @@ public class VerificationRequest : AuditableEntity<int>
             {
                 DocumentType.NationalId,
                 DocumentType.PropertyOwnership
-            }
+            },
+            _ => throw new Exception()
         };
 
 

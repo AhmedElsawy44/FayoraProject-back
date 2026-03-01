@@ -1,6 +1,6 @@
 ﻿namespace Fayora.Domain.Enums;
 
-public enum CodeType 
+public enum CodeType
 {
     Email = 1,
     SMS = 2,

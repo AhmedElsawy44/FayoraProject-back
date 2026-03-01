@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Domain.Entities.Identity;
+﻿namespace Fayora.Domain.Entities.Identity;
 
 public class UserRole : BaseEntity<int>
 {

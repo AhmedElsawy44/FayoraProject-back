@@ -14,16 +14,45 @@ internal class UserConfigurations : IEntityTypeConfiguration<User>
 
         builder.HasKey(u => u.Id);
 
-        builder.Property(u => u.FirstName).HasMaxLength(50).IsRequired();
-        builder.Property(u => u.LastName).HasMaxLength(50).IsRequired();
-        builder.Property(u => u.NationalityCode).HasMaxLength(10);
-        builder.Property(u => u.SimCountryIsoCode).HasMaxLength(10);
-        builder.Property(u => u.PreferredLanguage).HasMaxLength(20);
-        builder.Property(u => u.TimeZone).HasMaxLength(50);
-        builder.Property(u => u.ProfileImageUrl).HasMaxLength(2048);
-        builder.Property(u => u.Description).HasMaxLength(1000);
+        builder.Property(u => u.FirstName)
+            .HasColumnType("NVARCHAR(50)");
 
-        builder.Property(u => u.BirthDate).HasColumnType("date");
+        builder.Property(u => u.LastName)
+            .HasColumnType("NVARCHAR(50)");
+
+        builder.Property(u => u.BirthDate).HasColumnType("DATE");
+
+        builder.Property(u => u.Gender)
+            .HasConversion<string>()
+            .HasMaxLength(10);
+
+        builder.HasIndex(u => u.PrimaryEmail)
+            .IsUnique().HasFilter("[Email] IS NOT NULL");
+
+        builder.Property(u => u.PhoneNumber).HasMaxLength(20);
+        builder.HasIndex(u => u.PhoneNumber)
+            .IsUnique().HasFilter("[PhoneNumber] IS NOT NULL");
+
+
+        builder.Property(u => u.Status)
+            .HasConversion<string>()
+            .HasMaxLength(20);
+
+        builder.Property(u => u.CurrentBalance)
+            .HasColumnType("DECIMAL(18, 4)");
+
+        builder.Property(u => u.NationalityCode).HasMaxLength(10);
+
+        builder.Property(u => u.SimCountryIsoCode).HasMaxLength(10);
+
+        builder.Property(u => u.PreferredLanguage).HasColumnType("NVARCHAR(20)");
+
+        builder.Property(u => u.TimeZone).HasMaxLength(50);
+
+        builder.Property(u => u.ProfileImageUrl).HasMaxLength(2048);
+
+        builder.Property(u => u.Description).HasColumnType("NVARCHAR(1000)");
+
 
         builder.Property(u => u.PrimaryEmail)
             .HasConversion(
@@ -38,28 +67,21 @@ internal class UserConfigurations : IEntityTypeConfiguration<User>
             .HasMaxLength(256)
             .IsRequired();
 
-        builder.Property(u => u.CurrentBalance)
-            .HasColumnType("decimal(18, 4)");
-
-        builder.Property(u => u.Status)
-            .HasConversion<string>()
-            .HasMaxLength(20);
-
-        builder.Property(u => u.Gender)
-            .HasConversion<string>()
-            .HasMaxLength(10);
-
-        builder.HasIndex(u => u.PrimaryEmail)
-            .IsUnique().HasFilter("[Email] IS NOT NULL");
-
-        builder.Property(u => u.PhoneNumber).HasMaxLength(20);
-        builder.HasIndex(u => u.PhoneNumber)
-            .IsUnique().HasFilter("[PhoneNumber] IS NOT NULL");
-
         builder.HasMany(u => u.UserIdentities)
             .WithOne()
             .HasForeignKey(ui => ui.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(u => u.VerificationCodes)
+            .WithOne()
+            .HasForeignKey(vc => vc.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany<RefreshToken>()
+            .WithOne()
+            .HasForeignKey(r => r.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
 
         builder.Metadata.FindNavigation(nameof(User.UserIdentities))!
             .SetPropertyAccessMode(PropertyAccessMode.Field);

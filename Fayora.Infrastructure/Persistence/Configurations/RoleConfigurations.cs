@@ -20,4 +20,4 @@ internal class RoleConfigurations : IEntityTypeConfiguration<Role>
         builder.HasIndex(r => r.Name)
             .IsUnique();
     }
-}   
+}

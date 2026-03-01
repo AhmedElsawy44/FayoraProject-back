@@ -46,9 +46,5 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
         RuleFor(x => x.TimeZone)
             .NotEmpty().WithMessage("Time zone is required.")
             .MaximumLength(100).WithMessage("Time zone name is too long.");
-
-        RuleFor(x => x.FcmToken)
-            .NotEmpty().WithMessage("FCM token is required.")
-            .MaximumLength(255).WithMessage("FCM token is too long.");
     }
 }

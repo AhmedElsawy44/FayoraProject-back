@@ -2,8 +2,6 @@
 using Fayora.Domain.Entities.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -19,7 +17,7 @@ public class JwtService : IJwtService
         _jwtSettings = jwtSettings.Value;
     }
 
-    public string GenerateToken(string deviceId, User user,IEnumerable<string>? roles)
+    public string GenerateToken(string deviceId, User user, IEnumerable<string>? roles)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -27,14 +25,10 @@ public class JwtService : IJwtService
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub,        user.Id.ToString()),
-            new(JwtRegisteredClaimNames.GivenName,  user.FirstName),
-            new(JwtRegisteredClaimNames.FamilyName, user.LastName),
             new(JwtRegisteredClaimNames.Jti,        Guid.NewGuid().ToString()),
             new("device_id",                        deviceId),
-            new("status",                           user.Status.ToString()),
             new("email_verified",                   user.IsEmailVerified.ToString().ToLower(), ClaimValueTypes.Boolean),
             new("phone_verified",                   user.IsPhoneVerified.ToString().ToLower(), ClaimValueTypes.Boolean),
-            new("profile_complete",                 user.IsProfileComplete.ToString().ToLower(), ClaimValueTypes.Boolean)
         };
 
         if (!string.IsNullOrEmpty(user.PrimaryEmail?.Value))
