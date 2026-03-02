@@ -6,4 +6,5 @@ public interface IRefreshTokenRepository
 {
     void AddToken(RefreshToken refreshToken);
     Task<RefreshToken?> GetTokenAsync(string Token, CancellationToken cancellationToken, bool isTracking = false);
+    Task RevokeTokensForDeviceAsync(Guid id, string deviceId, CancellationToken cancellationToken);
 }

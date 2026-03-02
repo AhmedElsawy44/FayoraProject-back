@@ -1,5 +1,5 @@
-﻿using Fayora.Application.Common.Authentication;
-using Fayora.Application.Features.Auth.Commands.Register;
+﻿using Fayora.Application.Features.Auth.Commands.Register;
+using Fayora.Application.Features.Auth.Common;
 using Fayora.Contracts.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +27,7 @@ public class AuthController(ISender sender) : ApiController
 
     //}
 
-    private static RegisterResponseDto MapToAuthResponse(AuthResult authResult)
+    private static RegisterResponseDto MapToAuthResponse(RegisterResult authResult)
     {
         IdentifierType identifierType = !String.IsNullOrWhiteSpace(authResult.Email)
             ? IdentifierType.Email

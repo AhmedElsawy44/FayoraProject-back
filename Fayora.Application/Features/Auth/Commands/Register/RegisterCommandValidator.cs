@@ -15,6 +15,10 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
             .EmailAddress().WithMessage("A valid email address is required.")
             .When(x => !string.IsNullOrWhiteSpace(x.Email));
 
+        RuleFor(x => x.PhoneNumber)
+            .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format.")
+            .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber));
+
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Password is required.")
             .MinimumLength(8).WithMessage("Password must be at least 8 characters long.")
@@ -31,6 +35,9 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
         RuleFor(x => x.SimCountryIsoCode)
             .Length(2).WithMessage("SimCountryIsoCode must be exactly 2 characters (ISO code).")
             .When(x => !string.IsNullOrWhiteSpace(x.SimCountryIsoCode));
+
+        RuleFor(x => x.DeviceId)
+            .NotEmpty().WithMessage("Device ID is required.");
 
         RuleFor(x => x.DeviceLanguage)
             .NotEmpty().WithMessage("Device language is required.")

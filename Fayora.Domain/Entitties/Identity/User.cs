@@ -294,7 +294,7 @@ public class User : AuditableEntity<Guid>
         if (countCodesLast24Hours >= MaxVerificationCodesPerDay)
             return UserErrors.DailyOtpLimitReached;
 
-        var vCode = new VerificationCode(Id, target, CodeHash, otpPurpose);
+        var vCode =  VerificationCode.Create(Id, target, CodeHash, otpPurpose);
 
         _verificationCodes.Add(vCode);
 

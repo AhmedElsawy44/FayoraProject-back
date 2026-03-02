@@ -10,6 +10,7 @@ public class ClientContextProvider(IHttpContextAccessor accessor) : IClientConte
         var ipAddress = accessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
 
         var deviceId = GetClaimsValue("device_id");
+        var UserId = GetClaimsValue("user_id");
 
         return new ClientContext(ipAddress, deviceId);
     }

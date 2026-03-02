@@ -1,4 +1,6 @@
-﻿namespace Fayora.Domain.Entities.Identity;
+﻿using Fayora.Domain.Common.Events;
+
+namespace Fayora.Domain.Entities.Identity;
 
 public class RefreshToken : BaseEntity<int>
 {
@@ -17,6 +19,7 @@ public class RefreshToken : BaseEntity<int>
         DeviceId = deviceId;
         IpAddress = ipAddress;
         ExpiresAt = DateTime.UtcNow.AddDays(ExpiryDays);
+        RaiseDomainEvent(new RevokeRefreshTokensForDeviceEvent(UserId, DeviceId));
 
     }
 

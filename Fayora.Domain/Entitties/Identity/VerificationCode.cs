@@ -1,4 +1,5 @@
-﻿using Fayora.Domain.Common.Results;
+﻿using Fayora.Application.Common.Interfaces.Services;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums;
 
 namespace Fayora.Domain.Entities.Identity;
@@ -21,17 +22,15 @@ public class VerificationCode : BaseEntity<int>
     public bool IsEmailType => Target.Contains('@');
     public bool IsSmsType => !IsEmailType && System.Text.RegularExpressions.Regex.IsMatch(Target, @"^\+?[0-9]{10,15}$");
 
-    public Result<Success> Use(string codeHash)
+    public Result<Success> Use(string plainCode, ICodeHasher codeHasher)
     {
         if (IsUsed)
-            return Error.Validation("VerificationCode.AlreadyUsed", "This code has already been used.");
-        if (IsExpired)
-            return Error.Validation("VerificationCode.Expired", "This code has expired.");
+            return Error.Failure("VerificationCode.AlreadyUsed", "This code has already been used.");
 
-        if (IsBlocked)
-            return Error.Validation("VerificationCode.MaxAttemptsReached", "Maximum verification attempts reached. Please request a new code.");
+        if (DateTime.UtcNow > ExpiresAt)
+            return Error.Failure("VerificationCode.Expired", "This code has expired.");
 
-        if (codeHash != CodeHash)
+        if (!codeHasher.VerifyCode(plainCode, this.CodeHash))
         {
             AttemptCount++;
             return Error.Failure("VerificationCode.InvalidCode", "The provided code is incorrect.");
@@ -41,12 +40,15 @@ public class VerificationCode : BaseEntity<int>
         return Result.Success;
     }
 
-    internal VerificationCode(Guid userId, string target, string codeHash, OtpPurpose purpose)
+    internal static VerificationCode Create(Guid userId, string target, string codeHash, OtpPurpose purpose)
     {
-        UserId = userId;
-        Target = target;
-        CodeHash = codeHash;
-        Purpose = purpose;
+        return new VerificationCode
+        {
+            UserId = userId,
+            Target = target,
+            CodeHash = codeHash,
+            Purpose = purpose,
+        };
     }
 
     private VerificationCode() { }

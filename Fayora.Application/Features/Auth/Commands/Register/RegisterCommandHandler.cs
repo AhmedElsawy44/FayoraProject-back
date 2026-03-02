@@ -1,7 +1,7 @@
-﻿using Fayora.Application.Common.Authentication;
-using Fayora.Application.Common.Interfaces;
+﻿using Fayora.Application.Common.Interfaces;
 using Fayora.Application.Common.Interfaces.Presistance;
 using Fayora.Application.Common.Interfaces.Services;
+using Fayora.Application.Features.Auth.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.Identity;
 using Fayora.Domain.Enums;
@@ -19,9 +19,9 @@ public class RegisterCommandHandler(
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
     ILogger<RegisterCommandHandler> logger)
-    : IRequestHandler<RegisterCommand, Result<AuthResult>>
+    : IRequestHandler<RegisterCommand, Result<RegisterResult>>
 {
-    public async Task<Result<AuthResult>> Handle(RegisterCommand request, CancellationToken cancellationToken)
+    public async Task<Result<RegisterResult>> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
         try
         {
@@ -77,7 +77,7 @@ public class RegisterCommandHandler(
             await unitOfWork.CommitChangesAsync(cancellationToken);
 
 
-            return new AuthResult(user.Id, user.PrimaryEmail?.Value, user.PhoneNumber);
+            return new RegisterResult(user.Id, user.PrimaryEmail?.Value, user.PhoneNumber);
         }
         catch (Exception ex)
         {

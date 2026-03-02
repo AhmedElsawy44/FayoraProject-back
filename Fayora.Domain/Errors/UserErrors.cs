@@ -83,5 +83,11 @@ public static class UserErrors
 
     public static readonly Error OnlyOneAllowed = Error.Validation(
         code: "User.OnlyOneAllowed",
-        description: "You can provide either Email or Phone Number, not both.");
+        description: "You can provide either Email or Phone Number, not both."
+        );
+
+    public static readonly Error InvalidOrExpiredOtp = Error.NotFound(
+        code: "VerificationCode.InvalidOrExpired",
+        description: "The verification code is invalid, expired, or has not been requested."
+    );
 }
