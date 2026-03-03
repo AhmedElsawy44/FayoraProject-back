@@ -4,20 +4,16 @@ namespace Fayora.Application.Common.Interfaces.Presistance;
 
 public interface IUserRepository
 {
-    Task<bool> IsIdentityExistAsync(string identity, IdentityType type, CancellationToken cancellationToken, AccountStatus status = AccountStatus.All);
+    Task<bool> IsIdentityExistAsync(string identity, string? simCountryIsoCode, CancellationToken cancellationToken, AccountStatus status = AccountStatus.All);
     void AddUser(User user);
     Task<User?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken, bool isTracking = false);
+
+    Task<User?> GetUserByIdentity(string identity, string? simCountryIsoCode, CancellationToken cancellationToken, AccountStatus status = AccountStatus.All, bool isTracking = false);
 
     public enum AccountStatus
     {
         Verified,
         NotVerified,
         All
-    }
-
-    public enum IdentityType
-    {
-        Email,
-        Phone
     }
 }

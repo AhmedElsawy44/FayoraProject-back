@@ -90,4 +90,9 @@ public static class UserErrors
         code: "VerificationCode.InvalidOrExpired",
         description: "The verification code is invalid, expired, or has not been requested."
     );
+
+    public static readonly Error AccountAlreadyVerified = Error.Conflict(
+        code: "User.AccountAlreadyVerified",
+        description: "The account is already verified."
+    );
 }

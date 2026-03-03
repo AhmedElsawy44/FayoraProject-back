@@ -18,6 +18,7 @@ public class RegisterCommandHandler(
     ICodeHasher codeHasher,
     IBannedItemRepository bannedItemRepository,
     IUserRepository userRepository,
+    IVerificationCodeRepository verificationCodeRepository,
     IUnitOfWork unitOfWork,
     ILogger<RegisterCommandHandler> logger)
     : IRequestHandler<RegisterCommand, Result<RegisterResult>>
@@ -34,8 +35,20 @@ public class RegisterCommandHandler(
                 if (await bannedItemRepository.IsBannedAsync(BanType.Email, request.Email!, cancellationToken))
                     return UserErrors.EmailBanned;
 
-                if (await userRepository.IsIdentityExistAsync(request.Email!, IdentityType.Email, cancellationToken, AccountStatus.Verified))
-                    return UserErrors.EmailAlreadyExists;
+                var existUser = await userRepository.GetUserByIdentity(request.Email!, null, cancellationToken, AccountStatus.All);
+
+                if (existUser != null)
+                {
+                    if (existUser.IsEmailVerified)
+                        return UserErrors.EmailAlreadyExists;
+
+                    var acountOtpResult = existUser.RequestOtp(request.Email!, null, OtpPurpose.Registration, codeService, codeHasher);
+                    if (acountOtpResult.IsError) return acountOtpResult.Errors;
+
+                    await unitOfWork.CommitChangesAsync(cancellationToken);
+
+                    return new RegisterResult(existUser.Id, existUser.PrimaryEmail?.Value, existUser.PhoneNumber);
+                }
             }
 
             if (IsProvided(request.PhoneNumber))
@@ -43,50 +56,45 @@ public class RegisterCommandHandler(
                 if (await bannedItemRepository.IsBannedAsync(BanType.PhoneNumber, request.PhoneNumber!, cancellationToken))
                     return UserErrors.PhoneBanned;
 
-                if (await userRepository.IsIdentityExistAsync(request.PhoneNumber!, IdentityType.Phone, cancellationToken, AccountStatus.Verified))
-                    return UserErrors.PhoneAlreadyExists;
+                var existUser = await userRepository.GetUserByIdentity(request.PhoneNumber!, request.SimCountryIsoCode, cancellationToken, AccountStatus.All);
+
+                if (existUser != null)
+                {
+                    if (existUser.IsPhoneVerified)
+                        return UserErrors.PhoneAlreadyExists;
+
+                    var acountOtpResult = existUser.RequestOtp(request.PhoneNumber!, request.SimCountryIsoCode, OtpPurpose.Registration, codeService, codeHasher);
+                    if (acountOtpResult.IsError) return acountOtpResult.Errors;
+
+                    await unitOfWork.CommitChangesAsync(cancellationToken);
+
+                    return new RegisterResult(existUser.Id, existUser.PrimaryEmail?.Value, existUser.PhoneNumber);
+                }
             }
 
             var passwordHashResult = passwordHasher.HashPassword(request.Password);
-
-            if (passwordHashResult.IsError)
-            {
-                return UserErrors.InvalidPassword;
-            }
-
+            if (passwordHashResult.IsError) return UserErrors.InvalidPassword;
 
             var userResult = User.Create(request.Email, request.PhoneNumber, passwordHashResult.Value, request.SimCountryIsoCode, request.DeviceLanguage, request.TimeZone);
-
-            if (userResult.IsError)
-            {
-                return userResult.Errors;
-            }
+            if (userResult.IsError) return userResult.Errors;
 
             var user = userResult.Value;
-
             var target = IsProvided(request.Email) ? request.Email : request.PhoneNumber;
-            var vCode = codeService.GenerateCode();
-            var vCodeHash = codeHasher.HashCode(vCode);
 
-            var otpResult = user.RequestOtp(target!, vCode, OtpPurpose.Registration, vCodeHash);
-            if (otpResult.IsError)
-            {
-                return otpResult.Errors;
-            }
+            var otpResult = user.RequestOtp(target!, request.SimCountryIsoCode, OtpPurpose.Registration, codeService, codeHasher);
+            if (otpResult.IsError) return otpResult.Errors;
 
             userRepository.AddUser(user);
             await unitOfWork.CommitChangesAsync(cancellationToken);
-
 
             return new RegisterResult(user.Id, user.PrimaryEmail?.Value, user.PhoneNumber);
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
             logger.LogError(ex, "An error occurred while registering user {Email} or {Phone}", request.Email, request.PhoneNumber);
-
             return Error.Failure("Registration.Failed", "An error occurred during registration.");
         }
     }
+
     static bool IsProvided(string? text) => !string.IsNullOrWhiteSpace(text);
 }

@@ -14,16 +14,11 @@ public class SendOtpEventHandler(
 {
     public async Task Handle(OtpRequestedDomainEvent notification, CancellationToken cancellationToken)
     {
-        var message = notification.Purpose switch
-        {
-            OtpPurpose.Registration => $"Welcome to Fayora! Your verification code is: {notification.Code}",
-            OtpPurpose.ResetPassword => $"Your password reset code is: {notification.Code}. Don't share it!",
-            OtpPurpose.Login => $"Your login code is: {notification.Code}",
-            _ => $"Your Fayora code is: {notification.Code}"
-        };
+        var message = GenerateMessage(notification.Code, notification.Purpose);
 
         try
         {
+
             if (notification.Target.Contains("@"))
             {
                 await emailService.SendEmailAsync(notification.Target, notification.Purpose.ToString(), message);
@@ -39,5 +34,16 @@ public class SendOtpEventHandler(
         {
             logger.LogError(ex, "Failed to send OTP to {Target} for purpose {Purpose}", notification.Target, notification.Purpose);
         }
+    }
+
+    private string GenerateMessage(string code, OtpPurpose purpose)
+    {
+        return purpose switch
+        {
+            OtpPurpose.Registration => $"Welcome to Fayora! Your verification code is: {code}",
+            OtpPurpose.ResetPassword => $"Your password reset code is: {code}. Don't share it!",
+            OtpPurpose.Login => $"Your login code is: {code}",
+            _ => $"Your Fayora code is: {code}"
+        };
     }
 }

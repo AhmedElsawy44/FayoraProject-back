@@ -4,4 +4,4 @@ using MediatR;
 
 namespace Fayora.Application.Features.Auth.Commands.VerifyRegisterOtp;
 
-public record VerifyRegisterOtpCommand(Guid UserId, string? Email, string? PhoneNumber, string Code, string DeviceId, string FcmToken) : IRequest<Result<AuthResult>>;
+public record VerifyRegisterOtpCommand(Guid UserId, string? Email, string? PhoneNumber, string? SimCountryIsoCode, string Code, string DeviceId, string FcmToken) : IRequest<Result<AuthResult>>;

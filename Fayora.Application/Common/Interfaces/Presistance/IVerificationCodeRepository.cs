@@ -5,5 +5,5 @@ namespace Fayora.Application.Common.Interfaces.Presistance;
 
 public interface IVerificationCodeRepository
 {
-    Task<VerificationCode?> GetUserCode(Guid userId, string target, OtpPurpose purpose, CancellationToken cancellationToken, bool isTracking = false);
+    Task<VerificationCode?> GetUserCode(Guid userId, string target, string? simCountryIsoCode, OtpPurpose purpose, CancellationToken cancellationToken, bool isTracking = false);
 }

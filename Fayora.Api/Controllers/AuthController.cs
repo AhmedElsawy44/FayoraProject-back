@@ -1,7 +1,9 @@
 ﻿using Fayora.Application.Features.Auth.Commands.Register;
+using Fayora.Application.Features.Auth.Commands.ResendRegisterOtp;
 using Fayora.Application.Features.Auth.Commands.VerifyRegisterOtp;
 using Fayora.Application.Features.Auth.Common;
 using Fayora.Contracts.Auth;
+using Fayora.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,11 +28,24 @@ public class AuthController(ISender sender) : ApiController
     [HttpPost("verify-register-otp")]
     public async Task<IActionResult> VerifyRegisterationOtp(VerifyRegisterOtpRequestDto request)
     {
-        var command = new VerifyRegisterOtpCommand(request.UserId, request.Email, request.PhoneNumber, request.Otp, request.DeviceInfoDto.DeviceId, request.DeviceInfoDto.FcmToken);
+        var command = new VerifyRegisterOtpCommand(request.UserId, request.Email, request.PhoneNumber, request.SimCountryIsoCode, request.Otp, request.DeviceInfoDto.DeviceId, request.DeviceInfoDto.FcmToken);
 
         var verifyResult = await sender.Send(command);
 
         return verifyResult.Match(Ok, Problem);
+    }
+
+    [HttpPost("resend-otp")]
+    public async Task<IActionResult> ResendOtp(ResendOtpRequestDto request)
+    {
+        Enum.TryParse(request.OtpPurpose, out OtpPurpose purpose);
+        var command = new ResendOtpCommand(request.UserId, request.Email, request.PhoneNumber, request.SimCountryIsoCode, purpose);
+
+        var result = await sender.Send(command);
+
+        return result.Match(
+        _ => Ok(),
+        errors => Problem(errors));
     }
 
     private static RegisterResponseDto MapToAuthResponse(RegisterResult authResult)

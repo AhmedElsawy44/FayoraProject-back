@@ -13,4 +13,9 @@ public static class AuthErrors
         code: "User.AccountAlreadyVerified",
         description: "The user account is already verified."
     );
+
+    public static readonly Error UserNotFound = Error.NotFound(
+        code: "Authentication.UserNotFound",
+        description: "User not found."
+    );
 }

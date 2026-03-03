@@ -31,7 +31,7 @@ public class VerifyRegisterOtpCommandHandler(
         {
             var identifier = request.Email ?? request.PhoneNumber ?? "";
 
-            var code = await verificationCodeRepository.GetUserCode(request.UserId, identifier, OtpPurpose.Registration, cancellationToken, isTracking: true);
+            var code = await verificationCodeRepository.GetUserCode(request.UserId, identifier, request.SimCountryIsoCode, OtpPurpose.Registration, cancellationToken, isTracking: true);
 
             if (code is null)
                 return UserErrors.InvalidOrExpiredOtp;
@@ -42,7 +42,7 @@ public class VerifyRegisterOtpCommandHandler(
             if (user is null)
                 return UserErrors.InvalidOrExpiredOtp;
 
-            if(code.IsEmailType && user.IsEmailVerified)
+            if (code.IsEmailType && user.IsEmailVerified)
                 return AuthErrors.UserAccountIsAlreadyVerified;
             else if (code.IsSmsType && user.IsEmailVerified)
                 return AuthErrors.UserAccountIsAlreadyVerified;

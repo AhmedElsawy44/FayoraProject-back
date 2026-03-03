@@ -1,8 +1,10 @@
-﻿using Fayora.Domain.Common;
+﻿using Fayora.Application.Common.Interfaces.Services;
+using Fayora.Domain.Common;
 using Fayora.Domain.Common.Events;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums;
 using Fayora.Domain.Errors;
+using Fayora.Domain.Interfaces;
 using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Domain.Entities.Identity;
@@ -284,17 +286,44 @@ public class User : AuditableEntity<Guid>
         CurrentBalance += amount;
     }
 
-    public Result<Success> RequestOtp(string target, string code, OtpPurpose otpPurpose, string CodeHash)
+    public Result<Success> RequestOtp(
+    string target,
+    string? simCode,
+    OtpPurpose otpPurpose,
+    IVerificationCodeService codeSerivce,
+    ICodeHasher codeHasher)
     {
         if (LastOtpSentAt.HasValue && DateTimeOffset.UtcNow < LastOtpSentAt.Value.Add(OtpResendCooldown))
             return UserErrors.OtpCooldownNotMet;
 
         var countCodesLast24Hours = _verificationCodes.Count(c => c.CreatedAt > DateTimeOffset.UtcNow.AddDays(-1));
-
         if (countCodesLast24Hours >= MaxVerificationCodesPerDay)
             return UserErrors.DailyOtpLimitReached;
 
-        var vCode = VerificationCode.Create(Id, target, CodeHash, otpPurpose);
+        if (otpPurpose == OtpPurpose.Registration && (IsEmailVerified || IsPhoneVerified))
+            return UserErrors.AccountAlreadyVerified;
+
+        if (otpPurpose == OtpPurpose.ChangeEmail && PrimaryEmail == null)
+            return UserErrors.EmailNotProvided;
+
+        if (otpPurpose == OtpPurpose.ChangePhone && string.IsNullOrWhiteSpace(PhoneNumber))
+            return UserErrors.PhoneNotProvided;
+
+        var activeOldCodes = _verificationCodes
+            .Where(c => c.Purpose == otpPurpose && !c.IsRevoked);
+
+        foreach (var oldCode in activeOldCodes)
+        {
+            oldCode.Revoke();
+        }
+
+        if (!target.Contains('@'))
+            target = simCode + target;
+
+        var code = codeSerivce.GenerateCode();
+        var vCodeHash = codeHasher.HashCode(code);
+
+        var vCode = VerificationCode.Create(Id, target, vCodeHash, otpPurpose);
 
         _verificationCodes.Add(vCode);
 

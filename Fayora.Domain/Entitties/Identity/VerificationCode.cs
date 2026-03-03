@@ -15,6 +15,7 @@ public class VerificationCode : BaseEntity<int>
     public OtpPurpose Purpose { get; init; } = OtpPurpose.Registration;
     public DateTimeOffset ExpiresAt { get; init; } = DateTimeOffset.UtcNow.Add(DefaultExpiration);
     public bool IsUsed { get; private set; } = false;
+    public bool IsRevoked { get; private set; } = false;
     public int AttemptCount { get; private set; } = 0;
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
     public bool IsExpired => DateTimeOffset.UtcNow > ExpiresAt;
@@ -24,7 +25,7 @@ public class VerificationCode : BaseEntity<int>
 
     public Result<Success> Use(string plainCode, ICodeHasher codeHasher)
     {
-        if (IsUsed || DateTime.UtcNow > ExpiresAt)
+        if (IsUsed || DateTime.UtcNow > ExpiresAt || IsRevoked)
             return Error.Failure(
                 "VerificationCode.InvalidOrExpired",
                 "This code is invalid or has expired.");
@@ -38,6 +39,8 @@ public class VerificationCode : BaseEntity<int>
         IsUsed = true;
         return Result.Success;
     }
+
+    internal void Revoke() => IsRevoked = true;
 
     internal static VerificationCode Create(Guid userId, string target, string codeHash, OtpPurpose purpose)
     {
