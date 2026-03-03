@@ -1,5 +1,6 @@
 ﻿using Fayora.Application.Common.Interfaces.Services;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Interfaces;
 using System.Text.RegularExpressions;
 
 namespace Fayora.Infrastructure.Services.Authentication

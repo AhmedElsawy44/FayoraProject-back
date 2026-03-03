@@ -10,9 +10,9 @@ public class ClientContextProvider(IHttpContextAccessor accessor) : IClientConte
         var ipAddress = accessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
 
         var deviceId = GetClaimsValue("device_id");
-        var UserId = GetClaimsValue("user_id");
+        Guid.TryParse(GetClaimsValue("user_id"), out var userId);
 
-        return new ClientContext(ipAddress, deviceId);
+        return new ClientContext(userId, ipAddress, deviceId);
     }
 
     private string? GetClaimsValue(string claimType)

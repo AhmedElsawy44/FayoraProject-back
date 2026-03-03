@@ -82,6 +82,11 @@ internal class UserConfigurations : IEntityTypeConfiguration<User>
             .HasForeignKey(r => r.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasMany<UserDevice>()
+            .WithOne()
+            .HasForeignKey(d => d.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
 
         builder.Metadata.FindNavigation(nameof(User.UserIdentities))!
             .SetPropertyAccessMode(PropertyAccessMode.Field);

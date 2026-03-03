@@ -9,5 +9,7 @@ public class DeviceRepository(ApplicationDbContext context) : BaseRepository<Use
 
     public Task<UserDevice?> GetDeviceByDeviceIdAsync(string deviceId, CancellationToken cancellationToken, bool IsTracking = false) => GetSingleAsync(x => x.DeviceId == deviceId, cancellationToken, IsTracking);
 
+    public Task<UserDevice?> GetDeviceByIdAsync(string deviceId, CancellationToken cancellationToken, bool isTracking = false) => GetSingleAsync(d => d.DeviceId == deviceId, cancellationToken, isTracking);
+
     public Task<bool> IsDeviceExistAsync(string deviceId, CancellationToken cancellationToken) => IsExistAsync(d => d.DeviceId == deviceId, cancellationToken);
 }

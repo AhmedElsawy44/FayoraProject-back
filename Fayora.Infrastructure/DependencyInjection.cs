@@ -1,5 +1,6 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistance;
 using Fayora.Application.Common.Interfaces.Services;
+using Fayora.Domain.Interfaces;
 using Fayora.Infrastructure.Persistence;
 using Fayora.Infrastructure.Persistence.Repositories;
 using Fayora.Infrastructure.Services;
@@ -35,6 +36,7 @@ public static class DependencyInjection
         services.AddScoped<IDeviceRepository, DeviceRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IVerificationCodeRepository, VerificationCodeRepository>();
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
 
         return services;

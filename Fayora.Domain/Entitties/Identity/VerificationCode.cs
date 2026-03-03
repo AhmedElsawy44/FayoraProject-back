@@ -1,6 +1,6 @@
-﻿using Fayora.Application.Common.Interfaces.Services;
-using Fayora.Domain.Common.Results;
+﻿using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums;
+using Fayora.Domain.Interfaces;
 
 namespace Fayora.Domain.Entities.Identity;
 
@@ -24,11 +24,10 @@ public class VerificationCode : BaseEntity<int>
 
     public Result<Success> Use(string plainCode, ICodeHasher codeHasher)
     {
-        if (IsUsed)
-            return Error.Failure("VerificationCode.AlreadyUsed", "This code has already been used.");
-
-        if (DateTime.UtcNow > ExpiresAt)
-            return Error.Failure("VerificationCode.Expired", "This code has expired.");
+        if (IsUsed || DateTime.UtcNow > ExpiresAt)
+            return Error.Failure(
+                "VerificationCode.InvalidOrExpired",
+                "This code is invalid or has expired.");
 
         if (!codeHasher.VerifyCode(plainCode, this.CodeHash))
         {

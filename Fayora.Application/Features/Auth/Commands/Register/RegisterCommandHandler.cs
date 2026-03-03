@@ -1,13 +1,14 @@
-﻿using Fayora.Application.Common.Interfaces;
-using Fayora.Application.Common.Interfaces.Presistance;
+﻿using Fayora.Application.Common.Interfaces.Presistance;
 using Fayora.Application.Common.Interfaces.Services;
 using Fayora.Application.Features.Auth.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.Identity;
 using Fayora.Domain.Enums;
 using Fayora.Domain.Errors;
+using Fayora.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using static Fayora.Application.Common.Interfaces.Presistance.IUserRepository;
 
 namespace Fayora.Application.Features.Auth.Commands.Register;
 
@@ -33,7 +34,7 @@ public class RegisterCommandHandler(
                 if (await bannedItemRepository.IsBannedAsync(BanType.Email, request.Email!, cancellationToken))
                     return UserErrors.EmailBanned;
 
-                if (await userRepository.IsEmailExistAsync(request.Email!, cancellationToken))
+                if (await userRepository.IsIdentityExistAsync(request.Email!, IdentityType.Email, cancellationToken, AccountStatus.Verified))
                     return UserErrors.EmailAlreadyExists;
             }
 
@@ -42,7 +43,7 @@ public class RegisterCommandHandler(
                 if (await bannedItemRepository.IsBannedAsync(BanType.PhoneNumber, request.PhoneNumber!, cancellationToken))
                     return UserErrors.PhoneBanned;
 
-                if (await userRepository.IsPhoneExistAsync(request.PhoneNumber!, cancellationToken))
+                if (await userRepository.IsIdentityExistAsync(request.PhoneNumber!, IdentityType.Phone, cancellationToken, AccountStatus.Verified))
                     return UserErrors.PhoneAlreadyExists;
             }
 

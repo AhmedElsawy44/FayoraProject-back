@@ -9,7 +9,7 @@ public class Email
 
     private Email(string value)
     {
-        Value = value;
+        Value = value.ToLower();
     }
 
     public static Result<Email> Create(string email)
@@ -19,4 +19,7 @@ public class Email
 
         return new Email(email);
     }
+
+    public static bool operator ==(Email? left, Email? right) => left?.Value == right?.Value;
+    public static bool operator !=(Email? left, Email? right) => !(left == right);
 }

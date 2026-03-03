@@ -6,12 +6,13 @@ using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.Identity;
 using Fayora.Domain.Enums;
 using Fayora.Domain.Errors;
+using Fayora.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Fayora.Application.Features.Auth.Commands.VerifyOtp;
+namespace Fayora.Application.Features.Auth.Commands.VerifyRegisterOtp;
 
-public class VerifyOtpCommandHandler(
+public class VerifyRegisterOtpCommandHandler(
     ICodeHasher codeHasher,
     IJwtService jwtService,
     IRefreshTokenService refreshTokenService,
@@ -21,24 +22,30 @@ public class VerifyOtpCommandHandler(
     IDeviceRepository deviceRepository,
     IRefreshTokenRepository refreshTokenRepository,
     IUnitOfWork unitOfWork,
-    ILogger<VerifyOtpCommandHandler> logger)
-    : IRequestHandler<VerifyOtpCommand, Result<AuthResult>>
+    ILogger<VerifyRegisterOtpCommandHandler> logger)
+    : IRequestHandler<VerifyRegisterOtpCommand, Result<AuthResult>>
 {
-    public async Task<Result<AuthResult>> Handle(VerifyOtpCommand request, CancellationToken cancellationToken)
+    public async Task<Result<AuthResult>> Handle(VerifyRegisterOtpCommand request, CancellationToken cancellationToken)
     {
         try
         {
             var identifier = request.Email ?? request.PhoneNumber ?? "";
 
-            var code = await verificationCodeRepository.GetUserCode(request.UserId, identifier, OtpPurpose.Registration,cancellationToken);
+            var code = await verificationCodeRepository.GetUserCode(request.UserId, identifier, OtpPurpose.Registration, cancellationToken, isTracking: true);
 
             if (code is null)
                 return UserErrors.InvalidOrExpiredOtp;
 
-            var user = await userRepository.GetUserByIdAsync(request.UserId, cancellationToken);
+
+            var user = await userRepository.GetUserByIdAsync(request.UserId, cancellationToken, isTracking: true);
 
             if (user is null)
                 return UserErrors.InvalidOrExpiredOtp;
+
+            if(code.IsEmailType && user.IsEmailVerified)
+                return AuthErrors.UserAccountIsAlreadyVerified;
+            else if (code.IsSmsType && user.IsEmailVerified)
+                return AuthErrors.UserAccountIsAlreadyVerified;
 
             var result = code.Use(request.Code, codeHasher);
 
@@ -53,10 +60,16 @@ public class VerifyOtpCommandHandler(
             else
                 user.VerifyPhone();
 
-            var existingDevice = await deviceRepository.GetDeviceByIdAsync(request.DeviceId, cancellationToken);
-
-            var userDevice = new UserDevice(request.UserId, request.DeviceId, user.PreferredLanguage, request.FcmToken);
-            deviceRepository.AddDevice(userDevice);
+            var existingDevice = await deviceRepository.GetDeviceByIdAsync(request.DeviceId, cancellationToken, isTracking: true);
+            if (existingDevice is null)
+            {
+                var userDevice = new UserDevice(request.UserId, request.DeviceId, user.PreferredLanguage, request.FcmToken);
+                deviceRepository.AddDevice(userDevice);
+            }
+            else
+            {
+                existingDevice.UpdateFcmToken(request.FcmToken);
+            }
 
             var accessToken = jwtService.GenerateToken(request.DeviceId, user);
             var refreshTokenString = refreshTokenService.GenerateTokenString();

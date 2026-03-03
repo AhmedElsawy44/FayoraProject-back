@@ -1,4 +1,4 @@
-﻿namespace Fayora.Application.Common.Interfaces.Services;
+﻿namespace Fayora.Domain.Interfaces;
 
 public interface ICodeHasher
 {

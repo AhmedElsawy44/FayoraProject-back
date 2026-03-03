@@ -1,4 +1,5 @@
 ﻿using Fayora.Application.Features.Auth.Commands.Register;
+using Fayora.Application.Features.Auth.Commands.VerifyRegisterOtp;
 using Fayora.Application.Features.Auth.Common;
 using Fayora.Contracts.Auth;
 using MediatR;
@@ -22,10 +23,15 @@ public class AuthController(ISender sender) : ApiController
             errors => Problem(errors));
     }
 
-    //public async Task<IActionResult> VerifyOtp(VerifyOtpRequest request)
-    //{
+    [HttpPost("verify-register-otp")]
+    public async Task<IActionResult> VerifyRegisterationOtp(VerifyRegisterOtpRequestDto request)
+    {
+        var command = new VerifyRegisterOtpCommand(request.UserId, request.Email, request.PhoneNumber, request.Otp, request.DeviceInfoDto.DeviceId, request.DeviceInfoDto.FcmToken);
 
-    //}
+        var verifyResult = await sender.Send(command);
+
+        return verifyResult.Match(Ok, Problem);
+    }
 
     private static RegisterResponseDto MapToAuthResponse(RegisterResult authResult)
     {

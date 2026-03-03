@@ -463,7 +463,7 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.HasIndex("Target", "Purpose");
 
-                    b.HasIndex("UserId", "Target")
+                    b.HasIndex("UserId", "Target", "Purpose")
                         .HasFilter("[IsUsed] = 0");
 
                     b.ToTable("VerificationCodes", (string)null);
@@ -574,6 +574,15 @@ namespace Fayora.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.Identity.RefreshToken", b =>
+                {
+                    b.HasOne("Fayora.Domain.Entities.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.Identity.UserDevice", b =>
                 {
                     b.HasOne("Fayora.Domain.Entities.Identity.User", null)
                         .WithMany()

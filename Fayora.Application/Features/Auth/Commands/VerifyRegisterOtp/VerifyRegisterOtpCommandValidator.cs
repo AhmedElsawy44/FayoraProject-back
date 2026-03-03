@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Auth.Commands.VerifyOtp;
+namespace Fayora.Application.Features.Auth.Commands.VerifyRegisterOtp;
 
-public class VerifyOtpCommandValidator : AbstractValidator<VerifyOtpCommand>
+public class VerifyRegisterOtpCommandValidator : AbstractValidator<VerifyRegisterOtpCommand>
 {
-    public VerifyOtpCommandValidator()
+    public VerifyRegisterOtpCommandValidator()
     {
         RuleFor(x => x.UserId)
             .NotEmpty().WithMessage("User ID is required.");
@@ -35,7 +35,7 @@ public class VerifyOtpCommandValidator : AbstractValidator<VerifyOtpCommand>
             .WithName("Identifier");
     }
 
-    private bool HaveExactlyOneIdentifier(VerifyOtpCommand command)
+    private bool HaveExactlyOneIdentifier(VerifyRegisterOtpCommand command)
     {
         bool hasEmail = !string.IsNullOrWhiteSpace(command.Email);
         bool hasPhone = !string.IsNullOrWhiteSpace(command.PhoneNumber);
