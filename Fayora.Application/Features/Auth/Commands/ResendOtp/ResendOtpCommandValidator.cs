@@ -21,11 +21,6 @@ public class ResendOtpCommandValidator : AbstractValidator<ResendOtpCommand>
             .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format.")
             .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber));
 
-        RuleFor(x => x.SimCountryIsoCode)
-            .NotEmpty().WithMessage("SIM Country ISO Code is required when using a phone number.")
-            .Length(2).WithMessage("SIM Country ISO Code must be exactly 2 characters (e.g., EG, SA, US).")
-            .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber));
-
         RuleFor(x => x)
             .Must(HaveExactlyOneIdentifier)
             .WithMessage("You must provide either Email or Phone Number, not both.")

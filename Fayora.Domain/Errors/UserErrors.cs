@@ -95,4 +95,29 @@ public static class UserErrors
         code: "User.AccountAlreadyVerified",
         description: "The account is already verified."
     );
+
+    public static readonly Error InvalidResetToken = Error.Validation(
+        code: "User.InvalidResetToken",
+        description: "The password reset token is invalid or has expired."
+    );
+
+    public static readonly Error CodeNotFound = Error.NotFound(
+        code: "Authentication.CodeNotFound",
+        description: "Verification code not found."
+    );
+
+    public static readonly Error InvalidAmount = Error.Validation(
+        code: "User.InvalidAmount",
+        description: "The amount must be a positive number."
+    );
+
+    public static readonly Error InsufficientBalance = Error.Failure(
+        code: "User.InsufficientBalance",
+        description: "Insufficient balance to complete the transaction."
+    );
+
+    public static readonly Error InvalidTarget = Error.Validation(
+        code: "User.InvalidTarget",
+        description: "The target is invalid."
+    );
 }

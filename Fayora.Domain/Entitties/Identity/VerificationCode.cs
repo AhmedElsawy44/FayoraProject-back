@@ -20,12 +20,14 @@ public class VerificationCode : BaseEntity<int>
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
     public bool IsExpired => DateTimeOffset.UtcNow > ExpiresAt;
     public bool IsBlocked => AttemptCount >= MaxAllowedAttempts;
+    public bool IsValid => !IsUsed && !IsRevoked && !IsExpired && !IsBlocked;
     public bool IsEmailType => Target.Contains('@');
     public bool IsSmsType => !IsEmailType && System.Text.RegularExpressions.Regex.IsMatch(Target, @"^\+?[0-9]{10,15}$");
 
     public Result<Success> Use(string plainCode, ICodeHasher codeHasher)
     {
-        if (IsUsed || DateTime.UtcNow > ExpiresAt || IsRevoked)
+
+        if (!IsValid)
             return Error.Failure(
                 "VerificationCode.InvalidOrExpired",
                 "This code is invalid or has expired.");

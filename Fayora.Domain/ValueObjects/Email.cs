@@ -27,6 +27,7 @@ public class Email
 
         return true;
     }
+
     public static bool operator ==(Email? left, Email? right) => left?.Value == right?.Value;
     public static bool operator !=(Email? left, Email? right) => !(left == right);
 }

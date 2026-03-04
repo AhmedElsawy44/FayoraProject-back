@@ -1,10 +1,12 @@
 ﻿using Fayora.Application.Common.Interfaces.Services;
 using Fayora.Domain.Common;
 using Fayora.Domain.Common.Events;
+using Fayora.Domain.Common.Interfaces;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums;
 using Fayora.Domain.Errors;
 using Fayora.Domain.Interfaces;
+using Fayora.Domain.Policies;
 using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Domain.Entities.Identity;
@@ -14,6 +16,7 @@ public class User : AuditableEntity<Guid>
     public static readonly int MaxUserIdentities = 2;
     public static readonly int MaxVerificationCodesPerDay = 5;
     public static readonly TimeSpan OtpResendCooldown = TimeSpan.FromMinutes(2);
+    public static readonly TimeSpan PasswordResetTokenExpiration = TimeSpan.FromMinutes(15);
 
     public string? FirstName { get; private set; }
     public string? LastName { get; private set; }
@@ -46,16 +49,19 @@ public class User : AuditableEntity<Guid>
     private readonly List<VerificationCode> _verificationCodes = [];
     public IReadOnlyCollection<VerificationCode> VerificationCodes => _verificationCodes.AsReadOnly();
 
+    private readonly List<PasswordResetToken> _passwordResetTokens = [];
+    public IReadOnlyCollection<PasswordResetToken> PasswordResetTokens => _passwordResetTokens.AsReadOnly();
 
     private string _passwordHash = string.Empty;
 
     public static Result<User> Create(
         string? email,
         string? phoneNumber,
-        string passwordHash,
+        string password,
         string? simCountryIsoCode,
         string preferredLanguage,
-        string timeZone)
+        string timeZone,
+        IPasswordHasher passwordHasher)
     {
         if (string.IsNullOrWhiteSpace(email) && string.IsNullOrWhiteSpace(phoneNumber))
             return UserErrors.EmailOrPhoneRequired;
@@ -63,8 +69,10 @@ public class User : AuditableEntity<Guid>
         if (!string.IsNullOrWhiteSpace(email) && !string.IsNullOrWhiteSpace(phoneNumber))
             return UserErrors.OnlyOneAllowed;
 
-        Email? validEmail = null;
+        var passwordHashResult = passwordHasher.HashPassword(password);
+        if (passwordHashResult.IsError) return passwordHashResult.Errors;
 
+        Email? validEmail = null;
         if (!string.IsNullOrWhiteSpace(email))
         {
             var emailResult = Email.Create(email);
@@ -77,7 +85,7 @@ public class User : AuditableEntity<Guid>
             Id = Guid.CreateVersion7(),
             PrimaryEmail = validEmail,
             PhoneNumber = string.IsNullOrWhiteSpace(phoneNumber) ? null : phoneNumber,
-            _passwordHash = passwordHash,
+            _passwordHash = passwordHashResult.Value,
             Status = UserStatus.Active,
             SimCountryIsoCode = simCountryIsoCode,
             PreferredLanguage = preferredLanguage,
@@ -90,7 +98,6 @@ public class User : AuditableEntity<Guid>
     public Result<Success> VerifyEmail()
     {
         if (PrimaryEmail == null) return UserErrors.EmailNotProvided;
-
         if (IsEmailVerified) return Result.Success;
 
         IsEmailVerified = true;
@@ -100,19 +107,9 @@ public class User : AuditableEntity<Guid>
     public Result<Success> VerifyPhone()
     {
         if (string.IsNullOrWhiteSpace(PhoneNumber)) return UserErrors.PhoneNotProvided;
-
         if (IsPhoneVerified) return Result.Success;
 
         IsPhoneVerified = true;
-        return Result.Success;
-    }
-
-    public Result<Success> ChangePassword(string newPasswordHash)
-    {
-        if (string.IsNullOrWhiteSpace(newPasswordHash)) return UserErrors.InvalidPassword;
-        _passwordHash = newPasswordHash;
-        PasswordChangedAt = DateTimeOffset.UtcNow;
-        Updated();
         return Result.Success;
     }
 
@@ -155,33 +152,16 @@ public class User : AuditableEntity<Guid>
         Status = UserStatus.Active;
     }
 
-    public void IncrementViolation()
+    internal void IncreaseViolationInternal()
     {
-        if (LastViolationDate.HasValue && DateTimeOffset.UtcNow > LastViolationDate.Value.AddDays(30))
-        {
-            ViolationCount = 0;
-        }
 
         ViolationCount++;
         LastViolationDate = DateTimeOffset.UtcNow;
+    }
 
-        switch (ViolationCount)
-        {
-            case >= 5:
-                LockAccount(TimeSpan.FromDays(30));
-                break;
-
-            case 4:
-                LockAccount(TimeSpan.FromDays(7));
-                break;
-
-            case 3:
-                LockAccount(TimeSpan.FromDays(1));
-                break;
-
-            default:
-                break;
-        }
+    public void IncrementViolation()
+    {
+        ViolationPolicy.Apply(this);
     }
 
     public void ResetViolations()
@@ -196,6 +176,7 @@ public class User : AuditableEntity<Guid>
         Status = UserStatus.Deleted;
     }
 
+
     public void UpdateProfile(
         string firstName,
         string lastName,
@@ -207,27 +188,32 @@ public class User : AuditableEntity<Guid>
         string? preferredLanguage,
         string? timeZone)
     {
-
         FirstName = firstName;
         LastName = lastName;
-
         BirthDate = birthDate;
         Gender = gender;
         NationalityCode = nationalityCode;
-        if (profileImageUrl != ProfileImageUrl)
-        {
-            if (!string.IsNullOrWhiteSpace(ProfileImageUrl))
-            {
-                RaiseDomainEvent(new DeleteMediaEvent(ProfileImageUrl));
-            }
-            ProfileImageUrl = profileImageUrl;
-        }
+        UpdateProfileImage(profileImageUrl);
+
         Description = description;
         PreferredLanguage = preferredLanguage ?? PreferredLanguage;
         TimeZone = timeZone ?? TimeZone;
 
         IsProfileComplete = CheckIfProfileComplete();
         Updated();
+    }
+
+    private void UpdateProfileImage(string? profileImageUrl)
+    {
+        if (profileImageUrl != ProfileImageUrl)
+        {
+            if (!string.IsNullOrWhiteSpace(ProfileImageUrl))
+                RaiseDomainEvent(new DeleteMediaEvent(ProfileImageUrl));
+            else
+                DeleteProfileImage();
+
+            ProfileImageUrl = profileImageUrl;
+        }
     }
 
     private bool CheckIfProfileComplete()
@@ -242,7 +228,7 @@ public class User : AuditableEntity<Guid>
                && !string.IsNullOrWhiteSpace(ProfileImageUrl);
     }
 
-    public void DeleteImage()
+    public void DeleteProfileImage()
     {
         if (ProfileImageUrl != null)
         {
@@ -252,10 +238,10 @@ public class User : AuditableEntity<Guid>
     }
 
     public Result<Success> AddOrUpdateUserIdentity(
-    IdentityProvider provider,
-    string providerKey,
-    string email,
-    string profileDataJson)
+        IdentityProvider provider,
+        string providerKey,
+        string email,
+        string profileDataJson)
     {
         var emailResult = Email.Create(email);
         if (emailResult.IsError) return emailResult.Errors;
@@ -281,57 +267,175 @@ public class User : AuditableEntity<Guid>
         LastLogin = DateTimeOffset.UtcNow;
     }
 
-    public void UpdateBalance(decimal amount)
+    public Result<Success> Credit(decimal amount)
     {
+        if (amount <= 0)
+            return UserErrors.InvalidAmount;
+
         CurrentBalance += amount;
+        return Result.Success;
+    }
+
+    public Result<Success> Debit(decimal amount)
+    {
+        if (amount <= 0)
+            return UserErrors.InvalidAmount;
+
+        if (CurrentBalance < amount)
+            return UserErrors.InsufficientBalance;
+
+        CurrentBalance -= amount;
+        return Result.Success;
     }
 
     public Result<Success> RequestOtp(
     string target,
-    string? simCode,
-    OtpPurpose otpPurpose,
-    IVerificationCodeService codeSerivce,
+    OtpPurpose purpose,
+    IVerificationCodeService codeService,
     ICodeHasher codeHasher)
     {
-        if (LastOtpSentAt.HasValue && DateTimeOffset.UtcNow < LastOtpSentAt.Value.Add(OtpResendCooldown))
-            return UserErrors.OtpCooldownNotMet;
+        var validationResult = ValidateOtpRequest(target, purpose);
+        if (validationResult.IsError)
+            return validationResult.Errors;
 
-        var countCodesLast24Hours = _verificationCodes.Count(c => c.CreatedAt > DateTimeOffset.UtcNow.AddDays(-1));
-        if (countCodesLast24Hours >= MaxVerificationCodesPerDay)
-            return UserErrors.DailyOtpLimitReached;
+        RevokeActiveCodes(purpose);
 
-        if (otpPurpose == OtpPurpose.Registration && (IsEmailVerified || IsPhoneVerified))
-            return UserErrors.AccountAlreadyVerified;
+        var (rawCode, verificationCode) = CreateVerificationCode(
+            target,
+            purpose,
+            codeService,
+            codeHasher);
 
-        if (otpPurpose == OtpPurpose.ChangeEmail && PrimaryEmail == null)
-            return UserErrors.EmailNotProvided;
-
-        if (otpPurpose == OtpPurpose.ChangePhone && string.IsNullOrWhiteSpace(PhoneNumber))
-            return UserErrors.PhoneNotProvided;
-
-        var activeOldCodes = _verificationCodes
-            .Where(c => c.Purpose == otpPurpose && !c.IsRevoked);
-
-        foreach (var oldCode in activeOldCodes)
-        {
-            oldCode.Revoke();
-        }
-
-        if (!target.Contains('@'))
-            target = simCode + target;
-
-        var code = codeSerivce.GenerateCode();
-        var vCodeHash = codeHasher.HashCode(code);
-
-        var vCode = VerificationCode.Create(Id, target, vCodeHash, otpPurpose);
-
-        _verificationCodes.Add(vCode);
-
+        _verificationCodes.Add(verificationCode);
         LastOtpSentAt = DateTimeOffset.UtcNow;
 
-        RaiseDomainEvent(new OtpRequestedDomainEvent(Id, target, code, otpPurpose));
+        RaiseDomainEvent(new OtpRequestedDomainEvent(Id, target, rawCode, purpose));
 
         return Result.Success;
+    }
+
+    private Result<Success> ValidateOtpRequest(string target, OtpPurpose purpose)
+    {
+        if (LastOtpSentAt.HasValue &&
+            DateTimeOffset.UtcNow < LastOtpSentAt.Value.Add(OtpResendCooldown))
+            return UserErrors.OtpCooldownNotMet;
+
+        var last24hCount = _verificationCodes
+            .Count(c => c.CreatedAt > DateTimeOffset.UtcNow.AddDays(-1));
+
+        if (last24hCount >= MaxVerificationCodesPerDay)
+            return UserErrors.DailyOtpLimitReached;
+
+        if (target != PrimaryEmail?.Value && target != PhoneNumber)
+            return UserErrors.InvalidTarget;
+
+
+        return Result.Success;
+    }
+
+    private void RevokeActiveCodes(OtpPurpose purpose)
+    {
+        foreach (var code in _verificationCodes
+                     .Where(c => c.Purpose == purpose && !c.IsRevoked))
+        {
+            code.Revoke();
+        }
+    }
+
+    private (string rawCode, VerificationCode code) CreateVerificationCode(
+    string target,
+    OtpPurpose purpose,
+    IVerificationCodeService codeService,
+    ICodeHasher codeHasher)
+    {
+        var rawCode = codeService.GenerateCode();
+        var hashed = codeHasher.HashCode(rawCode);
+
+        var verificationCode =
+            VerificationCode.Create(Id, target, hashed, purpose);
+
+        return (rawCode, verificationCode);
+    }
+
+    public string GeneratePasswordResetToken(ICodeHasher codeHasher)
+    {
+        var activeTokens = _passwordResetTokens.Where(t => t.IsValid);
+        foreach (var token in activeTokens)
+        {
+            token.Revoke();
+        }
+
+        string rawToken = Guid.CreateVersion7().ToString("N");
+        string tokenHash = codeHasher.HashCode(rawToken);
+
+        var newToken = PasswordResetToken.Create(Id, tokenHash, PasswordResetTokenExpiration);
+        _passwordResetTokens.Add(newToken);
+
+        return rawToken;
+    }
+
+    public Result<Success> ResetPassword(string rawToken, string newPassword, ICodeHasher codeHasher, IPasswordHasher passwordHasher)
+    {
+        var providedTokenHash = codeHasher.HashCode(rawToken);
+
+        var resetToken = _passwordResetTokens.FirstOrDefault(p => p.IsValid && p.TokenHash == providedTokenHash);
+
+        if (resetToken == null)
+            return UserErrors.InvalidResetToken;
+
+        var passwordHashResult = passwordHasher.HashPassword(newPassword);
+        if (passwordHashResult.IsError) return passwordHashResult.Errors;
+
+        resetToken.Consume();
+
+        _passwordHash = passwordHashResult.Value;
+        PasswordChangedAt = DateTimeOffset.UtcNow;
+
+        Updated();
+
+        if (PrimaryEmail != null)
+            RaiseDomainEvent(new PasswordResetedEvent(Id, PrimaryEmail.Value));
+
+        return Result.Success;
+    }
+
+    public Result<Success> VerifyOtp(string target, string otp, OtpPurpose purpose, ICodeHasher codeHasher)
+    {
+        var code = _verificationCodes.FirstOrDefault(c =>
+            c.Target == target &&
+            c.Purpose == purpose
+            && c.IsValid);
+
+        if (code is null)
+            return UserErrors.CodeNotFound;
+
+        var useResult = code.Use(otp, codeHasher);
+
+        if (useResult.IsError)
+            return useResult.Errors;
+
+        ApplyStateChangesBasedOnPurpose(target, purpose);
+
+        return Result.Success;
+    }
+
+    private void ApplyStateChangesBasedOnPurpose(string target, OtpPurpose purpose)
+    {
+        switch (purpose)
+        {
+            case OtpPurpose.Registration:
+                if (PrimaryEmail?.Value == target)
+                {
+                    VerifyEmail();
+                }
+                else if (PhoneNumber == target)
+                {
+                    VerifyPhone();
+                }
+
+                RaiseDomainEvent(new UserVerifiedDomainEvent(Id, target));
+                break;
+        }
     }
 
     private User() { }

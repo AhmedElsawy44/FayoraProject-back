@@ -1,25 +1,14 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Auth.Commands.VerifyRegisterOtp;
+namespace Fayora.Application.Features.Auth.Commands.VerifyResetPasswordOtp;
 
-public class VerifyRegisterOtpCommandValidator : AbstractValidator<VerifyRegisterOtpCommand>
+public class VerifyResetPasswordOtpCommandValidator : AbstractValidator<VerifyResetPasswordOtpCommand>
 {
-    public VerifyRegisterOtpCommandValidator()
+    public VerifyResetPasswordOtpCommandValidator()
     {
-        RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("User ID is required.");
-
         RuleFor(x => x.Code)
             .NotEmpty().WithMessage("Verification code is required.")
             .Length(6).WithMessage("Verification code must be 6 characters.");
-
-        RuleFor(x => x.DeviceId)
-            .NotEmpty().WithMessage("Device ID is required.")
-            .MaximumLength(100).WithMessage("Device ID must not exceed 100 characters.");
-
-        RuleFor(x => x.FcmToken)
-            .NotEmpty().WithMessage("FCM Token is required.")
-            .MaximumLength(500).WithMessage("FCM Token must not exceed 500 characters.");
 
         RuleFor(x => x.Email)
             .EmailAddress().WithMessage("Invalid email format.")
@@ -35,7 +24,7 @@ public class VerifyRegisterOtpCommandValidator : AbstractValidator<VerifyRegiste
             .WithName("Identifier");
     }
 
-    private bool HaveExactlyOneIdentifier(VerifyRegisterOtpCommand command)
+    private bool HaveExactlyOneIdentifier(VerifyResetPasswordOtpCommand command)
     {
         bool hasEmail = !string.IsNullOrWhiteSpace(command.Email);
         bool hasPhone = !string.IsNullOrWhiteSpace(command.PhoneNumber);

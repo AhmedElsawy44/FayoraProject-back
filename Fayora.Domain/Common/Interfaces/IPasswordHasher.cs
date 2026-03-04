@@ -1,6 +1,6 @@
 ﻿using Fayora.Domain.Common.Results;
 
-namespace Fayora.Application.Common.Interfaces.Services;
+namespace Fayora.Domain.Common.Interfaces;
 
 public interface IPasswordHasher
 {

@@ -4,26 +4,51 @@ using Fayora.Application.Features.Auth.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Interfaces;
 using MediatR;
+using Microsoft.Extensions.Logging;
+using static Fayora.Application.Common.Interfaces.Presistance.IUserRepository;
 
 namespace Fayora.Application.Features.Auth.Commands.ResendRegisterOtp;
 
-public class ResendOtpCommandHandler(IUserRepository userRepository, IUnitOfWork unitOfWork, IVerificationCodeRepository verificationCodeRepository, ICodeHasher codeHasher, IVerificationCodeService verificationCodeService) : IRequestHandler<ResendOtpCommand, Result<Unit>>
+public class ResendOtpCommandHandler(
+    IUserRepository userRepository,
+    IUnitOfWork unitOfWork,
+    ICodeHasher codeHasher,
+    IVerificationCodeService verificationCodeService,
+    ILogger<ResendOtpCommandHandler> logger)
+    : IRequestHandler<ResendOtpCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(ResendOtpCommand request, CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetUserByIdAsync(request.UserId, cancellationToken, isTracking: true);
-
-        if (user is null)
-            return AuthErrors.UserNotFound;
-
-        var identifier = request.Email ?? request.PhoneNumber;
-        var result = user.RequestOtp(identifier!, request.SimCountryIsoCode, request.OtpPurpose, verificationCodeService, codeHasher);
-        if (result.IsError)
+        try
         {
-            return result.Errors;
-        }
+            var identifier = request.Email ?? request.PhoneNumber ?? "";
 
-        await unitOfWork.CommitChangesAsync(cancellationToken);
-        return Unit.Value;
+            var options = new UserQueryOptions
+            {
+                IsTracking = true,
+                IncludeVerificationCodes = true
+            };
+
+            var user = await userRepository.GetUserByIdAsync(request.UserId, options, cancellationToken);
+
+            if (user is null)
+                return AuthErrors.UserNotFound;
+
+            var result = user.RequestOtp(identifier, request.OtpPurpose, verificationCodeService, codeHasher);
+
+            if (result.IsError)
+            {
+                return result.Errors;
+            }
+
+            await unitOfWork.CommitChangesAsync(cancellationToken);
+
+            return Unit.Value;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while resending OTP for User {UserId}", request.UserId);
+            return Error.Failure("Server.Error", "An unexpected error occurred while processing your request.");
+        }
     }
 }

@@ -38,6 +38,7 @@ public class VerificationCodeConfigurations : IEntityTypeConfiguration<Verificat
 
         builder.Ignore(v => v.IsExpired);
         builder.Ignore(v => v.IsBlocked);
+        builder.Ignore(v => v.IsValid);
 
         builder.HasIndex(v => new { v.UserId, v.Target, v.Purpose })
             .HasFilter("[IsUsed] = 0");

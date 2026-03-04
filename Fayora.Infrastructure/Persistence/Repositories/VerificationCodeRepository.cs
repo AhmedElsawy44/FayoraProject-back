@@ -7,27 +7,20 @@ namespace Fayora.Infrastructure.Persistence.Repositories;
 
 public class VerificationCodeRepository(ApplicationDbContext context) : BaseRepository<VerificationCode, int>(context), IVerificationCodeRepository
 {
-    public async Task<VerificationCode?> GetUserCode(
+    public async Task<VerificationCode?> GetUserCodeAsync(
     Guid userId,
     string identifier,
-    string? simCountryIsoCode,
     OtpPurpose purpose,
     CancellationToken cancellationToken,
     bool isTracking = true)
     {
-        string target = identifier;
-        if (!identifier.Contains("@") && !string.IsNullOrWhiteSpace(simCountryIsoCode))
-        {
-            target = simCountryIsoCode + identifier;
-        }
-
         var query = context.VerificationCodes.AsQueryable();
 
         if (!isTracking) query = query.AsNoTracking();
 
         return await query.FirstOrDefaultAsync(v =>
             v.UserId == userId &&
-            v.Target == target &&
+            v.Target == identifier &&
             v.Purpose == purpose &&
             !v.IsRevoked &&
             !v.IsUsed,

@@ -4,4 +4,4 @@ using MediatR;
 
 namespace Fayora.Application.Features.Auth.Commands.ResendRegisterOtp;
 
-public record ResendOtpCommand(Guid UserId, string? Email, string? PhoneNumber, string? SimCountryIsoCode, OtpPurpose OtpPurpose) : IRequest<Result<Unit>>;
+public record ResendOtpCommand(Guid UserId, string? Email, string? PhoneNumber, OtpPurpose OtpPurpose) : IRequest<Result<Unit>>;

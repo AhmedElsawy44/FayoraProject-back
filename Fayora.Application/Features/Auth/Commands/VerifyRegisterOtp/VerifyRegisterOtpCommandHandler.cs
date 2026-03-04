@@ -5,10 +5,10 @@ using Fayora.Application.Features.Auth.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.Identity;
 using Fayora.Domain.Enums;
-using Fayora.Domain.Errors;
 using Fayora.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using static Fayora.Application.Common.Interfaces.Presistance.IUserRepository;
 
 namespace Fayora.Application.Features.Auth.Commands.VerifyRegisterOtp;
 
@@ -17,7 +17,6 @@ public class VerifyRegisterOtpCommandHandler(
     IJwtService jwtService,
     IRefreshTokenService refreshTokenService,
     IClientContextProvider context,
-    IVerificationCodeRepository verificationCodeRepository,
     IUserRepository userRepository,
     IDeviceRepository deviceRepository,
     IRefreshTokenRepository refreshTokenRepository,
@@ -31,34 +30,20 @@ public class VerifyRegisterOtpCommandHandler(
         {
             var identifier = request.Email ?? request.PhoneNumber ?? "";
 
-            var code = await verificationCodeRepository.GetUserCode(request.UserId, identifier, request.SimCountryIsoCode, OtpPurpose.Registration, cancellationToken, isTracking: true);
 
-            if (code is null)
-                return UserErrors.InvalidOrExpiredOtp;
-
-
-            var user = await userRepository.GetUserByIdAsync(request.UserId, cancellationToken, isTracking: true);
+            var options = new UserQueryOptions { IsTracking = true, IncludeVerificationCodes = true };
+            var user = await userRepository.GetUserByIdAsync(request.UserId, options, cancellationToken);
 
             if (user is null)
-                return UserErrors.InvalidOrExpiredOtp;
+                return AuthErrors.UserNotFound;
 
-            if (code.IsEmailType && user.IsEmailVerified)
-                return AuthErrors.UserAccountIsAlreadyVerified;
-            else if (code.IsSmsType && user.IsEmailVerified)
-                return AuthErrors.UserAccountIsAlreadyVerified;
+            var verifyResult = user.VerifyOtp(identifier, request.Code, OtpPurpose.Registration, codeHasher);
 
-            var result = code.Use(request.Code, codeHasher);
-
-            if (result.IsError)
+            if (verifyResult.IsError)
             {
                 await unitOfWork.CommitChangesAsync(cancellationToken);
-                return result.Errors;
+                return verifyResult.Errors;
             }
-
-            if (code.IsEmailType)
-                user.VerifyEmail();
-            else
-                user.VerifyPhone();
 
             var existingDevice = await deviceRepository.GetDeviceByIdAsync(request.DeviceId, cancellationToken, isTracking: true);
             if (existingDevice is null)
