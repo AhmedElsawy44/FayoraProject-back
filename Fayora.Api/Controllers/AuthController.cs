@@ -40,7 +40,7 @@ public class AuthController(ISender sender) : ApiController
     public async Task<IActionResult> ResendOtp(ResendOtpRequestDto request)
     {
         Enum.TryParse(request.OtpPurpose, out OtpPurpose purpose);
-        var command = new ResendOtpCommand(request.UserId, request.Email, request.PhoneNumber, purpose);
+        var command = new ResendOtpCommand(request.Email, request.PhoneNumber, purpose);
 
         var result = await sender.Send(command);
 

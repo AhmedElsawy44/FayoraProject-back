@@ -29,7 +29,7 @@ public class ResendOtpCommandHandler(
                 IncludeVerificationCodes = true
             };
 
-            var user = await userRepository.GetUserByIdAsync(request.UserId, options, cancellationToken);
+            var user = await userRepository.GetUserByIdentityAsync(identifier, options, cancellationToken);
 
             if (user is null)
                 return AuthErrors.UserNotFound;
@@ -47,7 +47,7 @@ public class ResendOtpCommandHandler(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An unexpected error occurred while resending OTP for User {UserId}", request.UserId);
+            logger.LogError(ex, "An unexpected error occurred while resending OTP for User {Identifier}", request.Email ?? request.PhoneNumber);
             return Error.Failure("Server.Error", "An unexpected error occurred while processing your request.");
         }
     }
