@@ -65,7 +65,7 @@ public class UserRepository(ApplicationDbContext context) : BaseRepository<User,
             query = query.Include(u => u.PasswordResetTokens);
         }
 
-        if(options.IncludeVerificationCodes)
+        if (options.IncludeVerificationCodes)
         {
             query = query.Include(u => u.VerificationCodes);
         }

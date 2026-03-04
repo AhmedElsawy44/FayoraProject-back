@@ -1,5 +1,4 @@
-﻿using Fayora.Domain.Entities.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Fayora.Infrastructure.Persistence.Configurations;
