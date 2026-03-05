@@ -7,7 +7,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using static Fayora.Application.Common.Interfaces.Presistance.IUserRepository;
 
-namespace Fayora.Application.Features.Auth.Commands.ResendRegisterOtp;
+namespace Fayora.Application.Features.Auth.Commands.ResendOtp;
 
 public class ResendOtpCommandHandler(
     IUserRepository userRepository,

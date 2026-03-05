@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Features.Auth.Commands.ResendRegisterOtp;
+﻿using Fayora.Application.Features.Auth.Commands.ResendOtp;
 using FluentValidation;
 
 namespace Fayora.Application.Features.Auth.Commands.ResendOtp;

@@ -1,11 +1,13 @@
 ﻿using Fayora.Application.Features.Auth.Commands.Register;
-using Fayora.Application.Features.Auth.Commands.ResendRegisterOtp;
+using Fayora.Application.Features.Auth.Commands.ResendOtp;
+using Fayora.Application.Features.Auth.Commands.ResetPassword;
 using Fayora.Application.Features.Auth.Commands.VerifyRegisterOtp;
 using Fayora.Application.Features.Auth.Commands.VerifyResetPasswordOtp;
 using Fayora.Application.Features.Auth.Common;
 using Fayora.Contracts.Auth;
 using Fayora.Domain.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fayora.Api.Controllers;
@@ -58,6 +60,18 @@ public class AuthController(ISender sender) : ApiController
 
         return verifyResult.Match(Ok, Problem);
     }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(ResetPasswordRequestDto request)
+    {
+        var command = new ResetPasswordCommand(request.Email, request.PhoneNumber, request.Token, request.NewPassword);
+
+        var result = await sender.Send(command);
+
+        return result.Match(_ => Ok(), errors => Problem(errors));
+    }
+
+
 
     private static RegisterResponseDto MapToAuthResponse(RegisterResult authResult)
     {

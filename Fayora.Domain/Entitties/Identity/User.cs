@@ -378,7 +378,7 @@ public class User : AuditableEntity<Guid>
     {
         var providedTokenHash = codeHasher.HashCode(rawToken);
 
-        var resetToken = _passwordResetTokens.FirstOrDefault(p => p.IsValid && p.TokenHash == providedTokenHash);
+        var resetToken = _passwordResetTokens.FirstOrDefault(p => p.IsValid && codeHasher.VerifyCode(rawToken, p.TokenHash));
 
         if (resetToken == null)
             return UserErrors.InvalidResetToken;
