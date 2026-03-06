@@ -1,10 +1,9 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistance;
+using Fayora.Application.Common.Interfaces.Services;
 using Fayora.Application.Features.Auth.Common;
 using Fayora.Domain.Common.Interfaces;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums;
-using Fayora.Domain.Errors;
-using Fayora.Domain.Interfaces;
 using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistance.IUserRepository;
 
@@ -14,7 +13,7 @@ public class ResetPasswordCommandHandler(
     IUserRepository userRepository,
     IUserTokenRepository userTokenRepository,
     IUnitOfWork unitOfWork,
-    ICodeHasher codeHasher,
+    ITokenHasher tokenHasher,
     IPasswordHasher passwordHasher)
     : IRequestHandler<ResetPasswordCommand, Result<Unit>>
 {
@@ -31,9 +30,9 @@ public class ResetPasswordCommandHandler(
 
         if (!user.IsVerified) return AuthErrors.UserNotVerified;
 
-        var providedTokenHash = codeHasher.HashCode(request.ResetToken);
+        var providedTokenHash = tokenHasher.HashToken(request.ResetToken);
 
-        var resetToken = await userTokenRepository.GetTokenAsync(user.Id, TokenType.PasswordResetToken, providedTokenHash, cancellationToken);
+        var resetToken = await userTokenRepository.GetTokenAsync(user.Id, TokenType.PasswordResetToken, providedTokenHash, cancellationToken, isTracking: true);
 
         if (resetToken is null || !resetToken.IsValid)
             return AuthErrors.InvalidResetToken;
@@ -44,9 +43,9 @@ public class ResetPasswordCommandHandler(
 
         if (resetResult.IsError) return resetResult.Errors;
 
-        await userTokenRepository.RevokeAllTokensForUserAsync(user.Id, cancellationToken);
-
         await unitOfWork.CommitChangesAsync(cancellationToken);
+
+        await userTokenRepository.RevokeAllTokensForUserAsync(user.Id, cancellationToken);
 
         return Unit.Value;
     }

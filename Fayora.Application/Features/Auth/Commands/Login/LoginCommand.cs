@@ -3,9 +3,9 @@ using Fayora.Application.Features.Auth.Common;
 using Fayora.Domain.Common.Results;
 using MediatR;
 
-namespace Fayora.Application.Features.Auth.Queries.Login;
+namespace Fayora.Application.Features.Auth.Commands.Login;
 
-public record LoginQuery(
+public record LoginCommand(
     string? Email,
     string? PhoneNumber,
     string Password,

@@ -1,9 +1,7 @@
 ﻿using Fayora.Domain.Common.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Fayora.Domain.Common.Events;
+
 public record UserSecurityActivityDomainEvent(
     Guid UserId,
     string Target,
@@ -17,5 +15,5 @@ public enum SecurityActivityType
     EmailChanged = 3,
     AccountLocked = 4,
     AccountRestored = 5,
-    AccountDeleted = 6, 
+    AccountDeleted = 6,
 }

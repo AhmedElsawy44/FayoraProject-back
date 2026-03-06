@@ -1,5 +1,4 @@
 ﻿using Fayora.Application.Common.Interfaces.Services;
-using Fayora.Domain.Enums;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Logging;

@@ -2,13 +2,11 @@
 using Fayora.Application.Common.Interfaces.Validations;
 using Fayora.Application.Features.Auth.Common;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Enums;
-using Fayora.Domain.Errors;
 using MediatR;
 
 namespace Fayora.Application.Common.Behaviors;
 
-public class BannedCheckBehavior<TRequest, TResponse>(IDeviceRepository deviceRepository, IUserRepository userRepository)
+public class BannedCheckBehavior<TRequest, TResponse>(IDeviceRepository deviceRepository)
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : ICheckBannedRequest
     where TResponse : Result

@@ -1,4 +1,4 @@
-﻿    using Fayora.Application.Common.Interfaces.Presistances;
+﻿using Fayora.Application.Common.Interfaces.Presistances;
 using Fayora.Domain.Entities.Identity;
 using Fayora.Domain.Enums;
 using Microsoft.EntityFrameworkCore;

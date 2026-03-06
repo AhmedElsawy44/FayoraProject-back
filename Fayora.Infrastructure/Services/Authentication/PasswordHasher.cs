@@ -1,11 +1,10 @@
 ﻿using Fayora.Domain.Common.Interfaces;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Interfaces;
 using System.Text.RegularExpressions;
 
 namespace Fayora.Infrastructure.Services.Authentication
 {
-    public partial class HashingService : IPasswordHasher, ICodeHasher
+    public partial class PasswordHasher : IPasswordHasher
     {
         private static readonly Regex PasswordRegex = StrongPasswordRegex();
         public Result<string> HashPassword(string password)

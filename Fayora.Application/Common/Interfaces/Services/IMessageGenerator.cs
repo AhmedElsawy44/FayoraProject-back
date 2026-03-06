@@ -1,12 +1,10 @@
-﻿using Fayora.Domain.Enums;
-
-namespace Fayora.Application.Common.Interfaces.Services;
+﻿namespace Fayora.Application.Common.Interfaces.Services;
 
 public interface IMessageGenerator
 {
     string GenerateCode(int length = 6);
     (string Subject, string Body) CreateEmailMessage(MessagelPurpose purpose, string? code = null);
-        string CreateSmsMessage(MessagelPurpose purpose, string code);
+    string CreateSmsMessage(MessagelPurpose purpose, string code);
 
     public enum MessagelPurpose
     {
@@ -15,6 +13,7 @@ public interface IMessageGenerator
         ResetPassword,
         ChangePhone,
         ChangeEmail,
+        EmailVerified,
         AccountDeletion,
         ReactivateAccount
     }

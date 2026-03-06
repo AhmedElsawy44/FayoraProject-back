@@ -1,5 +1,4 @@
-﻿using Fayora.Domain.Common.Events;
-using Fayora.Domain.Enums;
+﻿using Fayora.Domain.Enums;
 
 namespace Fayora.Domain.Entities.Identity;
 

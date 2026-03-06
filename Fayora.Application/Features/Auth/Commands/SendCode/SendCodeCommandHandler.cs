@@ -29,6 +29,8 @@ public class SendCodeCommandHandler(
 
         if (user.IsVerified && request.OtpPurpose == OtpPurpose.Registration) return AuthErrors.UserAccountIsAlreadyVerified;
 
+        if (!user.IsVerified && request.OtpPurpose == OtpPurpose.ResetPassword) return AuthErrors.UserNotVerified;
+
         var check = request.IsEmail
                 ? user.CanRequestEmailOtp()
                 : user.CanRequestSmsOtp();

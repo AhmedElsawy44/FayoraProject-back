@@ -36,6 +36,9 @@ public class UserSecurityActivityEventHandler(
             case SecurityActivityType.AccountDeleted:
                 await SendSecurityAlertAsync(email, MessagelPurpose.AccountDeletion, notification.UserId);
                 break;
+            case SecurityActivityType.EmailVerified:
+                await SendSecurityAlertAsync(email, MessagelPurpose.EmailVerified, notification.UserId);
+                break;
         }
     }
 

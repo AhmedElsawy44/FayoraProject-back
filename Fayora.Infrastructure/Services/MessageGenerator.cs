@@ -1,5 +1,4 @@
 ﻿using Fayora.Application.Common.Interfaces.Services;
-using Fayora.Domain.Enums;
 using System.Security.Cryptography;
 using static Fayora.Application.Common.Interfaces.Services.IMessageGenerator;
 
@@ -25,10 +24,6 @@ public class MessageGenerator : IMessageGenerator
                 Subject: "Password Reset Code",
                 Body: $"Your password reset code is: {code}. Please do not share this with anyone."
             ),
-            MessagelPurpose.Login => (
-                Subject: "Security Alert: New Login Detected",
-                Body: "We noticed a new login to your Fayora account. If this was you, no further action is needed. If you did not log in, please change your password and secure your account immediately."
-            ),
             MessagelPurpose.ChangePhone => (
                 Subject: "Phone Number Change Verification",
                 Body: $"You requested to change your phone number. Your verification code is: {code}"
@@ -44,6 +39,10 @@ public class MessageGenerator : IMessageGenerator
             MessagelPurpose.ReactivateAccount => (
                 Subject: "Reactivate Your Account",
                 Body: $"Welcome back! Your code to reactivate your account is: {code}"
+            ),
+            MessagelPurpose.EmailVerified => (
+                Subject: "Email Verified",
+                Body: "Your email address has been successfully verified. Thank you for confirming your contact information!"
             ),
             _ => (
                 Subject: "Fayora Security Code",

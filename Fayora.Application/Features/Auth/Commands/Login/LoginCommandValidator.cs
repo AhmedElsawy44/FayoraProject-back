@@ -1,11 +1,11 @@
 ﻿using Fayora.Application.Common.Validations;
 using FluentValidation;
 
-namespace Fayora.Application.Features.Auth.Queries.Login;
+namespace Fayora.Application.Features.Auth.Commands.Login;
 
-public class LoginQueryValidator : AbstractValidator<LoginQuery>
+public class LoginCommandValidator : AbstractValidator<LoginCommand>
 {
-    public LoginQueryValidator()
+    public LoginCommandValidator()
     {
         RuleFor(x => x.Email)
            .EmailAddress().WithMessage("Invalid email format.")

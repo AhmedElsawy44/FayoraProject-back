@@ -6,18 +6,15 @@ using Fayora.Domain.Common.Interfaces;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.Identity;
 using Fayora.Domain.Enums;
-using Fayora.Domain.Errors;
-using Fayora.Domain.Interfaces;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using static Fayora.Application.Common.Interfaces.Presistance.IUserRepository;
 
-namespace Fayora.Application.Features.Auth.Queries.Login;
+namespace Fayora.Application.Features.Auth.Commands.Login;
 
-public class LoginQueryHandler(IUserRepository userRepository, IUserTokenRepository userTokenRepository, IDeviceRepository deviceRepository, IUnitOfWork unitOfWork, IJwtService jwtService, ICodeHasher codeHasher, IUserTokenService userTokenService, IPasswordHasher passwordHasher, IClientContextProvider clientContextProvider) : IRequestHandler<LoginQuery, Result<AuthResult>>
+public class LoginCommandHandler(IUserRepository userRepository, IUserTokenRepository userTokenRepository, IDeviceRepository deviceRepository, IUnitOfWork unitOfWork, IJwtService jwtService, ITokenHasher tokenHasher, IUserTokenService userTokenService, IPasswordHasher passwordHasher, IClientContextProvider clientContextProvider) : IRequestHandler<LoginCommand, Result<AuthResult>>
 {
 
-    public async Task<Result<AuthResult>> Handle(LoginQuery request, CancellationToken cancellationToken)
+    public async Task<Result<AuthResult>> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetUserByIdentityAsync(request.Identity, new UserQueryOptions { IsTracking = true, IncludeRoles = true }, cancellationToken);
 
@@ -36,7 +33,7 @@ public class LoginQueryHandler(IUserRepository userRepository, IUserTokenReposit
 
         user.Login();
 
-        var device = await deviceRepository.GetDeviceByIdAsync(request.DeviceId, cancellationToken, isTracking: true);
+        var device = await deviceRepository.GetDeviceByUserIdAndDeviceIdAsync(user.Id, request.DeviceId, cancellationToken, isTracking: true);
 
         if (device is null)
         {
@@ -54,7 +51,7 @@ public class LoginQueryHandler(IUserRepository userRepository, IUserTokenReposit
 
         var refreshTokenString = userTokenService.GenerateTokenString();
 
-        var hashedRefreshToken = codeHasher.HashCode(refreshTokenString);
+        var hashedRefreshToken = tokenHasher.HashToken(refreshTokenString);
 
         var refreshToken = UserTokens.RefreshToken(user.Id, hashedRefreshToken, request.DeviceId, clientContextProvider.GetContext().IpAddress);
 

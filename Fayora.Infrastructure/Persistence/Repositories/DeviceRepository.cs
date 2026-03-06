@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fayora.Infrastructure.Persistence.Repositories;
 
-public class DeviceRepository(ApplicationDbContext context) :  IDeviceRepository
+public class DeviceRepository(ApplicationDbContext context) : IDeviceRepository
 {
     public void AddDevice(UserDevice device) => context.UserDevices.Add(device);
 

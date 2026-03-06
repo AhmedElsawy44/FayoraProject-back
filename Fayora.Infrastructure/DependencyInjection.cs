@@ -47,7 +47,7 @@ public static class DependencyInjection
     {
         services.AddSingleton<IUserTokenService, UserTokenService>();
         services.AddSingleton<IVerificationCodeService, VerificationCodeService>();
-        services.AddSingleton<ICodeHasher, HashingService>();
+        services.AddSingleton<ICodeHasher, CodeHasher>();
 
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.AddSingleton<IEmailService, EmailService>();
@@ -64,7 +64,7 @@ public static class DependencyInjection
 
         services.AddSingleton(Options.Create(jwtSettings));
         services.AddSingleton<IJwtService, JwtService>();
-        services.AddSingleton<IPasswordHasher, HashingService>();
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
         services.AddAuthentication(defaultScheme: JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters

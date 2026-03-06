@@ -15,21 +15,22 @@ public class VerifyResetPasswordCodeCommandHandler(
     IUserRepository userRepository,
     IVerificationCodeRepository verificationCodeRepository,
     IUserTokenService userTokenService,
+    IUserTokenRepository userTokens,
     IUnitOfWork unitOfWork,
-    ICodeHasher codeHasher)
+    ICodeHasher codeHasher,
+    ITokenHasher tokenHasher)
     : IRequestHandler<VerifyResetPasswordCodeCommand, Result<string>>
 {
     public async Task<Result<string>> Handle(VerifyResetPasswordCodeCommand request, CancellationToken cancellationToken)
     {
-        var options = new UserQueryOptions { IsTracking = true, IncludeVerificationCodes = true };
+        var options = new UserQueryOptions { IsTracking = true };
 
         var user = await userRepository.GetUserByIdentityAsync(request.Identity, options, cancellationToken);
 
         if (user is null) return AuthErrors.UserNotFound;
 
-        if (user.IsLocked) return Error.Failure("User.UserLocked", $"This user account is locked until {user.LockedUntil?.ToString("u")}.");
-
-        if (user.IsDeleted) return AuthErrors.UserDeleted;
+        var statusCheck = user.CheckActiveStatus();
+        if (statusCheck.IsError) return statusCheck.Errors;
 
         if (!user.IsVerified) return AuthErrors.UserNotVerified;
 
@@ -47,9 +48,11 @@ public class VerifyResetPasswordCodeCommandHandler(
 
         var rawToken = userTokenService.GenerateTokenString();
 
-        var hashedToken = codeHasher.HashCode(rawToken);
+        var hashedToken = tokenHasher.HashToken(rawToken);
 
         var token = UserTokens.PasswordResetToken(user.Id, hashedToken);
+
+        userTokens.AddToken(token);
 
         await unitOfWork.CommitChangesAsync(cancellationToken);
 

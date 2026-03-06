@@ -25,8 +25,6 @@ public class RegisterCommandHandler(
 
         var existUser = await userRepository.GetUserByIdentityAsync(request.Identity, options, cancellationToken);
 
-        var code = messageGenerator.GenerateCode();
-
         if (existUser is not null)
         {
             var statusCheck = existUser.CheckActiveStatus();
@@ -41,7 +39,9 @@ public class RegisterCommandHandler(
 
             if (check.IsError) return check.Errors;
 
-            existUser.SendCode(request.Identity, code, OtpPurpose.Registration, codeHasher);
+            var codeForExistingUser = messageGenerator.GenerateCode();
+
+            existUser.SendCode(request.Identity, codeForExistingUser, OtpPurpose.Registration, codeHasher);
 
             existUser.ChangePassword(request.Password, passwordHasher);
 
@@ -59,7 +59,9 @@ public class RegisterCommandHandler(
 
         var newUser = userResult.Value;
 
-        newUser.SendCode(request.Identity, code, OtpPurpose.Registration, codeHasher);
+        var codeForNewUser = messageGenerator.GenerateCode();
+
+        newUser.SendCode(request.Identity, codeForNewUser, OtpPurpose.Registration, codeHasher);
 
         userRepository.AddUser(newUser);
         await unitOfWork.CommitChangesAsync(cancellationToken);

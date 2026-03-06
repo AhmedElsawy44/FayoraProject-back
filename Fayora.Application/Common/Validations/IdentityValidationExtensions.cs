@@ -1,5 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces;
-using Fayora.Application.Common.Interfaces.Validations;
+﻿using Fayora.Application.Common.Interfaces.Validations;
 using FluentValidation;
 
 namespace Fayora.Application.Common.Validations;

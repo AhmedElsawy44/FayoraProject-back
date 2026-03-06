@@ -15,6 +15,7 @@ namespace Fayora.Application.Features.Auth.Commands.VerifyRegisterCode;
 public class VerifyRegisterCodeCommandHandler(
     ICodeHasher codeHasher,
     IJwtService jwtService,
+    ITokenHasher tokenHasher,
     IUserTokenService userTokenService,
     IClientContextProvider context,
     IUserRepository userRepository,
@@ -68,7 +69,6 @@ public class VerifyRegisterCodeCommandHandler(
             existingDevice.UpdateInfo(request.FcmToken, request.DeviceLanguage);
         }
 
-
         var roles = user.GetRoleNames();
 
         var accessToken = jwtService.GenerateToken(request.DeviceId, user, roles);
@@ -76,9 +76,11 @@ public class VerifyRegisterCodeCommandHandler(
         var refreshTokenString = userTokenService.GenerateTokenString();
         var ipAddress = context.GetContext().IpAddress;
 
+        var hashedRefreshToken = tokenHasher.HashToken(refreshTokenString);
+
         await userTokenRepository.RevokeTokensForDeviceAsync(user.Id, request.DeviceId, TokenType.RefreshToken, cancellationToken);
 
-        var refreshToken = UserTokens.RefreshToken(user.Id, refreshTokenString, request.DeviceId, ipAddress);
+        var refreshToken = UserTokens.RefreshToken(user.Id, hashedRefreshToken, request.DeviceId, ipAddress);
         userTokenRepository.AddToken(refreshToken);
 
         user.Login();

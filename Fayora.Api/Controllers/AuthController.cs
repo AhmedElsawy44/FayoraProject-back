@@ -3,7 +3,6 @@ using Fayora.Application.Features.Auth.Commands.ResetPassword;
 using Fayora.Application.Features.Auth.Commands.SendCode;
 using Fayora.Application.Features.Auth.Commands.VerifyRegisterCode;
 using Fayora.Application.Features.Auth.Commands.VerifyResetPasswordCode;
-using Fayora.Application.Features.Auth.Queries.Login;
 using Fayora.Contracts.Auth;
 using Fayora.Domain.Enums;
 using MediatR;
