@@ -24,14 +24,9 @@ internal class UserRoleConfigurations : IEntityTypeConfiguration<UserRole>
         builder.HasIndex(ur => new { ur.UserId, ur.RoleId })
             .IsUnique();
 
-        builder.HasOne<User>()
-            .WithMany()
-            .HasForeignKey(ur => ur.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.HasOne<Role>()
             .WithMany()
             .HasForeignKey(ur => ur.RoleId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

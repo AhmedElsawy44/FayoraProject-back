@@ -1,10 +1,10 @@
-﻿using Fayora.Domain.Entities.Identity; // تأكد من المسار
+﻿using Fayora.Domain.Entities.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Fayora.Infrastructure.Persistence.Configurations;
 
-internal class RoleConfigurations : IEntityTypeConfiguration<Role>
+public class RoleConfigurations : IEntityTypeConfiguration<Role>
 {
     public void Configure(EntityTypeBuilder<Role> builder)
     {
@@ -12,12 +12,22 @@ internal class RoleConfigurations : IEntityTypeConfiguration<Role>
 
         builder.HasKey(r => r.Id);
 
-        // 3. إعدادات حقل الاسم
+        builder.Property(r => r.Id)
+            .ValueGeneratedOnAdd();
+
         builder.Property(r => r.Name)
             .IsRequired()
             .HasMaxLength(50);
 
         builder.HasIndex(r => r.Name)
             .IsUnique();
+
+
+        builder.HasData(
+            new { Id = 1, Name = "Admin" },
+            new { Id = 2, Name = "Tourist" },
+            new { Id = 3, Name = "TourGuide" },
+            new { Id = 4, Name = "Host" }
+        );
     }
 }

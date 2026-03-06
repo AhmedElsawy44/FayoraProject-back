@@ -27,21 +27,15 @@ public class VerificationCodeConfigurations : IEntityTypeConfiguration<Verificat
         builder.Property(v => v.ExpiresAt)
             .IsRequired();
 
-        builder.Property(v => v.IsUsed)
-            .IsRequired();
-
         builder.Property(v => v.AttemptCount)
             .IsRequired();
 
         builder.Property(v => v.CreatedAt)
             .IsRequired();
 
-        builder.Ignore(v => v.IsExpired);
-        builder.Ignore(v => v.IsBlocked);
         builder.Ignore(v => v.IsValid);
 
-        builder.HasIndex(v => new { v.UserId, v.Target, v.Purpose })
-            .HasFilter("[IsUsed] = 0");
+        builder.HasIndex(v => new { v.UserId, v.Target, v.Purpose });
 
         builder.HasIndex(v => new { v.Target, v.Purpose });
     }

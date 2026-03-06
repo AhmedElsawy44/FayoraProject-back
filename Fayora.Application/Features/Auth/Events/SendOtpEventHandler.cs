@@ -3,30 +3,37 @@ using Fayora.Domain.Common.Events;
 using Fayora.Domain.Enums;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using static Fayora.Application.Common.Interfaces.Services.IMessageGenerator;
 
 namespace Fayora.Application.Features.Auth.Events;
 
 public class SendOtpEventHandler(
     ISmsService smsService,
     IEmailService emailService,
+    IMessageGenerator messageGenerator,
     ILogger<SendOtpEventHandler> logger)
-    : INotificationHandler<OtpRequestedDomainEvent>
+    : INotificationHandler<OtpRequestedEvent>
 {
-    public async Task Handle(OtpRequestedDomainEvent notification, CancellationToken cancellationToken)
+    public async Task Handle(OtpRequestedEvent notification, CancellationToken cancellationToken)
     {
-        var message = GenerateMessage(notification.Code, notification.Purpose);
-
         try
         {
+            var messagePurpose = MapToMessagePurpose(notification.Purpose);
 
-            if (notification.Target.Contains("@"))
+            if (notification.Target.Contains('@'))
             {
-                await emailService.SendEmailAsync(notification.Target, notification.Purpose.ToString(), message);
+                var (subject, body) = messageGenerator.CreateEmailMessage(messagePurpose, notification.Code);
+
+                await emailService.SendEmailAsync(notification.Target, subject, body);
+
                 logger.LogInformation("OTP email sent successfully to {Target}", notification.Target);
             }
             else
             {
-                await smsService.SendSMSAsync(notification.Target, message);
+                var message = messageGenerator.CreateSmsMessage(messagePurpose, notification.Code);
+
+                await smsService.SendSmsAsync(notification.Target, message);
+
                 logger.LogInformation("OTP SMS sent successfully to {Target}", notification.Target);
             }
         }
@@ -36,14 +43,13 @@ public class SendOtpEventHandler(
         }
     }
 
-    private string GenerateMessage(string code, OtpPurpose purpose)
+    private static MessagelPurpose MapToMessagePurpose(OtpPurpose purpose)
     {
         return purpose switch
         {
-            OtpPurpose.Registration => $"Welcome to Fayora! Your verification code is: {code}",
-            OtpPurpose.ResetPassword => $"Your password reset code is: {code}. Don't share it!",
-            OtpPurpose.Login => $"Your login code is: {code}",
-            _ => $"Your Fayora code is: {code}"
+            OtpPurpose.Registration => MessagelPurpose.Registration,
+            OtpPurpose.ResetPassword => MessagelPurpose.ResetPassword,
+            _ => throw new ArgumentOutOfRangeException(nameof(purpose), $"Unexpected OTP purpose: {purpose}")
         };
     }
 }

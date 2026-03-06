@@ -4,7 +4,7 @@ namespace Fayora.Infrastructure.Services;
 
 public class SmsService : ISmsService
 {
-    public Task SendSMSAsync(string phoneNumber, string text)
+    public Task SendSmsAsync(string phoneNumber, string text)
     {
         throw new NotImplementedException();
     }

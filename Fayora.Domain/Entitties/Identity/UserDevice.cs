@@ -6,8 +6,9 @@ public class UserDevice : BaseEntity<int>
     public string DeviceId { get; init; } = string.Empty;
     public string FCMToken { get; private set; } = string.Empty;
     public string DeviceLanguage { get; private set; } = string.Empty;
-    public DateTimeOffset LastUsedAt { get; private set; } = DateTimeOffset.UtcNow;
+    public bool IsBanned { get; private set; } = false;
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset LastUsedAt { get; private set; } = DateTimeOffset.UtcNow;
 
     public UserDevice(Guid userId, string deviceId, string fcmToken, string deviceLanguage)
     {
@@ -17,17 +18,15 @@ public class UserDevice : BaseEntity<int>
         DeviceLanguage = deviceLanguage;
     }
 
-    public void UpdateUsage(string newLanguage)
+    public void UpdateInfo(string? newFcmToken = null, string? newLanguage = null)
     {
-        DeviceLanguage = newLanguage;
+        FCMToken = newFcmToken ?? FCMToken;
+        DeviceLanguage = newLanguage ?? DeviceLanguage;
+
         LastUsedAt = DateTimeOffset.UtcNow;
     }
 
-    public void UpdateFcmToken(string newFcmToken)
-    {
-        FCMToken = newFcmToken;
-        LastUsedAt = DateTimeOffset.UtcNow;
-    }
+    public void Ban() => IsBanned = true;
 
     private UserDevice() { }
 }

@@ -1,13 +1,12 @@
 ﻿using Fayora.Application.Features.Auth.Commands.Register;
-using Fayora.Application.Features.Auth.Commands.ResendOtp;
 using Fayora.Application.Features.Auth.Commands.ResetPassword;
-using Fayora.Application.Features.Auth.Commands.VerifyRegisterOtp;
-using Fayora.Application.Features.Auth.Commands.VerifyResetPasswordOtp;
-using Fayora.Application.Features.Auth.Common;
+using Fayora.Application.Features.Auth.Commands.SendCode;
+using Fayora.Application.Features.Auth.Commands.VerifyRegisterCode;
+using Fayora.Application.Features.Auth.Commands.VerifyResetPasswordCode;
+using Fayora.Application.Features.Auth.Queries.Login;
 using Fayora.Contracts.Auth;
 using Fayora.Domain.Enums;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fayora.Api.Controllers;
@@ -17,21 +16,19 @@ namespace Fayora.Api.Controllers;
 public class AuthController(ISender sender) : ApiController
 {
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterRequestDto request)
+    public async Task<IActionResult> Register(RegisterRequest request)
     {
-        var command = new RegisterCommand(request.Email, request.PhoneNumber, request.Password, request.SimCountryIsoCode, request.TimeZone, request.DeviceInfo.DeviceId, request.DeviceInfo.DeviceLanguage);
+        var command = new RegisterCommand(request.Email, request.PhoneNumber, request.Password, request.DeviceId);
 
         var authResult = await sender.Send(command);
 
-        return authResult.Match(
-            value => Ok(MapToAuthResponse(value)),
-            errors => Problem(errors));
+        return authResult.Match(Ok, Problem);
     }
 
     [HttpPost("verify-register-otp")]
-    public async Task<IActionResult> VerifyRegisterationOtp(VerifyRegisterOtpRequestDto request)
+    public async Task<IActionResult> VerifyRegisterationOtp(VerifyRegisterOtpRequest request)
     {
-        var command = new VerifyRegisterOtpCommand(request.UserId, request.Email, request.PhoneNumber, request.Otp, request.DeviceInfoDto.DeviceId, request.DeviceInfoDto.FcmToken);
+        var command = new VerifyRegisterCodeCommand(request.UserId, request.Email, request.PhoneNumber, request.Code, request.DeviceId, request.FcmToken, request.SimCountryIsoCode, request.TimeZone, request.DeviceLanguage);
 
         var verifyResult = await sender.Send(command);
 
@@ -39,10 +36,10 @@ public class AuthController(ISender sender) : ApiController
     }
 
     [HttpPost("resend-otp")]
-    public async Task<IActionResult> ResendOtp(ResendOtpRequestDto request)
+    public async Task<IActionResult> ResendOtp(ResendOtpRequest request)
     {
         Enum.TryParse(request.OtpPurpose, out OtpPurpose purpose);
-        var command = new ResendOtpCommand(request.Email, request.PhoneNumber, purpose);
+        var command = new SendCodeCommand(request.Email, request.PhoneNumber, request.DeviceId, purpose);
 
         var result = await sender.Send(command);
 
@@ -52,9 +49,9 @@ public class AuthController(ISender sender) : ApiController
     }
 
     [HttpPost("verify-reset-password-otp")]
-    public async Task<IActionResult> VerifyResetPasswordOtp(VerifyResetPasswordOtpRequestDto request)
+    public async Task<IActionResult> VerifyResetPasswordOtp(VerifyResetPasswordOtpRequest request)
     {
-        var command = new VerifyResetPasswordOtpCommand(request.Email, request.PhoneNumber, request.Otp);
+        var command = new VerifyResetPasswordCodeCommand(request.Email, request.PhoneNumber, request.DeviceId, request.Code);
 
         var verifyResult = await sender.Send(command);
 
@@ -62,24 +59,22 @@ public class AuthController(ISender sender) : ApiController
     }
 
     [HttpPost("reset-password")]
-    public async Task<IActionResult> ResetPassword(ResetPasswordRequestDto request)
+    public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
     {
-        var command = new ResetPasswordCommand(request.Email, request.PhoneNumber, request.Token, request.NewPassword);
+        var command = new ResetPasswordCommand(request.Email, request.PhoneNumber, request.DeviceId, request.ResetPasswordToken, request.NewPassword);
 
         var result = await sender.Send(command);
 
         return result.Match(_ => Ok(), errors => Problem(errors));
     }
 
-
-
-    private static RegisterResponseDto MapToAuthResponse(RegisterResult authResult)
+    [HttpPost("login")]
+    public async Task<IActionResult> Login(LoginRequest request)
     {
-        IdentifierType identifierType = !String.IsNullOrWhiteSpace(authResult.Email)
-            ? IdentifierType.Email
-            : IdentifierType.Phone;
-        string identifier = authResult.Email ?? authResult.PhoneNumber!;
+        var command = new LoginQuery(request.Email, request.PhoneNumber, request.Password, request.DeviceId, request.FcmToken, request.DeviceLanguage);
 
-        return new RegisterResponseDto(authResult.Id, identifier, identifierType.ToString());
+        var result = await sender.Send(command);
+
+        return result.Match(Ok, Problem);
     }
 }

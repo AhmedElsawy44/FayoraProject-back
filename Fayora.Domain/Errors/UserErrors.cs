@@ -35,30 +35,9 @@ public static class UserErrors
         "The password does not meet the complexity requirements."
     );
 
-    public static readonly Error TooManyIdentities = Error.Validation(
-        "User.TooManyIdentities",
-        $"User cannot have more than {User.MaxUserIdentities} identity providers."
-    );
-
-
-    public static readonly Error EmailAlreadyExists = Error.Conflict(
-        "User.EmailAlreadyExists",
-        "A user with this email already exists"
-    );
-
-    public static readonly Error PhoneAlreadyExists = Error.Conflict(
-        "User.PhoneNumberAlreadyExists",
-        "A user with this phone number already exists"
-    );
-
     public static readonly Error DeviceIdMissing = Error.Validation(
         "User.DeviceIdMissing",
         "Device ID is missing."
-    );
-
-    public static readonly Error DeviceBanned = Error.Failure(
-        "User.DeviceBanned",
-        "This device has been banned."
     );
 
     public static readonly Error EmailBanned = Error.Failure(
@@ -78,7 +57,7 @@ public static class UserErrors
 
     public static readonly Error DailyOtpLimitReached = Error.Failure(
         code: "User.DailyOtpLimitReached",
-        description: "You have reached the maximum number of verification codes allowed per day. Please try again after 24 hours."
+        description: "You have reached the maximum number of codes allowed per day. Please try again after 24 hours."
     );
 
     public static readonly Error OnlyOneAllowed = Error.Validation(
@@ -89,11 +68,6 @@ public static class UserErrors
     public static readonly Error InvalidOrExpiredOtp = Error.NotFound(
         code: "VerificationCode.InvalidOrExpired",
         description: "The verification code is invalid, expired, or has not been requested."
-    );
-
-    public static readonly Error AccountAlreadyVerified = Error.Conflict(
-        code: "User.AccountAlreadyVerified",
-        description: "The account is already verified."
     );
 
     public static readonly Error InvalidResetToken = Error.Validation(
@@ -120,4 +94,18 @@ public static class UserErrors
         code: "User.InvalidTarget",
         description: "The target is invalid."
     );
+
+    public static readonly Error UserDeleted = Error.Failure(
+        code: "User.UserDeleted",
+        description: "This user has been deleted."
+    );
+
+    public static readonly Error InvalidCredentials = Error.Validation(
+        code: "User.InvalidCredentials",
+        description: "The provided credentials are incorrect."
+    );
+    public static readonly Error UserNotFound = Error.NotFound(
+       code: "User.UserNotFound",
+       description: "No user found with the provided information."
+   );
 }

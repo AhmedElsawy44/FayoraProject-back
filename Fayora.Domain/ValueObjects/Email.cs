@@ -3,31 +3,29 @@ using Fayora.Domain.Errors;
 
 namespace Fayora.Domain.ValueObjects;
 
-public class Email
+public sealed class Email : IEquatable<Email>
 {
     public string Value { get; }
 
-    private Email(string value)
-    {
-        Value = value.ToLower();
-    }
+    private Email(string value) => Value = value.ToLowerInvariant().Trim();
 
     public static Result<Email> Create(string email)
     {
-        if (!email.Contains("@"))
+        if (string.IsNullOrWhiteSpace(email))
+            return UserErrors.InvalidEmail;
+
+        if (!email.Contains('@'))
             return UserErrors.InvalidEmail;
 
         return new Email(email);
     }
 
-    public override bool Equals(object? obj)
-    {
-        if (obj is null) return false;
-        if (obj is Email email) return Value != email.Value;
+    public override bool Equals(object? obj) => obj is Email other && Equals(other);
 
-        return true;
-    }
+    public bool Equals(Email? other) => other is not null && Value == other.Value;
 
-    public static bool operator ==(Email? left, Email? right) => left?.Value == right?.Value;
-    public static bool operator !=(Email? left, Email? right) => !(left == right);
+    public override int GetHashCode() => Value.GetHashCode();
+    public static bool operator ==(Email? left, Email? right) => Equals(left, right);
+    public static bool operator !=(Email? left, Email? right) => !Equals(left, right);
+    public override string ToString() => Value;
 }

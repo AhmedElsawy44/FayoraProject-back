@@ -7,20 +7,17 @@ namespace Fayora.Domain.Entities.Identity;
 public class VerificationCode : BaseEntity<int>
 {
     public static readonly int MaxAllowedAttempts = 3;
-    public static readonly TimeSpan DefaultExpiration = TimeSpan.FromMinutes(15);
+    public static readonly TimeSpan DefaultExpiration = TimeSpan.FromMinutes(5);
 
     public Guid UserId { get; init; }
     public string Target { get; init; } = string.Empty;
     public string CodeHash { get; init; } = string.Empty;
     public OtpPurpose Purpose { get; init; } = OtpPurpose.Registration;
     public DateTimeOffset ExpiresAt { get; init; } = DateTimeOffset.UtcNow.Add(DefaultExpiration);
-    public bool IsUsed { get; private set; } = false;
-    public bool IsRevoked { get; private set; } = false;
+    public DateTimeOffset? RevokedAt { get; private set; } = null;
     public int AttemptCount { get; private set; } = 0;
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
-    public bool IsExpired => DateTimeOffset.UtcNow > ExpiresAt;
-    public bool IsBlocked => AttemptCount >= MaxAllowedAttempts;
-    public bool IsValid => !IsUsed && !IsRevoked && !IsExpired && !IsBlocked;
+    public bool IsValid => !RevokedAt.HasValue && DateTimeOffset.UtcNow < ExpiresAt && AttemptCount < MaxAllowedAttempts;
     public bool IsEmailType => Target.Contains('@');
     public bool IsSmsType => !IsEmailType && System.Text.RegularExpressions.Regex.IsMatch(Target, @"^\+?[0-9]{10,15}$");
 
@@ -38,11 +35,11 @@ public class VerificationCode : BaseEntity<int>
             return Error.Failure("VerificationCode.InvalidCode", "The provided code is incorrect.");
         }
 
-        IsUsed = true;
+        Revoke();
         return Result.Success;
     }
 
-    internal void Revoke() => IsRevoked = true;
+    internal void Revoke() => RevokedAt = DateTimeOffset.UtcNow;
 
     internal static VerificationCode Create(Guid userId, string target, string codeHash, OtpPurpose purpose)
     {
@@ -52,6 +49,7 @@ public class VerificationCode : BaseEntity<int>
             Target = target,
             CodeHash = codeHash,
             Purpose = purpose,
+            ExpiresAt = DateTimeOffset.UtcNow.Add(DefaultExpiration)
         };
     }
 

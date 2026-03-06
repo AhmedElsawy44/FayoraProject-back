@@ -1,4 +1,5 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistance;
+using Fayora.Application.Common.Interfaces.Presistances;
 using Fayora.Application.Common.Interfaces.Services;
 using Fayora.Domain.Common.Interfaces;
 using Fayora.Domain.Interfaces;
@@ -33,9 +34,8 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
 
-        services.AddScoped<IBannedItemRepository, BannedItemRepository>();
         services.AddScoped<IDeviceRepository, DeviceRepository>();
-        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IUserTokenRepository, UserTokenRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IVerificationCodeRepository, VerificationCodeRepository>();
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
@@ -45,13 +45,14 @@ public static class DependencyInjection
 
     public static IServiceCollection AddService(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton<IRefreshTokenService, RefreshTokenService>();
+        services.AddSingleton<IUserTokenService, UserTokenService>();
         services.AddSingleton<IVerificationCodeService, VerificationCodeService>();
         services.AddSingleton<ICodeHasher, HashingService>();
 
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.AddSingleton<IEmailService, EmailService>();
         services.AddSingleton<ISmsService, SmsService>();
+        services.AddSingleton<IMessageGenerator, MessageGenerator>();
 
         return services;
     }

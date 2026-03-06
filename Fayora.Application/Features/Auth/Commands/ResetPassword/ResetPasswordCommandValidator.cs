@@ -30,6 +30,10 @@ public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordComm
             .Matches("[a-z]").WithMessage("Password must contain at least one lowercase letter.")
             .Matches("[0-9]").WithMessage("Password must contain at least one number.")
             .Matches("[^a-zA-Z0-9]").WithMessage("Password must contain at least one special character.");
+
+        RuleFor(x => x.DeviceId)
+            .NotEmpty().WithMessage("Device ID is required.")
+            .MaximumLength(100).WithMessage("Device ID must not exceed 100 characters.");
     }
 
     private bool HaveExactlyOneIdentifier(ResetPasswordCommand command)

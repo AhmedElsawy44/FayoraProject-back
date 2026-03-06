@@ -67,28 +67,28 @@ internal class UserConfigurations : IEntityTypeConfiguration<User>
             .HasMaxLength(256)
             .IsRequired();
 
-        builder.HasMany(u => u.UserIdentities)
-            .WithOne()
-            .HasForeignKey(ui => ui.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.HasMany(u => u.VerificationCodes)
             .WithOne()
             .HasForeignKey(vc => vc.UserId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.Navigation(u => u.VerificationCodes)
+            .HasField("_verificationCodes")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.HasMany(u => u.Roles)
+            .WithOne()
+            .HasForeignKey(ur => ur.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany<RefreshToken>()
-            .WithOne()
-            .HasForeignKey(r => r.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(u => u.Roles)
+            .HasField("_roles")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
 
         builder.HasMany<UserDevice>()
             .WithOne()
             .HasForeignKey(d => d.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-
-        builder.Metadata.FindNavigation(nameof(User.UserIdentities))!
-            .SetPropertyAccessMode(PropertyAccessMode.Field);
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

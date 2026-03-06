@@ -1,11 +1,10 @@
-﻿
-
-namespace Fayora.Domain.Enums;
+﻿namespace Fayora.Domain.Enums;
 
 public enum UserStatus
 {
-    Active = 1,
-    Locked = 2,
-    Deleted = 3
+    Active,
+    Locked,
+    Deleted,
+    Banned
 }
 

@@ -22,95 +22,6 @@ namespace Fayora.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.BannedItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("BanType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("BanValue")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset?>("ExpiresAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("BanType", "BanValue");
-
-                    b.ToTable("BannedItems", (string)null);
-                });
-
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.RefreshToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("DeviceId")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("IpAddress")
-                        .HasMaxLength(45)
-                        .HasColumnType("nvarchar(45)");
-
-                    b.Property<DateTime?>("RevokedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DeviceId");
-
-                    b.HasIndex("Token")
-                        .IsUnique();
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("Token", "DeviceId");
-
-                    b.ToTable("RefreshTokens", (string)null);
-                });
-
             modelBuilder.Entity("Fayora.Domain.Entities.Identity.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -130,6 +41,28 @@ namespace Fayora.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Roles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Tourist"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "TourGuide"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Host"
+                        });
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.Identity.User", b =>
@@ -137,6 +70,9 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
 
                     b.Property<DateOnly?>("BirthDate")
                         .HasColumnType("DATE");
@@ -169,6 +105,9 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<bool>("IsProfileComplete")
                         .HasColumnType("bit");
 
+                    b.Property<DateTimeOffset?>("LastFailedLoginAt")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<DateTimeOffset?>("LastLogin")
                         .HasColumnType("datetimeoffset");
 
@@ -196,7 +135,6 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("PreferredLanguage")
-                        .IsRequired()
                         .HasColumnType("NVARCHAR(20)");
 
                     b.Property<string>("PrimaryEmail")
@@ -218,7 +156,6 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("TimeZone")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
@@ -247,63 +184,6 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.UserArchive", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset>("ArchivedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("DeletedBy")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("DeletionReason")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("FullUserDataBackup")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsRejoinable")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset>("OriginalCreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("OriginalUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Email");
-
-                    b.HasIndex("OriginalUserId");
-
-                    b.HasIndex("Phone");
-
-                    b.ToTable("UserArchives", (string)null);
-                });
-
             modelBuilder.Entity("Fayora.Domain.Entities.Identity.UserDevice", b =>
                 {
                     b.Property<int>("Id")
@@ -330,6 +210,9 @@ namespace Fayora.Infrastructure.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("nvarchar(512)");
 
+                    b.Property<bool>("IsBanned")
+                        .HasColumnType("bit");
+
                     b.Property<DateTimeOffset>("LastUsedAt")
                         .HasColumnType("datetimeoffset");
 
@@ -348,53 +231,6 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("UserDevices", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.UserIdentity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<DateTimeOffset>("LinkedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("ProfileData")
-                        .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
-
-                    b.Property<string>("Provider")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("ProviderKey")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Email");
-
-                    b.HasIndex("Provider", "ProviderKey")
-                        .IsUnique();
-
-                    b.HasIndex("UserId", "Provider")
-                        .IsUnique();
-
-                    b.ToTable("UserIdentities", (string)null);
-                });
-
             modelBuilder.Entity("Fayora.Domain.Entities.Identity.UserRole", b =>
                 {
                     b.Property<int>("Id")
@@ -409,6 +245,9 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
 
+                    b.Property<int>("RoleId1")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -416,10 +255,48 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
+                    b.HasIndex("RoleId1");
+
                     b.HasIndex("UserId", "RoleId")
                         .IsUnique();
 
                     b.ToTable("UserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.Identity.UserTokens", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("HashedToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("TokenType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserTokens");
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.Identity.VerificationCode", b =>
@@ -444,15 +321,12 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<DateTimeOffset>("ExpiresAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<bool>("IsRevoked")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsUsed")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Purpose")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Target")
                         .IsRequired()
@@ -466,8 +340,7 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.HasIndex("Target", "Purpose");
 
-                    b.HasIndex("UserId", "Target", "Purpose")
-                        .HasFilter("[IsUsed] = 0");
+                    b.HasIndex("UserId", "Target", "Purpose");
 
                     b.ToTable("VerificationCodes", (string)null);
                 });
@@ -568,76 +441,12 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("VerificationRequests", (string)null);
                 });
 
-            modelBuilder.Entity("PasswordResetToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset>("ExpiresAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("IsRevoked")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsUsed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("TokenHash")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TokenHash")
-                        .IsUnique();
-
-                    b.HasIndex("UserId", "TokenHash");
-
-                    b.ToTable("PasswordResetTokens", (string)null);
-                });
-
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.BannedItem", b =>
-                {
-                    b.HasOne("Fayora.Domain.Entities.Identity.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-                });
-
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.RefreshToken", b =>
-                {
-                    b.HasOne("Fayora.Domain.Entities.Identity.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Fayora.Domain.Entities.Identity.UserDevice", b =>
                 {
                     b.HasOne("Fayora.Domain.Entities.Identity.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.UserIdentity", b =>
-                {
-                    b.HasOne("Fayora.Domain.Entities.Identity.User", null)
-                        .WithMany("UserIdentities")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
@@ -646,14 +455,22 @@ namespace Fayora.Infrastructure.Migrations
                     b.HasOne("Fayora.Domain.Entities.Identity.Role", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Fayora.Domain.Entities.Identity.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Fayora.Domain.Entities.Identity.User", null)
-                        .WithMany()
+                        .WithMany("Roles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.Identity.VerificationCode", b =>
@@ -661,7 +478,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.HasOne("Fayora.Domain.Entities.Identity.User", null)
                         .WithMany("VerificationCodes")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
@@ -673,22 +490,9 @@ namespace Fayora.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("PasswordResetToken", b =>
-                {
-                    b.HasOne("Fayora.Domain.Entities.Identity.User", "User")
-                        .WithMany("PasswordResetTokens")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Fayora.Domain.Entities.Identity.User", b =>
                 {
-                    b.Navigation("PasswordResetTokens");
-
-                    b.Navigation("UserIdentities");
+                    b.Navigation("Roles");
 
                     b.Navigation("VerificationCodes");
                 });
