@@ -48,6 +48,7 @@ public static class DependencyInjection
         services.AddSingleton<IUserTokenService, UserTokenService>();
         services.AddSingleton<IVerificationCodeService, VerificationCodeService>();
         services.AddSingleton<ICodeHasher, CodeHasher>();
+        services.AddSingleton<ITokenHasher, TokenHasher>();
 
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.AddSingleton<IEmailService, EmailService>();

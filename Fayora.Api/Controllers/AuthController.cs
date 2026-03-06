@@ -1,4 +1,5 @@
-﻿using Fayora.Application.Features.Auth.Commands.Register;
+﻿using Fayora.Application.Features.Auth.Commands.Login;
+using Fayora.Application.Features.Auth.Commands.Register;
 using Fayora.Application.Features.Auth.Commands.ResetPassword;
 using Fayora.Application.Features.Auth.Commands.SendCode;
 using Fayora.Application.Features.Auth.Commands.VerifyRegisterCode;
@@ -70,7 +71,7 @@ public class AuthController(ISender sender) : ApiController
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)
     {
-        var command = new LoginQuery(request.Email, request.PhoneNumber, request.Password, request.DeviceId, request.FcmToken, request.DeviceLanguage);
+        var command = new LoginCommand(request.Email, request.PhoneNumber, request.Password, request.DeviceId, request.FcmToken, request.DeviceLanguage);
 
         var result = await sender.Send(command);
 
