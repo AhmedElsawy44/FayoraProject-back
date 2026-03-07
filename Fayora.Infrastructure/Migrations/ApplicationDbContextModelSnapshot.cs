@@ -22,7 +22,7 @@ namespace Fayora.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.Role", b =>
+            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -65,7 +65,7 @@ namespace Fayora.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.User", b =>
+            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -184,7 +184,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.UserDevice", b =>
+            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.UserDevice", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -231,7 +231,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("UserDevices", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.UserRole", b =>
+            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.UserRole", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -245,9 +245,6 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
 
-                    b.Property<int>("RoleId1")
-                        .HasColumnType("int");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -255,15 +252,13 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.HasIndex("RoleId1");
-
                     b.HasIndex("UserId", "RoleId")
                         .IsUnique();
 
                     b.ToTable("UserRoles", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.UserTokens", b =>
+            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.UserTokens", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -299,7 +294,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("UserTokens");
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.VerificationCode", b =>
+            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.VerificationCode", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -345,7 +340,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("VerificationCodes", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.VerificationDocument", b =>
+            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.VerificationDocument", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -395,7 +390,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("VerificationDocuments", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.VerificationRequest", b =>
+            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.VerificationRequest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -441,30 +436,24 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("VerificationRequests", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.UserDevice", b =>
+            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.UserDevice", b =>
                 {
-                    b.HasOne("Fayora.Domain.Entities.Identity.User", null)
+                    b.HasOne("Fayora.Domain.Entitties.Identity.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.UserRole", b =>
+            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.UserRole", b =>
                 {
-                    b.HasOne("Fayora.Domain.Entities.Identity.Role", null)
+                    b.HasOne("Fayora.Domain.Entitties.Identity.Role", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Fayora.Domain.Entities.Identity.Role", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Fayora.Domain.Entities.Identity.User", null)
+                    b.HasOne("Fayora.Domain.Entitties.Identity.User", null)
                         .WithMany("Roles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -473,31 +462,31 @@ namespace Fayora.Infrastructure.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.VerificationCode", b =>
+            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.VerificationCode", b =>
                 {
-                    b.HasOne("Fayora.Domain.Entities.Identity.User", null)
+                    b.HasOne("Fayora.Domain.Entitties.Identity.User", null)
                         .WithMany("VerificationCodes")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.VerificationDocument", b =>
+            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.VerificationDocument", b =>
                 {
-                    b.HasOne("Fayora.Domain.Entities.Identity.VerificationRequest", null)
+                    b.HasOne("Fayora.Domain.Entitties.Identity.VerificationRequest", null)
                         .WithMany("VerificationDocuments")
                         .HasForeignKey("VerificationRequestId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.User", b =>
+            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.User", b =>
                 {
                     b.Navigation("Roles");
 
                     b.Navigation("VerificationCodes");
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entities.Identity.VerificationRequest", b =>
+            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.VerificationRequest", b =>
                 {
                     b.Navigation("VerificationDocuments");
                 });
