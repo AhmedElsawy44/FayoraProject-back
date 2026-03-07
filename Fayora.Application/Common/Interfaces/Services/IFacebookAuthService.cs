@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Fayora.Application.Common.Interfaces.Services
 {
+
     public record FacebookUserInfo(
         string Id,
         string? Email,

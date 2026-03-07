@@ -1,13 +1,12 @@
-﻿using Fayora.Domain.Common;
+﻿using Fayora.Domain.Common.Entity;
 using Fayora.Domain.Common.Events;
 using Fayora.Domain.Common.Interfaces;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums;
 using Fayora.Domain.Errors;
-using Fayora.Domain.Interfaces;
 using Fayora.Domain.ValueObjects;
 
-namespace Fayora.Domain.Entities.Identity;
+namespace Fayora.Domain.Entitties.Identity;
 
 public class User : AuditableEntity<Guid>
 {
@@ -61,36 +60,37 @@ public class User : AuditableEntity<Guid>
     public bool IsDeleted => Status == UserStatus.Deleted && DeletedAt.HasValue;
     public bool IsBanned => Status == UserStatus.Banned;
 
-
-    public static Result<User> Create(string? email, string? phoneNumber, string password, IPasswordHasher passwordHasher)
+    public static Result<User> CreateWithEmail(string email, string password, IPasswordHasher passwordHasher)
     {
-        if (string.IsNullOrWhiteSpace(email) && string.IsNullOrWhiteSpace(phoneNumber))
-            return UserErrors.EmailOrPhoneRequired;
-
-        if (!string.IsNullOrWhiteSpace(email) && !string.IsNullOrWhiteSpace(phoneNumber))
-            return UserErrors.OnlyOneAllowed;
+        var emailResult = Email.Create(email);
+        if (emailResult.IsError) return emailResult.Errors;
 
         var passwordHashResult = passwordHasher.HashPassword(password);
         if (passwordHashResult.IsError) return passwordHashResult.Errors;
 
-        Email? validEmail = null;
-        if (!string.IsNullOrWhiteSpace(email))
-        {
-            var emailResult = Email.Create(email);
-            if (emailResult.IsError) return emailResult.Errors;
-            validEmail = emailResult.Value;
-        }
-
-        var user = new User
+        return new User
         {
             Id = Guid.CreateVersion7(),
-            PrimaryEmail = validEmail,
-            PhoneNumber = string.IsNullOrWhiteSpace(phoneNumber) ? null : phoneNumber,
+            PrimaryEmail = emailResult.Value,
+            PhoneNumber = null,
             _passwordHash = passwordHashResult.Value,
             Status = UserStatus.Active,
         };
+    }
 
-        return user;
+    public static Result<User> CreateWithPhone(string phoneNumber, string password, IPasswordHasher passwordHasher)
+    {
+        var passwordHashResult = passwordHasher.HashPassword(password);
+        if (passwordHashResult.IsError) return passwordHashResult.Errors;
+
+        return new User
+        {
+            Id = Guid.CreateVersion7(),
+            PrimaryEmail = null,
+            PhoneNumber = phoneNumber,
+            _passwordHash = passwordHashResult.Value,
+            Status = UserStatus.Active,
+        };
     }
 
 
@@ -297,7 +297,7 @@ public class User : AuditableEntity<Guid>
         return Result.Success;
     }
 
-    public Result<Success> CanRequestSmsOtp()
+    public Result<Success> CanRequestPhoneCode()
     {
         if (CheckOtpCooldown())
             return UserErrors.OtpCooldownNotMet;
@@ -308,7 +308,7 @@ public class User : AuditableEntity<Guid>
         return Result.Success;
     }
 
-    public Result<Success> CanRequestEmailOtp()
+    public Result<Success> CanRequestEmailCode()
     {
         if (CheckOtpCooldown())
             return UserErrors.OtpCooldownNotMet;
@@ -344,14 +344,26 @@ public class User : AuditableEntity<Guid>
         return Result.Success;
     }
 
-    public void SendCode(string target, string code, OtpPurpose purpose, ICodeHasher codeHasher)
+    public void SendEmailCode(string email, string code, CodePurpose purpose, ICodeHasher codeHasher)
+    {
+        GenerateAndStoreCode(email, code, purpose, codeHasher);
+        RaiseDomainEvent(new EmailCodeRequestedEvent(Id, email, code, purpose));
+    }
+
+    public void SendPhoneCode(string phoneNumber, string code, CodePurpose purpose, CodeDeliveryMethod deliveryMethod, ICodeHasher codeHasher)
+    {
+        GenerateAndStoreCode(phoneNumber, code, purpose, codeHasher);
+
+        RaiseDomainEvent(new PhoneCodeRequestedEvent(Id, phoneNumber, code, purpose, deliveryMethod));
+    }
+
+    private void GenerateAndStoreCode(string target, string code, CodePurpose purpose, ICodeHasher codeHasher)
     {
         var codeHash = codeHasher.HashCode(code);
         var verificationCode = VerificationCode.Create(Id, target, codeHash, purpose);
         _verificationCodes.Add(verificationCode);
-        LastOtpSentAt = DateTimeOffset.UtcNow;
 
-        RaiseDomainEvent(new OtpRequestedEvent(Id, target, code, purpose));
+        LastOtpSentAt = DateTimeOffset.UtcNow;
     }
 
     public Result<Success> CheckActiveStatus()

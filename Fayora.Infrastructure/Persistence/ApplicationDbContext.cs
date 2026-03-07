@@ -1,6 +1,6 @@
-﻿using Fayora.Application.Common.Interfaces.Presistance;
+﻿using Fayora.Application.Common.Interfaces.Presistances;
 using Fayora.Domain.Common.Interfaces;
-using Fayora.Domain.Entities.Identity;
+using Fayora.Domain.Entitties.Identity;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;

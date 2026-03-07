@@ -1,8 +1,8 @@
-﻿using Fayora.Domain.Common;
+﻿using Fayora.Domain.Common.Entity;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums;
 
-namespace Fayora.Domain.Entities.Identity;
+namespace Fayora.Domain.Entitties.Identity;
 
 public class VerificationRequest : AuditableEntity<int>
 {

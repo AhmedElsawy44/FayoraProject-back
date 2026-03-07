@@ -1,7 +1,7 @@
-﻿using Fayora.Domain.Entities.Identity;
+﻿using Fayora.Domain.Entitties.Identity;
 using Fayora.Domain.Enums;
 
-namespace Fayora.Application.Common.Interfaces.Presistance;
+namespace Fayora.Application.Common.Interfaces.Presistances;
 
 public interface IUserRepository
 {
@@ -9,8 +9,8 @@ public interface IUserRepository
 
     Task<User?> GetUserByIdAsync(Guid id, UserQueryOptions? options = null, CancellationToken cancellationToken = default);
 
-    Task<User?> GetUserByIdentityAsync(string identity, UserQueryOptions? options = null, CancellationToken cancellationToken = default);
-    Task<bool> IsBannedAsync(string identity, CancellationToken cancellationToken = default);
+    Task<User?> GetUserByEmailAsync(string email, UserQueryOptions? options = null, CancellationToken cancellationToken = default);
+    Task<User?> GetUserByPhoneAsync(string phoneNumber, UserQueryOptions? options = null, CancellationToken cancellationToken = default);
 
     public enum AccountStatus
     {
@@ -20,7 +20,7 @@ public interface IUserRepository
     }
 
     public record UserQueryOptions(
-        bool IsTracking = false,
+        bool IsReadOnly = false,
         bool IncludeVerificationCodes = false,
         bool IncludeRoles = false,
         AccountStatus Status = AccountStatus.All,

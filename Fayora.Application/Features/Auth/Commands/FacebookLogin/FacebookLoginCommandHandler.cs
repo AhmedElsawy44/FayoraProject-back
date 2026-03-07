@@ -1,15 +1,11 @@
-﻿using Fayora.Application.Common.Interfaces;
-using Fayora.Application.Common.Interfaces.Presistance;
+﻿using Fayora.Application.Common.Interfaces.Presistances;
 using Fayora.Application.Common.Interfaces.Services;
 using Fayora.Application.Features.Auth.Common;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Entities.Identity;
+using Fayora.Domain.Entitties.Identity;
 using Fayora.Domain.Enums;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using static Fayora.Application.Common.Interfaces.Presistance.IUserRepository;
+using static Fayora.Application.Common.Interfaces.Presistances.IUserRepository;
 
 namespace Fayora.Application.Features.Auth.Commands.FacebookLogin
 {
@@ -41,9 +37,9 @@ namespace Fayora.Application.Features.Auth.Commands.FacebookLogin
             User? user = null;
 
             if (!string.IsNullOrWhiteSpace(facebookUser.Email))
-                user = await userRepository.GetUserByIdentityAsync(
+                user = await userRepository.GetUserByEmailAsync(
                     facebookUser.Email,
-                    new UserQueryOptions { IsTracking = true, IncludeRoles = true },
+                    new UserQueryOptions { IsReadOnly = false, IncludeRoles = true },
                     cancellationToken);
 
             // 3 - if not, create new user (Register)
@@ -90,7 +86,7 @@ namespace Fayora.Application.Features.Auth.Commands.FacebookLogin
 
             // 7 - Generate Tokens
             var roles = user.GetRoleNames();
-            var accessToken = jwtService.GenerateToken(request.DeviceId, user, roles);
+            var accessToken = jwtService.GenerateToken(request.DeviceId, user);
             var refreshTokenString = userTokenService.GenerateTokenString();
             var hashedRefreshToken = tokenHasher.HashToken(refreshTokenString);
             var refreshToken = UserTokens.RefreshToken(

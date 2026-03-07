@@ -22,6 +22,11 @@ public static class DependencyInjection
 
         services.AddValidatorsFromAssemblyContaining(typeof(DependencyInjection));
 
+        services.AddAutoMapper(cfg =>
+        {
+            cfg.AddMaps(typeof(DependencyInjection).Assembly);
+        });
+
         return services;
     }
 }

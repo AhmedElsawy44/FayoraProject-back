@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.Identity;
+﻿using Fayora.Domain.Entitties.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -24,7 +24,7 @@ internal class UserRoleConfigurations : IEntityTypeConfiguration<UserRole>
         builder.HasIndex(ur => new { ur.UserId, ur.RoleId })
             .IsUnique();
 
-        builder.HasOne<Role>()
+        builder.HasOne(ur => ur.Role)
             .WithMany()
             .HasForeignKey(ur => ur.RoleId)
             .OnDelete(DeleteBehavior.Restrict);

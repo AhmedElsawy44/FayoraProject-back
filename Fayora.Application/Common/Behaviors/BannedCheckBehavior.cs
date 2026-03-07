@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Presistance;
+﻿using Fayora.Application.Common.Interfaces.Presistances;
 using Fayora.Application.Common.Interfaces.Validations;
 using Fayora.Application.Features.Auth.Common;
 using Fayora.Domain.Common.Results;

@@ -1,5 +1,5 @@
 ﻿using Fayora.Domain.Common.Results;
-using Fayora.Domain.Entities.Identity;
+using Fayora.Domain.Entitties.Identity;
 
 namespace Fayora.Domain.Errors;
 
