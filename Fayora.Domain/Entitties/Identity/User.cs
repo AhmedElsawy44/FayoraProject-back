@@ -93,6 +93,35 @@ public class User : AuditableEntity<Guid>
         return user;
     }
 
+
+    public static User CreateWithSocialLogin(
+    string? email,
+    string? name,
+    string? pictureUrl)
+    {
+        var names = name?.Split(' ');
+
+        var user = new User
+        {
+            Id = Guid.CreateVersion7(),
+            IsEmailVerified = !string.IsNullOrWhiteSpace(email),
+            ProfileImageUrl = pictureUrl,
+            FirstName = names?.FirstOrDefault(),
+            LastName = names?.LastOrDefault(),
+            Status = UserStatus.Active,
+        };
+
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            var emailResult = Email.Create(email);
+            if (emailResult.IsSuccess)
+                user.PrimaryEmail = emailResult.Value;
+        }
+
+        return user;
+    }
+
+
     public void UpdateRegionalPreferences(string? simCountryIso, string? preferredLanguage, string? timeZone)
     {
         SimCountryIsoCode = simCountryIso ?? SimCountryIsoCode;
