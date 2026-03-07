@@ -12,7 +12,7 @@ public class VerificationCode : BaseEntity<int>
     public Guid UserId { get; init; }
     public string Target { get; init; } = string.Empty;
     public string CodeHash { get; init; } = string.Empty;
-    public OtpPurpose Purpose { get; init; } = OtpPurpose.Registration;
+    public CodePurpose Purpose { get; init; } = CodePurpose.Registration;
     public DateTimeOffset ExpiresAt { get; init; } = DateTimeOffset.UtcNow.Add(DefaultExpiration);
     public DateTimeOffset? RevokedAt { get; private set; } = null;
     public int AttemptCount { get; private set; } = 0;
@@ -41,7 +41,7 @@ public class VerificationCode : BaseEntity<int>
 
     internal void Revoke() => RevokedAt = DateTimeOffset.UtcNow;
 
-    internal static VerificationCode Create(Guid userId, string target, string codeHash, OtpPurpose purpose)
+    internal static VerificationCode Create(Guid userId, string target, string codeHash, CodePurpose purpose)
     {
         return new VerificationCode
         {

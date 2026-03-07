@@ -27,9 +27,9 @@ public class SendCodeCommandHandler(
         var statusCheck = user.CheckActiveStatus();
         if (statusCheck.IsError) return statusCheck.Errors;
 
-        if (user.IsVerified && request.OtpPurpose == OtpPurpose.Registration) return AuthErrors.UserAccountIsAlreadyVerified;
+        if (user.IsVerified && request.OtpPurpose == CodePurpose.Registration) return AuthErrors.UserAccountIsAlreadyVerified;
 
-        if (!user.IsVerified && request.OtpPurpose == OtpPurpose.ResetPassword) return AuthErrors.UserNotVerified;
+        if (!user.IsVerified && request.OtpPurpose == CodePurpose.ResetPassword) return AuthErrors.UserNotVerified;
 
         var check = request.IsEmail
                 ? user.CanRequestEmailOtp()
@@ -39,7 +39,7 @@ public class SendCodeCommandHandler(
 
         string code = messageGenerator.GenerateCode();
 
-        user.SendCode(request.Identity, code, request.OtpPurpose, codeHasher);
+        user.SendCode(request.Identity, code, request.OtpPurpose, request.DeliveryMethod, codeHasher);
 
         await unitOfWork.CommitChangesAsync(cancellationToken);
 

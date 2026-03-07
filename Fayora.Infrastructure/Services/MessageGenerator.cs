@@ -24,10 +24,6 @@ public class MessageGenerator : IMessageGenerator
                 Subject: "Password Reset Code",
                 Body: $"Your password reset code is: {code}. Please do not share this with anyone."
             ),
-            MessagelPurpose.ChangePhone => (
-                Subject: "Phone Number Change Verification",
-                Body: $"You requested to change your phone number. Your verification code is: {code}"
-            ),
             MessagelPurpose.ChangeEmail => (
                 Subject: "Verify Your New Email",
                 Body: $"You requested to change your email address. Your verification code is: {code}"
@@ -59,17 +55,31 @@ public class MessageGenerator : IMessageGenerator
 
             MessagelPurpose.ResetPassword => $"Fayora: Password reset code is {code}. Do NOT share this.",
 
-            MessagelPurpose.Login => "Fayora Security: A new login was detected on your account. If this wasn't you, please secure your account immediately.",
-
             MessagelPurpose.ChangePhone => $"Fayora: Code to change phone number is {code}",
-
-            MessagelPurpose.ChangeEmail => $"Fayora: Code to verify email change is {code}",
 
             MessagelPurpose.AccountDeletion => $"Fayora: Account deletion code is {code}. Do NOT share this.",
 
             MessagelPurpose.ReactivateAccount => $"Fayora: Account reactivation code is {code}",
 
             _ => $"Fayora code: {code}"
+        };
+    }
+
+    public string CreateWhatsAppMessage(MessagelPurpose purpose, string code)
+    {
+        return purpose switch
+        {
+            MessagelPurpose.Registration => $"Welcome to Fayora! 🌍\nYour registration code is: *{code}*\n\nPlease do not share this code with anyone.",
+
+            MessagelPurpose.ResetPassword => $"Fayora 🔒\nYour password reset code is: *{code}*\n\nDo NOT share this code with anyone.",
+
+            MessagelPurpose.ChangePhone => $"Fayora 📱\nYour code to change your phone number is: *{code}*",
+
+            MessagelPurpose.AccountDeletion => $"Fayora ⚠️\nWe received a request to delete your account.\nYour verification code is: *{code}*\n\nIf you didn't request this, please ignore this message.",
+
+            MessagelPurpose.ReactivateAccount => $"Welcome back to Fayora! ✨\nYour account reactivation code is: *{code}*",
+
+            _ => $"Fayora security code: *{code}*"
         };
     }
 }

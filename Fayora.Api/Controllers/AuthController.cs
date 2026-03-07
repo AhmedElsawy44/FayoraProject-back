@@ -18,7 +18,12 @@ public class AuthController(ISender sender) : ApiController
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
-        var command = new RegisterCommand(request.Email, request.PhoneNumber, request.Password, request.DeviceId);
+        if(!Enum.TryParse(request.DeliveryMethod.ToString(), out Domain.Enums.CodeDeliveryMethod deliveryMethod))
+        {
+            return BadRequest("Invalid Delivery Method");
+        }
+
+        var command = new RegisterCommand(request.Email, request.PhoneNumber, request.Password, request.DeviceId, deliveryMethod);
         var authResult = await sender.Send(command);
         return authResult.Match(Ok, Problem);
     }
@@ -34,12 +39,12 @@ public class AuthController(ISender sender) : ApiController
     [HttpPost("otp/send")]
     public async Task<IActionResult> SendOtp(SendCodeRequest request)
     {
-        if (!Enum.TryParse(request.OtpPurpose, out OtpPurpose purpose))
+        if (!Enum.TryParse(request.OtpPurpose, out CodePurpose purpose) || !Enum.TryParse(request.DeliveryMethod.ToString(), out Domain.Enums.CodeDeliveryMethod deliveryMethod))
         {
-            return BadRequest("Invalid OTP Purpose");
+            return BadRequest("Invalid OTP Purpose or Delivery Method");
         }
 
-        var command = new SendCodeCommand(request.Email, request.PhoneNumber, request.DeviceId, purpose);
+        var command = new SendCodeCommand(request.Email, request.PhoneNumber, request.DeviceId, purpose, deliveryMethod);
         var result = await sender.Send(command);
 
         return result.Match(_ => Ok(), errors => Problem(errors));

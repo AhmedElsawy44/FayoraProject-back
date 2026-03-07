@@ -51,9 +51,11 @@ public static class DependencyInjection
         services.AddSingleton<ITokenHasher, TokenHasher>();
 
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+        services.Configure<SmsSettings>(configuration.GetSection("SmsSettings"));
         services.AddSingleton<IEmailService, EmailService>();
         services.AddSingleton<ISmsService, MockSmsService>();
         services.AddSingleton<IMessageGenerator, MessageGenerator>();
+        services.AddSingleton<IWhatsAppService, MockWhatsAppService>();
 
         return services;
     }

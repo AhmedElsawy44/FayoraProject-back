@@ -10,31 +10,36 @@ namespace Fayora.Application.Features.Auth.Events;
 public class SendOtpEventHandler(
     ISmsService smsService,
     IEmailService emailService,
+    IWhatsAppService whatsAppService,
     IMessageGenerator messageGenerator,
     ILogger<SendOtpEventHandler> logger)
-    : INotificationHandler<OtpRequestedEvent>
+    : INotificationHandler<CodeRequestedEvent>
 {
-    public async Task Handle(OtpRequestedEvent notification, CancellationToken cancellationToken)
+    public async Task Handle(CodeRequestedEvent notification, CancellationToken cancellationToken)
     {
         try
         {
             var messagePurpose = MapToMessagePurpose(notification.Purpose);
 
-            if (notification.Target.Contains('@'))
+            switch (notification.DeliveryMethod)
             {
-                var (subject, body) = messageGenerator.CreateEmailMessage(messagePurpose, notification.Code);
+                case CodeDeliveryMethod.Email:
+                    var (subject, body) = messageGenerator.CreateEmailMessage(messagePurpose, notification.Code);
+                    await emailService.SendEmailAsync(notification.Target, subject, body);
+                    logger.LogInformation("OTP email sent successfully to {Target}", notification.Target);
+                    break;
 
-                await emailService.SendEmailAsync(notification.Target, subject, body);
+                case CodeDeliveryMethod.Sms:
+                    var message = messageGenerator.CreateSmsMessage(messagePurpose, notification.Code);
+                    await smsService.SendSmsAsync(notification.Target, message);
+                    logger.LogInformation("OTP SMS sent successfully to {Target}", notification.Target);
+                    break;
 
-                logger.LogInformation("OTP email sent successfully to {Target}", notification.Target);
-            }
-            else
-            {
-                var message = messageGenerator.CreateSmsMessage(messagePurpose, notification.Code);
-
-                await smsService.SendSmsAsync(notification.Target, message);
-
-                logger.LogInformation("OTP SMS sent successfully to {Target}", notification.Target);
+                case CodeDeliveryMethod.WhatsApp:
+                    var whatsappMessage = messageGenerator.CreateWhatsAppMessage(messagePurpose, notification.Code);
+                    await whatsAppService.SendWhatsAppMessageAsync(notification.Target, whatsappMessage);
+                    logger.LogInformation("OTP WhatsApp message sent successfully to {Target}", notification.Target);
+                    break;
             }
         }
         catch (Exception ex)
@@ -43,12 +48,12 @@ public class SendOtpEventHandler(
         }
     }
 
-    private static MessagelPurpose MapToMessagePurpose(OtpPurpose purpose)
+    private static MessagelPurpose MapToMessagePurpose(CodePurpose purpose)
     {
         return purpose switch
         {
-            OtpPurpose.Registration => MessagelPurpose.Registration,
-            OtpPurpose.ResetPassword => MessagelPurpose.ResetPassword,
+            CodePurpose.Registration => MessagelPurpose.Registration,
+            CodePurpose.ResetPassword => MessagelPurpose.ResetPassword,
             _ => throw new ArgumentOutOfRangeException(nameof(purpose), $"Unexpected OTP purpose: {purpose}")
         };
     }

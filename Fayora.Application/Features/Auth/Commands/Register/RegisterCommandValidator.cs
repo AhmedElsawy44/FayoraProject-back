@@ -29,5 +29,10 @@ public class RegisterQueryValidator : AbstractValidator<RegisterCommand>
         RuleFor(x => x.DeviceId)
             .NotEmpty().WithMessage("Device ID is required.")
             .MaximumLength(100).WithMessage("Device ID must not exceed 100 characters.");
+
+        RuleFor(x => x.DeliveryMethod)
+            .NotEmpty().WithMessage("Delivery method is required.")
+            .IsInEnum()
+            .WithMessage("Invalid delivery method specified. Valid options are: Email, SMS, or WhatsApp.");
     }
 }

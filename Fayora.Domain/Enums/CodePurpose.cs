@@ -1,6 +1,6 @@
 ﻿namespace Fayora.Domain.Enums;
 
-public enum OtpPurpose
+public enum CodePurpose
 {
     Registration,
     ResetPassword,

@@ -315,14 +315,14 @@ public class User : AuditableEntity<Guid>
         return Result.Success;
     }
 
-    public void SendCode(string target, string code, OtpPurpose purpose, ICodeHasher codeHasher)
+    public void SendCode(string target, string code, CodePurpose purpose, CodeDeliveryMethod deliveryMethod, ICodeHasher codeHasher)
     {
         var codeHash = codeHasher.HashCode(code);
         var verificationCode = VerificationCode.Create(Id, target, codeHash, purpose);
         _verificationCodes.Add(verificationCode);
         LastOtpSentAt = DateTimeOffset.UtcNow;
 
-        RaiseDomainEvent(new OtpRequestedEvent(Id, target, code, purpose));
+        RaiseDomainEvent(new CodeRequestedEvent(Id, target, code, purpose, deliveryMethod));
     }
 
     public Result<Success> CheckActiveStatus()

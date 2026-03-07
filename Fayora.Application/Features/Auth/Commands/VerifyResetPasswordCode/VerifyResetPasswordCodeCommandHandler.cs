@@ -34,7 +34,7 @@ public class VerifyResetPasswordCodeCommandHandler(
 
         if (!user.IsVerified) return AuthErrors.UserNotVerified;
 
-        var resetPasswordOtp = await verificationCodeRepository.GetUserCodeAsync(user.Id, request.Identity, OtpPurpose.ResetPassword, cancellationToken);
+        var resetPasswordOtp = await verificationCodeRepository.GetUserCodeAsync(user.Id, request.Identity, CodePurpose.ResetPassword, cancellationToken);
 
         if (resetPasswordOtp is null) return AuthErrors.InvalidVerificationCode;
 

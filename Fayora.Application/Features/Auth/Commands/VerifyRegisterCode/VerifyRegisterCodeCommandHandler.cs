@@ -38,7 +38,7 @@ public class VerifyRegisterCodeCommandHandler(
 
         if (user.IsVerified) return AuthErrors.UserAccountIsAlreadyVerified;
 
-        var registerOtp = await verificationCodeRepository.GetUserCodeAsync(user.Id, request.Identity, OtpPurpose.Registration, cancellationToken);
+        var registerOtp = await verificationCodeRepository.GetUserCodeAsync(user.Id, request.Identity, CodePurpose.Registration, cancellationToken);
 
         if (registerOtp is null) return AuthErrors.InvalidVerificationCode;
 

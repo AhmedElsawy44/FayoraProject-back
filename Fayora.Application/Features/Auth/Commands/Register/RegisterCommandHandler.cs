@@ -41,7 +41,7 @@ public class RegisterCommandHandler(
 
             var codeForExistingUser = messageGenerator.GenerateCode();
 
-            existUser.SendCode(request.Identity, codeForExistingUser, OtpPurpose.Registration, codeHasher);
+            existUser.SendCode(request.Identity, codeForExistingUser, CodePurpose.Registration, request.DeliveryMethod, codeHasher);
 
             existUser.ChangePassword(request.Password, passwordHasher);
 
@@ -61,7 +61,7 @@ public class RegisterCommandHandler(
 
         var codeForNewUser = messageGenerator.GenerateCode();
 
-        newUser.SendCode(request.Identity, codeForNewUser, OtpPurpose.Registration, codeHasher);
+        newUser.SendCode(request.Identity, codeForNewUser, CodePurpose.Registration, request.DeliveryMethod, codeHasher);
 
         userRepository.AddUser(newUser);
         await unitOfWork.CommitChangesAsync(cancellationToken);

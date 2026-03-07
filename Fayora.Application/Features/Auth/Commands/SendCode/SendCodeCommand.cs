@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Fayora.Application.Features.Auth.Commands.SendCode;
 
-public record SendCodeCommand(string? Email, string? PhoneNumber, string DeviceId, OtpPurpose OtpPurpose) : IRequest<Result<Unit>>, ICheckBannedRequest
+public record SendCodeCommand(string? Email, string? PhoneNumber, string DeviceId, CodePurpose OtpPurpose, CodeDeliveryMethod DeliveryMethod) : IRequest<Result<Unit>>, ICheckBannedRequest
 {
     public string Identity => Email ?? PhoneNumber ?? "";
     public bool IsEmail => Email is not null;
