@@ -1,13 +1,12 @@
-﻿using Fayora.Domain.Common;
+﻿using Fayora.Domain.Common.Entity;
 using Fayora.Domain.Common.Events;
 using Fayora.Domain.Common.Interfaces;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums;
 using Fayora.Domain.Errors;
-using Fayora.Domain.Interfaces;
 using Fayora.Domain.ValueObjects;
 
-namespace Fayora.Domain.Entities.Identity;
+namespace Fayora.Domain.Entitties.Identity;
 
 public class User : AuditableEntity<Guid>
 {

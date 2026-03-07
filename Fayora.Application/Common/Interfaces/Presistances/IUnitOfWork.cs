@@ -1,4 +1,4 @@
-﻿namespace Fayora.Application.Common.Interfaces.Presistance;
+﻿namespace Fayora.Application.Common.Interfaces.Presistances;
 
 public interface IUnitOfWork
 {

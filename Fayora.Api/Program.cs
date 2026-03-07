@@ -1,6 +1,5 @@
 using Fayora.Application;
 using Fayora.Infrastructure;
-using GymManagement.Infrastructure;
 
 namespace Fayora.Api;
 

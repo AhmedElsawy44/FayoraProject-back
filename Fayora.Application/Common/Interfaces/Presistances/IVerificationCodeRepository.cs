@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.Identity;
+﻿using Fayora.Domain.Entitties.Identity;
 using Fayora.Domain.Enums;
 
 namespace Fayora.Application.Common.Interfaces.Presistances;

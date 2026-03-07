@@ -1,6 +1,6 @@
 ﻿using Fayora.Domain.Enums;
 
-namespace Fayora.Domain.Entities.Identity;
+namespace Fayora.Domain.Entitties.Identity;
 
 public class UserTokens : BaseEntity<int>
 {

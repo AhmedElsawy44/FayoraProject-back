@@ -1,11 +1,11 @@
-﻿using Fayora.Application.Common.Interfaces.Presistance;
+﻿using Fayora.Application.Common.Interfaces.Presistances;
 using Fayora.Application.Common.Interfaces.Services;
 using Fayora.Application.Features.Auth.Common;
+using Fayora.Domain.Common.Interfaces;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums;
-using Fayora.Domain.Interfaces;
 using MediatR;
-using static Fayora.Application.Common.Interfaces.Presistance.IUserRepository;
+using static Fayora.Application.Common.Interfaces.Presistances.IUserRepository;
 
 namespace Fayora.Application.Features.Auth.Commands.SendCode;
 

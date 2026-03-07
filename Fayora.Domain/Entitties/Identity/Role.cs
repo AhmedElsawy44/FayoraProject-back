@@ -1,4 +1,4 @@
-﻿namespace Fayora.Domain.Entities.Identity;
+﻿namespace Fayora.Domain.Entitties.Identity;
 
 public class Role : BaseEntity<int>
 {

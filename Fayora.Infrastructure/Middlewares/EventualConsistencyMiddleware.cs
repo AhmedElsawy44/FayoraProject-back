@@ -3,7 +3,7 @@ using Fayora.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 
-namespace Fayora.Infrastructure.Middleware;
+namespace Fayora.Infrastructure.Middlewares;
 
 public class EventualConsistencyMiddleware(RequestDelegate next)
 {

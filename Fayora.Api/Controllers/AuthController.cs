@@ -18,7 +18,7 @@ public class AuthController(ISender sender) : ApiController
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
-        if(!Enum.TryParse(request.DeliveryMethod.ToString(), out Domain.Enums.CodeDeliveryMethod deliveryMethod))
+        if (!Enum.TryParse(request.DeliveryMethod.ToString(), out Domain.Enums.CodeDeliveryMethod deliveryMethod))
         {
             return BadRequest("Invalid Delivery Method");
         }

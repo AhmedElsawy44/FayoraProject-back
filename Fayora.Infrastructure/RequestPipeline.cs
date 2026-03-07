@@ -1,7 +1,7 @@
-using Fayora.Infrastructure.Middleware;
+using Fayora.Infrastructure.Middlewares;
 using Microsoft.AspNetCore.Builder;
 
-namespace GymManagement.Infrastructure;
+namespace Fayora.Infrastructure;
 
 public static class RequestPipeline
 {

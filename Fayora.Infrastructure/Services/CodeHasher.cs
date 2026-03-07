@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Interfaces;
+﻿using Fayora.Domain.Common.Interfaces;
 using System.Security.Cryptography;
 
 namespace Fayora.Infrastructure.Services;

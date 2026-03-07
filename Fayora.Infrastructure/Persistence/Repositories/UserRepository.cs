@@ -1,9 +1,9 @@
-﻿using Fayora.Application.Common.Interfaces.Presistance;
-using Fayora.Domain.Entities.Identity;
+﻿using Fayora.Application.Common.Interfaces.Presistances;
+using Fayora.Domain.Entitties.Identity;
 using Fayora.Domain.Enums;
 using Fayora.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
-using static Fayora.Application.Common.Interfaces.Presistance.IUserRepository;
+using static Fayora.Application.Common.Interfaces.Presistances.IUserRepository;
 
 namespace Fayora.Infrastructure.Persistence.Repositories;
 

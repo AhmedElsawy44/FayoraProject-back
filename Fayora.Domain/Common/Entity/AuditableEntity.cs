@@ -1,4 +1,4 @@
-﻿namespace Fayora.Domain.Common;
+﻿namespace Fayora.Domain.Common.Entity;
 
 public abstract class AuditableEntity<TKey> : BaseEntity<TKey>
 {

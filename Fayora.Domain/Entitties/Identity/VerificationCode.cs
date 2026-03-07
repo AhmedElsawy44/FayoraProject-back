@@ -1,8 +1,8 @@
-﻿using Fayora.Domain.Common.Results;
+﻿using Fayora.Domain.Common.Interfaces;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums;
-using Fayora.Domain.Interfaces;
 
-namespace Fayora.Domain.Entities.Identity;
+namespace Fayora.Domain.Entitties.Identity;
 
 public class VerificationCode : BaseEntity<int>
 {
