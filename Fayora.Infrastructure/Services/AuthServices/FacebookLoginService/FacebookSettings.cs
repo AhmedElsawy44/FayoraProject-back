@@ -1,4 +1,4 @@
-﻿namespace Fayora.Infrastructure.Services.FacebookLoginService
+﻿namespace Fayora.Infrastructure.Services.AuthServices.FacebookLoginService
 {
     public class FacebookSettings
     {

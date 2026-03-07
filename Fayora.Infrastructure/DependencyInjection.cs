@@ -5,7 +5,7 @@ using Fayora.Infrastructure.Persistence;
 using Fayora.Infrastructure.Persistence.Repositories;
 using Fayora.Infrastructure.Services.Authentication;
 using Fayora.Infrastructure.Services.AuthServices;
-using Fayora.Infrastructure.Services.FacebookLoginService;
+using Fayora.Infrastructure.Services.AuthServices.FacebookLoginService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -37,6 +37,7 @@ public static class DependencyInjection
         services.AddScoped<IUserTokenRepository, UserTokenRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IVerificationCodeRepository, VerificationCodeRepository>();
+        services.AddScoped<IUserIdentityRepository, UserIdentityRepository>();
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
 
         return services;
@@ -60,6 +61,8 @@ public static class DependencyInjection
         services.Configure<FacebookSettings>(
             configuration.GetSection(FacebookSettings.Section));
         services.AddHttpClient<IFacebookAuthService, FacebookAuthService>();
+
+        services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
 
         return services;
     }

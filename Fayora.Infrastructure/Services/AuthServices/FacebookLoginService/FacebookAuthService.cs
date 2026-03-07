@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Fayora.Infrastructure.Services.FacebookLoginService
+namespace Fayora.Infrastructure.Services.AuthServices.FacebookLoginService
 {
     public class FacebookAuthService(
     HttpClient httpClient,
@@ -19,7 +19,7 @@ namespace Fayora.Infrastructure.Services.FacebookLoginService
             string accessToken,
             CancellationToken ct = default)
         {
-            // 1. تتحقق من الـ Token مع Facebook
+            // 1 - Check token validity from Facebook
             var verifyUrl = $"https://graph.facebook.com/debug_token" +
                             $"?input_token={accessToken}" +
                             $"&access_token={_settings.AppId}|{_settings.AppSecret}";
@@ -32,7 +32,7 @@ namespace Fayora.Infrastructure.Services.FacebookLoginService
 
             if (verifyData?.Data is null || !verifyData.Data.IsValid) return null;
 
-            // 2. جيب بيانات الـ User
+            // 2 - take user info from Facebook
             var userUrl = $"https://graph.facebook.com/me" +
                           $"?fields=id,name,email,picture" +
                           $"&access_token={accessToken}";

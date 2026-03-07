@@ -2,8 +2,10 @@
 using Fayora.Application.Common.Interfaces.Services;
 using Fayora.Application.Features.Auth.Common;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Entities.Identity;
 using Fayora.Domain.Entitties.Identity;
 using Fayora.Domain.Enums;
+using Fayora.Domain.ValueObjects;
 using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IUserRepository;
 
@@ -12,6 +14,7 @@ namespace Fayora.Application.Features.Auth.Commands.FacebookLogin
 
     public class LoginWithFacebookCommandHandler(
     IUserRepository userRepository,
+    IUserIdentityRepository userIdentityRepository,
     IUserTokenRepository userTokenRepository,
     IDeviceRepository deviceRepository,
     IFacebookAuthService facebookAuthService,
@@ -33,15 +36,19 @@ namespace Fayora.Application.Features.Auth.Commands.FacebookLogin
             if (facebookUser is null)
                 return AuthErrors.InvalidCredentials;
 
-            // 2 - Check if user exists in DB by Email
+            // 2 - Check if user exists by Facebook ID (UserIdentity)
             User? user = null;
 
-            if (!string.IsNullOrWhiteSpace(facebookUser.Email))
-                user = await userRepository.GetUserByEmailAsync(
-                    facebookUser.Email,
+            var existingIdentity = await userIdentityRepository
+                .GetIdentityByIdAsync(facebookUser.Id, IdentityProvider.Facebook, cancellationToken);
+
+            if (existingIdentity is not null)
+            {
+                user = await userRepository.GetUserByIdAsync(
+                    existingIdentity.UserId,
                     new UserQueryOptions { IsReadOnly = false, IncludeRoles = true },
                     cancellationToken);
-
+            }
             // 3 - if not, create new user (Register)
             if (user is null)
             {
@@ -51,6 +58,22 @@ namespace Fayora.Application.Features.Auth.Commands.FacebookLogin
                     facebookUser.PictureUrl);
 
                 userRepository.AddUser(user);
+
+                // Save UserIdentity
+                Email? email = null;
+                if (!string.IsNullOrWhiteSpace(facebookUser.Email))
+                {
+                    var emailResult = Email.Create(facebookUser.Email);
+                    if (emailResult.IsSuccess) email = emailResult.Value;
+                }
+
+                var identity = new UserIdentity(
+                    user.Id,
+                    IdentityProvider.Facebook,
+                    facebookUser.Id,
+                    email);
+
+                userIdentityRepository.AddIdentity(identity);
             }
             else
             {

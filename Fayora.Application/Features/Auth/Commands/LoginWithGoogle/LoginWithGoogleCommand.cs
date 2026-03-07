@@ -8,4 +8,4 @@ using System.Text;
 namespace Fayora.Application.Features.Auth.Commands.LoginWithGoogle;
 
 public record LoginWithGoogleCommand(string IdToken, string DeviceId, string FcmToken, string? SimCountryIsoCode,
-string TimeZone,, string DeviceLanguage) : IRequest<Result<LoginWithGoogleResult>>, ICheckBannedRequest;
+string TimeZone, string DeviceLanguage) : IRequest<Result<LoginWithGoogleResult>>, ICheckBannedRequest;

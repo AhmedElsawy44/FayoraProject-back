@@ -26,12 +26,13 @@ public class UserIdentityConfigurations : IEntityTypeConfiguration<UserIdentity>
             .HasMaxLength(500);
 
         builder.Property(u => u.Email)
-            .IsRequired()
-            .HasConversion(u => u.Value, v => Email.Create(v).Value)
+            .IsRequired(false)
+            .HasConversion(
+                u => u == null ? null : u.Value,
+                v => v == null ? null : Email.Create(v).Value)
             .HasMaxLength(255);
 
-        builder.Property(u => u.ProfileData)
-            .HasMaxLength(4000);
+        builder.HasIndex(u => u.Email);
 
         builder.Property(u => u.LinkedAt)
             .IsRequired();
