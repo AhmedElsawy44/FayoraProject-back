@@ -1,12 +1,14 @@
 ﻿using Fayora.Application.Common.Interfaces.Services;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Fayora.Infrastructure.Services;
 
-public class MockSmsService : ISmsService
+public class MockSmsService(IOptions<SmsSettings> smsSettings, ILogger<MockSmsService> logger) : ISmsService
 {
     public Task SendSmsAsync(string phoneNumber, string text)
     {
-        Console.WriteLine($"Mock SMS sent to {phoneNumber}: {text}");
+        logger.LogWarning("🟢 [MOCK SmsService To: {Phone} | Message: {text}", phoneNumber, text);
         return Task.CompletedTask;
     }
 }
