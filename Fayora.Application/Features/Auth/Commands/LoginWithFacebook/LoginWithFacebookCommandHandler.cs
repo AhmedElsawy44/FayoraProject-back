@@ -10,7 +10,7 @@ using static Fayora.Application.Common.Interfaces.Presistances.IUserRepository;
 namespace Fayora.Application.Features.Auth.Commands.FacebookLogin
 {
 
-    public class FacebookLoginCommandHandler(
+    public class LoginWithFacebookCommandHandler(
     IUserRepository userRepository,
     IUserTokenRepository userTokenRepository,
     IDeviceRepository deviceRepository,
@@ -20,10 +20,10 @@ namespace Fayora.Application.Features.Auth.Commands.FacebookLogin
     ITokenHasher tokenHasher,
     IClientContextProvider clientContextProvider,
     IUnitOfWork unitOfWork
-) : IRequestHandler<FacebookLoginCommand, Result<AuthResult>>
+) : IRequestHandler<LoginWithFacebookCommand, Result<AuthResult>>
     {
         public async Task<Result<AuthResult>> Handle(
-            FacebookLoginCommand request,
+            LoginWithFacebookCommand request,
             CancellationToken cancellationToken)
         {
             // 1 - Check Facebook Token
@@ -85,7 +85,6 @@ namespace Fayora.Application.Features.Auth.Commands.FacebookLogin
             }
 
             // 7 - Generate Tokens
-            var roles = user.GetRoleNames();
             var accessToken = jwtService.GenerateToken(request.DeviceId, user);
             var refreshTokenString = userTokenService.GenerateTokenString();
             var hashedRefreshToken = tokenHasher.HashToken(refreshTokenString);

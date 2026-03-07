@@ -134,7 +134,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("facebook-login")]
     public async Task<IActionResult> FacebookLogin(FacebookLoginRequest request)
     {
-        var command = new FacebookLoginCommand(
+        var command = new LoginWithFacebookCommand(
             request.AccessToken,
             request.DeviceId,
             request.FcmToken,

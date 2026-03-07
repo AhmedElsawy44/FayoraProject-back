@@ -9,7 +9,7 @@ using System.Text;
 namespace Fayora.Application.Features.Auth.Commands.FacebookLogin
 {
 
-    public record FacebookLoginCommand(
+    public record LoginWithFacebookCommand(
     string AccessToken,
     string DeviceId,
     string FcmToken,
