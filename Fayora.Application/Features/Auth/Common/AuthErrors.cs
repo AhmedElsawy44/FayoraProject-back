@@ -63,4 +63,14 @@ public static class AuthErrors
         code: "Authentication.AccountAlreadyVerified",
         description: "The account is already verified."
     );
+
+    public static readonly Error EmailIsAlreadyVerified = Error.Conflict(
+        code: "Authentication.EmailAlreadyVerified",
+        description: "The email is already verified."
+    );
+
+    public static readonly Error PhoneIsAlreadyVerified = Error.Conflict(
+        code: "Authentication.PhoneAlreadyVerified",
+        description: "The phone number is already verified."
+    );
 }

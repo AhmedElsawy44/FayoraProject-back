@@ -8,16 +8,12 @@ using System.Text;
 
 namespace Fayora.Infrastructure.Services;
 
-public class JwtService : IJwtService
+public class JwtService(IOptions<JwtSettings> jwtSettings) : IJwtService
 {
-    private readonly JwtSettings _jwtSettings;
+    private readonly JwtSettings _jwtSettings = jwtSettings.Value;
+    public int ExpiresIn => _jwtSettings.TokenExpirationInMinutes * 60;
 
-    public JwtService(IOptions<JwtSettings> jwtSettings)
-    {
-        _jwtSettings = jwtSettings.Value;
-    }
-
-    public string GenerateToken(string deviceId, User user, IEnumerable<string>? roles)
+    public string GenerateToken(string deviceId, User user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -41,7 +37,9 @@ public class JwtService : IJwtService
             claims.Add(new("phone_number", user.PhoneNumber));
         }
 
-        if (roles != null && roles.Any())
+        var roles = user.GetRoleNames();
+
+        if (roles.Count != 0)
         {
             claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
         }

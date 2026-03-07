@@ -9,21 +9,11 @@ public class UserTokenRepository(ApplicationDbContext context) : IUserTokenRepos
 {
     public void AddToken(UserTokens token) => context.UserTokens.Add(token);
 
-    public Task<UserTokens?> GetTokenAsync(string token, CancellationToken cancellationToken, bool isTracking)
+    public Task<UserTokens?> GetTokenAsync(Guid userId, TokenType tokenType, string tokenHash, CancellationToken cancellationToken = default, bool isReadOnly = false)
     {
         var query = context.UserTokens.AsQueryable();
 
-        if (!isTracking)
-            query = query.AsNoTracking();
-
-        return query.FirstOrDefaultAsync(rt => rt.HashedToken == token, cancellationToken);
-    }
-
-    public Task<UserTokens?> GetTokenAsync(Guid userId, TokenType tokenType, string tokenHash, CancellationToken cancellationToken = default, bool isTracking = false)
-    {
-        var query = context.UserTokens.AsQueryable();
-
-        if (!isTracking)
+        if (!isReadOnly)
             query = query.AsNoTracking();
 
         return query.FirstOrDefaultAsync(rt =>
@@ -37,13 +27,6 @@ public class UserTokenRepository(ApplicationDbContext context) : IUserTokenRepos
     {
         return context.UserTokens
             .Where(t => t.UserId == userId && t.RevokedAt == null)
-            .ExecuteUpdateAsync(setter => setter.SetProperty(rt => rt.RevokedAt, DateTimeOffset.UtcNow), cancellationToken);
-    }
-
-    public Task RevokeTokensForDeviceAsync(Guid id, string deviceId, CancellationToken cancellationToken)
-    {
-        return context.UserTokens
-            .Where(rt => rt.UserId == id && rt.DeviceId == deviceId && rt.RevokedAt == null)
             .ExecuteUpdateAsync(setter => setter.SetProperty(rt => rt.RevokedAt, DateTimeOffset.UtcNow), cancellationToken);
     }
 

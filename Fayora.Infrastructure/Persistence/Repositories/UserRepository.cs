@@ -1,6 +1,5 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances;
 using Fayora.Domain.Entitties.Identity;
-using Fayora.Domain.Enums;
 using Fayora.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using static Fayora.Application.Common.Interfaces.Presistances.IUserRepository;
@@ -47,10 +46,37 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         return await query.FirstOrDefaultAsync(cancellationToken);
     }
 
+    // 🚀 تم تنفيذ هذه الدالة
+    public async Task<User?> GetUserByEmailAsync(string email, UserQueryOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        var emailResult = Email.Create(email);
+        if (emailResult.IsError) return null;
+
+        var query = context.Users.Where(u => u.PrimaryEmail == emailResult.Value);
+
+        options ??= new UserQueryOptions();
+        query = ApplyQueryOptions(query, options, isEmailIdentity: true);
+
+        return await query.FirstOrDefaultAsync(cancellationToken);
+    }
+
+    // 🚀 تم تنفيذ هذه الدالة
+    public async Task<User?> GetUserByPhoneAsync(string phoneNumber, UserQueryOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(phoneNumber)) return null;
+
+        var query = context.Users.Where(u => u.PhoneNumber == phoneNumber);
+
+        options ??= new UserQueryOptions();
+        query = ApplyQueryOptions(query, options, isEmailIdentity: false);
+
+        return await query.FirstOrDefaultAsync(cancellationToken);
+    }
 
     private static IQueryable<User> ApplyQueryOptions(IQueryable<User> query, UserQueryOptions options, bool? isEmailIdentity = null)
     {
-        if (!options.IsTracking)
+        // 🚨 تم إصلاح الخطأ المنطقي هنا
+        if (options.IsReadOnly)
         {
             query = query.AsNoTracking();
         }
@@ -107,28 +133,5 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         }
 
         return query;
-    }
-
-    public async Task<bool> IsBannedAsync(string identity, CancellationToken cancellationToken = default)
-    {
-        var query = context.Users.AsQueryable();
-
-        bool isEmail = identity.Contains('@');
-
-        if (isEmail)
-        {
-            var emailResult = Email.Create(identity);
-
-            if (emailResult.IsError)
-                return false;
-
-            query = query.Where(u => u.PrimaryEmail == emailResult.Value);
-        }
-        else
-        {
-            query = query.Where(u => u.PhoneNumber == identity);
-        }
-
-        return await query.AnyAsync(u => u.Status == UserStatus.Banned, cancellationToken);
     }
 }
