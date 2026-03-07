@@ -6,7 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Fayora.Infrastructure.Services.Authentication;
+namespace Fayora.Infrastructure.Services;
 
 public class JwtService : IJwtService
 {

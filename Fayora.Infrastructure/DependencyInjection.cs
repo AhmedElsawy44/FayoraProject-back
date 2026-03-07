@@ -52,7 +52,7 @@ public static class DependencyInjection
 
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.AddSingleton<IEmailService, EmailService>();
-        services.AddSingleton<ISmsService, SmsService>();
+        services.AddSingleton<ISmsService, MockSmsService>();
         services.AddSingleton<IMessageGenerator, MessageGenerator>();
 
         return services;

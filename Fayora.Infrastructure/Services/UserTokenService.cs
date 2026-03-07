@@ -1,7 +1,7 @@
 ﻿using Fayora.Application.Common.Interfaces.Services;
 using System.Security.Cryptography;
 
-namespace Fayora.Infrastructure.Services.Authentication;
+namespace Fayora.Infrastructure.Services;
 
 public class UserTokenService : IUserTokenService
 {

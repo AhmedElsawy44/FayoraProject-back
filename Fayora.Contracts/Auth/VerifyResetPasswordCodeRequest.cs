@@ -1,6 +1,6 @@
 ﻿namespace Fayora.Contracts.Auth;
 
-public record VerifyResetPasswordOtpRequest(
+public record VerifyResetPasswordCodeRequest(
     string? Email,
     string? PhoneNumber,
     string DeviceId,

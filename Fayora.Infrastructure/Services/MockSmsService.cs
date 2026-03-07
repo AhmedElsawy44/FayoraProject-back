@@ -2,10 +2,11 @@
 
 namespace Fayora.Infrastructure.Services;
 
-public class SmsService : ISmsService
+public class MockSmsService : ISmsService
 {
     public Task SendSmsAsync(string phoneNumber, string text)
     {
-        throw new NotImplementedException();
+        Console.WriteLine($"Mock SMS sent to {phoneNumber}: {text}");
+        return Task.CompletedTask;
     }
 }

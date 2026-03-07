@@ -1,4 +1,4 @@
-﻿namespace Fayora.Infrastructure.Services.Authentication;
+﻿namespace Fayora.Infrastructure.Services;
 
 public class JwtSettings
 {

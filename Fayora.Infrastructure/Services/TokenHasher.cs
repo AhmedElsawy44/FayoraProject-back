@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Fayora.Infrastructure.Services.Authentication;
+namespace Fayora.Infrastructure.Services;
 
 public class TokenHasher : ITokenHasher
 {
