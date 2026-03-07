@@ -3,11 +3,6 @@
 public record RegisterPhoneRequest(
     string PhoneNumber,
     string Password,
-    CommunicationChannel DeliveryMethod
+    string DeliveryMethod
 );
 
-public enum CommunicationChannel
-{
-    Sms,
-    WhatsApp
-}

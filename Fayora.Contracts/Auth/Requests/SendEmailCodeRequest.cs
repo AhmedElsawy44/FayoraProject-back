@@ -2,13 +2,5 @@
 
 public record SendEmailCodeRequest(
     string Email,
-     OtpPurpose Purpose
+     string Purpose
 );
-
-public enum OtpPurpose
-{
-    Registration,
-    ResetPassword,
-    AccountDeletion,
-    ReactivateAccount,
-}

@@ -45,7 +45,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
         [FromBody] RegisterPhoneRequest request,
         [FromHeader(Name = "X-Device-Id")] string deviceId)
     {
-        if (!Enum.TryParse<CodeDeliveryMethod>(request.DeliveryMethod.ToString(), true, out var deliveryMethod))
+        if (!Enum.TryParse<CodeDeliveryMethod>(request.DeliveryMethod, true, out var deliveryMethod))
             return BadRequest("Invalid Delivery Method");
 
         var command = new RegisterWithPhoneCommand(request.PhoneNumber, request.Password, deliveryMethod, deviceId);

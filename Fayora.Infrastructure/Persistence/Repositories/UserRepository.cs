@@ -75,7 +75,7 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
 
     private static IQueryable<User> ApplyQueryOptions(IQueryable<User> query, UserQueryOptions options, bool? isEmailIdentity = null)
     {
-        // 🚨 تم إصلاح الخطأ المنطقي هنا
+
         if (options.IsReadOnly)
         {
             query = query.AsNoTracking();

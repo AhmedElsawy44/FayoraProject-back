@@ -2,13 +2,6 @@
 
 public record SendPhoneCodeRequest(
     string PhoneNumber,
-    string DeviceId,
-    OtpPurpose Purpose,
-    OtpDeliveryMethod DeliveryMethod
+    string Purpose,
+    string DeliveryMethod
 );
-
-public enum OtpDeliveryMethod
-{
-    Sms,
-    Whatsapp
-}
