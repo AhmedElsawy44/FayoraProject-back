@@ -6,7 +6,8 @@ using static Fayora.Application.Common.Interfaces.Services.IGoogleAuthService;
 
 namespace Fayora.Infrastructure.Services.AuthServices;
 
-public class GoogleAuthService(IOptions<GoogleSettings> settings) : IGoogleAuthService
+public class GoogleAuthService(
+    IOptions<GoogleSettings> settings) : IGoogleAuthService
 {
     private readonly GoogleSettings _settings = settings.Value;
     public async Task<GoogleAuthenticationResult?> GetUserInfoAsync(

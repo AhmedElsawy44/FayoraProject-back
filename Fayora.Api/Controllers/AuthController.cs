@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.Auth.Commands.LoginWithEmail;
 using Fayora.Application.Features.Auth.Commands.LoginWithFacebook;
+using Fayora.Application.Features.Auth.Commands.LoginWithGoogle;
 using Fayora.Application.Features.Auth.Commands.LoginWithPhone;
 using Fayora.Application.Features.Auth.Commands.RegisterWithEmail;
 using Fayora.Application.Features.Auth.Commands.RegisterWithPhone;
@@ -127,27 +128,52 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
         );
     }
 
-    #endregion
-
-    #region 3. LoginWithFacebook
-
-    [HttpPost("facebook-login")]
-    public async Task<IActionResult> FacebookLogin(FacebookLoginRequest request)
+    [HttpPost("login/facebook")]
+    public async Task<IActionResult> FacebookLogin(
+        [FromBody] FacebookLoginRequest request,
+        [FromHeader(Name = "X-Device-Id")] string deviceId)
     {
         var command = new LoginWithFacebookCommand(
             request.AccessToken,
-            request.DeviceId,
+            deviceId,
             request.FcmToken,
+            request.SimCountryIsoCode,
+            request.TimeZone,
             request.DeviceLanguage);
 
         var result = await sender.Send(command);
 
-        return result.Match(Ok, Problem);
+        return result.Match(
+            value=> Ok(mapper.Map<FacebookLoginResponse>(value)),
+            Problem);
+    }
+
+    [HttpPost("login/google")]
+    public async Task<IActionResult> GoogleLogin(
+        [FromBody] GoogleLoginRequest request,
+        [FromHeader(Name = "X-Device-Id")] string deviceId)
+    {
+        var command = new LoginWithGoogleCommand(
+            request.AccessToken,
+            deviceId,
+            request.FcmToken,
+            request.SimCountryIsoCode,
+            request.TimeZone,
+            request.DeviceLanguage);
+
+        var result = await sender.Send(command);
+
+        return result.Match(
+            value => Ok(mapper.Map<GoogleLoginResponse>(value)),
+            Problem
+        );
     }
 
     #endregion
 
-    #region 4. OTP Management
+
+
+    #region 3. OTP Management
 
     [HttpPost("otp/send/email")]
     public async Task<IActionResult> SendEmailOtp(
@@ -182,7 +208,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
 
     #endregion
 
-    #region 5. Password Reset Journey
+    #region 4. Password Reset Journey
 
     [HttpPost("password/reset/verify/email")]
     public async Task<IActionResult> VerifyEmailPasswordReset(

@@ -50,7 +50,8 @@ public static class DependencyInjection
         services.AddSingleton<ICodeHasher, CodeHasher>();
         services.AddSingleton<ITokenHasher, TokenHasher>();
         services.AddSingleton<IMessageGenerator, MessageGenerator>();
-        services.AddSingleton<IUserDeviceManager, UserDeviceManager>();
+        services.AddScoped<IUserDeviceManager, UserDeviceManager>();
+        services.AddScoped<IAuthTokenGenerator, AuthTokenGenerator>();
 
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.Configure<SmsSettings>(configuration.GetSection("SmsSettings"));
@@ -62,7 +63,7 @@ public static class DependencyInjection
         services.AddSingleton<IWhatsAppService, MockWhatsAppService>();
 
         services.AddHttpClient<IFacebookAuthService, FacebookAuthService>();
-        services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
+        services.AddSingleton<IGoogleAuthService, GoogleAuthService>();
 
         return services;
     }

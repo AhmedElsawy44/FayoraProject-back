@@ -3,7 +3,8 @@
 
 public record FacebookLoginRequest(
     string AccessToken,
-    string DeviceId,
     string FcmToken,
+    string? SimCountryIsoCode,
+    string TimeZone,
     string DeviceLanguage
 );

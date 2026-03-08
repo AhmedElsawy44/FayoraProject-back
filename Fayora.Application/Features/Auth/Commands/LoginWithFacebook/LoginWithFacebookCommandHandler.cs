@@ -47,6 +47,11 @@ public class LoginWithFacebookCommandHandler(
                 facebookUser.Name,
                 facebookUser.PictureUrl);
 
+            user.UpdateRegionalPreferences(
+                request.SimCountryIsoCode,
+                request.DeviceLanguage,
+                request.TimeZone);
+
             userRepository.AddUser(user);
 
             var email = Email.Create(facebookUser.Email);

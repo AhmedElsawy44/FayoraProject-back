@@ -2,7 +2,8 @@
 
 public record GoogleLoginRequest(
 string AccessToken,
-string DeviceId,
 string FcmToken,
+string? SimCountryIsoCode,
+string TimeZone,
 string DeviceLanguage
 );

@@ -46,6 +46,11 @@ public class LoginWithGoogleCommandHandler(
                     googleUser.LastName,
                     googleUser.PictureUrl);
 
+                user.UpdateRegionalPreferences(
+                    request.SimCountryIsoCode,
+                    request.TimeZone,
+                    request.DeviceLanguage);
+
                 userRepository.AddUser(user);
             }
 
