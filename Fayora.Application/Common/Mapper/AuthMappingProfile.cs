@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Fayora.Application.Features.Auth.Commands.LoginWithApple;
 using Fayora.Application.Features.Auth.Commands.LoginWithEmail;
 using Fayora.Application.Features.Auth.Commands.LoginWithFacebook;
 using Fayora.Application.Features.Auth.Commands.LoginWithGoogle;
@@ -23,5 +24,6 @@ public class AuthMappingProfile : Profile
         CreateMap<VerifyPhoneResult, PhoneVerifyResponse>();
         CreateMap<LoginWithFacebookResult, FacebookLoginResponse>();
         CreateMap<LoginWithGoogleResult, GoogleLoginResponse>();
+        CreateMap<LoginWithAppleResult, AppleLoginResponse>();
     }
 }

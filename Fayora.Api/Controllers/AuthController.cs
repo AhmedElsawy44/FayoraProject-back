@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Fayora.Application.Features.Auth.Commands.LoginWithApple;
 using Fayora.Application.Features.Auth.Commands.LoginWithEmail;
 using Fayora.Application.Features.Auth.Commands.LoginWithFacebook;
 using Fayora.Application.Features.Auth.Commands.LoginWithGoogle;
@@ -165,6 +166,27 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
 
         return result.Match(
             value => Ok(mapper.Map<GoogleLoginResponse>(value)),
+            Problem
+        );
+    }
+
+    [HttpPost("login/apple")]
+    public async Task<IActionResult> AppleLogin(
+        [FromBody] AppleLoginRequest request,
+        [FromHeader(Name = "X-Device-Id")] string deviceId)
+    {
+        var command = new LoginWithAppleCommand(
+            request.IdToken,
+            deviceId,
+            request.FcmToken,
+            request.SimCountryIsoCode,
+            request.TimeZone,
+            request.DeviceLanguage);
+
+        var result = await sender.Send(command);
+
+        return result.Match(
+            value => Ok(mapper.Map<AppleLoginResponse>(value)),
             Problem
         );
     }

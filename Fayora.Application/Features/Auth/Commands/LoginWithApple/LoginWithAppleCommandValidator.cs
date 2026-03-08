@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Auth.Commands.LoginWithFacebook
+namespace Fayora.Application.Features.Auth.Commands.LoginWithApple
 {
-    public class LoginWithFacebookCommandValidator : AbstractValidator<LoginWithFacebookCommand>
+    public class LoginWithAppleCommandValidator : AbstractValidator<LoginWithAppleCommand>
     {
-        public LoginWithFacebookCommandValidator()
+        public LoginWithAppleCommandValidator()
         {
             RuleFor(x => x.AccessToken)
             .NotEmpty().WithMessage("Facebook Access Token is required.")

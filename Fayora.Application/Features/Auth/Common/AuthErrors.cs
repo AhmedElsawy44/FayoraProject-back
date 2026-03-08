@@ -73,4 +73,9 @@ public static class AuthErrors
         code: "Authentication.PhoneAlreadyVerified",
         description: "The phone number is already verified."
     );
+
+    public static readonly Error EmailRequiredFromApple = Error.Validation(
+        code: "Authentication.EmailRequiredFromApple",
+        description: "Email is required from Apple. Please register again and provide email permission."
+    );
 }

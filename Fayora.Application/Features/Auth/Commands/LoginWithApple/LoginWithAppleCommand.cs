@@ -2,13 +2,12 @@
 using Fayora.Domain.Common.Results;
 using MediatR;
 
-namespace Fayora.Application.Features.Auth.Commands.LoginWithFacebook;
+namespace Fayora.Application.Features.Auth.Commands.LoginWithApple;
 
-
-public record LoginWithFacebookCommand(
+public record LoginWithAppleCommand(
     string AccessToken,
     string DeviceId,
     string FcmToken,
     string? SimCountryIsoCode,
     string TimeZone,
-    string DeviceLanguage) : IRequest<Result<LoginWithFacebookResult>>, ICheckBannedRequest;
+    string DeviceLanguage) : IRequest<Result<LoginWithAppleResult>>, ICheckBannedRequest;

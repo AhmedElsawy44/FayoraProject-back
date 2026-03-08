@@ -64,6 +64,7 @@ public static class DependencyInjection
 
         services.AddHttpClient<IFacebookAuthService, FacebookAuthService>();
         services.AddSingleton<IGoogleAuthService, GoogleAuthService>();
+        services.AddSingleton<IAppleAuthService, MockAppleAuthService>();
 
         return services;
     }

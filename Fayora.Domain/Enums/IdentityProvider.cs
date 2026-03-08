@@ -3,5 +3,6 @@
 public enum IdentityProvider
 {
     Google,
-    Facebook
+    Facebook,
+    Apple
 }
