@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Contracts.Auth.Requests;
+﻿namespace Fayora.Contracts.Auth.Requests;
 
 public record AppleLoginRequest(
     string IdToken,

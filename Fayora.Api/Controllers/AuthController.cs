@@ -146,7 +146,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
         var result = await sender.Send(command);
 
         return result.Match(
-            value=> Ok(mapper.Map<FacebookLoginResponse>(value)),
+            value => Ok(mapper.Map<FacebookLoginResponse>(value)),
             Problem);
     }
 
