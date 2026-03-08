@@ -121,6 +121,16 @@ public class User : AuditableEntity<Guid>
         return user;
     }
 
+    public static User CreateWithSocialLogin(string? email)
+    {
+        return new User
+        {
+            Id = Guid.CreateVersion7(),
+            PrimaryEmail = Email.Create(email).Value,
+            Status = UserStatus.Active,
+        };
+    }
+
     public static User CreateWithSocialLogin(
     string? email,
     string? firstName,

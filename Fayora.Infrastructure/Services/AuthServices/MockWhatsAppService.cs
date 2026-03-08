@@ -1,4 +1,5 @@
 ﻿using Fayora.Application.Common.Interfaces.Services;
+using Fayora.Infrastructure.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

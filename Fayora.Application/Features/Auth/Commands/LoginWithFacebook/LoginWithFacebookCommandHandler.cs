@@ -2,140 +2,92 @@
 using Fayora.Application.Common.Interfaces.Services;
 using Fayora.Application.Features.Auth.Common;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Entities.Identity;
 using Fayora.Domain.Entitties.Identity;
 using Fayora.Domain.Enums;
 using Fayora.Domain.ValueObjects;
 using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IUserRepository;
 
-namespace Fayora.Application.Features.Auth.Commands.FacebookLogin
-{
+namespace Fayora.Application.Features.Auth.Commands.LoginWithFacebook;
 
-    public class LoginWithFacebookCommandHandler(
+public class LoginWithFacebookCommandHandler(
     IUserRepository userRepository,
     IUserIdentityRepository userIdentityRepository,
-    IUserTokenRepository userTokenRepository,
-    IDeviceRepository deviceRepository,
     IFacebookAuthService facebookAuthService,
-    IJwtService jwtService,
-    IUserTokenService userTokenService,
-    ITokenHasher tokenHasher,
-    IClientContextProvider clientContextProvider,
+    IUserDeviceManager userDeviceManager,
+    IAuthTokenGenerator authTokenGenerator,
     IUnitOfWork unitOfWork
-) : IRequestHandler<LoginWithFacebookCommand, Result<AuthResult>>
+) : IRequestHandler<LoginWithFacebookCommand, Result<LoginWithFacebookResult>>
+{
+    public async Task<Result<LoginWithFacebookResult>> Handle(LoginWithFacebookCommand request, CancellationToken cancellationToken)
     {
-        public async Task<Result<AuthResult>> Handle(
-            LoginWithFacebookCommand request,
-            CancellationToken cancellationToken)
+        var facebookUser = await facebookAuthService.GetUserInfoAsync(request.AccessToken, cancellationToken);
+        if (facebookUser is null)
+            return AuthErrors.InvalidCredentials;
+
+        var existingIdentity = await userIdentityRepository.GetIdentityByIdAsync(
+            facebookUser.Id,
+            IdentityProvider.Facebook,
+            cancellationToken);
+
+        User? user = null;
+
+        if (existingIdentity is not null)
         {
-            // 1 - Check Facebook Token
-            var facebookUser = await facebookAuthService
-                .GetUserInfoAsync(request.AccessToken, cancellationToken);
-
-            if (facebookUser is null)
-                return AuthErrors.InvalidCredentials;
-
-            // 2 - Check if user exists by Facebook ID (UserIdentity)
-            User? user = null;
-
-            var existingIdentity = await userIdentityRepository
-                .GetIdentityByIdAsync(facebookUser.Id, IdentityProvider.Facebook, cancellationToken);
-
-            if (existingIdentity is not null)
-            {
-                user = await userRepository.GetUserByIdAsync(
-                    existingIdentity.UserId,
-                    new UserQueryOptions { IsReadOnly = false, IncludeRoles = true },
-                    cancellationToken);
-            }
-            // 3 - if not, create new user (Register)
-            if (user is null)
-            {
-                user = User.CreateWithSocialLogin(
-                    facebookUser.Email,
-                    facebookUser.Name,
-                    facebookUser.PictureUrl);
-
-                userRepository.AddUser(user);
-
-                // Save UserIdentity
-                Email? email = null;
-                if (!string.IsNullOrWhiteSpace(facebookUser.Email))
-                {
-                    var emailResult = Email.Create(facebookUser.Email);
-                    if (emailResult.IsSuccess) email = emailResult.Value;
-                }
-
-                var identity = new UserIdentity(
-                    user.Id,
-                    IdentityProvider.Facebook,
-                    facebookUser.Id,
-                    email);
-
-                userIdentityRepository.AddIdentity(identity);
-            }
-            else
-            {
-                // 4 - Check Status
-                var statusCheck = user.CheckActiveStatus();
-                if (statusCheck.IsError) return statusCheck.Errors;
-            }
-
-            // 5 - Login
-            user.Login();
-
-            // 6 - Add or Update Device
-            var device = await deviceRepository
-                .GetDeviceByUserIdAndDeviceIdAsync(
-                    user.Id,
-                    request.DeviceId,
-                    cancellationToken,
-                    isTracking: true);
-
-            if (device is null)
-            {
-                device = new UserDevice(
-                    user.Id,
-                    request.DeviceId,
-                    request.FcmToken,
-                    request.DeviceLanguage);
-                deviceRepository.AddDevice(device);
-            }
-            else
-            {
-                device.UpdateInfo(request.FcmToken, request.DeviceLanguage);
-            }
-
-            // 7 - Generate Tokens
-            var accessToken = jwtService.GenerateToken(request.DeviceId, user);
-            var refreshTokenString = userTokenService.GenerateTokenString();
-            var hashedRefreshToken = tokenHasher.HashToken(refreshTokenString);
-            var refreshToken = UserTokens.RefreshToken(
-                user.Id,
-                hashedRefreshToken,
-                request.DeviceId,
-                clientContextProvider.GetContext().IpAddress);
-
-            await userTokenRepository.RevokeTokensForDeviceAsync(
-                user.Id,
-                request.DeviceId,
-                TokenType.RefreshToken,
+            user = await userRepository.GetUserByIdAsync(
+                existingIdentity.UserId,
+                new UserQueryOptions { IsReadOnly = false, IncludeRoles = true },
                 cancellationToken);
-
-            userTokenRepository.AddToken(refreshToken);
-
-            await unitOfWork.CommitChangesAsync(cancellationToken);
-
-            var identifier = facebookUser.Email ?? facebookUser.Name ?? user.Id.ToString();
-
-            return new AuthResult(
-                user.Id,
-                identifier,
-                accessToken,
-                refreshTokenString
-            );
         }
-    }
 
+        if (user is null)
+        {
+            user = User.CreateWithSocialLogin(
+                facebookUser.Email,
+                facebookUser.Name,
+                facebookUser.PictureUrl);
+
+            user.UpdateRegionalPreferences(
+                request.SimCountryIsoCode,
+                request.DeviceLanguage,
+                request.TimeZone);
+
+            userRepository.AddUser(user);
+
+            var email = Email.Create(facebookUser.Email);
+
+            var identity = new UserIdentity(
+                user.Id,
+                IdentityProvider.Facebook,
+                facebookUser.Id,
+                email.Value);
+
+            userIdentityRepository.AddIdentity(identity);
+        }
+        else
+        {
+            var statusCheck = user.CheckActiveStatus();
+            if (statusCheck.IsError) return statusCheck.Errors;
+        }
+
+        user.Login();
+
+        await userDeviceManager.UpsertDeviceAsync(
+            user.Id,
+            request.DeviceId,
+            request.FcmToken,
+            request.DeviceLanguage,
+            cancellationToken);
+
+        var tokens = await authTokenGenerator.GenerateTokensAsync(user, request.DeviceId, cancellationToken);
+
+        await unitOfWork.CommitChangesAsync(cancellationToken);
+
+        return new LoginWithFacebookResult(
+            user.Id,
+            user.PrimaryEmail?.Value ?? string.Empty,
+            tokens.AccessToken,
+            tokens.RefreshToken,
+            tokens.ExpiresIn);
+    }
 }

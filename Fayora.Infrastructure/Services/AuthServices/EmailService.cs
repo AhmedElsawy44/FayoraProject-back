@@ -1,4 +1,5 @@
 ﻿using Fayora.Application.Common.Interfaces.Services;
+using Fayora.Infrastructure.Settings;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Logging;

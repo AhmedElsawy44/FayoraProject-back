@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace Fayora.Contracts.Auth.Requests;
 
-namespace Fayora.Contracts.Auth.Requests
-{
 
-    public record FacebookLoginRequest(
-        string AccessToken,
-        string DeviceId,
-        string FcmToken,
-        string DeviceLanguage
-    );
-}
+public record FacebookLoginRequest(
+    string AccessToken,
+    string FcmToken,
+    string? SimCountryIsoCode,
+    string TimeZone,
+    string DeviceLanguage
+);

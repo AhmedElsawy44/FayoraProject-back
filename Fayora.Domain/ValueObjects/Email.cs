@@ -9,7 +9,7 @@ public sealed class Email : IEquatable<Email>
 
     private Email(string value) => Value = value.ToLowerInvariant().Trim();
 
-    public static Result<Email> Create(string email)
+    public static Result<Email> Create(string? email)
     {
         if (string.IsNullOrWhiteSpace(email))
             return UserErrors.InvalidEmail;
