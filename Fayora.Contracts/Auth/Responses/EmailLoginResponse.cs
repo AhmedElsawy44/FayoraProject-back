@@ -1,6 +1,6 @@
 ﻿namespace Fayora.Contracts.Auth.Responses;
 
-public record LoginEmailResponse(
+public record EmailLoginResponse(
     string UserId,
     string Email,
     string AccessToken,

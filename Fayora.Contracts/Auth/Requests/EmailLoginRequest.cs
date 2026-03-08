@@ -1,7 +1,7 @@
 ﻿namespace Fayora.Contracts.Auth.Requests;
 
-public record LoginPhoneRequest(
-    string PhoneNumber,
+public record EmailLoginRequest(
+    string Email,
     string Password,
     string FcmToken,
     string DeviceLanguage

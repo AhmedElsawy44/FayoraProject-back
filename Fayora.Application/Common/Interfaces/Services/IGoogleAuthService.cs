@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Application.Common.Interfaces.Services;
+﻿namespace Fayora.Application.Common.Interfaces.Services;
 
 public interface IGoogleAuthService
 {
-    Task<GoogleAuthenticationResult> GetUserInfoAsync(string token, CancellationToken cancellationToken);
+    Task<GoogleAuthenticationResult?> GetUserInfoAsync(string token, CancellationToken cancellationToken);
 
     public record GoogleAuthenticationResult(
         string Id,

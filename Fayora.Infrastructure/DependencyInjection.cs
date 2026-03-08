@@ -5,7 +5,7 @@ using Fayora.Infrastructure.Persistence;
 using Fayora.Infrastructure.Persistence.Repositories;
 using Fayora.Infrastructure.Services.Authentication;
 using Fayora.Infrastructure.Services.AuthServices;
-using Fayora.Infrastructure.Services.AuthServices.FacebookLoginService;
+using Fayora.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -49,19 +49,19 @@ public static class DependencyInjection
         services.AddSingleton<IVerificationCodeService, VerificationCodeService>();
         services.AddSingleton<ICodeHasher, CodeHasher>();
         services.AddSingleton<ITokenHasher, TokenHasher>();
+        services.AddSingleton<IMessageGenerator, MessageGenerator>();
+        services.AddSingleton<IUserDeviceManager, UserDeviceManager>();
 
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.Configure<SmsSettings>(configuration.GetSection("SmsSettings"));
+        services.Configure<GoogleSettings>(configuration.GetSection("GoogleSettings"));
+        services.Configure<FacebookSettings>(configuration.GetSection("FacebookSettings"));
+
         services.AddSingleton<IEmailService, EmailService>();
         services.AddSingleton<ISmsService, MockSmsService>();
-        services.AddSingleton<IMessageGenerator, MessageGenerator>();
         services.AddSingleton<IWhatsAppService, MockWhatsAppService>();
 
-        // Facebook
-        services.Configure<FacebookSettings>(
-            configuration.GetSection(FacebookSettings.Section));
         services.AddHttpClient<IFacebookAuthService, FacebookAuthService>();
-
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
 
         return services;

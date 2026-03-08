@@ -1,5 +1,6 @@
 ﻿using Fayora.Application.Common.Interfaces.Services;
 using Fayora.Domain.Entitties.Identity;
+using Fayora.Infrastructure.Settings;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

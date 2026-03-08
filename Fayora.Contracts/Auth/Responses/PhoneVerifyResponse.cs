@@ -1,8 +1,9 @@
 ﻿namespace Fayora.Contracts.Auth.Responses;
 
-public record VerifyEmailResponse(
+public record PhoneVerifyResponse(
     Guid Id,
-    string Email,
+    string PhoneNumber,
     string AccessToken,
     string RefreshToken,
     int ExpiresIn);
+

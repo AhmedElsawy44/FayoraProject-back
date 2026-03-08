@@ -1,9 +1,9 @@
 ﻿namespace Fayora.Contracts.Auth.Responses;
 
-public record VerifyPhoneResponse(
-    Guid Id,
-    string PhoneNumber,
+public record FacebookLoginResponse(
+    string UserId,
+    string Email,
     string AccessToken,
     string RefreshToken,
-    int ExpiresIn);
-
+    int ExpiresIn
+);

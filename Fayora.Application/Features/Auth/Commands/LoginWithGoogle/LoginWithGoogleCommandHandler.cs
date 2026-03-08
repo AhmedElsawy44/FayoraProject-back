@@ -2,7 +2,6 @@
 using Fayora.Application.Common.Interfaces.Services;
 using Fayora.Application.Features.Auth.Common;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Entities.Identity;
 using Fayora.Domain.Entitties.Identity;
 using Fayora.Domain.Enums;
 using Fayora.Domain.ValueObjects;
@@ -14,14 +13,10 @@ namespace Fayora.Application.Features.Auth.Commands.LoginWithGoogle;
 public class LoginWithGoogleCommandHandler(
     IUserIdentityRepository userIdentityRepository,
     IUserRepository userRepository,
-    IUserTokenRepository userTokenRepository,
-    IDeviceRepository deviceRepository,
     IUnitOfWork unitOfWork,
     IGoogleAuthService googleAuthService,
-    IJwtService jwtService,
-    ITokenHasher tokenHasher,
-    IUserTokenService userTokenService,
-    IClientContextProvider clientContextProvider)
+    IUserDeviceManager userDeviceManager,
+    IAuthTokenGenerator authTokenGenerator)
     : IRequestHandler<LoginWithGoogleCommand, Result<LoginWithGoogleResult>>
 {
     public async Task<Result<LoginWithGoogleResult>> Handle(LoginWithGoogleCommand request, CancellationToken cancellationToken)
@@ -45,12 +40,17 @@ public class LoginWithGoogleCommandHandler(
 
             if (user is null)
             {
-                user = User.CreateWithSocialLogin(googleUser.Email, googleUser.FirstName, googleUser.LastName, googleUser.PictureUrl);
+                user = User.CreateWithSocialLogin(
+                    googleUser.Email,
+                    googleUser.FirstName,
+                    googleUser.LastName,
+                    googleUser.PictureUrl);
 
                 userRepository.AddUser(user);
             }
 
             var email = Email.Create(googleUser.Email);
+            if (email.IsError) return email.Errors;
 
             var newIdentity = new UserIdentity(user.Id, IdentityProvider.Google, googleUser.Id, email.Value);
             userIdentityRepository.AddIdentity(newIdentity);
@@ -61,29 +61,22 @@ public class LoginWithGoogleCommandHandler(
 
         user.Login();
 
-        var device = await deviceRepository.GetDeviceByUserIdAndDeviceIdAsync(user.Id, request.DeviceId, cancellationToken, isTracking: true);
+        await userDeviceManager.UpsertDeviceAsync(
+            user.Id,
+            request.DeviceId,
+            request.FcmToken,
+            request.DeviceLanguage,
+            cancellationToken);
 
-        if (device is null)
-        {
-            device = new UserDevice(user.Id, request.DeviceId, request.FcmToken, request.DeviceLanguage);
-            deviceRepository.AddDevice(device);
-        }
-        else
-        {
-            device.UpdateInfo(request.FcmToken, request.DeviceLanguage);
-        }
-
-        var accessToken = jwtService.GenerateToken(request.DeviceId, user);
-        var refreshTokenString = userTokenService.GenerateTokenString();
-        var hashedRefreshToken = tokenHasher.HashToken(refreshTokenString);
-
-        var refreshToken = UserTokens.RefreshToken(user.Id, hashedRefreshToken, request.DeviceId, clientContextProvider.GetContext().IpAddress);
-
-        await userTokenRepository.RevokeTokensForDeviceAsync(user.Id, request.DeviceId, TokenType.RefreshToken, cancellationToken);
-        userTokenRepository.AddToken(refreshToken);
+        var tokens = await authTokenGenerator.GenerateTokensAsync(user, request.DeviceId, cancellationToken);
 
         await unitOfWork.CommitChangesAsync(cancellationToken);
 
-        return new LoginWithGoogleResult(user.Id, googleUser.Email, accessToken, refreshTokenString, jwtService.ExpiresIn);
+        return new LoginWithGoogleResult(
+            user.Id,
+            googleUser.Email,
+            tokens.AccessToken,
+            tokens.RefreshToken,
+            tokens.ExpiresIn);
     }
 }

@@ -1,8 +1,8 @@
 ﻿namespace Fayora.Contracts.Auth.Responses;
 
-public record LoginPhoneResponse(
+public record GoogleLoginResponse(
     string UserId,
-    string PhoneNumber,
+    string Email,
     string AccessToken,
     string RefreshToken,
     int ExpiresIn

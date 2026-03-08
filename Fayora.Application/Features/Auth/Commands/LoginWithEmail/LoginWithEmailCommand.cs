@@ -4,5 +4,9 @@ using MediatR;
 
 namespace Fayora.Application.Features.Auth.Commands.LoginWithEmail;
 
-public record LoginWithEmailCommand(string Email, string Password, string DeviceId, string FcmToken, string DeviceLanguage) : IRequest<Result<LoginWithEmailResult>>, ICheckBannedRequest;
-
+public record LoginWithEmailCommand(
+    string Email,
+    string Password,
+    string DeviceId,
+    string FcmToken,
+    string DeviceLanguage) : IRequest<Result<LoginWithEmailResult>>, ICheckBannedRequest;

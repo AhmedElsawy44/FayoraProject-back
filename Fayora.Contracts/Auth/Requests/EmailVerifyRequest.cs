@@ -1,6 +1,6 @@
 ﻿namespace Fayora.Contracts.Auth.Requests;
 
-public record VerifyEmailRequest(
+public record EmailVerifyRequest(
 Guid UserId,
 string Email,
 string Code,

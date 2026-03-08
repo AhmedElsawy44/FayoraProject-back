@@ -1,6 +1,6 @@
 ﻿namespace Fayora.Contracts.Auth.Requests;
 
-public record RegisterEmailRequest(
+public record EmailRegisterRequest(
     string Email,
     string Password
 );

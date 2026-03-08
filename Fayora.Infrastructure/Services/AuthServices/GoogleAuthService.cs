@@ -1,19 +1,44 @@
 ﻿using Fayora.Application.Common.Interfaces.Services;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Fayora.Infrastructure.Settings;
+using Google.Apis.Auth;
+using Microsoft.Extensions.Options;
+using static Fayora.Application.Common.Interfaces.Services.IGoogleAuthService;
 
-namespace Fayora.Infrastructure.Services.AuthServices
+namespace Fayora.Infrastructure.Services.AuthServices;
+
+public class GoogleAuthService(IOptions<GoogleSettings> settings) : IGoogleAuthService
 {
-
-    // Dummy  بس عشان اعرف اعمل ميجريشن لحد مانت تعمله
-    public class GoogleAuthService : IGoogleAuthService
+    private readonly GoogleSettings _settings = settings.Value;
+    public async Task<GoogleAuthenticationResult?> GetUserInfoAsync(
+        string token,
+        CancellationToken cancellationToken)
     {
-        public Task<IGoogleAuthService.GoogleAuthenticationResult> GetUserInfoAsync(
-            string token,
-            CancellationToken cancellationToken)
+        try
         {
-            throw new NotImplementedException();
+            var settings = new GoogleJsonWebSignature.ValidationSettings
+            {
+                Audience = [_settings.ClientId]
+            };
+
+            var payload = await GoogleJsonWebSignature.ValidateAsync(token, settings);
+
+            if (payload is null) return null;
+
+            return new IGoogleAuthService.GoogleAuthenticationResult(
+                Id: payload.Subject,
+                Email: payload.Email,
+                FirstName: payload.GivenName,
+                LastName: payload.FamilyName,
+                PictureUrl: payload.Picture
+            );
+        }
+        catch (InvalidJwtException)
+        {
+            return null;
+        }
+        catch (Exception)
+        {
+            return null;
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Fayora.Contracts.Auth.Requests;
 
-public record VerifyPhoneRequest(
+public record PhoneVerifyRequest(
 Guid UserId,
 string PhoneNumber,
 string Code,

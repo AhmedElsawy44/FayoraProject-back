@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.Auth.Commands.LoginWithEmail;
+using Fayora.Application.Features.Auth.Commands.LoginWithFacebook;
+using Fayora.Application.Features.Auth.Commands.LoginWithGoogle;
 using Fayora.Application.Features.Auth.Commands.LoginWithPhone;
 using Fayora.Application.Features.Auth.Commands.RegisterWithEmail;
 using Fayora.Application.Features.Auth.Commands.RegisterWithPhone;
@@ -13,11 +15,13 @@ public class AuthMappingProfile : Profile
 {
     public AuthMappingProfile()
     {
-        CreateMap<RegisterWithEmailResult, RegisterEmailResponse>();
-        CreateMap<RegisterWithPhoneResult, RegisterPhoneResponse>();
-        CreateMap<LoginWithEmailResult, LoginEmailResponse>();
-        CreateMap<LoginWithPhoneResult, LoginPhoneResponse>();
-        CreateMap<VerifyEmailResult, VerifyEmailResponse>();
-        CreateMap<VerifyPhoneResult, VerifyPhoneResponse>();
+        CreateMap<RegisterWithEmailResult, EmailRegisterResponse>();
+        CreateMap<RegisterWithPhoneResult, PhoneRegisterResponse>();
+        CreateMap<LoginWithEmailResult, EmailLoginResponse>();
+        CreateMap<LoginWithPhoneResult, PhoneLoginResponse>();
+        CreateMap<VerifyEmailResult, EmailVerifyResponse>();
+        CreateMap<VerifyPhoneResult, PhoneVerifyResponse>();
+        CreateMap<LoginWithFacebookResult, FacebookLoginResponse>();
+        CreateMap<LoginWithGoogleResult, GoogleLoginResponse>();
     }
 }

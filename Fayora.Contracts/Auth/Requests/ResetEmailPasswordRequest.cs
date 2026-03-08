@@ -1,6 +1,6 @@
 ﻿namespace Fayora.Contracts.Auth.Requests;
 
-public record ResetPasswordEmailRequest(
+public record ResetEmailPasswordRequest(
     string Email,
     string ResetToken,
     string NewPassword
