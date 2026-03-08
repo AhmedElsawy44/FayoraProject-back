@@ -1,10 +1,14 @@
 ﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Common.ValueObjects;
 using Fayora.Domain.Errors;
+using System.Text.RegularExpressions;
 
 namespace Fayora.Domain.ValueObjects;
 
-public sealed class Email : IEquatable<Email>
+public sealed class Email : ValueObject
 {
+    private static readonly Regex EmailRegex = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
     public string Value { get; }
 
     private Email(string value) => Value = value.ToLowerInvariant().Trim();
@@ -14,18 +18,16 @@ public sealed class Email : IEquatable<Email>
         if (string.IsNullOrWhiteSpace(email))
             return UserErrors.InvalidEmail;
 
-        if (!email.Contains('@'))
+        if (!EmailRegex.IsMatch(email))
             return UserErrors.InvalidEmail;
 
         return new Email(email);
     }
 
-    public override bool Equals(object? obj) => obj is Email other && Equals(other);
+    protected override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
+    }
 
-    public bool Equals(Email? other) => other is not null && Value == other.Value;
-
-    public override int GetHashCode() => Value.GetHashCode();
-    public static bool operator ==(Email? left, Email? right) => Equals(left, right);
-    public static bool operator !=(Email? left, Email? right) => !Equals(left, right);
     public override string ToString() => Value;
 }
