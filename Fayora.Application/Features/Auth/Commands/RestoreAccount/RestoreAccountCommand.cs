@@ -8,6 +8,7 @@ using System.Text;
 
 namespace Fayora.Application.Features.Auth.Commands.RestoreAccount
 {
+    // افسم الكاوماند ل 2 واحد لل فون و واحد للايميل
     public record RestoreAccountCommand(
         string Identifier,
         string Code,
