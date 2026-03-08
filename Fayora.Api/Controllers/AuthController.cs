@@ -8,6 +8,7 @@ using Fayora.Application.Features.Auth.Commands.RegisterWithEmail;
 using Fayora.Application.Features.Auth.Commands.RegisterWithPhone;
 using Fayora.Application.Features.Auth.Commands.ResetPasswordEmail;
 using Fayora.Application.Features.Auth.Commands.ResetPasswordPhone;
+using Fayora.Application.Features.Auth.Commands.RestoreAccount;
 using Fayora.Application.Features.Auth.Commands.SendEmailCode;
 using Fayora.Application.Features.Auth.Commands.SendPhoneCode;
 using Fayora.Application.Features.Auth.Commands.VerifyEmail;
@@ -193,8 +194,6 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
 
     #endregion
 
-
-
     #region 3. OTP Management
 
     [HttpPost("otp/send/email")]
@@ -283,5 +282,32 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     }
 
     #endregion
+
+    #region Rsstore Account
+
+
+    [HttpPost("restore-account/email")]
+    public async Task<IActionResult> RestoreAccountWithEmail(
+    [FromBody] RestoreAccountWithEmailRequest request,
+    [FromHeader(Name = "X-Device-Id")] string deviceId)
+    {
+        var command = new RestoreAccountWithEmailCommand(
+            request.Email,
+            request.Code,
+            deviceId,
+            request.FcmToken,
+            request.DeviceLanguage);
+
+        var result = await sender.Send(command);
+
+        return result.Match(
+            value => Ok(mapper.Map<RestoreAccountWithEmailResponse>(value)),
+            Problem);
+    }
+
+
+
+    #endregion
+
 
 }
