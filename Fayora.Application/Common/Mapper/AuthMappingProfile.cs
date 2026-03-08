@@ -4,6 +4,7 @@ using Fayora.Application.Features.Auth.Commands.LoginWithEmail;
 using Fayora.Application.Features.Auth.Commands.LoginWithFacebook;
 using Fayora.Application.Features.Auth.Commands.LoginWithGoogle;
 using Fayora.Application.Features.Auth.Commands.LoginWithPhone;
+using Fayora.Application.Features.Auth.Commands.RefreshToken;
 using Fayora.Application.Features.Auth.Commands.RegisterWithEmail;
 using Fayora.Application.Features.Auth.Commands.RegisterWithPhone;
 using Fayora.Application.Features.Auth.Commands.RestoreAccountWithEmail;
@@ -29,5 +30,6 @@ public class AuthMappingProfile : Profile
         CreateMap<LoginWithAppleResult, AppleLoginResponse>();
         CreateMap<RestoreAccountWithEmailResult, RestoreAccountWithEmailResponse>();
         CreateMap<RestoreAccountWithPhoneResult, RestoreAccountWithPhoneResponse>();
+        CreateMap<RefreshTokenResult, RefreshTokenResponse>();
     }
 }

@@ -1,0 +1,69 @@
+﻿using Fayora.Application.Common.Interfaces.Presistances;
+using Fayora.Application.Common.Interfaces.Services;
+using Fayora.Application.Features.Auth.Common;
+using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums;
+using MediatR;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using static Fayora.Application.Common.Interfaces.Presistances.IUserRepository;
+
+namespace Fayora.Application.Features.Auth.Commands.RefreshToken
+{
+    public class RefreshTokenCommandHandler(
+        IUserRepository userRepository,
+        IUserTokenRepository userTokenRepository,
+        IAuthTokenGenerator authTokenGenerator,
+        ITokenHasher tokenHasher,
+        IUnitOfWork unitOfWork
+    ) : IRequestHandler<RefreshTokenCommand, Result<RefreshTokenResult>>
+    {
+        public async Task<Result<RefreshTokenResult>> Handle(
+            RefreshTokenCommand request,
+            CancellationToken cancellationToken)
+        {
+            // 1 - Hash The Token that came from frontend
+            var hashedToken = tokenHasher.HashToken(request.RefreshToken);
+
+            // 2 - Get the token from DB and check if it's valid 
+            var refreshToken = await userTokenRepository.GetTokenByHashAsync(
+                hashedToken,
+                request.DeviceId,
+                TokenType.RefreshToken,
+                cancellationToken);
+
+            if (refreshToken is null || !refreshToken.IsValid)
+                return AuthErrors.InvalidRefreshToken;
+
+            // 3 - Get The User
+            var user = await userRepository.GetUserByIdAsync(
+                refreshToken.UserId,
+                new UserQueryOptions { IsReadOnly = false, IncludeRoles = true },
+                cancellationToken);
+
+            if (user is null)
+                return AuthErrors.UserNotFound;
+
+            // 4 - Check user Status
+            var statusCheck = user.CheckActiveStatus();
+            if (statusCheck.IsError) return statusCheck.Errors;
+
+            // 5 - Cancel the old Refresh Token
+            refreshToken.Revoke();
+
+            // 6 - Generate new Access Token and Refresh Token
+            var tokens = await authTokenGenerator.GenerateTokensAsync(
+                user,
+                request.DeviceId,
+                cancellationToken);
+
+            await unitOfWork.CommitChangesAsync(cancellationToken);
+
+            return new RefreshTokenResult(
+                tokens.AccessToken,
+                tokens.RefreshToken,
+                tokens.ExpiresIn);
+        }
+    }
+}

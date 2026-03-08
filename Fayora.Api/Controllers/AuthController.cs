@@ -4,6 +4,7 @@ using Fayora.Application.Features.Auth.Commands.LoginWithEmail;
 using Fayora.Application.Features.Auth.Commands.LoginWithFacebook;
 using Fayora.Application.Features.Auth.Commands.LoginWithGoogle;
 using Fayora.Application.Features.Auth.Commands.LoginWithPhone;
+using Fayora.Application.Features.Auth.Commands.RefreshToken;
 using Fayora.Application.Features.Auth.Commands.RegisterWithEmail;
 using Fayora.Application.Features.Auth.Commands.RegisterWithPhone;
 using Fayora.Application.Features.Auth.Commands.ResetPasswordEmail;
@@ -323,6 +324,26 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
 
         return result.Match(
             value => Ok(mapper.Map<RestoreAccountWithPhoneResponse>(value)),
+            Problem);
+    }
+
+    #endregion
+
+    #region Refresh Token
+
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken(
+    [FromBody] RefreshTokenRequest request,
+    [FromHeader(Name = "X-Device-Id")] string deviceId)
+    {
+        var command = new RefreshTokenCommand(
+            request.RefreshToken,
+            deviceId);
+
+        var result = await sender.Send(command);
+
+        return result.Match(
+            value => Ok(mapper.Map<RefreshTokenResponse>(value)),
             Problem);
     }
 

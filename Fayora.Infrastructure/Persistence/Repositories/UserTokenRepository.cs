@@ -36,4 +36,18 @@ public class UserTokenRepository(ApplicationDbContext context) : IUserTokenRepos
             .Where(rt => rt.UserId == userId && rt.DeviceId == deviceId && rt.TokenType == tokenType && rt.RevokedAt == null)
             .ExecuteUpdateAsync(setter => setter.SetProperty(rt => rt.RevokedAt, DateTimeOffset.UtcNow), cancellationToken);
     }
+
+    public async Task<UserTokens?> GetTokenByHashAsync(
+    string tokenHash,
+    string deviceId,
+    TokenType tokenType,
+    CancellationToken cancellationToken = default)
+    {
+        return await context.UserTokens
+            .FirstOrDefaultAsync(
+                t => t.HashedToken == tokenHash &&
+                     t.DeviceId == deviceId &&
+                     t.TokenType == tokenType,
+                cancellationToken);
+    }
 }
