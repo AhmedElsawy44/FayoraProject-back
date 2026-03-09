@@ -14,10 +14,11 @@ public static class DependencyInjection
 
             options.AddOpenBehavior(typeof(UnhandledExceptionBehavior<,>));
             options.AddOpenBehavior(typeof(LoggingBehavior<,>));
-            options.AddOpenBehavior(typeof(PerformanceBehavior<,>));
             options.AddOpenBehavior(typeof(ValidationBehavior<,>));
-
+            options.AddOpenBehavior(typeof(AuthorizationBehavior<,>));
             options.AddOpenBehavior(typeof(BannedCheckBehavior<,>));
+            options.AddOpenBehavior(typeof(PerformanceBehavior<,>));
+
         });
 
         services.AddValidatorsFromAssemblyContaining(typeof(DependencyInjection));
