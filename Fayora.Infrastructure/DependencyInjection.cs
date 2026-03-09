@@ -1,8 +1,7 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances;
-using Fayora.Application.Common.Interfaces.Services;
-using Fayora.Domain.Common.Interfaces;
-using Fayora.Infrastructure.Persistence;
-using Fayora.Infrastructure.Persistence.Repositories;
+﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Services.AuthServices;
+using Fayora.Domain.Common.Interfaces.IdentityModule;
+using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 using Fayora.Infrastructure.Services.Authentication;
 using Fayora.Infrastructure.Services.AuthServices;
 using Fayora.Infrastructure.Settings;

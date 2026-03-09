@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Services;
+﻿using Fayora.Application.Common.Interfaces.Services.AuthServices;
 using Fayora.Application.Common.Models;
 
 namespace Fayora.Api.Services;

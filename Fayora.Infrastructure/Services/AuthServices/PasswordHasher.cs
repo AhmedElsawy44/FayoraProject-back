@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Interfaces;
+﻿using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
 using System.Text.RegularExpressions;
 

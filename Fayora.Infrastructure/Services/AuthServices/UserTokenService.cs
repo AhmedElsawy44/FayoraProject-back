@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Services;
+﻿using Fayora.Application.Common.Interfaces.Services.AuthServices;
 using System.Security.Cryptography;
 
 namespace Fayora.Infrastructure.Services.AuthServices;

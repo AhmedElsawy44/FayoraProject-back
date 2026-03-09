@@ -11,7 +11,14 @@ using Fayora.Application.Features.Auth.Commands.RestoreAccountWithEmail;
 using Fayora.Application.Features.Auth.Commands.RestoreAccountWithPhone;
 using Fayora.Application.Features.Auth.Commands.VerifyEmail;
 using Fayora.Application.Features.Auth.Commands.VerifyPhone;
-using Fayora.Contracts.Auth.Responses;
+using Fayora.Contracts.Auth.AppleLogin;
+using Fayora.Contracts.Auth.FacebookLogin;
+using Fayora.Contracts.Auth.GoogleLogin;
+using Fayora.Contracts.Auth.Login;
+using Fayora.Contracts.Auth.RefreshToken;
+using Fayora.Contracts.Auth.Register;
+using Fayora.Contracts.Auth.RestoreAccount;
+using Fayora.Contracts.Auth.Verify;
 
 namespace Fayora.Application.Common.Mapper;
 

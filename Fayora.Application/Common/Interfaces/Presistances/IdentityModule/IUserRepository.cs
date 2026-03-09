@@ -1,0 +1,29 @@
+﻿using Fayora.Domain.Entitties.Identity;
+using Fayora.Domain.Shared.IdentityModule;
+
+namespace Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+
+public interface IUserRepository
+{
+    void AddUser(User user);
+
+    Task<User?> GetUserByIdAsync(Guid id, UserQueryOptions? options = null, CancellationToken cancellationToken = default);
+
+    Task<User?> GetUserByEmailAsync(string email, UserQueryOptions? options = null, CancellationToken cancellationToken = default);
+    Task<User?> GetUserByPhoneAsync(string phoneNumber, UserQueryOptions? options = null, CancellationToken cancellationToken = default);
+
+    public enum AccountStatus
+    {
+        Verified,
+        NotVerified,
+        All
+    }
+
+    public record UserQueryOptions(
+        bool IsReadOnly = false,
+        bool IncludeVerificationCodes = false,
+        bool IncludeRoles = false,
+        AccountStatus Status = AccountStatus.All,
+        UserStatus? UserStatus = null
+    );
+}
