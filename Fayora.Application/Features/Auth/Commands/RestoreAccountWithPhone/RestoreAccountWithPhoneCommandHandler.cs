@@ -5,9 +5,6 @@ using Fayora.Domain.Common.Interfaces;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using static Fayora.Application.Common.Interfaces.Presistances.IUserRepository;
 
 namespace Fayora.Application.Features.Auth.Commands.RestoreAccountWithPhone
