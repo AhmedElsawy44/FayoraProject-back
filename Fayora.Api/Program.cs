@@ -1,3 +1,4 @@
+using Fayora.Api.Externals;
 using Fayora.Application;
 using Fayora.Infrastructure;
 
@@ -5,7 +6,7 @@ namespace Fayora.Api;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
         {
@@ -16,6 +17,9 @@ public class Program
         }
 
         var app = builder.Build();
+
+        // Auto-migrate
+        await app.MigrateDatabaseAsync();
 
         app.AddInfrastructureMiddleware();
 
@@ -36,6 +40,6 @@ public class Program
 
         app.MapControllers();
 
-        app.Run();
+        await app.RunAsync();
     }
 }
