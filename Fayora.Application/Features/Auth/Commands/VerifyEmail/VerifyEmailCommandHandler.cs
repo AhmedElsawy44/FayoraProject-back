@@ -20,8 +20,8 @@ public class VerifyEmailCommandHandler(
 {
     public async Task<Result<VerifyEmailResult>> Handle(VerifyEmailCommand request, CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetUserByIdAsync(
-            request.UserId,
+        var user = await userRepository.GetUserByEmailAsync(
+            request.Email,
             new UserQueryOptions { IsReadOnly = false, IncludeRoles = true },
             cancellationToken);
 

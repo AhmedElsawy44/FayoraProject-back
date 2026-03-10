@@ -20,8 +20,8 @@ public class VerifyPhoneCommandHandler(
 {
     public async Task<Result<VerifyPhoneResult>> Handle(VerifyPhoneCommand request, CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetUserByIdAsync(
-            request.UserId,
+        var user = await userRepository.GetUserByPhoneAsync(
+            request.PhoneNumber,
             new UserQueryOptions { IsReadOnly = false, IncludeRoles = true },
             cancellationToken);
 

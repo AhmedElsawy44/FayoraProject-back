@@ -5,7 +5,6 @@ using MediatR;
 namespace Fayora.Application.Features.Auth.Commands.VerifyEmail;
 
 public record VerifyEmailCommand(
-    Guid UserId,
     string Email,
     string Code,
     string DeviceId,

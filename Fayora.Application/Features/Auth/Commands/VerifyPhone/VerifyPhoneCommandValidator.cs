@@ -6,9 +6,6 @@ public class VerifyPhoneCommandValidator : AbstractValidator<VerifyPhoneCommand>
 {
     public VerifyPhoneCommandValidator()
     {
-        RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("User ID is required.");
-
         RuleFor(x => x.PhoneNumber)
             .NotEmpty().WithMessage("Phone number is required.")
             .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format.");

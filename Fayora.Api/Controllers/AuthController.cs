@@ -76,7 +76,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
         [FromHeader(Name = "X-Device-Id")] string deviceId)
     {
         var command = new VerifyEmailCommand(
-            request.UserId, request.Email, request.Code, deviceId,
+            request.Email, request.Code, deviceId,
             request.FcmToken, request.SimCountryIsoCode, request.TimeZone, request.DeviceLanguage);
 
         var result = await sender.Send(command);
@@ -93,7 +93,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
         [FromHeader(Name = "X-Device-Id")] string deviceId)
     {
         var command = new VerifyPhoneCommand(
-            request.UserId, request.PhoneNumber, request.Code, deviceId,
+            request.PhoneNumber, request.Code, deviceId,
             request.FcmToken, request.SimCountryIsoCode, request.TimeZone, request.DeviceLanguage);
 
         var result = await sender.Send(command);

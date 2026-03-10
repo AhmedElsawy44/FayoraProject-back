@@ -5,7 +5,6 @@ using MediatR;
 namespace Fayora.Application.Features.Auth.Commands.VerifyPhone;
 
 public record VerifyPhoneCommand(
-Guid UserId,
 string PhoneNumber,
 string Code,
 string DeviceId,
