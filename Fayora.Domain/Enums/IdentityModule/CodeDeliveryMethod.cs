@@ -1,4 +1,4 @@
-﻿namespace Fayora.Domain.Shared.IdentityModule;
+﻿namespace Fayora.Domain.Enums.IdentityModule;
 
 public enum CodeDeliveryMethod
 {

@@ -9,7 +9,6 @@ using Fayora.Application.Features.Auth.Commands.RegisterWithEmail;
 using Fayora.Application.Features.Auth.Commands.RegisterWithPhone;
 using Fayora.Application.Features.Auth.Commands.ResetPasswordEmail;
 using Fayora.Application.Features.Auth.Commands.ResetPasswordPhone;
-using Fayora.Application.Features.Auth.Commands.RestoreAccount;
 using Fayora.Application.Features.Auth.Commands.RestoreAccountWithPhone;
 using Fayora.Application.Features.Auth.Commands.SendEmailCode;
 using Fayora.Application.Features.Auth.Commands.SendPhoneCode;
@@ -27,7 +26,7 @@ using Fayora.Contracts.Auth.ResetPassword;
 using Fayora.Contracts.Auth.RestoreAccount;
 using Fayora.Contracts.Auth.SendCode;
 using Fayora.Contracts.Auth.Verify;
-using Fayora.Domain.Shared.IdentityModule;
+using Fayora.Domain.Enums.IdentityModule;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

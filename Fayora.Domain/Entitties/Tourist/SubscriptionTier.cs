@@ -1,4 +1,4 @@
-﻿namespace Fayora.Domain.Entities.Subscriptions;
+﻿namespace Fayora.Domain.Entitties.Tourist;
 
 public class SubscriptionTier : BaseEntity<int>
 {

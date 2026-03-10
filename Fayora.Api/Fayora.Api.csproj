@@ -16,10 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Fayora.Application\Fayora.Application.csproj" />
     <ProjectReference Include="..\Fayora.Contracts\Fayora.Contracts.csproj" />
     <ProjectReference Include="..\Fayora.Infrastructure\Fayora.Infrastructure.csproj" />

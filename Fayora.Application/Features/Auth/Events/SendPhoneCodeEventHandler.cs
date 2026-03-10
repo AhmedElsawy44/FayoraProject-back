@@ -1,6 +1,6 @@
 ﻿using Fayora.Application.Common.Interfaces.Services.AuthServices;
 using Fayora.Domain.Common.Events.IdentityModule;
-using Fayora.Domain.Shared.IdentityModule;
+using Fayora.Domain.Enums.IdentityModule;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using static Fayora.Application.Common.Interfaces.Services.AuthServices.IMessageGenerator;

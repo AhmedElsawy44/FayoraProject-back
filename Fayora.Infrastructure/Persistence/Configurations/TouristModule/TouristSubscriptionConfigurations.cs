@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Fayora.Infrastructure.Persistence.Configurations;
+namespace Fayora.Infrastructure.Persistence.Configurations.TouristModule;
 
 public class TouristSubscriptionConfiguration : IEntityTypeConfiguration<TouristSubscription>
 {

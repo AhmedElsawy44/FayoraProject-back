@@ -1,8 +1,8 @@
-﻿using Fayora.Domain.Entities.Subscriptions;
+﻿using Fayora.Domain.Entitties.Tourist;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Fayora.Infrastructure.Persistence.Configurations;
+namespace Fayora.Infrastructure.Persistence.Configurations.TouristModule;
 
 public class SubscriptionTierConfiguration : IEntityTypeConfiguration<SubscriptionTier>
 {

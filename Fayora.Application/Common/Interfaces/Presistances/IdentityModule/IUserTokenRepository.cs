@@ -1,5 +1,5 @@
 ﻿using Fayora.Domain.Entitties.Identity;
-using Fayora.Domain.Shared.IdentityModule;
+using Fayora.Domain.Enums.IdentityModule;
 
 namespace Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 
@@ -10,6 +10,6 @@ public interface IUserTokenRepository
     Task RevokeTokensForDeviceAsync(Guid userId, string deviceId, TokenType tokenType, CancellationToken cancellationToken = default);
     Task RevokeAllTokensForUserAsync(Guid userId, CancellationToken cancellationToken = default);
 
-    Task<UserTokens?> GetTokenByHashAsync( string tokenHash, string deviceId, TokenType tokenType, CancellationToken cancellationToken = default);
+    Task<UserTokens?> GetTokenByHashAsync(string tokenHash, string deviceId, TokenType tokenType, CancellationToken cancellationToken = default);
 
 }

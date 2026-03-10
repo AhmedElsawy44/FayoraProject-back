@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Fayora.Infrastructure.Persistence.Configurations;
+namespace Fayora.Infrastructure.Persistence.Configurations.TouristModule;
 
 public class TouristInterestConfiguration : IEntityTypeConfiguration<TouristInterest>
 {
@@ -29,6 +29,6 @@ public class TouristInterestConfiguration : IEntityTypeConfiguration<TouristInte
         builder.HasOne<MasterInterest>()
             .WithMany()
             .HasForeignKey(ti => ti.InterestId)
-            .OnDelete(DeleteBehavior.Restrict); 
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Domain.Entitties.Identity;
-using Fayora.Domain.Shared.IdentityModule;
+using Fayora.Domain.Enums.IdentityModule;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fayora.Infrastructure.Persistence.Repositories.IdentityModule

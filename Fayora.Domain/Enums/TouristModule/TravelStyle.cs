@@ -1,4 +1,4 @@
-﻿namespace Fayora.Domain.Shared.TouristModule;
+﻿namespace Fayora.Domain.Enums.TouristModule;
 
 public enum TravelStyle
 {

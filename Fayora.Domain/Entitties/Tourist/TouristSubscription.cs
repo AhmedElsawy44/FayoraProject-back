@@ -1,6 +1,5 @@
-﻿using Fayora.Domain.Shared.TouristModule;
-using Fayora.Domain.Common.Results;
-using Fayora.Domain.Enums;
+﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.TouristModule;
 using Fayora.Domain.Errors;
 
 namespace Fayora.Domain.Entitties.Tourist;

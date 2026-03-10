@@ -1,5 +1,5 @@
 ﻿using Fayora.Domain.Common.Interfaces.IdentityModule;
-using Fayora.Domain.Shared.IdentityModule;
+using Fayora.Domain.Enums.IdentityModule;
 
 namespace Fayora.Domain.Common.Events.IdentityModule;
 

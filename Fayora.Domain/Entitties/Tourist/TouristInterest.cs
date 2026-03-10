@@ -3,7 +3,7 @@
 public class TouristInterest : BaseEntity<int>
 {
     public Guid TouristId { get; init; }
-    public int InterestId {  get; init; }
+    public int InterestId { get; init; }
 
     public TouristInterest(Guid touristId, int interestId)
     {

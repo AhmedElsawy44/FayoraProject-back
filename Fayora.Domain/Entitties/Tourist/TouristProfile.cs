@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Shared.TouristModule;
+﻿using Fayora.Domain.Enums.TouristModule;
 using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Domain.Entitties.Tourist;

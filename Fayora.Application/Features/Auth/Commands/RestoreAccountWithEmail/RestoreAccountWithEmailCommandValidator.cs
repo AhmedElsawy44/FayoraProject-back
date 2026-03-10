@@ -1,8 +1,4 @@
-﻿using Fayora.Application.Features.Auth.Commands.RestoreAccount;
-using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using FluentValidation;
 
 namespace Fayora.Application.Features.Auth.Commands.RestoreAccountWithEmail
 {
@@ -31,4 +27,4 @@ namespace Fayora.Application.Features.Auth.Commands.RestoreAccountWithEmail
 
     }
 }
-    
+

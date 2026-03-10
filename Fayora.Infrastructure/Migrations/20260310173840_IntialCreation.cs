@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -22,6 +21,7 @@ namespace Fayora.Infrastructure.Migrations
                     Code = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     IconUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    SortOrder = table.Column<int>(type: "int", nullable: false),
                     CreateAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
                 },
                 constraints: table =>
@@ -344,6 +344,19 @@ namespace Fayora.Infrastructure.Migrations
                         principalTable: "VerificationRequests",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "MasterInterests",
+                columns: new[] { "Id", "Code", "CreateAt", "IconUrl", "Name", "SortOrder" },
+                values: new object[,]
+                {
+                    { 1, "NATURE", new DateTimeOffset(new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "assets/icons/nature.png", "Nature", 1 },
+                    { 2, "HISTORICAL", new DateTimeOffset(new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "assets/icons/historical.png", "Historical", 2 },
+                    { 3, "CULTURAL", new DateTimeOffset(new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "assets/icons/cultural.png", "Cultural", 3 },
+                    { 4, "ADVENTURE", new DateTimeOffset(new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "assets/icons/adventure.png", "Adventure", 4 },
+                    { 5, "CAMPING", new DateTimeOffset(new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "assets/icons/camping.png", "Camping", 5 },
+                    { 6, "WILDLIFE", new DateTimeOffset(new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "assets/icons/wildlife.png", "Wildlife", 6 }
                 });
 
             migrationBuilder.InsertData(

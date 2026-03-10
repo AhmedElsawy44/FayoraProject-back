@@ -1,11 +1,10 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthServices;
-using Fayora.Application.Features.Auth.Commands.RestoreAccount;
 using Fayora.Application.Features.Auth.Commands.RestoreAccountWithEmail;
 using Fayora.Application.Features.Auth.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Shared.IdentityModule;
+using Fayora.Domain.Enums.IdentityModule;
 using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
 

@@ -1,11 +1,10 @@
 ﻿using Fayora.Domain.Common.Entity;
-using Fayora.Domain.Common.Events;
 using Fayora.Domain.Common.Events.IdentityModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.IdentityModule;
+using Fayora.Domain.Enums.TouristModule;
 using Fayora.Domain.Errors;
-using Fayora.Domain.Shared.IdentityModule;
-using Fayora.Domain.Shared.TouristModule;
 using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Domain.Entitties.Identity;

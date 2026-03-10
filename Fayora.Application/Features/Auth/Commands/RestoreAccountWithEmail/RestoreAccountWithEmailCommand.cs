@@ -1,9 +1,8 @@
 ﻿using Fayora.Application.Common.Interfaces.Validations;
-using Fayora.Application.Features.Auth.Commands.RestoreAccountWithEmail;
 using Fayora.Domain.Common.Results;
 using MediatR;
 
-namespace Fayora.Application.Features.Auth.Commands.RestoreAccount;
+namespace Fayora.Application.Features.Auth.Commands.RestoreAccountWithEmail;
 
 
 public record RestoreAccountWithEmailCommand(

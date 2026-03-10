@@ -3,7 +3,7 @@ using Fayora.Application.Common.Interfaces.Services.AuthServices;
 using Fayora.Application.Features.Auth.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entitties.Identity;
-using Fayora.Domain.Shared.IdentityModule;
+using Fayora.Domain.Enums.IdentityModule;
 using Fayora.Domain.ValueObjects;
 using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
