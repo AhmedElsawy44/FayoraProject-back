@@ -1,5 +1,5 @@
 using Fayora.Application.Common.Authorization;
-using Fayora.Application.Common.Interfaces.Services;
+using Fayora.Application.Common.Interfaces.Services.AuthServices;
 using Fayora.Domain.Common.Results;
 using MediatR;
 using System.Reflection;
