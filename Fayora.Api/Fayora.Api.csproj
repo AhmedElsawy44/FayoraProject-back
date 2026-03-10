@@ -21,4 +21,8 @@
     <ProjectReference Include="..\Fayora.Infrastructure\Fayora.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
 </Project>

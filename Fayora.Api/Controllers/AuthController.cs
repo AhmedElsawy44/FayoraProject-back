@@ -9,6 +9,7 @@ using Fayora.Application.Features.Auth.Commands.RegisterWithEmail;
 using Fayora.Application.Features.Auth.Commands.RegisterWithPhone;
 using Fayora.Application.Features.Auth.Commands.ResetPasswordEmail;
 using Fayora.Application.Features.Auth.Commands.ResetPasswordPhone;
+using Fayora.Application.Features.Auth.Commands.RestoreAccountWithEmail;
 using Fayora.Application.Features.Auth.Commands.RestoreAccountWithPhone;
 using Fayora.Application.Features.Auth.Commands.SendEmailCode;
 using Fayora.Application.Features.Auth.Commands.SendPhoneCode;
@@ -41,10 +42,11 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("register/email")]
     public async Task<IActionResult> RegisterWithEmail(
         [FromBody] EmailRegisterRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId)
+        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        CancellationToken cancellationToken)
     {
         var command = new RegisterWithEmailCommand(request.Email, request.Password, deviceId);
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
             value => Ok(mapper.Map<EmailRegisterResponse>(value)),
@@ -55,13 +57,14 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("register/phone")]
     public async Task<IActionResult> RegisterWithPhone(
         [FromBody] PhoneRegisterRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId)
+        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        CancellationToken cancellationToken)
     {
         if (!Enum.TryParse<CodeDeliveryMethod>(request.DeliveryMethod, true, out var deliveryMethod))
             return BadRequest("Invalid Delivery Method");
 
         var command = new RegisterWithPhoneCommand(request.PhoneNumber, request.Password, deliveryMethod, deviceId);
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
             value => Ok(mapper.Map<PhoneRegisterResponse>(value)),
@@ -72,13 +75,14 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("register/verify/email")]
     public async Task<IActionResult> VerifyEmailRegistration(
         [FromBody] EmailVerifyRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId)
+        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        CancellationToken cancellationToken)
     {
         var command = new VerifyEmailCommand(
             request.Email, request.Code, deviceId,
             request.FcmToken, request.SimCountryIsoCode, request.TimeZone, request.DeviceLanguage);
 
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
             value => Ok(mapper.Map<EmailVerifyResponse>(value)),
@@ -89,13 +93,14 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("register/verify/phone")]
     public async Task<IActionResult> VerifyPhoneRegistration(
         [FromBody] PhoneVerifyRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId)
+        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        CancellationToken cancellationToken)
     {
         var command = new VerifyPhoneCommand(
             request.PhoneNumber, request.Code, deviceId,
             request.FcmToken, request.SimCountryIsoCode, request.TimeZone, request.DeviceLanguage);
 
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
             value => Ok(mapper.Map<PhoneVerifyResponse>(value)),
@@ -110,12 +115,13 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("login/email")]
     public async Task<IActionResult> LoginWithEmail(
         [FromBody] EmailLoginRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId)
+        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        CancellationToken cancellationToken)
     {
         var command = new LoginWithEmailCommand(
             request.Email, request.Password, deviceId, request.FcmToken, request.DeviceLanguage);
 
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
             value => Ok(mapper.Map<EmailLoginResponse>(value)),
@@ -126,12 +132,13 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("login/phone")]
     public async Task<IActionResult> LoginWithPhone(
         [FromBody] PhoneLoginRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId)
+        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        CancellationToken cancellationToken)
     {
         var command = new LoginWithPhoneCommand(
             request.PhoneNumber, request.Password, deviceId, request.FcmToken, request.DeviceLanguage);
 
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
             value => Ok(mapper.Map<PhoneLoginResponse>(value)),
@@ -142,7 +149,8 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("login/facebook")]
     public async Task<IActionResult> FacebookLogin(
         [FromBody] FacebookLoginRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId)
+        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        CancellationToken cancellationToken)
     {
         var command = new LoginWithFacebookCommand(
             request.AccessToken,
@@ -152,7 +160,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
             request.TimeZone,
             request.DeviceLanguage);
 
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
             value => Ok(mapper.Map<FacebookLoginResponse>(value)),
@@ -162,7 +170,8 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("login/google")]
     public async Task<IActionResult> GoogleLogin(
         [FromBody] GoogleLoginRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId)
+        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        CancellationToken cancellationToken)
     {
         var command = new LoginWithGoogleCommand(
             request.AccessToken,
@@ -172,7 +181,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
             request.TimeZone,
             request.DeviceLanguage);
 
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
             value => Ok(mapper.Map<GoogleLoginResponse>(value)),
@@ -183,7 +192,8 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("login/apple")]
     public async Task<IActionResult> AppleLogin(
         [FromBody] AppleLoginRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId)
+        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        CancellationToken cancellationToken)
     {
         var command = new LoginWithAppleCommand(
             request.IdToken,
@@ -193,7 +203,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
             request.TimeZone,
             request.DeviceLanguage);
 
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
             value => Ok(mapper.Map<AppleLoginResponse>(value)),
@@ -208,13 +218,15 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("otp/send/email")]
     public async Task<IActionResult> SendEmailOtp(
         [FromBody] SendEmailCodeRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId)
+        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        CancellationToken cancellationToken)
     {
         if (!Enum.TryParse<CodePurpose>(request.Purpose.ToString(), true, out var purpose))
             return BadRequest("Invalid Code Purpose");
 
         var command = new SendEmailCodeCommand(request.Email, deviceId, purpose);
-        var result = await sender.Send(command);
+
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(_ => Ok(), Problem);
     }
@@ -222,7 +234,8 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("otp/send/phone")]
     public async Task<IActionResult> SendPhoneOtp(
         [FromBody] SendPhoneCodeRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId)
+        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        CancellationToken cancellationToken)
     {
         if (!Enum.TryParse<CodePurpose>(request.Purpose.ToString(), true, out var purpose))
             return BadRequest("Invalid Code Purpose");
@@ -231,7 +244,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
             return BadRequest("Invalid Delivery Method");
 
         var command = new SendPhoneCodeCommand(request.PhoneNumber, deviceId, purpose, deliveryMethod);
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(_ => Ok(), Problem);
     }
@@ -243,10 +256,12 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("password/reset/verify/email")]
     public async Task<IActionResult> VerifyEmailPasswordReset(
         [FromBody] VerifyEmailResetPasswordRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId)
+        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        CancellationToken cancellationToken)
     {
         var command = new VerifyResetPasswordEmailCodeCommand(request.Email, deviceId, request.Code);
-        var result = await sender.Send(command);
+
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
             token => Ok(new VerifyResetPasswordResponse(token)),
@@ -257,10 +272,11 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("password/reset/verify/phone")]
     public async Task<IActionResult> VerifyPhonePasswordReset(
         [FromBody] VerifyResetPhonePasswordRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId)
+        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        CancellationToken cancellationToken)
     {
         var command = new VerifyResetPasswordPhoneCodeCommand(request.PhoneNumber, deviceId, request.Code);
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
             token => Ok(new VerifyResetPasswordResponse(token)),
@@ -271,10 +287,12 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("password/reset/email")]
     public async Task<IActionResult> ResetPasswordWithEmail(
         [FromBody] ResetEmailPasswordRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId)
+        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        CancellationToken cancellationToken)
     {
         var command = new ResetPasswordEmailCommand(request.Email, request.ResetToken, request.NewPassword, deviceId);
-        var result = await sender.Send(command);
+
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(_ => Ok(), Problem);
     }
@@ -282,10 +300,11 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("password/reset/phone")]
     public async Task<IActionResult> ResetPasswordWithPhone(
         [FromBody] ResetPhonePasswordRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId)
+        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        CancellationToken cancellationToken)
     {
         var command = new ResetPasswordPhoneCommand(request.PhoneNumber, request.ResetToken, request.NewPassword, deviceId);
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(_ => Ok(), Problem);
     }
@@ -298,7 +317,8 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("restore-account/email")]
     public async Task<IActionResult> RestoreAccountWithEmail(
     [FromBody] RestoreAccountWithEmailRequest request,
-    [FromHeader(Name = "X-Device-Id")] string deviceId)
+    [FromHeader(Name = "X-Device-Id")] string deviceId,
+    CancellationToken cancellationToken)
     {
         var command = new RestoreAccountWithEmailCommand(
             request.Email,
@@ -307,7 +327,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
             request.FcmToken,
             request.DeviceLanguage);
 
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
             value => Ok(mapper.Map<RestoreAccountWithEmailResponse>(value)),
@@ -318,7 +338,8 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("restore-account/phone")]
     public async Task<IActionResult> RestoreAccountWithPhone(
     [FromBody] RestoreAccountWithPhoneRequest request,
-    [FromHeader(Name = "X-Device-Id")] string deviceId)
+    [FromHeader(Name = "X-Device-Id")] string deviceId,
+    CancellationToken cancellationToken)
     {
         var command = new RestoreAccountWithPhoneCommand(
             request.PhoneNumber,
@@ -327,7 +348,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
             request.FcmToken,
             request.DeviceLanguage);
 
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
             value => Ok(mapper.Map<RestoreAccountWithPhoneResponse>(value)),
@@ -336,18 +357,19 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
 
     #endregion
 
-    #region Refresh Token
+    #region 6. Refresh Token
 
     [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken(
     [FromBody] RefreshTokenRequest request,
-    [FromHeader(Name = "X-Device-Id")] string deviceId)
+    [FromHeader(Name = "X-Device-Id")] string deviceId,
+    CancellationToken cancellationToken)
     {
         var command = new RefreshTokenCommand(
             request.RefreshToken,
             deviceId);
 
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
             value => Ok(mapper.Map<RefreshTokenResponse>(value)),
