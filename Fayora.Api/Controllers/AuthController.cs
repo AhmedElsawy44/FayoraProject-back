@@ -17,9 +17,17 @@ using Fayora.Application.Features.Auth.Commands.VerifyEmail;
 using Fayora.Application.Features.Auth.Commands.VerifyPhone;
 using Fayora.Application.Features.Auth.Commands.VerifyResetPasswordEmailCode;
 using Fayora.Application.Features.Auth.Commands.VerifyResetPasswordPhoneCode;
-using Fayora.Contracts.Auth.Requests;
-using Fayora.Contracts.Auth.Responses;
-using Fayora.Domain.Enums;
+using Fayora.Contracts.Auth.AppleLogin;
+using Fayora.Contracts.Auth.FacebookLogin;
+using Fayora.Contracts.Auth.GoogleLogin;
+using Fayora.Contracts.Auth.Login;
+using Fayora.Contracts.Auth.RefreshToken;
+using Fayora.Contracts.Auth.Register;
+using Fayora.Contracts.Auth.ResetPassword;
+using Fayora.Contracts.Auth.RestoreAccount;
+using Fayora.Contracts.Auth.SendCode;
+using Fayora.Contracts.Auth.Verify;
+using Fayora.Domain.Shared.IdentityModule;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -274,7 +282,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
 
     [HttpPost("password/reset/phone")]
     public async Task<IActionResult> ResetPasswordWithPhone(
-        [FromBody] PhoneResetPasswordRequest request,
+        [FromBody] ResetPhonePasswordRequest request,
         [FromHeader(Name = "X-Device-Id")] string deviceId)
     {
         var command = new ResetPasswordPhoneCommand(request.PhoneNumber, request.ResetToken, request.NewPassword, deviceId);

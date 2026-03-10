@@ -1,6 +1,6 @@
-﻿using Fayora.Application.Common.Interfaces.Services;
+﻿using Fayora.Application.Common.Interfaces.Services.AuthServices;
 using System.Security.Cryptography;
-using static Fayora.Application.Common.Interfaces.Services.IMessageGenerator;
+using static Fayora.Application.Common.Interfaces.Services.AuthServices.IMessageGenerator;
 
 namespace Fayora.Infrastructure.Services.AuthServices;
 

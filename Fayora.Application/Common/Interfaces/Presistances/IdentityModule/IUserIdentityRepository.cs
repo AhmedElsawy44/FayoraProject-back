@@ -1,0 +1,10 @@
+﻿using Fayora.Domain.Entitties.Identity;
+using Fayora.Domain.Shared.IdentityModule;
+
+namespace Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+
+public interface IUserIdentityRepository
+{
+    void AddIdentity(UserIdentity identity);
+    public Task<UserIdentity?> GetIdentityByIdAsync(string Id, IdentityProvider identityProvider, CancellationToken cancellationToken = default);
+}

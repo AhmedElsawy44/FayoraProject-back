@@ -1,13 +1,13 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances;
-using Fayora.Application.Common.Interfaces.Services;
+﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Services.AuthServices;
 using Fayora.Application.Features.Auth.Common;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Enums;
+using Fayora.Domain.Shared.IdentityModule;
 using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using static Fayora.Application.Common.Interfaces.Presistances.IUserRepository;
+using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.Auth.Commands.RefreshToken
 {

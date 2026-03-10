@@ -1,0 +1,15 @@
+﻿namespace Fayora.Application.Common.Interfaces.Services.AuthServices
+{
+
+    public record FacebookUserInfo(
+        string Id,
+        string? Email,
+        string? Name,
+        string? PictureUrl
+    );
+
+    public interface IFacebookAuthService
+    {
+        Task<FacebookUserInfo?> GetUserInfoAsync(string accessToken, CancellationToken ct = default);
+    }
+}

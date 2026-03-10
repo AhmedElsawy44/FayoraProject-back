@@ -1,13 +1,13 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances;
-using Fayora.Application.Common.Interfaces.Services;
+﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Services.AuthServices;
 using Fayora.Application.Features.Auth.Commands.LoginWithApple;
 using Fayora.Application.Features.Auth.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entitties.Identity;
-using Fayora.Domain.Enums;
+using Fayora.Domain.Shared.IdentityModule;
 using Fayora.Domain.ValueObjects;
 using MediatR;
-using static Fayora.Application.Common.Interfaces.Presistances.IUserRepository;
+using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
 
 public class LoginWithAppleCommandHandler(
     IAppleAuthService appleAuthService,

@@ -1,5 +1,5 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances;
-using Fayora.Application.Common.Interfaces.Services;
+﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Services.AuthServices;
 using Fayora.Domain.Entitties.Identity;
 
 namespace Fayora.Infrastructure.Services.AuthServices;

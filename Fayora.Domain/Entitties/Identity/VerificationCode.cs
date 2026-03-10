@@ -1,6 +1,6 @@
-﻿using Fayora.Domain.Common.Interfaces;
+﻿using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Enums;
+using Fayora.Domain.Shared.IdentityModule;
 
 namespace Fayora.Domain.Entitties.Identity;
 

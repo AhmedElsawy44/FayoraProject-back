@@ -1,4 +1,4 @@
-﻿using Fayora.Infrastructure.Persistence;
+﻿using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fayora.Api.Externals

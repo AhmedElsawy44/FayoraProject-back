@@ -1,7 +1,0 @@
-﻿namespace Fayora.Domain.Enums;
-
-public enum TokenType
-{
-    RefreshToken = 1,
-    PasswordResetToken = 2
-}

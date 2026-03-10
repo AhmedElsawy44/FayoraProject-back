@@ -1,5 +1,5 @@
 using Fayora.Api.Services;
-using Fayora.Application.Common.Interfaces.Services;
+using Fayora.Application.Common.Interfaces.Services.AuthServices;
 using System.Text.Json.Serialization;
 
 namespace Fayora.Api;
