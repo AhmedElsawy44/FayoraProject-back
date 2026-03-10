@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -13,6 +14,22 @@ namespace Fayora.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "MasterInterests",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Code = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    IconUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    CreateAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MasterInterests", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Roles",
                 columns: table => new
                 {
@@ -23,6 +40,64 @@ namespace Fayora.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Roles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SubscriptionTiers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PlanCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    PlanName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    AIChatLimit = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubscriptionTiers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TouristProfiles",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TravelStyle = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    BudgetTier = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    TravelCompanionType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    LastLocationLatitude = table.Column<double>(type: "float", nullable: false),
+                    LastLocationLongitude = table.Column<double>(type: "float", nullable: false),
+                    LastLocationUpdate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    OnboardingComplete = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TouristProfiles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TouristSubscriptions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PlanId = table.Column<int>(type: "int", nullable: false),
+                    StartDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    EndDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    CreateAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    AIChatLimit = table.Column<int>(type: "int", nullable: false),
+                    AiMessagesUsed = table.Column<int>(type: "int", nullable: false),
+                    AutoRenew = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TouristSubscriptions", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -119,6 +194,53 @@ namespace Fayora.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_VerificationRequests", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TouristInterests",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TouristId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    InterestId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TouristInterests", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TouristInterests_MasterInterests_InterestId",
+                        column: x => x.InterestId,
+                        principalTable: "MasterInterests",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_TouristInterests_TouristProfiles_TouristId",
+                        column: x => x.TouristId,
+                        principalTable: "TouristProfiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Wishlists",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TouristId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ItemType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    ItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreateAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Wishlists", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Wishlists_TouristProfiles_TouristId",
+                        column: x => x.TouristId,
+                        principalTable: "TouristProfiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -236,10 +358,44 @@ namespace Fayora.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_MasterInterests_Code",
+                table: "MasterInterests",
+                column: "Code",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Roles_Name",
                 table: "Roles",
                 column: "Name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubscriptionTiers_PlanCode",
+                table: "SubscriptionTiers",
+                column: "PlanCode",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TouristInterests_InterestId",
+                table: "TouristInterests",
+                column: "InterestId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TouristInterests_TouristId_InterestId",
+                table: "TouristInterests",
+                columns: new[] { "TouristId", "InterestId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TouristProfiles_UserId",
+                table: "TouristProfiles",
+                column: "UserId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TouristSubscriptions_ActiveUserPlan",
+                table: "TouristSubscriptions",
+                columns: new[] { "UserId", "Status", "EndDate" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserDevices_FCMToken",
@@ -328,11 +484,31 @@ namespace Fayora.Infrastructure.Migrations
                 name: "IX_VerificationRequests_UserId",
                 table: "VerificationRequests",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Wishlists_Tourist_ItemType",
+                table: "Wishlists",
+                columns: new[] { "TouristId", "ItemType" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Wishlists_UniqueTouristItem",
+                table: "Wishlists",
+                columns: new[] { "TouristId", "ItemType", "ItemId" },
+                unique: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "SubscriptionTiers");
+
+            migrationBuilder.DropTable(
+                name: "TouristInterests");
+
+            migrationBuilder.DropTable(
+                name: "TouristSubscriptions");
+
             migrationBuilder.DropTable(
                 name: "UserDevices");
 
@@ -352,6 +528,12 @@ namespace Fayora.Infrastructure.Migrations
                 name: "VerificationDocuments");
 
             migrationBuilder.DropTable(
+                name: "Wishlists");
+
+            migrationBuilder.DropTable(
+                name: "MasterInterests");
+
+            migrationBuilder.DropTable(
                 name: "Roles");
 
             migrationBuilder.DropTable(
@@ -359,6 +541,9 @@ namespace Fayora.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "VerificationRequests");
+
+            migrationBuilder.DropTable(
+                name: "TouristProfiles");
         }
     }
 }

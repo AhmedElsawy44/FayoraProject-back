@@ -32,6 +32,7 @@ public class VerifyResetPasswordEmailCodeCommandHandler(
 
         if (!user.IsVerified) return AuthErrors.UserNotVerified;
 
+
         var resetPasswordOtp = await verificationCodeRepository.GetUserCodeAsync(
             user.Id,
             request.Email,
