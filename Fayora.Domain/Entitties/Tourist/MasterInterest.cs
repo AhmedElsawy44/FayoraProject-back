@@ -6,6 +6,7 @@ public class MasterInterest : BaseEntity<int>
     public string Name { get; private set; } = default!;
     public string IconUrl { get; private set; } = default!;
     public int SortOrder { get; private set; }
+    public bool IsActive { get; set; }
     public DateTimeOffset CreateAt { get; init; }
 
     public MasterInterest(string code, string name, string iconUrl, int sortOrder)

@@ -8,7 +8,6 @@ public class TouristProfile : BaseEntity<Guid>
     public Guid UserId { get; init; }
     public TravelStyle? TravelStyle { get; private set; }
     public BudgetTier? BudgetTier { get; private set; }
-    public TravelCompanionType? TravelCompanionType { get; private set; }
     public GeoPoint LastLocation { get; private set; } = new GeoPoint(0, 0);
     public DateTimeOffset? LastLocationUpdate { get; private set; }
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
@@ -20,14 +19,13 @@ public class TouristProfile : BaseEntity<Guid>
     private readonly List<Wishlist> _wishlists = [];
     public IReadOnlyCollection<Wishlist> Wishlists => _wishlists.AsReadOnly();
 
-    public TouristProfile(Guid userId, TravelStyle? travelStyle, BudgetTier? budgetTier, TravelCompanionType? travelCompanionType)
+    public TouristProfile(Guid userId, BudgetTier? budgetTier, TravelStyle? travelStyle)
     {
         UserId = userId;
-        TravelStyle = travelStyle;
         BudgetTier = budgetTier;
-        TravelCompanionType = travelCompanionType;
+        TravelStyle = travelStyle;
 
-        OnboardingComplete = budgetTier is not null && travelCompanionType is not null && travelStyle is not null;
+        OnboardingComplete = budgetTier is not null && travelStyle is not null;
     }
 
     public void UpdateLocation(GeoPoint newLocation)
@@ -40,6 +38,15 @@ public class TouristProfile : BaseEntity<Guid>
         if (!_interests.Any(i => i.InterestId == interestId))
             _interests.Add(new TouristInterest(this.Id, interestId));
     }
+
+    public void AddInterest(IEnumerable<int> interestIds)
+    {
+        foreach (var interestId in interestIds)
+        {
+            AddInterest(interestId);
+        }
+    }
+
     public void RemoveInterest(int interestId)
     {
         var interest = _interests.FirstOrDefault(i => i.InterestId == interestId);

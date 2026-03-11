@@ -10,6 +10,12 @@ public class MasterInterestRepository(ApplicationDbContext context) : IMasterInt
     public async Task<IEnumerable<MasterInterest>> GetAllInterestsAsync()
         => await context.MasterInterests
             .AsNoTracking()
+            .Where(m => m.IsActive)
             .OrderBy(m => m.SortOrder)
             .ToListAsync();
+
+    public Task<bool> InterestsExistAsync(IEnumerable<int> interestIds, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
 }
