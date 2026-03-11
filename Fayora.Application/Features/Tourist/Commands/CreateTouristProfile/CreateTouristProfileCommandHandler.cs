@@ -23,12 +23,18 @@ public class CreateTouristProfileCommandHandler(
         var userId = clientContextProvider.GetContext().UserId;
 
         var options = new UserQueryOptions { IncludeRoles = true, IsReadOnly = true };
-
         var user = await userRepository.GetUserByIdAsync(userId, options, cancellationToken);
-
         if (user is null) return AuthErrors.UserNotFound;
 
-        var touristProfile = new TouristProfile(userId, request.BudgetTier, request.TravelStyle);
+        if (await touristRepository.IsTouristProfileExistAsync(userId, cancellationToken))
+        {
+            return TouristErrors.ProfileAlreadyExists;
+        }
+
+        var touristProfile = new TouristProfile(
+            userId,
+            request.BudgetTier,
+            request.TravelStyle);
 
         if (request.InterestIds is not null && request.InterestIds.Count > 0)
         {

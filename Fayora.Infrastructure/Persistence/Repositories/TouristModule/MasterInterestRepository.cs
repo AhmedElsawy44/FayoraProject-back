@@ -14,8 +14,18 @@ public class MasterInterestRepository(ApplicationDbContext context) : IMasterInt
             .OrderBy(m => m.SortOrder)
             .ToListAsync();
 
-    public Task<bool> InterestsExistAsync(IEnumerable<int> interestIds, CancellationToken cancellationToken)
+    public async Task<bool> InterestsExistAsync(IEnumerable<int> interestIds, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var uniqueIds = interestIds.Distinct().ToList();
+
+        if (!uniqueIds.Any())
+        {
+            return true; 
+        }
+
+        var existingCount = await context.MasterInterests
+            .CountAsync(i => uniqueIds.Contains(i.Id), cancellationToken);
+
+        return existingCount == uniqueIds.Count;
     }
 }

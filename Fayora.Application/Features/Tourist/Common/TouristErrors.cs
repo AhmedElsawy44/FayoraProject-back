@@ -8,4 +8,9 @@ public static class TouristErrors
         "MasterInterestsNotFound",
         "one or more master interests were not found."
     );
+
+    public static Error ProfileAlreadyExists = Error.Validation(
+        "TouristProfileAlreadyExists",
+        "tourist profile already exists for this user."
+    );
 }

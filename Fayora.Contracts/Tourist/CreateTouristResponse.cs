@@ -1,3 +1,3 @@
 ﻿namespace Fayora.Contracts.Tourist;
 
-public record CreateTouristResponse(Guid Id, string AccessToken, string RefreshToken);
+public record CreateTouristResponse(Guid TouristId, string AccessToken, string RefreshToken);
