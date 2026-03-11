@@ -2,6 +2,7 @@
 using Fayora.Application.Features.Tourist.Commands.CreateTouristProfile;
 using Fayora.Application.Features.Tourist.Queries.GetInterests;
 using Fayora.Contracts.Tourist;
+using Fayora.Domain.Enums.TouristModule;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,13 +22,40 @@ public class TouristController(ISender sender, IMapper mapper) : ApiController
         return Ok(mapper.Map<InterestsResponse>(result));
     }
 
-    [HttpPost("Profile")]
-    public async Task<IActionResult> CreateTouristProfileAsync(CreateTouristProfileCommand command, CancellationToken cancellationToken)
+    [HttpPost("profile")]
+    public async Task<IActionResult> CreateTouristProfileAsync(
+    [FromBody] CreateTouristRequest request,
+    [FromHeader(Name = "X-Device-Id")] string deviceId,
+    CancellationToken cancellationToken)
     {
+        BudgetTier? budgetTier = null;
+        TravelStyle? travelStyle = null;
+
+        if (!string.IsNullOrWhiteSpace(request.BudgetTier))
+        {
+            if (!Enum.TryParse<BudgetTier>(request.BudgetTier, true, out var parsedBudget))
+                return BadRequest("Invalid budget tier.");
+            budgetTier = parsedBudget;
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.TravelStyle))
+        {
+            if (!Enum.TryParse<TravelStyle>(request.TravelStyle, true, out var parsedStyle))
+                return BadRequest("Invalid travel style.");
+            travelStyle = parsedStyle;
+        }
+
+        var command = new CreateTouristProfileCommand(
+            deviceId,
+            budgetTier,
+            travelStyle,
+            request.InterestIds);
+
         var result = await sender.Send(command, cancellationToken);
 
-        return result.IsSuccess
-            ? Ok(mapper.Map<CreateTouristProfileResult>(result.Value))
-            : BadRequest(result.Errors);
+        return result.Match(
+            value => Ok(mapper.Map<CreateTouristResponse>(value)),
+            Problem
+        );
     }
 }

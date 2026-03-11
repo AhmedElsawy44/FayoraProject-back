@@ -16,6 +16,7 @@ public class MasterInterest : BaseEntity<int>
         IconUrl = iconUrl;
         SortOrder = sortOrder;
         CreateAt = DateTimeOffset.UtcNow;
+        IsActive = true;
     }
 
     // don't use this method for normal creation, only for seeding data with specific Ids and CreateAt
@@ -28,7 +29,8 @@ public class MasterInterest : BaseEntity<int>
             Name = name,
             IconUrl = iconUrl,
             SortOrder = sortOrder,
-            CreateAt = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero)
+            CreateAt = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            IsActive = true
         };
     }
 

@@ -20,6 +20,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<VerificationRequest> VerificationRequests { get; set; }
     public DbSet<VerificationCode> VerificationCodes { get; set; }
     public DbSet<MasterInterest> MasterInterests { get; set; }
+    public DbSet<TouristProfile> Tourists { get; set; }
 
 
     public async Task CommitChangesAsync(CancellationToken cancellationToken = default)

@@ -2,4 +2,7 @@
 
 public enum BudgetTier
 {
+    Low,
+    Medium,
+    Luxury
 }

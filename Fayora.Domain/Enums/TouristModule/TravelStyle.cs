@@ -2,4 +2,8 @@
 
 public enum TravelStyle
 {
+    Single,
+    Couple,
+    Friends,
+    Family
 }

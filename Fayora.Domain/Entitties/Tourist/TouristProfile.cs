@@ -39,7 +39,7 @@ public class TouristProfile : BaseEntity<Guid>
             _interests.Add(new TouristInterest(this.Id, interestId));
     }
 
-    public void AddInterest(IEnumerable<int> interestIds)
+    public void AddInterests(IEnumerable<int> interestIds)
     {
         foreach (var interestId in interestIds)
         {

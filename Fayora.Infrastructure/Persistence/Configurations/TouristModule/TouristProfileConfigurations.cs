@@ -23,10 +23,6 @@ public class TouristProfileConfiguration : IEntityTypeConfiguration<TouristProfi
             .HasConversion<string>()
             .HasMaxLength(50);
 
-        builder.Property(tp => tp.TravelCompanionType)
-            .HasConversion<string>()
-            .HasMaxLength(50);
-
         builder.OwnsOne(tp => tp.LastLocation, location =>
         {
             location.Property(l => l.Latitude)

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Fayora.Application.Features.Tourist.Commands.CreateTouristProfile;
 using Fayora.Application.Features.Tourist.Queries.GetInterests;
 using Fayora.Contracts.Tourist;
 using Fayora.Domain.Entitties.Tourist;
@@ -13,5 +14,7 @@ public class TouristMapper : Profile
         CreateMap<GetInterestsResult, InterestsResponse>()
             .ForMember(dest => dest.Interests,
                opt => opt.MapFrom(src => src.Interests));
+
+        CreateMap<CreateTouristProfileResult, CreateTouristResponse>();
     }
 }
