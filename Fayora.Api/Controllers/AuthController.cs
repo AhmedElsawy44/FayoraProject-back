@@ -34,7 +34,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fayora.Api.Controllers;
 
 [Route("api/[controller]")]
-[ApiController]
 public class AuthController(ISender sender, IMapper mapper) : ApiController
 {
     #region 1. Registration & Verification

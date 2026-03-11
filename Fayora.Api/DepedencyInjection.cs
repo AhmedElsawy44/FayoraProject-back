@@ -10,10 +10,11 @@ public static class DependencyInjection
     {
         services.AddHttpContextAccessor();
         services.AddControllers()
-            .AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-            });
+          .AddJsonOptions(options =>
+          {
+              options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+              options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+          });
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
         services.AddProblemDetails();

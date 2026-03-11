@@ -3,5 +3,6 @@
 public enum RequestType
 {
     TourGuide,
-    HousingUnit
+    HousingUnit,
+    TourCompany
 }

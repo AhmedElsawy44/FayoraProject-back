@@ -1,6 +1,7 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Application.Common.Interfaces.Presistances.TouristModule;
 using Fayora.Application.Common.Interfaces.Services.AuthServices;
+using Fayora.Application.Common.Interfaces.Services.SharedServices;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories.TouristModule;
@@ -41,7 +42,9 @@ public static class DependencyInjection
         services.AddScoped<IUserIdentityRepository, UserIdentityRepository>();
         services.AddScoped<IMasterInterestRepository, MasterInterestRepository>();
         services.AddScoped<ITouristRepository, TouristRepository>();
+        services.AddScoped<IVerificationRepository, VerificationRepository>();
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
+
 
         return services;
     }
@@ -68,6 +71,8 @@ public static class DependencyInjection
         services.AddHttpClient<IFacebookAuthService, FacebookAuthService>();
         services.AddSingleton<IGoogleAuthService, GoogleAuthService>();
         services.AddSingleton<IAppleAuthService, MockAppleAuthService>();
+
+        services.AddScoped<IFileStorageService, LocalFileService>();
 
         return services;
     }

@@ -34,6 +34,8 @@ public class Program
             app.MapOpenApi();
         }
 
+        app.UseStaticFiles();
+
         app.UseHttpsRedirection();
 
         app.UseAuthorization();

@@ -38,6 +38,12 @@ public class VerificationRequest : AuditableEntity<int>
                 DocumentType.NationalId,
                 DocumentType.PropertyOwnership
             },
+            RequestType.TourCompany => new List<DocumentType>
+            {
+               DocumentType.CommercialRegister,
+               DocumentType.TaxCard,
+               DocumentType.TourismLicense
+            },
             _ => throw new Exception()
         };
 

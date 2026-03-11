@@ -6,5 +6,8 @@ public enum DocumentType
     TourGuideLicense = 2,
     CriminalRecord = 3,
     PropertyOwnership = 4,
-    Photos = 5
+    Photos = 5,
+    CommercialRegister = 6,
+    TaxCard = 7,
+    TourismLicense = 8
 }
