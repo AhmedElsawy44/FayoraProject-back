@@ -26,9 +26,9 @@ public class CreateTouristProfileCommandHandler(
         var user = await userRepository.GetUserByIdAsync(userId, options, cancellationToken);
         if (user is null) return AuthErrors.UserNotFound;
 
-        if (await touristRepository.IsTouristProfileExistAsync(userId, cancellationToken))
+        if (user.Roles.Any())
         {
-            return TouristErrors.ProfileAlreadyExists;
+            return TouristErrors.UserAlreadyHasRole;
         }
 
         var touristProfile = new TouristProfile(
@@ -52,6 +52,6 @@ public class CreateTouristProfileCommandHandler(
 
         await unitOfWork.CommitChangesAsync(cancellationToken);
 
-        return new CreateTouristProfileResult(touristProfile.Id, tokens.AccessToken, tokens.RefreshToken);
+        return new CreateTouristProfileResult(touristProfile.Id, tokens.AccessToken, tokens.RefreshToken, tokens.ExpiresIn);
     }
 }

@@ -13,4 +13,9 @@ public static class TouristErrors
         "TouristProfileAlreadyExists",
         "tourist profile already exists for this user."
     );
+
+    public static Error UserAlreadyHasRole = Error.Validation(
+        "UserAlreadyHasRole",
+        "The user already has the specified role."
+    );
 }

@@ -6,6 +6,6 @@ namespace Fayora.Domain.Enums.AccommodationModule;
 
 public enum UnitOwnerType
 {
-    PrivateHost,
-    Hotel,
+    Individual,
+    Commercial,
 }

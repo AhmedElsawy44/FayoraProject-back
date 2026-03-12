@@ -7,4 +7,5 @@ namespace Fayora.Application.Features.Tourist.Commands.CreateTouristProfile;
 public record CreateTouristProfileResult(
     Guid TouristId,
     string AccessToken,
-    string RefreshToken);
+    string RefreshToken,
+    int ExpiresIn);

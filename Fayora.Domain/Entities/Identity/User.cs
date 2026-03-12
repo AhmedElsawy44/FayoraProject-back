@@ -417,5 +417,12 @@ public class User : AuditableEntity<Guid>
         return Result.Success;
     }
 
+    public void AddRole(Role role)
+    {
+        if (Roles.Any(r => r.RoleId == role.Id))
+            return;
+        _roles.Add(new UserRole(Id, role.Id));
+    }
+
     private User() { }
 }

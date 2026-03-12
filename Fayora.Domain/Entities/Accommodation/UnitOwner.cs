@@ -17,21 +17,35 @@ public class UnitOwner : AuditableEntity<Guid>
     public DateTimeOffset? VerifiedAt { get; private set; }
     public float CancellationRate { get; private set; }
     public Guid? PreferredPayoutMethodId { get; private set; }
+    public string NationalIdUrl { get; private set; } = default!;
 
-    public UnitOwner(Guid userId, UnitOwnerType ownerType, Guid preferredPayoutMethodId)
+    private UnitOwner(Guid userId, UnitOwnerType ownerType, string nationalIdUrl, string? taxRegistrationNumber)
     {
         UserId = userId;
         OwnerType = ownerType;
-        PreferredPayoutMethodId = preferredPayoutMethodId;
+        NationalIdUrl = nationalIdUrl;
         ResponseRate = 1.0f; 
         AvgResponseTimeMinutes = 0;
         OwnerRating = 0f;
         IsSuperHost = false;
         CommercialName = null;
-        TaxRegistrationNumber = null;
+        TaxRegistrationNumber = taxRegistrationNumber;
+        PreferredPayoutMethodId = null;
         VerificationStatus = VerificationStatus.Unverified;
         VerifiedAt = null;
         CancellationRate = 0f;
+    }
+
+    public static UnitOwner CreateCommercialOwner(Guid userId, string nationalIdUrl, string commercialName, string? taxRegistrationNumber)
+    {
+        var owner =  new UnitOwner(userId, UnitOwnerType.Commercial, nationalIdUrl, taxRegistrationNumber);
+        owner.CommercialName = commercialName;
+        return owner;
+    }
+
+    public static UnitOwner CreateIndividualOwner(Guid userId, string nationalIdUrl)
+    {
+        return new UnitOwner(userId, UnitOwnerType.Individual, nationalIdUrl, null);
     }
 
     private UnitOwner() { }

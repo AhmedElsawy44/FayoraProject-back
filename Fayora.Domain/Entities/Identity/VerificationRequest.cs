@@ -27,23 +27,22 @@ public class VerificationRequest : AuditableEntity<int>
     {
         List<DocumentType> requiredDocs = requestType switch
         {
-            RequestType.TourGuide => new List<DocumentType>
-            {
+            RequestType.TourGuide =>
+            [
                 DocumentType.NationalId,
                 DocumentType.TourGuideLicense,
                 DocumentType.CriminalRecord
-            },
-            RequestType.HousingUnit => new List<DocumentType>
-            {
-                DocumentType.NationalId,
+            ],
+            RequestType.HousingUnit =>
+            [
                 DocumentType.PropertyOwnership
-            },
-            RequestType.TourCompany => new List<DocumentType>
-            {
+            ],
+            RequestType.TourCompany =>
+            [
                DocumentType.CommercialRegister,
                DocumentType.TaxCard,
                DocumentType.TourismLicense
-            },
+            ],
             _ => throw new Exception()
         };
 
