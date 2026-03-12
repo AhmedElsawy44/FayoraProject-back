@@ -104,6 +104,8 @@ public class HousingUnit : BaseEntity<Guid>
 
     public void AddImage(HousingUnitImage image) => _images.Add(image);
 
+    public void AddImages(IEnumerable<HousingUnitImage> images) => _images.AddRange(images);
+
     public void RemoveImage(Guid imageId)
     {
         var image = _images.FirstOrDefault(i => i.Id == imageId);
@@ -114,6 +116,12 @@ public class HousingUnit : BaseEntity<Guid>
     {
         if (!_amenities.Any(a => a.AmenityId == amenityId))
             _amenities.Add(new UnitAmenity(this.Id, amenityId));
+    }
+
+    public void AddAmenities(IEnumerable<int> amenityIds)
+    {
+        foreach (var amenityId in amenityIds)
+            AddAmenity(amenityId);
     }
 
     public void RemoveAmenity(int amenityId)
