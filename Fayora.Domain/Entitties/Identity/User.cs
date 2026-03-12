@@ -3,7 +3,6 @@ using Fayora.Domain.Common.Events.IdentityModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.IdentityModule;
-using Fayora.Domain.Enums.TouristModule;
 using Fayora.Domain.Errors;
 using Fayora.Domain.ValueObjects;
 

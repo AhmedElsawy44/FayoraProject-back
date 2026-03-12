@@ -1,4 +1,4 @@
-﻿namespace Fayora.Domain.Enums.TouristModule;
+﻿namespace Fayora.Domain.Enums.IdentityModule;
 
 public enum Gender
 {

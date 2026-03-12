@@ -1,10 +1,8 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
-using Fayora.Application.Common.Interfaces.Presistances.TouristModule;
 using Fayora.Application.Common.Interfaces.Services.AuthServices;
 using Fayora.Application.Common.Interfaces.Services.SharedServices;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
-using Fayora.Infrastructure.Persistence.Repositories.TouristModule;
 using Fayora.Infrastructure.Services.Authentication;
 using Fayora.Infrastructure.Services.AuthServices;
 using Fayora.Infrastructure.Settings;
@@ -40,8 +38,6 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IVerificationCodeRepository, VerificationCodeRepository>();
         services.AddScoped<IUserIdentityRepository, UserIdentityRepository>();
-        services.AddScoped<IMasterInterestRepository, MasterInterestRepository>();
-        services.AddScoped<ITouristRepository, TouristRepository>();
         services.AddScoped<IVerificationRepository, VerificationRepository>();
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
 
