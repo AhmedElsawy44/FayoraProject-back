@@ -5,7 +5,7 @@ using Fayora.Domain.Entitties.Identity;
 using Fayora.Domain.Enums.Shared;
 using MediatR;
 
-namespace Fayora.Application.Features.Auth.Commands.SubmitVerificationRequest
+namespace Fayora.Application.Features.Verification.Commands.SubmitVerificationRequest
 {
 
     public class SubmitVerificationRequestCommandHandler(
@@ -66,12 +66,13 @@ namespace Fayora.Application.Features.Auth.Commands.SubmitVerificationRequest
                 RequestType: result.Value.RequestType.ToString(),
                 Status: result.Value.RequestStatus,
                 Message: "Your request has been submitted successfully.",
-                SubmittedAt: result.Value.CreatedAt,
-                Documents: result.Value.VerificationDocuments
-                    .Select(d => new DocumentResponseDto(
-                        DocumentType: d.DocumentType.ToString(),
-                        Status: d.DocumentStatus))
-                    .ToList());
+                SubmittedAt: result.Value.CreatedAt
+                //Documents: result.Value.VerificationDocuments
+                //    .Select(d => new DocumentResponseDto(
+                //        DocumentType: d.DocumentType.ToString(),
+                //        Status: d.DocumentStatus))
+                //    .ToList()
+                    );
         }
     }
 

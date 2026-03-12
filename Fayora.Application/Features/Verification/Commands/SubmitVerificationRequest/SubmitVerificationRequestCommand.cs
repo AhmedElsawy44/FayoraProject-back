@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 
 
-namespace Fayora.Application.Features.Auth.Commands.SubmitVerificationRequest
+namespace Fayora.Application.Features.Verification.Commands.SubmitVerificationRequest
 {
     public record SubmitVerificationRequestCommand(
         Guid UserId,

@@ -12,13 +12,14 @@ namespace Fayora.Application.Features.Auth.Queries.GetVerificationRequest
         RequestStatus Status,
         string? AdminComment,
         DateTimeOffset SubmittedAt,
-        DateTimeOffset? ReviewedAt,
-        List<DocumentResponseDto> Documents);
+        DateTimeOffset? ReviewedAt
+      //  List<DocumentResponseDto> Documents
+      );
 
-    public record DocumentResponseDto(
-        string DocumentType,
-        string DocumentUrl,
-        RequestStatus Status,
-        string? RejectionReason,
-        DateOnly? ExpireDate);
+    //public record DocumentResponseDto(
+    //    string DocumentType,
+    //    string DocumentUrl,
+    //    RequestStatus Status,
+    //    string? RejectionReason,
+    //    DateOnly? ExpireDate);
 }

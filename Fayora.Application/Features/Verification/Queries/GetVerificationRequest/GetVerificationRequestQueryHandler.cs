@@ -1,11 +1,12 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Features.Auth.Queries.GetVerificationRequest;
 using Fayora.Domain.Common.Results;
 using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Fayora.Application.Features.Auth.Queries.GetVerificationRequest
+namespace Fayora.Application.Features.Verification.Queries.GetVerificationRequest
 {
     public class GetVerificationRequestQueryHandler(
         IVerificationRepository verificationRepository)
@@ -29,15 +30,16 @@ namespace Fayora.Application.Features.Auth.Queries.GetVerificationRequest
                 Status: request.RequestStatus,
                 AdminComment: request.AdminComment,
                 SubmittedAt: request.CreatedAt,
-                ReviewedAt: request.ReviewedAt,
-                Documents: request.VerificationDocuments
-                    .Select(d => new DocumentResponseDto(
-                        DocumentType: d.DocumentType.ToString(),
-                        DocumentUrl: d.DocumentUrl,
-                        Status: d.DocumentStatus,
-                        RejectionReason: d.RejectionReason,
-                        ExpireDate: d.ExpireDate))
-                    .ToList());
+                ReviewedAt: request.ReviewedAt
+                //Documents: request.VerificationDocuments
+                //    .Select(d => new DocumentResponseDto(
+                //        DocumentType: d.DocumentType.ToString(),
+                //        DocumentUrl: d.DocumentUrl,
+                //        Status: d.DocumentStatus,
+                //        RejectionReason: d.RejectionReason,
+                //        ExpireDate: d.ExpireDate))
+                //    .ToList()
+                    );
         }
     }
 }

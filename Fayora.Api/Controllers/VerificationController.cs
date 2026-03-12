@@ -1,7 +1,7 @@
 ﻿using Fayora.Api.Requests;
-using Fayora.Application.Features.Auth.Commands.SubmitVerificationRequest;
-using Fayora.Application.Features.Auth.Queries.GetVerificationRequest;
-using Fayora.Domain.Enums.Shared;
+using Fayora.Application.Features.Verification.Commands.ReviewVerificationRequest;
+using Fayora.Application.Features.Verification.Commands.SubmitVerificationRequest;
+using Fayora.Application.Features.Verification.Queries.GetVerificationRequest;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,6 +37,23 @@ namespace Fayora.Api.Controllers
         {
             var query = new GetVerificationRequestQuery(id);
             var result = await sender.Send(query, ct);
+
+            return result.Match(
+                onValue: response => Ok(response),
+                onError: Problem);
+        }
+
+
+        [HttpPut("{id}/review")]
+        public async Task<IActionResult> ReviewVerificationRequest(int id, [FromBody] ReviewVerificationRequestRequest request, CancellationToken ct)
+        {
+            var command = new ReviewVerificationRequestCommand(
+                RequestId: id,
+                AdminId: request.AdminId,
+                NewStatus: request.NewStatus,
+                AdminComment: request.AdminComment);
+
+            var result = await sender.Send(command, ct);
 
             return result.Match(
                 onValue: response => Ok(response),
