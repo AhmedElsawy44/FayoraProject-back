@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entitties.Tourist;
+﻿using Fayora.Domain.Entities.TouristModule;
 
 namespace Fayora.Application.Common.Interfaces.Presistances.TouristModule;
 

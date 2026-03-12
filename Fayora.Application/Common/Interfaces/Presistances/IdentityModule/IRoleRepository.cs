@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entitties.Identity;
+﻿using Fayora.Domain.Entities.IdentityModule;
 using System;
 using System.Collections.Generic;
 using System.Text;

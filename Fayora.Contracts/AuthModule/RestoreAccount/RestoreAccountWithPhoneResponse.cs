@@ -1,0 +1,10 @@
+﻿namespace Fayora.Contracts.AuthModule.RestoreAccount
+{
+    public record RestoreAccountWithPhoneResponse(
+        string UserId,
+        string PhoneNumber,
+        string AccessToken,
+        string RefreshToken,
+        int ExpiresIn
+    );
+}

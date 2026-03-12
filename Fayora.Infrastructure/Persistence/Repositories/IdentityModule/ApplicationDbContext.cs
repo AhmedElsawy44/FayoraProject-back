@@ -1,7 +1,7 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
-using Fayora.Domain.Entitties.Identity;
-using Fayora.Domain.Entitties.Tourist;
+using Fayora.Domain.Entities.IdentityModule;
+using Fayora.Domain.Entities.TouristModule;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;

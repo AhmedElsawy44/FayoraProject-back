@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entitties.Identity;
+﻿using Fayora.Domain.Entities.IdentityModule;
 
 namespace Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 

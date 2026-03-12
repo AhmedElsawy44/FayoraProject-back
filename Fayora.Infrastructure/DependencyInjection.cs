@@ -7,6 +7,7 @@ using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories.TouristModule;
 using Fayora.Infrastructure.Services.Authentication;
 using Fayora.Infrastructure.Services.AuthServices;
+using Fayora.Infrastructure.Services.SharedServices;
 using Fayora.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;

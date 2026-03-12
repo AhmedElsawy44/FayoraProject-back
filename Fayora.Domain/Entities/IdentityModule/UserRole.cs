@@ -1,0 +1,14 @@
+﻿namespace Fayora.Domain.Entities.IdentityModule;
+
+public class UserRole : BaseEntity<int>
+{
+    public Guid UserId { get; init; }
+    public int RoleId { get; init; }
+    public DateTimeOffset AssignedAt { get; init; } = DateTimeOffset.UtcNow;
+    public Role Role { get; init; } = null!;
+    public UserRole(Guid userId, int roleId)
+    {
+        UserId = userId;
+        RoleId = roleId;
+    }
+}

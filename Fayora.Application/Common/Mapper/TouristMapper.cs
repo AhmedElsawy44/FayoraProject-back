@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.Tourist.Commands.CreateTouristProfile;
 using Fayora.Application.Features.Tourist.Queries.GetInterests;
-using Fayora.Contracts.Tourist;
-using Fayora.Domain.Entitties.Tourist;
+using Fayora.Contracts.TouristModule;
+using Fayora.Domain.Entities.TouristModule;
 
 namespace Fayora.Application.Common.Mapper;
 

@@ -1,5 +1,5 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.TouristModule;
-using Fayora.Domain.Entitties.Tourist;
+using Fayora.Domain.Entities.TouristModule;
 using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entitties.Tourist;
+﻿using Fayora.Domain.Entities.TouristModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

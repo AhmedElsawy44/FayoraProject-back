@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.Tourist.Commands.CreateTouristProfile;
 using Fayora.Application.Features.Tourist.Queries.GetInterests;
-using Fayora.Contracts.Tourist;
+using Fayora.Contracts.TouristModule;
 using Fayora.Domain.Enums.TouristModule;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
