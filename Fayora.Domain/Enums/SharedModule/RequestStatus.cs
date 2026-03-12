@@ -1,4 +1,4 @@
-﻿namespace Fayora.Domain.Enums.Shared;
+﻿namespace Fayora.Domain.Enums.SharedModule;
 
 public enum RequestStatus
 {

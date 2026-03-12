@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Auth.Commands.LoginWithFacebook
+namespace Fayora.Application.Features.AuthModule.Commands.LoginWithFacebook
 {
     public class LoginWithFacebookCommandValidator : AbstractValidator<LoginWithFacebookCommand>
     {

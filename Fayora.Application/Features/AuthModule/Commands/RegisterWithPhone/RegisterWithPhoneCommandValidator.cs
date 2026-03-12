@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Auth.Commands.RegisterWithPhone
+namespace Fayora.Application.Features.AuthModule.Commands.RegisterWithPhone
 {
     public class RegisterWithPhoneCommandValidator : AbstractValidator<RegisterWithPhoneCommand>
     {

@@ -1,8 +1,8 @@
-﻿using Fayora.Application.Common.Interfaces.Services.AuthServices;
+﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Fayora.Infrastructure.Services.AuthServices;
+namespace Fayora.Infrastructure.Services.AuthModule;
 
 public class TokenHasher : ITokenHasher
 {

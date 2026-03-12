@@ -1,4 +1,4 @@
-﻿namespace Fayora.Application.Features.Auth.Commands.RestoreAccountWithEmail
+﻿namespace Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithEmail
 {
     public record RestoreAccountWithEmailResult(
         Guid UserId,

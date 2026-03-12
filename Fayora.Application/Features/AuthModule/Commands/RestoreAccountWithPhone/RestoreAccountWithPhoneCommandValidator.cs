@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Auth.Commands.RestoreAccountWithPhone
+namespace Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithPhone
 {
 
     public class RestoreAccountWithPhoneCommandValidator : AbstractValidator<RestoreAccountWithPhoneCommand>

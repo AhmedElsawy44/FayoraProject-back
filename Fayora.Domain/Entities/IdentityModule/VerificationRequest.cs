@@ -1,6 +1,6 @@
 ﻿using Fayora.Domain.Common.Entity;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Enums.Shared;
+using Fayora.Domain.Enums.SharedModule;
 
 namespace Fayora.Domain.Entities.IdentityModule;
 

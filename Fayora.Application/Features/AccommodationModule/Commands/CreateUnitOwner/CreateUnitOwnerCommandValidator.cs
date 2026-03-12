@@ -1,11 +1,11 @@
 ﻿using Fayora.Domain.Enums.AccommodationModule;
 using FluentValidation;
 
-namespace Fayora.Application.Features.Accommodation.Commands.CreateHousingOwner;
+namespace Fayora.Application.Features.AccommodationModule.Commands.CreateUnitOwner;
 
-public class CreateHousingOwnerCommandValidator : AbstractValidator<CreateHousingOwnerCommand>
+public class CreateUnitOwnerCommandValidator : AbstractValidator<CreateUnitOwnerCommand>
 {
-    public CreateHousingOwnerCommandValidator()
+    public CreateUnitOwnerCommandValidator()
     {
         RuleFor(x => x.OwnerType)
             .IsInEnum().WithMessage("Invalid owner type specified.");

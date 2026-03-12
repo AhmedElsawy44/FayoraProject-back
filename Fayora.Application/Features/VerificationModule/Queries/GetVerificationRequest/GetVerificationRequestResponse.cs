@@ -1,9 +1,6 @@
-﻿using Fayora.Domain.Enums.Shared;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Fayora.Domain.Enums.SharedModule;
 
-namespace Fayora.Application.Features.Verification.Queries.GetVerificationRequest
+namespace Fayora.Application.Features.VerificationModule.Queries.GetVerificationRequest
 {
     public record GetVerificationRequestResponse(
         int VerificationRequestId,

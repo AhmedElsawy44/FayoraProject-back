@@ -1,8 +1,6 @@
-using Fayora.Domain.Enums.Shared;
-using System;
-using System.Collections.Generic;
+using Fayora.Domain.Enums.SharedModule;
 
-namespace Fayora.Application.Features.Verification.Commands.SubmitVerificationRequest
+namespace Fayora.Application.Features.VerificationModule.Commands.SubmitVerificationRequest
 {
     public record SubmitVerificationRequestResponse(
         int VerificationRequestId,
@@ -10,7 +8,7 @@ namespace Fayora.Application.Features.Verification.Commands.SubmitVerificationRe
         RequestStatus Status,
         string Message,
         DateTimeOffset SubmittedAt
-       // List<DocumentResponseDto> Documents
+        // List<DocumentResponseDto> Documents
         );
 
     //public record DocumentResponseDto(

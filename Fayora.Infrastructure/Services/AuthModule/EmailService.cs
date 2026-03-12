@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Services.AuthServices;
+﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Infrastructure.Settings;
 using MailKit.Net.Smtp;
 using MailKit.Security;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 using MimeKit;
 using MimeKit.Text;
 
-namespace Fayora.Infrastructure.Services.AuthServices;
+namespace Fayora.Infrastructure.Services.AuthModule;
 
 public class EmailService(IOptions<EmailSettings> emailSettingsOptions, ILogger<EmailService> logger) : IEmailService
 {

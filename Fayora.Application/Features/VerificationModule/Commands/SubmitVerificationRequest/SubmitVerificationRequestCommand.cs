@@ -1,13 +1,10 @@
 ﻿using Fayora.Domain.Common.Results;
-using Fayora.Domain.Enums.Shared;
+using Fayora.Domain.Enums.SharedModule;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 
-namespace Fayora.Application.Features.Verification.Commands.SubmitVerificationRequest
+namespace Fayora.Application.Features.VerificationModule.Commands.SubmitVerificationRequest
 {
     public record SubmitVerificationRequestCommand(
         Guid UserId,

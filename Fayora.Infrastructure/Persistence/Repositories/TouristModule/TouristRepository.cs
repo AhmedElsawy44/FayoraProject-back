@@ -1,6 +1,5 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.TouristModule;
 using Fayora.Domain.Entities.TouristModule;
-using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fayora.Infrastructure.Persistence.Repositories.TouristModule;
@@ -14,7 +13,7 @@ public class TouristRepository(ApplicationDbContext context) : ITouristRepositor
 
     public Task<TouristProfile?> GetTouristByUserIdAsync(Guid userId, bool isReadOnly = true, CancellationToken cancellationToken = default!)
     {
-        if(isReadOnly)
+        if (isReadOnly)
         {
             return context.Tourists.AsNoTracking().FirstOrDefaultAsync(t => t.UserId == userId, cancellationToken);
         }

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Auth.Commands.RegisterWithEmail;
+namespace Fayora.Application.Features.AuthModule.Commands.RegisterWithEmail;
 
 public class RegisterWithEmailCommandValidator : AbstractValidator<RegisterWithEmailCommand>
 {

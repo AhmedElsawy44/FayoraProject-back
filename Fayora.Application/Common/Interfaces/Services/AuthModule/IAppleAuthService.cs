@@ -1,4 +1,4 @@
-﻿namespace Fayora.Application.Common.Interfaces.Services.AuthServices;
+﻿namespace Fayora.Application.Common.Interfaces.Services.AuthModule;
 
 public record AppleUserInfo(string SubjectId, string? Email);
 public interface IAppleAuthService

@@ -1,13 +1,13 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
-using Fayora.Application.Common.Interfaces.Services.AuthServices;
-using Fayora.Application.Features.Auth.Common;
+using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.IdentityModule;
 using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
 
-namespace Fayora.Application.Features.Auth.Commands.ResetPasswordPhone; // 👈 تم تعديل الاسم
+namespace Fayora.Application.Features.AuthModule.Commands.ResetPasswordPhone; // 👈 تم تعديل الاسم
 
 public class ResetPasswordPhoneCommandHandler( // 👈 تم تعديل الاسم
     IUserRepository userRepository,

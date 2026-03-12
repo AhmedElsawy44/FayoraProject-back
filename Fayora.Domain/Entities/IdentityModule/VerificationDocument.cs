@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Enums.Shared;
+﻿using Fayora.Domain.Enums.SharedModule;
 
 namespace Fayora.Domain.Entities.IdentityModule;
 

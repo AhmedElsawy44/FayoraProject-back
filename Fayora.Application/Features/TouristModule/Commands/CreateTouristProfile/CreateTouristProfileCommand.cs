@@ -3,7 +3,7 @@ using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.TouristModule;
 using MediatR;
 
-namespace Fayora.Application.Features.Tourist.Commands.CreateTouristProfile;
+namespace Fayora.Application.Features.TouristModule.Commands.CreateTouristProfile;
 
 public record CreateTouristProfileCommand(
     string DeviceId,

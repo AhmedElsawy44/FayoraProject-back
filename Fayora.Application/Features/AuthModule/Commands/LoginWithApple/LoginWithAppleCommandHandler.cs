@@ -1,7 +1,7 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
-using Fayora.Application.Common.Interfaces.Services.AuthServices;
-using Fayora.Application.Features.Auth.Commands.LoginWithApple;
-using Fayora.Application.Features.Auth.Common;
+using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Features.AuthModule.Commands.LoginWithApple;
+using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.Enums.IdentityModule;

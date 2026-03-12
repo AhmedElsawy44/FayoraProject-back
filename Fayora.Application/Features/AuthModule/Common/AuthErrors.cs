@@ -1,6 +1,6 @@
 using Fayora.Domain.Common.Results;
 
-namespace Fayora.Application.Features.Auth.Common;
+namespace Fayora.Application.Features.AuthModule.Common;
 
 public static class AuthErrors
 {

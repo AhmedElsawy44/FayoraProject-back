@@ -1,4 +1,4 @@
-﻿namespace Fayora.Application.Features.Auth.Commands.LoginWithEmail;
+﻿namespace Fayora.Application.Features.AuthModule.Commands.LoginWithEmail;
 
 public record LoginWithEmailResult
 (

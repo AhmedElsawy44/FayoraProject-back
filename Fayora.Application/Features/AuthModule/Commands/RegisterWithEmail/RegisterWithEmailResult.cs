@@ -1,4 +1,4 @@
-﻿namespace Fayora.Application.Features.Auth.Commands.RegisterWithEmail;
+﻿namespace Fayora.Application.Features.AuthModule.Commands.RegisterWithEmail;
 
 public record RegisterWithEmailResult(
     Guid UserId,

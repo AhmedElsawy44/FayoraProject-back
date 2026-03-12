@@ -1,9 +1,6 @@
 ﻿using Fayora.Domain.Common.Results;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Fayora.Application.Features.Accommodation.Common;
+namespace Fayora.Application.Features.AccommodationModule.Common;
 
 public static class AccommodationErrors
 {

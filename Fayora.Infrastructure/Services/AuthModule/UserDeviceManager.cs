@@ -1,8 +1,8 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
-using Fayora.Application.Common.Interfaces.Services.AuthServices;
+using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Domain.Entities.IdentityModule;
 
-namespace Fayora.Infrastructure.Services.AuthServices;
+namespace Fayora.Infrastructure.Services.AuthModule;
 
 public class UserDeviceManager(IDeviceRepository deviceRepository) : IUserDeviceManager
 {

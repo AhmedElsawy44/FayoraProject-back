@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Application.Features.Tourist.Commands.CreateTouristProfile;
+﻿namespace Fayora.Application.Features.TouristModule.Commands.CreateTouristProfile;
 
 public record CreateTouristProfileResult(
     Guid TouristId,

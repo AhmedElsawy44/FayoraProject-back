@@ -1,6 +1,6 @@
 ﻿using Fayora.Domain.Common.Results;
 
-namespace Fayora.Application.Features.Tourist.Common;
+namespace Fayora.Application.Features.TouristModule.Common;
 
 public static class TouristErrors
 {

@@ -1,4 +1,4 @@
-﻿namespace Fayora.Application.Features.Auth.Commands.VerifyEmail;
+﻿namespace Fayora.Application.Features.AuthModule.Commands.VerifyEmail;
 
 public record VerifyEmailResult(
     Guid Id,

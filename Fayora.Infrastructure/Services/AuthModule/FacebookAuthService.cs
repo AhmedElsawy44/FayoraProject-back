@@ -1,10 +1,10 @@
-﻿using Fayora.Application.Common.Interfaces.Services.AuthServices;
+﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Infrastructure.Settings;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Fayora.Infrastructure.Services.AuthServices
+namespace Fayora.Infrastructure.Services.AuthModule
 {
     public class FacebookAuthService(
     HttpClient httpClient,

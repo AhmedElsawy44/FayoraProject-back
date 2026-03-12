@@ -2,7 +2,7 @@
 using Fayora.Domain.Common.Results;
 using MediatR;
 
-namespace Fayora.Application.Features.Auth.Commands.RestoreAccountWithPhone;
+namespace Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithPhone;
 
 public record RestoreAccountWithPhoneCommand(
     string PhoneNumber,

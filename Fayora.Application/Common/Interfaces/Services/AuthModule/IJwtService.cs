@@ -1,6 +1,6 @@
 ﻿using Fayora.Domain.Entities.IdentityModule;
 
-namespace Fayora.Application.Common.Interfaces.Services.AuthServices;
+namespace Fayora.Application.Common.Interfaces.Services.AuthModule;
 
 public interface IJwtService
 {

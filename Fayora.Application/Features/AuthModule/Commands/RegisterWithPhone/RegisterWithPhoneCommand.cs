@@ -3,7 +3,7 @@ using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.IdentityModule;
 using MediatR;
 
-namespace Fayora.Application.Features.Auth.Commands.RegisterWithPhone;
+namespace Fayora.Application.Features.AuthModule.Commands.RegisterWithPhone;
 
 public record RegisterWithPhoneCommand(
     string PhoneNumber,

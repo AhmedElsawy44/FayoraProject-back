@@ -1,12 +1,13 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
+using Fayora.Domain.Entities.AccommodationModule;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.Entities.TouristModule;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
+namespace Fayora.Infrastructure.Persistence.Repositories;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor, IPublisher publisher) : DbContext(options), IUnitOfWork
 {
@@ -21,6 +22,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<VerificationCode> VerificationCodes { get; set; }
     public DbSet<MasterInterest> MasterInterests { get; set; }
     public DbSet<TouristProfile> Tourists { get; set; }
+    public DbSet<UnitOwner> UnitOwners { get; set; }
 
 
     public async Task CommitChangesAsync(CancellationToken cancellationToken = default)

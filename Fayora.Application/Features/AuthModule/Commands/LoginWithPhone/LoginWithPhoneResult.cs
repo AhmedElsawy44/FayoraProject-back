@@ -1,4 +1,4 @@
-﻿namespace Fayora.Application.Features.Auth.Commands.LoginWithPhone;
+﻿namespace Fayora.Application.Features.AuthModule.Commands.LoginWithPhone;
 
 public record LoginWithPhoneResult
 (

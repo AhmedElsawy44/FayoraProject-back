@@ -2,7 +2,7 @@
 using Fayora.Domain.Common.Results;
 using MediatR;
 
-namespace Fayora.Application.Features.Auth.Commands.VerifyResetPasswordEmailCode;
+namespace Fayora.Application.Features.AuthModule.Commands.VerifyResetPasswordEmailCode;
 
 public record VerifyResetPasswordEmailCodeCommand(
 string Email,

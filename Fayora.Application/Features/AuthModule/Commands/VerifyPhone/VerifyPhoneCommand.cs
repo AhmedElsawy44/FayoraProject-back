@@ -2,7 +2,7 @@
 using Fayora.Domain.Common.Results;
 using MediatR;
 
-namespace Fayora.Application.Features.Auth.Commands.VerifyPhone;
+namespace Fayora.Application.Features.AuthModule.Commands.VerifyPhone;
 
 public record VerifyPhoneCommand(
 string PhoneNumber,

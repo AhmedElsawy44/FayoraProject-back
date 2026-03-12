@@ -2,7 +2,7 @@
 using Fayora.Domain.Common.Results;
 using MediatR;
 
-namespace Fayora.Application.Features.Auth.Commands.ResetPasswordEmail;
+namespace Fayora.Application.Features.AuthModule.Commands.ResetPasswordEmail;
 
 public record ResetPasswordEmailCommand(
     string Email,

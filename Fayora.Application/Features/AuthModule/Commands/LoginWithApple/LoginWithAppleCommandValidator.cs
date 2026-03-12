@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Auth.Commands.LoginWithApple
+namespace Fayora.Application.Features.AuthModule.Commands.LoginWithApple
 {
     public class LoginWithAppleCommandValidator : AbstractValidator<LoginWithAppleCommand>
     {

@@ -1,10 +1,10 @@
-﻿using Fayora.Application.Common.Interfaces.Services.AuthServices;
+﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Domain.Common.Events.IdentityModule;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using static Fayora.Application.Common.Interfaces.Services.AuthServices.IMessageGenerator;
+using static Fayora.Application.Common.Interfaces.Services.AuthModule.IMessageGenerator;
 
-namespace Fayora.Application.Features.Auth.Events;
+namespace Fayora.Application.Features.AuthModule.Events;
 
 public class UserSecurityActivityEventHandler(
     ILogger<UserSecurityActivityEventHandler> logger,

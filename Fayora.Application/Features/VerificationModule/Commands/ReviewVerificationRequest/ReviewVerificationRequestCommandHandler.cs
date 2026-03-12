@@ -1,12 +1,9 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Enums.Shared;
+using Fayora.Domain.Enums.SharedModule;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Fayora.Application.Features.Verification.Commands.ReviewVerificationRequest
+namespace Fayora.Application.Features.VerificationModule.Commands.ReviewVerificationRequest
 {
     public class ReviewVerificationRequestCommandHandler(
         IVerificationRepository verificationRepository,

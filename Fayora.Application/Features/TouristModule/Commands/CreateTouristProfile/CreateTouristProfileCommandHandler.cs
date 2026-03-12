@@ -1,14 +1,14 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Application.Common.Interfaces.Presistances.TouristModule;
-using Fayora.Application.Common.Interfaces.Services.AuthServices;
-using Fayora.Application.Features.Auth.Common;
-using Fayora.Application.Features.Tourist.Common;
+using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Features.AuthModule.Common;
+using Fayora.Application.Features.TouristModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.TouristModule;
 using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
 
-namespace Fayora.Application.Features.Tourist.Commands.CreateTouristProfile;
+namespace Fayora.Application.Features.TouristModule.Commands.CreateTouristProfile;
 
 public class CreateTouristProfileCommandHandler(
     IUserRepository userRepository,

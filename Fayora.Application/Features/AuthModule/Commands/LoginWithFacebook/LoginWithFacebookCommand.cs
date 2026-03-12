@@ -2,7 +2,7 @@
 using Fayora.Domain.Common.Results;
 using MediatR;
 
-namespace Fayora.Application.Features.Auth.Commands.LoginWithFacebook;
+namespace Fayora.Application.Features.AuthModule.Commands.LoginWithFacebook;
 
 
 public record LoginWithFacebookCommand(

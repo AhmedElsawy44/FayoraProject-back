@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Tourist.Commands.CreateTouristProfile;
+namespace Fayora.Application.Features.TouristModule.Commands.CreateTouristProfile;
 
 public class CreateTouristProfileCommandValidator : AbstractValidator<CreateTouristProfileCommand>
 {

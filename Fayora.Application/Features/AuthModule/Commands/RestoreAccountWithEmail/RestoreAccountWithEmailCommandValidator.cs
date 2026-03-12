@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Auth.Commands.RestoreAccountWithEmail
+namespace Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithEmail
 {
     public class RestoreAccountWithEmailCommandValidator : AbstractValidator<RestoreAccountWithEmailCommand>
     {

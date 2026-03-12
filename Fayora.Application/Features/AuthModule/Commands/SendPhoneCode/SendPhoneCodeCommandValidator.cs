@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Auth.Commands.SendPhoneCode;
+namespace Fayora.Application.Features.AuthModule.Commands.SendPhoneCode;
 
 public class SendPhoneCodeCommandValidator : AbstractValidator<SendPhoneCodeCommand>
 {

@@ -1,13 +1,16 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+﻿using Fayora.Application.Common.Interfaces.Presistances.AccommodationModule;
+using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Application.Common.Interfaces.Presistances.TouristModule;
-using Fayora.Application.Common.Interfaces.Services.AuthServices;
-using Fayora.Application.Common.Interfaces.Services.SharedServices;
+using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Common.Interfaces.Services.SharedModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
+using Fayora.Infrastructure.Persistence.Repositories;
+using Fayora.Infrastructure.Persistence.Repositories.AccommodationModule;
 using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories.TouristModule;
 using Fayora.Infrastructure.Services.Authentication;
-using Fayora.Infrastructure.Services.AuthServices;
-using Fayora.Infrastructure.Services.SharedServices;
+using Fayora.Infrastructure.Services.AuthModule;
+using Fayora.Infrastructure.Services.SharedModule;
 using Fayora.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -44,6 +47,8 @@ public static class DependencyInjection
         services.AddScoped<IMasterInterestRepository, MasterInterestRepository>();
         services.AddScoped<ITouristRepository, TouristRepository>();
         services.AddScoped<IVerificationRepository, VerificationRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IUnitOwnerRepository, UnitOwnerRepository>();
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
 
 

@@ -2,7 +2,7 @@
 using Fayora.Domain.Common.Results;
 using MediatR;
 
-namespace Fayora.Application.Features.Auth.Commands.RegisterWithEmail;
+namespace Fayora.Application.Features.AuthModule.Commands.RegisterWithEmail;
 
 public record RegisterWithEmailCommand(
     string Email,

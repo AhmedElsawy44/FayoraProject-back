@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Auth.Commands.RefreshToken
+namespace Fayora.Application.Features.AuthModule.Commands.RefreshToken
 {
 
     public class RefreshTokenCommandValidator : AbstractValidator<RefreshTokenCommand>

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Auth.Commands.VerifyEmail;
+namespace Fayora.Application.Features.AuthModule.Commands.VerifyEmail;
 
 public class VerifyEmailCommandValidator : AbstractValidator<VerifyEmailCommand>
 {

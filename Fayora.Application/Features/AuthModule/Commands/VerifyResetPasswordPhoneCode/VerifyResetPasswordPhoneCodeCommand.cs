@@ -2,7 +2,7 @@
 using Fayora.Domain.Common.Results;
 using MediatR;
 
-namespace Fayora.Application.Features.Auth.Commands.VerifyResetPasswordPhoneCode;
+namespace Fayora.Application.Features.AuthModule.Commands.VerifyResetPasswordPhoneCode;
 
 public record VerifyResetPasswordPhoneCodeCommand(
 string PhoneNumber,

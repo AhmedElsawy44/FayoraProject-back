@@ -2,7 +2,7 @@
 using Fayora.Domain.Common.Results;
 using MediatR;
 
-namespace Fayora.Application.Features.Auth.Commands.LoginWithGoogle;
+namespace Fayora.Application.Features.AuthModule.Commands.LoginWithGoogle;
 
 public record LoginWithGoogleCommand(string IdToken, string DeviceId, string FcmToken, string? SimCountryIsoCode,
 string TimeZone, string DeviceLanguage) : IRequest<Result<LoginWithGoogleResult>>, ICheckBannedRequest;

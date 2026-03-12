@@ -1,4 +1,4 @@
-﻿namespace Fayora.Application.Features.Auth.Commands.RestoreAccountWithPhone
+﻿namespace Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithPhone
 {
     public record RestoreAccountWithPhoneResult(
         Guid UserId,

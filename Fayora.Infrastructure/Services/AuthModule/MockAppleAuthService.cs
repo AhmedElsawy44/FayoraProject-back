@@ -1,7 +1,7 @@
-﻿using Fayora.Application.Common.Interfaces.Services.AuthServices;
+﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using System.IdentityModel.Tokens.Jwt;
 
-namespace Fayora.Infrastructure.Services.AuthServices;
+namespace Fayora.Infrastructure.Services.AuthModule;
 
 public class MockAppleAuthService : IAppleAuthService
 {

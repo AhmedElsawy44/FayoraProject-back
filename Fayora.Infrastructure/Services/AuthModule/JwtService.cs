@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Services.AuthServices;
+﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Infrastructure.Settings;
 using Microsoft.Extensions.Options;
@@ -7,7 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Fayora.Infrastructure.Services.AuthServices;
+namespace Fayora.Infrastructure.Services.AuthModule;
 
 public class JwtService(IOptions<JwtSettings> jwtSettings) : IJwtService
 {

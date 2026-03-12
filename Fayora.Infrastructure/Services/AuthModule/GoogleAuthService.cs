@@ -1,10 +1,10 @@
-﻿using Fayora.Application.Common.Interfaces.Services.AuthServices;
+﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Infrastructure.Settings;
 using Google.Apis.Auth;
 using Microsoft.Extensions.Options;
-using static Fayora.Application.Common.Interfaces.Services.AuthServices.IGoogleAuthService;
+using static Fayora.Application.Common.Interfaces.Services.AuthModule.IGoogleAuthService;
 
-namespace Fayora.Infrastructure.Services.AuthServices;
+namespace Fayora.Infrastructure.Services.AuthModule;
 
 public class GoogleAuthService(
     IOptions<GoogleSettings> settings) : IGoogleAuthService

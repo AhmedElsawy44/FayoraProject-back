@@ -1,4 +1,4 @@
-﻿namespace Fayora.Application.Common.Interfaces.Services.SharedServices;
+﻿namespace Fayora.Application.Common.Interfaces.Services.SharedModule;
 
 public interface IFileStorageService
 {

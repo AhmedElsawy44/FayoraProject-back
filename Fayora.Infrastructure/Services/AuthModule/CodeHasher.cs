@@ -1,7 +1,7 @@
 ﻿using Fayora.Domain.Common.Interfaces.IdentityModule;
 using System.Security.Cryptography;
 
-namespace Fayora.Infrastructure.Services.AuthServices;
+namespace Fayora.Infrastructure.Services.AuthModule;
 
 public class CodeHasher : ICodeHasher
 {

@@ -1,6 +1,5 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.TouristModule;
 using Fayora.Domain.Entities.TouristModule;
-using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fayora.Infrastructure.Persistence.Repositories.TouristModule;
@@ -20,7 +19,7 @@ public class MasterInterestRepository(ApplicationDbContext context) : IMasterInt
 
         if (!uniqueIds.Any())
         {
-            return true; 
+            return true;
         }
 
         var existingCount = await context.MasterInterests

@@ -1,4 +1,4 @@
-﻿namespace Fayora.Application.Features.Auth.Commands.LoginWithGoogle;
+﻿namespace Fayora.Application.Features.AuthModule.Commands.LoginWithGoogle;
 
 public record LoginWithGoogleResult
 (

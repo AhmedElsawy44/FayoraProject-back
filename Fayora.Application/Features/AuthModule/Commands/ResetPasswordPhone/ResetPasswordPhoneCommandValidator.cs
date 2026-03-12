@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Auth.Commands.ResetPasswordPhone
+namespace Fayora.Application.Features.AuthModule.Commands.ResetPasswordPhone
 {
     public class ResetPasswordPhoneCommandValidator : AbstractValidator<ResetPasswordPhoneCommand>
     {

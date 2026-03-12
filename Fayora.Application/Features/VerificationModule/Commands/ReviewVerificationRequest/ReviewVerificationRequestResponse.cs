@@ -1,9 +1,6 @@
-﻿using Fayora.Domain.Enums.Shared;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Fayora.Domain.Enums.SharedModule;
 
-namespace Fayora.Application.Features.Verification.Commands.ReviewVerificationRequest
+namespace Fayora.Application.Features.VerificationModule.Commands.ReviewVerificationRequest
 {
     public record ReviewVerificationRequestResponse(
         int VerificationRequestId,

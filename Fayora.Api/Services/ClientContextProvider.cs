@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Services.AuthServices;
+﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

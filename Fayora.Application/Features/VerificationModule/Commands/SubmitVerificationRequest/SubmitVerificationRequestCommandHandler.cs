@@ -1,11 +1,11 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
-using Fayora.Application.Common.Interfaces.Services.SharedServices;
+using Fayora.Application.Common.Interfaces.Services.SharedModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.IdentityModule;
-using Fayora.Domain.Enums.Shared;
+using Fayora.Domain.Enums.SharedModule;
 using MediatR;
 
-namespace Fayora.Application.Features.Verification.Commands.SubmitVerificationRequest
+namespace Fayora.Application.Features.VerificationModule.Commands.SubmitVerificationRequest
 {
 
     public class SubmitVerificationRequestCommandHandler(
@@ -67,11 +67,11 @@ namespace Fayora.Application.Features.Verification.Commands.SubmitVerificationRe
                 Status: result.Value.RequestStatus,
                 Message: "Your request has been submitted successfully.",
                 SubmittedAt: result.Value.CreatedAt
-                //Documents: result.Value.VerificationDocuments
-                //    .Select(d => new DocumentResponseDto(
-                //        DocumentType: d.DocumentType.ToString(),
-                //        Status: d.DocumentStatus))
-                //    .ToList()
+                    //Documents: result.Value.VerificationDocuments
+                    //    .Select(d => new DocumentResponseDto(
+                    //        DocumentType: d.DocumentType.ToString(),
+                    //        Status: d.DocumentStatus))
+                    //    .ToList()
                     );
         }
     }

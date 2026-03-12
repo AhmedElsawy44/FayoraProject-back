@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Auth.Commands.LoginWithEmail;
+namespace Fayora.Application.Features.AuthModule.Commands.LoginWithEmail;
 
 public class LoginWithEmailCommandValidator : AbstractValidator<LoginWithEmailCommand>
 {

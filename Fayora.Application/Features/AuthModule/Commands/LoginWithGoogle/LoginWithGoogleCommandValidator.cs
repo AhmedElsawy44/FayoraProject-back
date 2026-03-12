@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Auth.Commands.LoginWithGoogle;
+namespace Fayora.Application.Features.AuthModule.Commands.LoginWithGoogle;
 
 public class LoginWithGoogleCommandValidator : AbstractValidator<LoginWithGoogleCommand>
 {

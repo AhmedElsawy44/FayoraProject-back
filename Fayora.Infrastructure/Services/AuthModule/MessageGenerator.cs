@@ -1,8 +1,8 @@
-﻿using Fayora.Application.Common.Interfaces.Services.AuthServices;
+﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using System.Security.Cryptography;
-using static Fayora.Application.Common.Interfaces.Services.AuthServices.IMessageGenerator;
+using static Fayora.Application.Common.Interfaces.Services.AuthModule.IMessageGenerator;
 
-namespace Fayora.Infrastructure.Services.AuthServices;
+namespace Fayora.Infrastructure.Services.AuthModule;
 
 public class MessageGenerator : IMessageGenerator
 {

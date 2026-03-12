@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Auth.Commands.SendEmailCode;
+namespace Fayora.Application.Features.AuthModule.Commands.SendEmailCode;
 
 public class SendEmailCodeCommandValidator : AbstractValidator<SendEmailCodeCommand>
 {

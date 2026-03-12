@@ -2,7 +2,7 @@
 using Fayora.Domain.Common.Results;
 using MediatR;
 
-namespace Fayora.Application.Features.Auth.Commands.LoginWithApple;
+namespace Fayora.Application.Features.AuthModule.Commands.LoginWithApple;
 
 public record LoginWithAppleCommand(
     string AccessToken,

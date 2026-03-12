@@ -1,24 +1,24 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
-using Fayora.Application.Common.Interfaces.Services.AuthServices;
-using Fayora.Application.Features.Accommodation.Common;
+using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Features.AccommodationModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.AccommodationModule;
 using Fayora.Domain.Enums.AccommodationModule;
 using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
 
-namespace Fayora.Application.Features.Accommodation.Commands.CreateHousingOwner;
+namespace Fayora.Application.Features.AccommodationModule.Commands.CreateUnitOwner;
 
-public class CreateHousingOwnerCommandHandler(
+public class CreateUnitOwnerCommandHandler(
     IUnitOwnerRepository unitOwnerRepository,
     IUserRepository userRepository,
     IRoleRepository roleRepository,
     IUnitOfWork unitOfWork,
     IClientContextProvider clientContextProvider,
-    IAuthTokenGenerator authTokenGenerator) : IRequestHandler<CreateHousingOwnerCommand, Result<CreateHousingOwnerResult>>
+    IAuthTokenGenerator authTokenGenerator) : IRequestHandler<CreateUnitOwnerCommand, Result<CreateUnitOwnerOwnerResult>>
 {
-    public async Task<Result<CreateHousingOwnerResult>> Handle(CreateHousingOwnerCommand request, CancellationToken cancellationToken)
+    public async Task<Result<CreateUnitOwnerOwnerResult>> Handle(CreateUnitOwnerCommand request, CancellationToken cancellationToken)
     {
         var context = clientContextProvider.GetContext();
         var userId = context.UserId;
@@ -55,6 +55,6 @@ public class CreateHousingOwnerCommandHandler(
 
         await unitOfWork.CommitChangesAsync(cancellationToken);
 
-        return new CreateHousingOwnerResult(unitOwner.Id, tokens.AccessToken, tokens.RefreshToken, tokens.ExpiresIn);
+        return new CreateUnitOwnerOwnerResult(unitOwner.Id, tokens.AccessToken, tokens.RefreshToken, tokens.ExpiresIn);
     }
 }

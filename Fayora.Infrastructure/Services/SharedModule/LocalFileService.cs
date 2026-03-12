@@ -1,6 +1,6 @@
-﻿namespace Fayora.Infrastructure.Services.SharedServices;
+﻿namespace Fayora.Infrastructure.Services.SharedModule;
 
-using Fayora.Application.Common.Interfaces.Services.SharedServices;
+using Fayora.Application.Common.Interfaces.Services.SharedModule;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 
