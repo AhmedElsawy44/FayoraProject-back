@@ -10,5 +10,8 @@ namespace Fayora.Application.Common.Interfaces.Presistances.IdentityModule
     {
         Task AddAsync(VerificationRequest request, CancellationToken ct = default);
         Task<VerificationRequest?> GetByUserIdAndTypeAsync(Guid userId, RequestType requestType, CancellationToken ct = default);
+
+        Task<VerificationRequest?> GetByIdAsync(int id, CancellationToken ct = default);
+
     }
 }

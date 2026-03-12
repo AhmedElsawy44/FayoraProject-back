@@ -18,7 +18,7 @@ namespace Fayora.Application.Features.Auth.Commands.SubmitVerificationRequest
             SubmitVerificationRequestCommand command,
             CancellationToken ct)
         {
-            // 1. تأكد مفيش request قديم pending
+            // Check if there's an existing pending request of the same type for the user
             var existing = await verificationRepository.GetByUserIdAndTypeAsync(
                 command.UserId, command.RequestType, ct);
 
@@ -27,7 +27,7 @@ namespace Fayora.Application.Features.Auth.Commands.SubmitVerificationRequest
                     code: "Verification.AlreadyExists",
                     description: "You already have a pending verification request.");
 
-            // 2. رفع الفايلات
+            // upload files to storage and get URLs
             var folderName = command.RequestType switch
             {
                 RequestType.TourGuide => "guides",
@@ -48,7 +48,7 @@ namespace Fayora.Application.Features.Auth.Commands.SubmitVerificationRequest
                 uploadedDocuments.Add((docType, url));
             }
 
-            // 3. عمل الـ VerificationRequest
+            //  Make a VerificationRequest
             var result = VerificationRequest.Create(
                 command.UserId,
                 command.RequestType,
@@ -57,11 +57,10 @@ namespace Fayora.Application.Features.Auth.Commands.SubmitVerificationRequest
             if (result.IsError)
                 return result.Errors;
 
-            // 4. حفظ في الـ DB
+            // Save In DB
             await verificationRepository.AddAsync(result.Value, ct);
             await unitOfWork.CommitChangesAsync(ct);
 
-            // 5. رجّع الـ Response
             return new SubmitVerificationRequestResponse(
                 VerificationRequestId: result.Value.Id,
                 RequestType: result.Value.RequestType.ToString(),
