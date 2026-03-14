@@ -5,5 +5,5 @@ public record LoginWithAppleResult
     Guid UserId,
     string Email,
     string AccessToken,
-    string RefreshToken
-);
+    string RefreshToken,
+    int ExpiresIn);

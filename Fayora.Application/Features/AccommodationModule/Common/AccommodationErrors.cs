@@ -28,4 +28,9 @@ public static class AccommodationErrors
         "OwnerProfileAlreadyExists",
         "An owner profile already exists for this user."
     );
+
+    public static Error OwnerProfileNotFound = Error.NotFound(
+            "OwnerProfileNotFound",
+            "The owner profile was not found."
+    );
 }

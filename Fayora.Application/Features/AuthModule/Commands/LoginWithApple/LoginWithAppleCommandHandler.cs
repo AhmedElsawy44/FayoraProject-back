@@ -13,6 +13,9 @@ public class LoginWithAppleCommandHandler(
     IAppleAuthService appleAuthService,
     IUserRepository userRepository,
     IUserIdentityRepository userIdentityRepository,
+    //IUnitOwnerRepository unitOwnerRepository,
+    //ITouristRepository touristRepository,
+    //ITourGuideRepository tourGuideRepository,
     IAuthTokenGenerator authTokenGenerator,
     IUserDeviceManager userDeviceManager)
     : IRequestHandler<LoginWithAppleCommand, Result<LoginWithAppleResult>>
@@ -68,14 +71,45 @@ public class LoginWithAppleCommandHandler(
             request.DeviceLanguage,
             cancellationToken);
 
-        var authResult = await authTokenGenerator.GenerateTokensAsync(user, request.DeviceId, cancellationToken);
+        Guid? ownerId = null;
+        Guid? touristId = null;
+        Guid? tourGuideId = null;
+
+        var roleNames = user.GetRoleNames();
+
+        //if (roleNames.Contains("Owner", StringComparer.OrdinalIgnoreCase))
+        //{
+        //    var owner = await unitOwnerRepository.GetOwnerByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
+        //    ownerId = owner?.Id;
+        //}
+
+        //if (roleNames.Contains("Tourist", StringComparer.OrdinalIgnoreCase))
+        //{
+        //    var tourist = await touristRepository.GetProfileByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
+        //    touristId = tourist?.Id;
+        //}
+
+        //if (roleNames.Contains("TourGuide", StringComparer.OrdinalIgnoreCase))
+        //{
+        //    var tourGuide = await tourGuideRepository.GetProfileByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
+        //    tourGuideId = tourGuide?.Id;
+        //}
+
+        var tokens = await authTokenGenerator.GenerateTokensAsync(
+            user,
+            request.DeviceId,
+            touristId: touristId,
+            tourGuideId: tourGuideId,
+            ownerId: ownerId,
+            cancellationToken);
 
         var userEmail = user.PrimaryEmail?.Value ?? string.Empty;
 
         return new LoginWithAppleResult(
             user.Id,
             userEmail,
-            authResult.AccessToken,
-            authResult.RefreshToken);
+            tokens.AccessToken,
+            tokens.RefreshToken,
+            tokens.ExpiresIn);
     }
 }

@@ -48,7 +48,12 @@ public class CreateTouristProfileCommandHandler(
 
         touristRepository.AddTourist(touristProfile);
 
-        var tokens = await authTokenGenerator.GenerateTokensAsync(user, request.DeviceId, cancellationToken);
+        var tokens = await authTokenGenerator.GenerateTokensAsync(
+            user, request.DeviceId,
+            null,
+            touristProfile.Id,
+            null,
+            cancellationToken);
 
         await unitOfWork.CommitChangesAsync(cancellationToken);
 

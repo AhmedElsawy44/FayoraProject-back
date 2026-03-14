@@ -13,6 +13,9 @@ namespace Fayora.Application.Features.AuthModule.Commands.LoginWithGoogle;
 public class LoginWithGoogleCommandHandler(
     IUserIdentityRepository userIdentityRepository,
     IUserRepository userRepository,
+    //IUnitOwnerRepository unitOwnerRepository,
+    //ITouristRepository touristRepository,
+    //ITourGuideRepository tourGuideRepository,
     IUnitOfWork unitOfWork,
     IGoogleAuthService googleAuthService,
     IUserDeviceManager userDeviceManager,
@@ -24,17 +27,20 @@ public class LoginWithGoogleCommandHandler(
         var googleUser = await googleAuthService.GetUserInfoAsync(request.IdToken, cancellationToken);
         if (googleUser is null) return AuthErrors.InvalidCredentials;
 
+        var existingIdentity = await userIdentityRepository.GetIdentityByIdAsync(
+            googleUser.Id,
+            IdentityProvider.Google,
+            cancellationToken);
+
         var options = new UserQueryOptions { IsReadOnly = false, IncludeRoles = true };
-        User? user;
+        User? user = null;
 
-        var identity = await userIdentityRepository.GetIdentityByIdAsync(googleUser.Id, IdentityProvider.Google, cancellationToken);
-
-        if (identity is not null)
+        if (existingIdentity is not null)
         {
-            user = await userRepository.GetUserByIdAsync(identity.UserId, options, cancellationToken);
-            if (user is null) return AuthErrors.UserNotFound;
+            user = await userRepository.GetUserByIdAsync(existingIdentity.UserId, options, cancellationToken);
         }
-        else
+
+        if (user is null)
         {
             user = await userRepository.GetUserByEmailAsync(googleUser.Email, options, cancellationToken);
 
@@ -57,12 +63,19 @@ public class LoginWithGoogleCommandHandler(
             var email = Email.Create(googleUser.Email);
             if (email.IsError) return email.Errors;
 
-            var newIdentity = new UserIdentity(user.Id, IdentityProvider.Google, googleUser.Id, email.Value);
+            var newIdentity = new UserIdentity(
+                user.Id,
+                IdentityProvider.Google,
+                googleUser.Id,
+                email.Value);
+
             userIdentityRepository.AddIdentity(newIdentity);
         }
-
-        var statusCheck = user.CheckActiveStatus();
-        if (statusCheck.IsError) return statusCheck.Errors;
+        else
+        {
+            var statusCheck = user.CheckActiveStatus();
+            if (statusCheck.IsError) return statusCheck.Errors;
+        }
 
         user.Login();
 
@@ -73,7 +86,37 @@ public class LoginWithGoogleCommandHandler(
             request.DeviceLanguage,
             cancellationToken);
 
-        var tokens = await authTokenGenerator.GenerateTokensAsync(user, request.DeviceId, cancellationToken);
+        Guid? ownerId = null;
+        Guid? touristId = null;
+        Guid? tourGuideId = null;
+
+        var roleNames = user.GetRoleNames();
+
+        //if (roleNames.Contains("Owner", StringComparer.OrdinalIgnoreCase))
+        //{
+        //    var owner = await unitOwnerRepository.GetOwnerByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
+        //    ownerId = owner?.Id;
+        //}
+
+        //if (roleNames.Contains("Tourist", StringComparer.OrdinalIgnoreCase))
+        //{
+        //    var tourist = await touristRepository.GetProfileByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
+        //    touristId = tourist?.Id;
+        //}
+
+        //if (roleNames.Contains("TourGuide", StringComparer.OrdinalIgnoreCase))
+        //{
+        //    var tourGuide = await tourGuideRepository.GetProfileByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
+        //    tourGuideId = tourGuide?.Id;
+        //}
+
+        var tokens = await authTokenGenerator.GenerateTokensAsync(
+            user,
+            request.DeviceId,
+            touristId: touristId,
+            tourGuideId: tourGuideId,
+            ownerId: ownerId,
+            cancellationToken);
 
         await unitOfWork.CommitChangesAsync(cancellationToken);
 

@@ -6,5 +6,11 @@ public record AuthTokensDto(string AccessToken, string RefreshToken, int Expires
 
 public interface IAuthTokenGenerator
 {
-    Task<AuthTokensDto> GenerateTokensAsync(User user, string deviceId, CancellationToken cancellationToken = default);
+    Task<AuthTokensDto> GenerateTokensAsync(
+        User user,
+        string deviceId,
+        Guid? touristId = null,
+        Guid? tourGuideId = null,
+        Guid? ownerId = null,
+        CancellationToken cancellationToken = default);
 }
