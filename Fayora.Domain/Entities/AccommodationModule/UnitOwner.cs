@@ -38,8 +38,10 @@ public class UnitOwner : AuditableEntity<Guid>
 
     public static UnitOwner CreateCommercialOwner(Guid userId, string nationalIdUrl, string commercialName, string? taxRegistrationNumber)
     {
-        var owner = new UnitOwner(userId, UnitOwnerType.Commercial, nationalIdUrl, taxRegistrationNumber);
-        owner.CommercialName = commercialName;
+        var owner = new UnitOwner(userId, UnitOwnerType.Commercial, nationalIdUrl, taxRegistrationNumber)
+        {
+            CommercialName = commercialName
+        };
         return owner;
     }
 

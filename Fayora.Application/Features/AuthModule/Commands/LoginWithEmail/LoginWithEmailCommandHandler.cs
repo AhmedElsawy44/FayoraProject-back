@@ -11,6 +11,9 @@ namespace Fayora.Application.Features.AuthModule.Commands.LoginWithEmail
     public class LoginWithEmailCommandHandler(
     IUserRepository userRepository,
     IUserDeviceManager userDeviceManager,
+    //IUnitOwnerRepository unitOwnerRepository,
+    //ITouristRepository touristRepository,
+    //ITourGuideRepository tourGuideRepository,
     IUnitOfWork unitOfWork,
     IAuthTokenGenerator authTokenGenerator,
     IPasswordHasher passwordHasher) : IRequestHandler<LoginWithEmailCommand, Result<LoginWithEmailResult>>
@@ -36,7 +39,35 @@ namespace Fayora.Application.Features.AuthModule.Commands.LoginWithEmail
 
             await userDeviceManager.UpsertDeviceAsync(user.Id, request.DeviceId, request.FcmToken, request.DeviceLanguage, cancellationToken);
 
-            var tokens = await authTokenGenerator.GenerateTokensAsync(user, request.DeviceId, cancellationToken);
+            Guid? ownerId = null;
+            Guid? touristId = null;
+            Guid? tourGuideId = null;
+
+            //if (roleNames.Contains("Owner", StringComparer.OrdinalIgnoreCase))
+            //{
+            //    var owner = await unitOwnerRepository.GetOwnerByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
+            //    ownerId = owner?.Id;
+            //}
+
+            //if (roleNames.Contains("Tourist", StringComparer.OrdinalIgnoreCase))
+            //{
+            //    var tourist = await touristRepository.GetProfileByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
+            //    touristId = tourist?.Id;
+            //}
+
+            //if (roleNames.Contains("TourGuide", StringComparer.OrdinalIgnoreCase))
+            //{
+            //    var tourGuide = await tourGuideRepository.GetProfileByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
+            //    tourGuideId = tourGuide?.Id;
+            //}
+
+            var tokens = await authTokenGenerator.GenerateTokensAsync(
+            user,
+            request.DeviceId,
+            touristId: touristId,
+            tourGuideId: tourGuideId,
+            ownerId: ownerId,
+            cancellationToken);
 
             await unitOfWork.CommitChangesAsync(cancellationToken);
 

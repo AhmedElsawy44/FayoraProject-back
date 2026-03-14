@@ -14,6 +14,9 @@ public class VerifyEmailCommandHandler(
     IVerificationCodeRepository verificationCodeRepository,
     IUserDeviceManager userDeviceManager,
     IAuthTokenGenerator authTokenGenerator,
+    //IUnitOwnerRepository unitOwnerRepository,
+    //ITouristRepository touristRepository,
+    //ITourGuideRepository tourGuideRepository,
     ICodeHasher codeHasher,
     IUnitOfWork unitOfWork)
     : IRequestHandler<VerifyEmailCommand, Result<VerifyEmailResult>>
@@ -51,7 +54,6 @@ public class VerifyEmailCommandHandler(
         user.UpdateRegionalPreferences(request.SimCountryIsoCode, request.DeviceLanguage, request.TimeZone);
         user.Login();
 
-        // 6 - إدارة الجهاز (Upsert Device)
         await userDeviceManager.UpsertDeviceAsync(
             user.Id,
             request.DeviceId,
@@ -59,9 +61,36 @@ public class VerifyEmailCommandHandler(
             request.DeviceLanguage,
             cancellationToken);
 
+        Guid? ownerId = null;
+        Guid? touristId = null;
+        Guid? tourGuideId = null;
+
+        var roleNames = user.GetRoleNames();
+
+        //if (roleNames.Contains("Owner", StringComparer.OrdinalIgnoreCase))
+        //{
+        //    var owner = await unitOwnerRepository.GetOwnerByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
+        //    ownerId = owner?.Id;
+        //}
+
+        //if (roleNames.Contains("Tourist", StringComparer.OrdinalIgnoreCase))
+        //{
+        //    var tourist = await touristRepository.GetProfileByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
+        //    touristId = tourist?.Id;
+        //}
+
+        //if (roleNames.Contains("TourGuide", StringComparer.OrdinalIgnoreCase))
+        //{
+        //    var tourGuide = await tourGuideRepository.GetProfileByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
+        //    tourGuideId = tourGuide?.Id;
+        //}
+
         var tokens = await authTokenGenerator.GenerateTokensAsync(
             user,
             request.DeviceId,
+            touristId: touristId,
+            tourGuideId: tourGuideId,
+            ownerId: ownerId,
             cancellationToken);
 
         await unitOfWork.CommitChangesAsync(cancellationToken);

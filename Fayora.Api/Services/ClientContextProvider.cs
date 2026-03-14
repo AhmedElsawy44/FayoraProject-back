@@ -20,7 +20,18 @@ public class ClientContextProvider(IHttpContextAccessor accessor) : IClientConte
 
         var roles = GetClaimsValues(ClaimTypes.Role);
 
-        return new ClientContext(userId, ipAddress, deviceId, roles);
+        var ownerId = TryParseNullableGuid(GetClaimsValue("owner_id"));
+        var touristId = TryParseNullableGuid(GetClaimsValue("tourist_id"));
+        var tourGuideId = TryParseNullableGuid(GetClaimsValue("tour_guide_id"));
+
+        return new ClientContext(
+            userId,
+            ipAddress,
+            deviceId,
+            roles,
+            OwnerId: ownerId,
+            TouristId: touristId,
+            TourGuideId: tourGuideId);
     }
 
     private IEnumerable<string> GetClaimsValues(string claimType)
@@ -29,9 +40,20 @@ public class ClientContextProvider(IHttpContextAccessor accessor) : IClientConte
             .Where(c => c.Type == claimType)
             .Select(c => c.Value) ?? Enumerable.Empty<string>();
     }
+
     private string GetClaimsValue(string claimType)
     {
         return accessor.HttpContext?.User.Claims
             .FirstOrDefault(c => c.Type == claimType)?.Value ?? string.Empty;
+    }
+
+
+    private static Guid? TryParseNullableGuid(string value)
+    {
+        if (Guid.TryParse(value, out var guid))
+        {
+            return guid;
+        }
+        return null;
     }
 }

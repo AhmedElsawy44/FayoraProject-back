@@ -51,7 +51,13 @@ public class CreateUnitOwnerCommandHandler(
 
         user.AddRole(ownerRole);
 
-        var tokens = await authTokenGenerator.GenerateTokensAsync(user, deviceId, cancellationToken);
+        var tokens = await authTokenGenerator.GenerateTokensAsync(
+            user, 
+            deviceId,
+            touristId: null,
+            tourGuideId: null,
+            ownerId: unitOwner.Id,
+            cancellationToken);
 
         await unitOfWork.CommitChangesAsync(cancellationToken);
 

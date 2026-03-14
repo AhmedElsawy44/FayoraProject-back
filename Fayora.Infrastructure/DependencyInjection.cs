@@ -48,6 +48,7 @@ public static class DependencyInjection
         services.AddScoped<ITouristRepository, TouristRepository>();
         services.AddScoped<IVerificationRepository, VerificationRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IHousingUnitRepository, HousingUnitRepository>();
         services.AddScoped<IUnitOwnerRepository, UnitOwnerRepository>();
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
 

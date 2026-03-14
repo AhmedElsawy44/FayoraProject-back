@@ -23,6 +23,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<MasterInterest> MasterInterests { get; set; }
     public DbSet<TouristProfile> Tourists { get; set; }
     public DbSet<UnitOwner> UnitOwners { get; set; }
+    public DbSet<HousingUnit> HousingUnits { get; set; }
 
 
     public async Task CommitChangesAsync(CancellationToken cancellationToken = default)
