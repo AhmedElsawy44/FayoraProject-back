@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entitties.Identity;
+﻿using Fayora.Domain.Entities.IdentityModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

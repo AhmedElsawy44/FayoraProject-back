@@ -1,7 +1,4 @@
-using Fayora.Domain.Enums.Shared;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
+using Fayora.Domain.Enums.SharedModule;
 
 namespace Fayora.Api.Requests
 {
