@@ -88,4 +88,14 @@ public static class AuthErrors
         code: "Authentication.PhoneNumberRequired",
         description: "Phone number is required"
     );
+
+    public static readonly Error InvalidPassword = Error.Validation(
+        code: "Authentication.InvalidPassword",
+        description: "Invalid password."
+    );
+
+    public static readonly Error PhoneNumberAlreadyExists = Error.Conflict(
+        code: "Authentication.PhoneNumberAlreadyExists",
+        description: "A user with this phone number already exists."
+    );
 }
