@@ -1,14 +1,14 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.AuthModule.Commands.LoginWithPhone
+namespace Fayora.Application.Features.AuthModule.Commands.ChangePhone
 {
-    public class LoginWithPhoneCommandValidator : AbstractValidator<LoginWithPhoneCommand>
+    public class ChangePhoneCommandValidator : AbstractValidator<ChangePhoneCommand>
     {
-        public LoginWithPhoneCommandValidator()
+        public ChangePhoneCommandValidator()
         {
             RuleFor(x => x.PhoneNumber)
-                .NotEmpty().WithMessage("Phone number is required.")
-                .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format.");
+                 .NotEmpty().WithMessage("Phone number is required.")
+                 .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format.");
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Password is required.")
@@ -20,14 +20,6 @@ namespace Fayora.Application.Features.AuthModule.Commands.LoginWithPhone
 
             RuleFor(x => x.DeviceId)
                 .NotEmpty().WithMessage("Device ID is required.");
-
-            RuleFor(x => x.FcmToken)
-                .NotEmpty().WithMessage("FCM Token is required.")
-                .MaximumLength(500).WithMessage("FCM Token must not exceed 500 characters.");
-
-            RuleFor(x => x.DeviceLanguage)
-                .NotEmpty().WithMessage("Device language is required.")
-                .Length(2).WithMessage("Device language should be a 2-letter ISO code (e.g., 'en', 'ar').");
         }
     }
 }
