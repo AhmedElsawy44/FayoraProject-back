@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Fayora.Application.Features.AuthModule.Commands.ChangeEmail;
-using Fayora.Application.Features.AuthModule.Commands.ChangePhone;
 using Fayora.Application.Features.AuthModule.Commands.LoginWithApple;
 using Fayora.Application.Features.AuthModule.Commands.LoginWithEmail;
 using Fayora.Application.Features.AuthModule.Commands.LoginWithFacebook;
@@ -15,7 +13,6 @@ using Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithEmail;
 using Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithPhone;
 using Fayora.Application.Features.AuthModule.Commands.SendEmailCode;
 using Fayora.Application.Features.AuthModule.Commands.SendPhoneCode;
-using Fayora.Application.Features.AuthModule.Commands.UpdateAccount;
 using Fayora.Application.Features.AuthModule.Commands.VerifyDeleteEmailAccount;
 using Fayora.Application.Features.AuthModule.Commands.VerifyDeletePhoneAccountCommand;
 using Fayora.Application.Features.AuthModule.Commands.VerifyEmail;
@@ -23,8 +20,6 @@ using Fayora.Application.Features.AuthModule.Commands.VerifyPhone;
 using Fayora.Application.Features.AuthModule.Commands.VerifyResetPasswordEmailCode;
 using Fayora.Application.Features.AuthModule.Commands.VerifyResetPasswordPhoneCode;
 using Fayora.Contracts.AuthModule.AppleLogin;
-using Fayora.Contracts.AuthModule.ChangeEmail;
-using Fayora.Contracts.AuthModule.ChangePhone;
 using Fayora.Contracts.AuthModule.FacebookLogin;
 using Fayora.Contracts.AuthModule.GoogleLogin;
 using Fayora.Contracts.AuthModule.Login;
@@ -33,7 +28,6 @@ using Fayora.Contracts.AuthModule.Register;
 using Fayora.Contracts.AuthModule.ResetPassword;
 using Fayora.Contracts.AuthModule.RestoreAccount;
 using Fayora.Contracts.AuthModule.SendCode;
-using Fayora.Contracts.AuthModule.UpdateAccount;
 using Fayora.Contracts.AuthModule.Verify;
 using Fayora.Contracts.AuthModule.VerifyDeleteEmailAccount;
 using Fayora.Contracts.AuthModule.VerifyDeletePhoneAccount;
@@ -415,80 +409,6 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
 
         return result.Match(
             _ => NoContent(),
-            Problem
-        );
-    }
-
-    [HttpPut("account/profile")]
-    public async Task<IActionResult> UpdateAccountProfile(
-        [FromBody] UpdateAccountRequest request,
-        CancellationToken cancellationToken)
-    {
-        Gender? genderEnum = null;
-        if (!string.IsNullOrWhiteSpace(request.Gender))
-        {
-            if (Enum.TryParse<Gender>(request.Gender, true, out var parsedGender))
-                genderEnum = parsedGender;
-            else
-                return BadRequest("Invalid Gender value.");
-        }
-
-        var command = new UpdateAccountCommand(
-            request.FirstName,
-            request.LastName,
-            request.BirthDate,
-            genderEnum,
-            request.NationalityCode,
-            request.ProfileImageUrl,
-            request.Description,
-            request.PreferredLanguage,
-            request.TimeZone
-        );
-
-        var result = await sender.Send(command, cancellationToken);
-
-        return result.Match(
-            _ => NoContent(),
-            Problem
-        );
-    }
-
-    [HttpPost("account/email/change")]
-    public async Task<IActionResult> ChangeEmail(
-        [FromBody] ChangeEmailRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
-        CancellationToken cancellationToken)
-    {
-        var command = new ChangeEmailCommand(
-            request.Email,
-            request.Password,
-            deviceId
-        );
-
-        var result = await sender.Send(command, cancellationToken);
-
-        return result.Match(
-            value => Ok(mapper.Map<ChangeEmailResponse>(value)),
-            Problem
-        );
-    }
-
-    [HttpPost("account/phone/change")]
-    public async Task<IActionResult> ChangePhone(
-        [FromBody] ChangePhoneRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
-        CancellationToken cancellationToken)
-    {
-        var command = new ChangePhoneCommand(
-            request.Phone,
-            request.Password,
-            deviceId
-        );
-
-        var result = await sender.Send(command, cancellationToken);
-
-        return result.Match(
-            value => Ok(mapper.Map<ChangePhoneResponse>(value)),
             Problem
         );
     }

@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Fayora.Application.Features.AuthModule.Commands.ChangeEmail;
-using Fayora.Application.Features.AuthModule.Commands.ChangePhone;
 using Fayora.Application.Features.AuthModule.Commands.LoginWithApple;
 using Fayora.Application.Features.AuthModule.Commands.LoginWithEmail;
 using Fayora.Application.Features.AuthModule.Commands.LoginWithFacebook;
@@ -14,8 +12,6 @@ using Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithPhone;
 using Fayora.Application.Features.AuthModule.Commands.VerifyEmail;
 using Fayora.Application.Features.AuthModule.Commands.VerifyPhone;
 using Fayora.Contracts.AuthModule.AppleLogin;
-using Fayora.Contracts.AuthModule.ChangeEmail;
-using Fayora.Contracts.AuthModule.ChangePhone;
 using Fayora.Contracts.AuthModule.FacebookLogin;
 using Fayora.Contracts.AuthModule.GoogleLogin;
 using Fayora.Contracts.AuthModule.Login;
@@ -42,7 +38,5 @@ public class AuthMappingProfile : Profile
         CreateMap<RestoreAccountWithEmailResult, RestoreAccountWithEmailResponse>();
         CreateMap<RestoreAccountWithPhoneResult, RestoreAccountWithPhoneResponse>();
         CreateMap<RefreshTokenResult, RefreshTokenResponse>();
-        CreateMap<ChangeEmailResult, ChangeEmailResponse>();
-        CreateMap<ChangePhoneResult, ChangePhoneResponse>();
     }
 }

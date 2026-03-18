@@ -7,8 +7,8 @@ namespace Fayora.Application.Features.AuthModule.Commands.LoginWithPhone
         public LoginWithPhoneCommandValidator()
         {
             RuleFor(x => x.PhoneNumber)
-                .NotEmpty().WithMessage("Phone number is required.")
-                .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format.");
+            .NotEmpty().WithMessage("Phone number is required.")
+            .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format.");
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Password is required.")
