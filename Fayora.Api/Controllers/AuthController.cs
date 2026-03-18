@@ -13,6 +13,8 @@ using Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithEmail;
 using Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithPhone;
 using Fayora.Application.Features.AuthModule.Commands.SendEmailCode;
 using Fayora.Application.Features.AuthModule.Commands.SendPhoneCode;
+using Fayora.Application.Features.AuthModule.Commands.VerifyDeleteEmailAccount;
+using Fayora.Application.Features.AuthModule.Commands.VerifyDeletePhoneAccountCommand;
 using Fayora.Application.Features.AuthModule.Commands.VerifyEmail;
 using Fayora.Application.Features.AuthModule.Commands.VerifyPhone;
 using Fayora.Application.Features.AuthModule.Commands.VerifyResetPasswordEmailCode;
@@ -27,6 +29,8 @@ using Fayora.Contracts.AuthModule.ResetPassword;
 using Fayora.Contracts.AuthModule.RestoreAccount;
 using Fayora.Contracts.AuthModule.SendCode;
 using Fayora.Contracts.AuthModule.Verify;
+using Fayora.Contracts.AuthModule.VerifyDeleteEmailAccount;
+using Fayora.Contracts.AuthModule.VerifyDeletePhoneAccount;
 using Fayora.Domain.Enums.IdentityModule;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -377,5 +381,37 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
 
     #endregion
 
+    #region 7. Account Management
 
+    [HttpPost("account/delete/verify/email")]
+    public async Task<IActionResult> VerifyDeleteEmailAccount(
+        [FromBody] VerifyDeleteEmailAccountRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new VerifyDeleteEmailAccountCommand(request.Code);
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            _ => NoContent(),
+            Problem
+        );
+    }
+
+    [HttpPost("account/delete/verify/phone")]
+    public async Task<IActionResult> VerifyDeletePhoneAccount(
+        [FromBody] VerifyDeletePhoneAccountRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new VerifyDeletePhoneAccountCommand(request.Code);
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            _ => NoContent(),
+            Problem
+        );
+    }
+
+    #endregion
 }
