@@ -1,8 +1,6 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
-using Fayora.Domain.Entities.AccommodationModule;
 using Fayora.Domain.Entities.IdentityModule;
-using Fayora.Domain.Entities.TouristModule;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -20,11 +18,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<VerificationDocument> VerificationDocuments { get; set; }
     public DbSet<VerificationRequest> VerificationRequests { get; set; }
     public DbSet<VerificationCode> VerificationCodes { get; set; }
-    public DbSet<MasterInterest> MasterInterests { get; set; }
-    public DbSet<TouristProfile> Tourists { get; set; }
-    public DbSet<UnitOwner> UnitOwners { get; set; }
-    public DbSet<HousingUnit> HousingUnits { get; set; }
-
 
     public async Task CommitChangesAsync(CancellationToken cancellationToken = default)
     {

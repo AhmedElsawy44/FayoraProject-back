@@ -78,4 +78,14 @@ public static class AuthErrors
         code: "Authentication.EmailRequiredFromApple",
         description: "Email is required from Apple. Please register again and provide email permission."
     );
+
+    public static readonly Error EmailRequired = Error.Validation(
+        code: "Authentication.EmailRequired",
+        description: "Email is required."
+    );
+
+    public static readonly Error PhoneNumberRequired = Error.Validation(
+        code: "Authentication.PhoneNumberRequired",
+        description: "Phone number is required"
+    );
 }
