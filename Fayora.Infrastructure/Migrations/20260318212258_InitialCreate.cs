@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -7,11 +8,60 @@
 namespace Fayora.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class IntialCreation : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "HousingUnits",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    Type = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    LocationId = table.Column<int>(type: "int", nullable: false),
+                    AddressDetails = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Latitude = table.Column<double>(type: "float", nullable: false),
+                    Longitude = table.Column<double>(type: "float", nullable: false),
+                    NumberOfRooms = table.Column<int>(type: "int", nullable: false),
+                    BedRooms = table.Column<int>(type: "int", nullable: false),
+                    BathRooms = table.Column<int>(type: "int", nullable: false),
+                    NumberOfBeds = table.Column<int>(type: "int", nullable: false),
+                    MaxGuests = table.Column<int>(type: "int", nullable: false),
+                    CheckInTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    CheckOutTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    PricePerNight = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CommissionRate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Rating = table.Column<decimal>(type: "decimal(3,2)", nullable: false),
+                    ReviewCount = table.Column<int>(type: "int", nullable: false),
+                    Views = table.Column<int>(type: "int", nullable: false),
+                    MainImageUrl = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HousingUnits", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MasterAmenities",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", nullable: false),
+                    IconUrl = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: false),
+                    Category = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MasterAmenities", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "MasterInterests",
                 columns: table => new
@@ -98,6 +148,32 @@ namespace Fayora.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_TouristSubscriptions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UnitOwners",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OwnerType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    ResponseRate = table.Column<float>(type: "real", nullable: false),
+                    AvgResponseTimeMinutes = table.Column<int>(type: "int", nullable: false),
+                    OwnerRating = table.Column<float>(type: "real", nullable: false),
+                    IsSuperHost = table.Column<bool>(type: "bit", nullable: false),
+                    CommercialName = table.Column<string>(type: "nvarchar(200)", nullable: true),
+                    TaxRegistrationNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    VerificationStatus = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    VerifiedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    CancellationRate = table.Column<float>(type: "real", nullable: false),
+                    PreferredPayoutMethodId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    NationalIdUrl = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UnitOwners", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -194,6 +270,50 @@ namespace Fayora.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_VerificationRequests", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "HousingUnitImages",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UnitId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HousingUnitImages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_HousingUnitImages_HousingUnits_UnitId",
+                        column: x => x.UnitId,
+                        principalTable: "HousingUnits",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UnitAmenities",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UnitId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AmenityId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UnitAmenities", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UnitAmenities_HousingUnits_UnitId",
+                        column: x => x.UnitId,
+                        principalTable: "HousingUnits",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UnitAmenities_MasterAmenities_AmenityId",
+                        column: x => x.AmenityId,
+                        principalTable: "MasterAmenities",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -371,6 +491,26 @@ namespace Fayora.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_HousingUnitImages_UnitId",
+                table: "HousingUnitImages",
+                column: "UnitId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HousingUnits_LocationId",
+                table: "HousingUnits",
+                column: "LocationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HousingUnits_OwnerId",
+                table: "HousingUnits",
+                column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HousingUnits_Status",
+                table: "HousingUnits",
+                column: "Status");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_MasterInterests_Code",
                 table: "MasterInterests",
                 column: "Code",
@@ -409,6 +549,28 @@ namespace Fayora.Infrastructure.Migrations
                 name: "IX_TouristSubscriptions_ActiveUserPlan",
                 table: "TouristSubscriptions",
                 columns: new[] { "UserId", "Status", "EndDate" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UnitAmenities_AmenityId",
+                table: "UnitAmenities",
+                column: "AmenityId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UnitAmenities_UnitId_AmenityId",
+                table: "UnitAmenities",
+                columns: new[] { "UnitId", "AmenityId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UnitOwners_UserId",
+                table: "UnitOwners",
+                column: "UserId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UnitOwners_VerificationStatus",
+                table: "UnitOwners",
+                column: "VerificationStatus");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserDevices_FCMToken",
@@ -514,6 +676,9 @@ namespace Fayora.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "HousingUnitImages");
+
+            migrationBuilder.DropTable(
                 name: "SubscriptionTiers");
 
             migrationBuilder.DropTable(
@@ -521,6 +686,12 @@ namespace Fayora.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "TouristSubscriptions");
+
+            migrationBuilder.DropTable(
+                name: "UnitAmenities");
+
+            migrationBuilder.DropTable(
+                name: "UnitOwners");
 
             migrationBuilder.DropTable(
                 name: "UserDevices");
@@ -545,6 +716,12 @@ namespace Fayora.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "MasterInterests");
+
+            migrationBuilder.DropTable(
+                name: "HousingUnits");
+
+            migrationBuilder.DropTable(
+                name: "MasterAmenities");
 
             migrationBuilder.DropTable(
                 name: "Roles");

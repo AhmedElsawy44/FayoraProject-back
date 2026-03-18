@@ -19,11 +19,6 @@ public static class AccommodationErrors
         "The user already has the specified role."
     );
 
-    public static Error RoleNotFound = Error.NotFound(
-        "RoleNotFound",
-        "The specified role was not found."
-    );
-
     public static Error OwnerProfileAlreadyExists = Error.Validation(
         "OwnerProfileAlreadyExists",
         "An owner profile already exists for this user."
@@ -32,5 +27,20 @@ public static class AccommodationErrors
     public static Error OwnerProfileNotFound = Error.NotFound(
             "OwnerProfileNotFound",
             "The owner profile was not found."
+    );
+
+    public static Error UnitNotFound = Error.NotFound(
+        "UnitNotFound",
+        "The housing unit was not found."
+    );
+
+    public static Error UnitAlreadyExists = Error.Validation(
+       "UnitAlreadyExists",
+       "A housing unit with the same details already exists."
+   );
+
+    public static Error RoleNotFound = Error.NotFound(
+        "RoleNotFound",
+        "The specified role was not found."
     );
 }

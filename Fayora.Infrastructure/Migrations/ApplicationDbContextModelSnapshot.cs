@@ -22,7 +22,235 @@ namespace Fayora.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.Role", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.AccommodationModule.HousingUnit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AddressDetails")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("BathRooms")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BedRooms")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("CheckInTime")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan>("CheckOutTime")
+                        .HasColumnType("time");
+
+                    b.Property<decimal>("CommissionRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("LocationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MainImageUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.Property<int>("MaxGuests")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NumberOfBeds")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NumberOfRooms")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("PricePerNight")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Rating")
+                        .HasColumnType("decimal(3,2)");
+
+                    b.Property<int>("ReviewCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Views")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("HousingUnits", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.AccommodationModule.HousingUnitImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UnitId");
+
+                    b.ToTable("HousingUnitImages", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.AccommodationModule.MasterAmenity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("IconUrl")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MasterAmenities", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.AccommodationModule.UnitAmenity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AmenityId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AmenityId");
+
+                    b.HasIndex("UnitId", "AmenityId")
+                        .IsUnique();
+
+                    b.ToTable("UnitAmenities", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.AccommodationModule.UnitOwner", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AvgResponseTimeMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<float>("CancellationRate")
+                        .HasColumnType("real");
+
+                    b.Property<string>("CommercialName")
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsSuperHost")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NationalIdUrl")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.Property<float>("OwnerRating")
+                        .HasColumnType("real");
+
+                    b.Property<string>("OwnerType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid?>("PreferredPayoutMethodId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<float>("ResponseRate")
+                        .HasColumnType("real");
+
+                    b.Property<string>("TaxRegistrationNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("VerificationStatus")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTimeOffset?>("VerifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.HasIndex("VerificationStatus");
+
+                    b.ToTable("UnitOwners", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -65,7 +293,7 @@ namespace Fayora.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.User", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -184,7 +412,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.UserDevice", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.UserDevice", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -231,7 +459,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("UserDevices", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.UserIdentity", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.UserIdentity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -272,7 +500,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("UserIdentities", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.UserRole", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.UserRole", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -299,7 +527,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("UserRoles", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.UserTokens", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.UserTokens", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -335,7 +563,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("UserTokens");
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.VerificationCode", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.VerificationCode", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -381,7 +609,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("VerificationCodes", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.VerificationDocument", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.VerificationDocument", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -431,7 +659,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("VerificationDocuments", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.VerificationRequest", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.VerificationRequest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -477,7 +705,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("VerificationRequests", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Tourist.MasterInterest", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.TouristModule.MasterInterest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -579,7 +807,7 @@ namespace Fayora.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Tourist.SubscriptionTier", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.TouristModule.SubscriptionTier", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -619,7 +847,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("SubscriptionTiers", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Tourist.TouristInterest", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.TouristModule.TouristInterest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -643,7 +871,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("TouristInterests", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Tourist.TouristProfile", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.TouristModule.TouristProfile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -677,7 +905,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("TouristProfiles", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Tourist.TouristSubscription", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.TouristModule.TouristSubscription", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -720,7 +948,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("TouristSubscriptions", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Tourist.Wishlist", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.TouristModule.Wishlist", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -752,24 +980,75 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("Wishlists", (string)null);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.UserDevice", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.AccommodationModule.HousingUnit", b =>
                 {
-                    b.HasOne("Fayora.Domain.Entitties.Identity.User", null)
+                    b.OwnsOne("Fayora.Domain.ValueObjects.GeoPoint", "Coordinates", b1 =>
+                        {
+                            b1.Property<Guid>("HousingUnitId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<double>("Latitude")
+                                .HasColumnType("float")
+                                .HasColumnName("Latitude");
+
+                            b1.Property<double>("Longitude")
+                                .HasColumnType("float")
+                                .HasColumnName("Longitude");
+
+                            b1.HasKey("HousingUnitId");
+
+                            b1.ToTable("HousingUnits");
+
+                            b1.WithOwner()
+                                .HasForeignKey("HousingUnitId");
+                        });
+
+                    b.Navigation("Coordinates")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.AccommodationModule.HousingUnitImage", b =>
+                {
+                    b.HasOne("Fayora.Domain.Entities.AccommodationModule.HousingUnit", null)
+                        .WithMany("Images")
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.AccommodationModule.UnitAmenity", b =>
+                {
+                    b.HasOne("Fayora.Domain.Entities.AccommodationModule.MasterAmenity", null)
+                        .WithMany()
+                        .HasForeignKey("AmenityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Fayora.Domain.Entities.AccommodationModule.HousingUnit", null)
+                        .WithMany("Amenities")
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.UserDevice", b =>
+                {
+                    b.HasOne("Fayora.Domain.Entities.IdentityModule.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.UserRole", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.UserRole", b =>
                 {
-                    b.HasOne("Fayora.Domain.Entitties.Identity.Role", "Role")
+                    b.HasOne("Fayora.Domain.Entities.IdentityModule.Role", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Fayora.Domain.Entitties.Identity.User", null)
+                    b.HasOne("Fayora.Domain.Entities.IdentityModule.User", null)
                         .WithMany("Roles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -778,39 +1057,39 @@ namespace Fayora.Infrastructure.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.VerificationCode", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.VerificationCode", b =>
                 {
-                    b.HasOne("Fayora.Domain.Entitties.Identity.User", null)
+                    b.HasOne("Fayora.Domain.Entities.IdentityModule.User", null)
                         .WithMany("VerificationCodes")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.VerificationDocument", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.VerificationDocument", b =>
                 {
-                    b.HasOne("Fayora.Domain.Entitties.Identity.VerificationRequest", null)
+                    b.HasOne("Fayora.Domain.Entities.IdentityModule.VerificationRequest", null)
                         .WithMany("VerificationDocuments")
                         .HasForeignKey("VerificationRequestId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Tourist.TouristInterest", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.TouristModule.TouristInterest", b =>
                 {
-                    b.HasOne("Fayora.Domain.Entitties.Tourist.MasterInterest", null)
+                    b.HasOne("Fayora.Domain.Entities.TouristModule.MasterInterest", null)
                         .WithMany()
                         .HasForeignKey("InterestId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Fayora.Domain.Entitties.Tourist.TouristProfile", null)
+                    b.HasOne("Fayora.Domain.Entities.TouristModule.TouristProfile", null)
                         .WithMany("Interests")
                         .HasForeignKey("TouristId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Tourist.TouristProfile", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.TouristModule.TouristProfile", b =>
                 {
                     b.OwnsOne("Fayora.Domain.ValueObjects.GeoPoint", "LastLocation", b1 =>
                         {
@@ -837,28 +1116,35 @@ namespace Fayora.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Tourist.Wishlist", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.TouristModule.Wishlist", b =>
                 {
-                    b.HasOne("Fayora.Domain.Entitties.Tourist.TouristProfile", null)
+                    b.HasOne("Fayora.Domain.Entities.TouristModule.TouristProfile", null)
                         .WithMany("Wishlists")
                         .HasForeignKey("TouristId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.User", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.AccommodationModule.HousingUnit", b =>
+                {
+                    b.Navigation("Amenities");
+
+                    b.Navigation("Images");
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.User", b =>
                 {
                     b.Navigation("Roles");
 
                     b.Navigation("VerificationCodes");
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Identity.VerificationRequest", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.VerificationRequest", b =>
                 {
                     b.Navigation("VerificationDocuments");
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entitties.Tourist.TouristProfile", b =>
+            modelBuilder.Entity("Fayora.Domain.Entities.TouristModule.TouristProfile", b =>
                 {
                     b.Navigation("Interests");
 

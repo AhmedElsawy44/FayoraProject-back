@@ -24,6 +24,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<UnitOwner> UnitOwners { get; set; }
     public DbSet<MasterInterest> MasterInterests { get; set; }
     public DbSet<TouristProfile> Tourists { get; set; }
+    public DbSet<MasterAmenity> MasterAmenities { get; set; }
 
     public async Task CommitChangesAsync(CancellationToken cancellationToken = default)
     {
