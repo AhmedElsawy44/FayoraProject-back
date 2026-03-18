@@ -20,7 +20,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<VerificationDocument> VerificationDocuments { get; set; }
     public DbSet<VerificationRequest> VerificationRequests { get; set; }
     public DbSet<VerificationCode> VerificationCodes { get; set; }
-    public DbSet<HousingUnit> HousingUnits { get; set; } 
+    public DbSet<HousingUnit> HousingUnits { get; set; }
     public DbSet<UnitOwner> UnitOwners { get; set; }
     public DbSet<MasterInterest> MasterInterests { get; set; }
     public DbSet<TouristProfile> Tourists { get; set; }

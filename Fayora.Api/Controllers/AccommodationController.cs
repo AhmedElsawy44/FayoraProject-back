@@ -47,7 +47,7 @@ public class AccommodationController(ISender sender, IMapper mapper) : Controlle
             request.Description,
             request.LocationId,
             request.AddressDetails,
-            new GeoPoint(request.Latitude, request.Longitude), 
+            new GeoPoint(request.Latitude, request.Longitude),
             Enum.Parse<HousingType>(request.Type, true),
             request.PricePerNight,
             request.NumberOfRooms,

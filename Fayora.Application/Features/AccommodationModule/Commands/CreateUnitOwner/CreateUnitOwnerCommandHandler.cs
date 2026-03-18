@@ -52,7 +52,7 @@ public class CreateUnitOwnerCommandHandler(
         user.AddRole(ownerRole);
 
         var tokens = await authTokenGenerator.GenerateTokensAsync(
-            user, 
+            user,
             deviceId,
             touristId: null,
             tourGuideId: null,
