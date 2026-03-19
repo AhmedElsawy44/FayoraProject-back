@@ -1,9 +1,6 @@
 ﻿using Fayora.Domain.Common.Entity;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Fayora.Domain.Entities.TourGuide
 {

@@ -1,9 +1,6 @@
 ﻿using Fayora.Domain.Common.Entity;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Fayora.Domain.Entities.TourGuide
 {
@@ -107,7 +104,7 @@ namespace Fayora.Domain.Entities.TourGuide
 
         public void SetAvailability(bool isAvailable)
         {
-            if(Status != GuideStatus.Active)
+            if (Status != GuideStatus.Active)
                 throw new InvalidOperationException("Guide must be active to change availability.");
 
             IsAvailableForBooking = isAvailable;

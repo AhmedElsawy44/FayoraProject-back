@@ -1,7 +1,4 @@
 ﻿using Fayora.Domain.Entities.Shared;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Fayora.Domain.Entities.TourGuide
 {

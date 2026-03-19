@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Domain.Entities.TourGuide
+﻿namespace Fayora.Domain.Entities.TourGuide
 {
 
     public class GuideTourPackageImage

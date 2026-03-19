@@ -1,9 +1,6 @@
 ﻿using Fayora.Domain.Entities.TourGuide;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Fayora.Infrastructure.Persistence.Configurations.TourGuideModule
 {
@@ -40,7 +37,7 @@ namespace Fayora.Infrastructure.Persistence.Configurations.TourGuideModule
                 .HasMaxLength(100);
 
             builder.Property(x => x.AverageRating)
-                .IsRequired(); 
+                .IsRequired();
 
             builder.Property(x => x.Status)
                 .IsRequired();
@@ -71,4 +68,4 @@ namespace Fayora.Infrastructure.Persistence.Configurations.TourGuideModule
         }
     }
 }
-    
+

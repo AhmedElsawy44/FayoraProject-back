@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Domain.Entities.Shared
+﻿namespace Fayora.Domain.Entities.Shared
 {
     public class City
     {
