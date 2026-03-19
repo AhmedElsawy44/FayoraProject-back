@@ -1,0 +1,181 @@
+﻿using Fayora.Domain.Common.Entity;
+using Fayora.Domain.Enums.TourGuideModule;
+using Fayora.Domain.ValueObjects;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Fayora.Domain.Entities.TourGuide
+{
+    public class TourGuide : AuditableEntity<Guid>
+    {
+        public Guid UserId { get; init; }
+        public decimal BaseRate { get; private set; } //$180/day 
+        public PricingUnit? PricingUnit { get; private set; }
+        public string LicenseNumber { get; private set; } = null!;
+        public DateOnly LicenseExpiryDate { get; private set; }
+        public string TaxRegistrationNumber { get; private set; } = null!;
+        public DateOnly? TaxRegistrationDate { get; private set; }
+        public string CurrencyCode { get; private set; }
+        public float AverageRating { get; private set; }
+        public GuideStatus Status { get; private set; }
+        public bool IsAvailableForBooking { get; private set; }
+        public DateTimeOffset? LastActiveDate { get; private set; }
+        public bool IsOnline { get; private set; }
+        public int CompletedToursCount { get; private set; }
+        public bool IsSuperGuide { get; private set; }
+        public int CancellationRate { get; private set; } // Percentage of tours cancelled by the guide
+        public GeoPoint LastLocation { get; private set; } = new GeoPoint(0, 0);
+        public DateTimeOffset? LastLocationUpdate { get; private set; }
+        public TransportInfo? TransportInfo { get; private set; }
+
+
+        private readonly List<GuideCity> _guideCities = [];
+        public IReadOnlyCollection<GuideCity> GuideCities => _guideCities.AsReadOnly();
+
+        private readonly List<GuideTourPackage> _tourPackages = [];
+        public IReadOnlyCollection<GuideTourPackage> TourPackages => _tourPackages.AsReadOnly();
+
+
+        private TourGuide(Guid userId, PricingUnit pricingUnit, decimal baseRate, string licenseNumber, DateOnly licenseExpiryDate, string currencyCode = "EGP")
+        {
+            UserId = userId;
+            PricingUnit = pricingUnit;
+            BaseRate = baseRate;
+            LicenseNumber = licenseNumber;
+            LicenseExpiryDate = licenseExpiryDate;
+            CurrencyCode = currencyCode;
+            AverageRating = 0f;
+            Status = GuideStatus.Pending;
+            IsAvailableForBooking = false;
+            LastActiveDate = null;
+            IsOnline = false;
+            CompletedToursCount = 0;
+            IsSuperGuide = false;
+            CancellationRate = 0;
+        }
+
+
+        private TourGuide()
+        {
+            CurrencyCode = string.Empty;
+        }
+
+        // Factory Methods
+
+        public static TourGuide Create(Guid userId, PricingUnit pricingUnit, decimal baseRate, string licenseNumber, DateOnly licenseExpiryDate, string currencyCode = "EGP")
+        {
+            if (baseRate <= 0)
+                throw new InvalidOperationException("Base rate must be greater than zero.");
+
+            if (licenseExpiryDate < DateOnly.FromDateTime(DateTime.UtcNow))
+                throw new InvalidOperationException("License is already expired.");
+
+            return new TourGuide(userId, pricingUnit, baseRate, licenseNumber, licenseExpiryDate, currencyCode);
+        }
+
+        public void SetTaxRegistration(string taxRegistrationNumber, DateOnly taxRegistrationDate)
+        {
+            TaxRegistrationNumber = taxRegistrationNumber;
+            TaxRegistrationDate = taxRegistrationDate;
+            Updated();
+        }
+
+
+        public void UpdateLocation(GeoPoint newLocation)
+        {
+            LastLocation = newLocation;
+            LastLocationUpdate = DateTimeOffset.UtcNow;
+        }
+
+
+
+        public void SetTransportInfo(bool hasOwnVehicle, string? vehicleDetails, string? transportType)
+        {
+            TransportInfo = new TransportInfo(hasOwnVehicle, vehicleDetails, transportType);
+            Updated();
+        }
+
+
+        public void SetOnlineStatus(bool isOnline)
+        {
+            IsOnline = isOnline;
+            LastActiveDate = DateTimeOffset.UtcNow;
+            Updated();
+        }
+
+
+        public void SetAvailability(bool isAvailable)
+        {
+            if(Status != GuideStatus.Active)
+                throw new InvalidOperationException("Guide must be active to change availability.");
+
+            IsAvailableForBooking = isAvailable;
+            Updated();
+        }
+
+
+        public void UpdateRating(float newRating)
+        {
+            AverageRating = (AverageRating * CompletedToursCount + newRating) / (CompletedToursCount + 1);
+
+            CompletedToursCount++;
+            Updated();
+        }
+
+
+        public void UpdateStatus(GuideStatus newStatus)
+        {
+            if (newStatus == GuideStatus.Pending)
+                throw new InvalidOperationException("Cannot set status back to Pending.");
+
+            Status = newStatus;
+
+            IsAvailableForBooking = newStatus == GuideStatus.Active;
+            Updated();
+        }
+
+
+        public void UpdateCancellationRate(int totalBookings, int cancelledBookings)
+        {
+            if (totalBookings == 0)
+            {
+                CancellationRate = 0;
+                return;
+            }
+            CancellationRate = (int)Math.Round((double)cancelledBookings / totalBookings * 100);
+            Updated();
+        }
+
+
+        public void UpdateBaseRate(decimal newRate, PricingUnit pricingUnit)
+        {
+            if (newRate <= 0)
+                throw new InvalidOperationException("Base rate must be greater than zero.");
+
+            BaseRate = newRate;
+            PricingUnit = pricingUnit;
+            Updated();
+        }
+
+        public bool IsLicenseValid() => LicenseExpiryDate >= DateOnly.FromDateTime(DateTime.UtcNow);
+
+
+        public void AddCity(int cityId)
+        {
+            if (_guideCities.Any(c => c.CityId == cityId))
+                throw new InvalidOperationException("City already added.");
+
+            _guideCities.Add(new GuideCity(Id, cityId));
+        }
+
+        public void RemoveCity(int cityId)
+        {
+            var city = _guideCities.FirstOrDefault(c => c.CityId == cityId);
+            if (city is not null)
+                _guideCities.Remove(city);
+        }
+
+
+    }
+}
