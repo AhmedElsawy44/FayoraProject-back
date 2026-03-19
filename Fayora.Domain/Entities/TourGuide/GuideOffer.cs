@@ -1,9 +1,9 @@
 ﻿using Fayora.Domain.Common.Entity;
+using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.TourGuideModule;
 
 namespace Fayora.Domain.Entities.TourGuide
 {
-
-
     public class GuideOffer : AuditableEntity<Guid>
     {
         public Guid RequestId { get; private set; }
@@ -33,68 +33,71 @@ namespace Fayora.Domain.Entities.TourGuide
 
         private GuideOffer() { }
 
-        public static GuideOffer CreateGuideOffer(
-            Guid requestId,
-            Guid guideId,
-            decimal proposedPrice,
-            string currencyCode = "EGP",
-            string? message = null,
+        public static Result<GuideOffer> Create(
+            Guid requestId, Guid guideId, decimal proposedPrice,
+            string currencyCode = "EGP", string? message = null,
             DateTimeOffset? expiresAt = null)
         {
             if (proposedPrice <= 0)
-                throw new InvalidOperationException("Proposed price must be greater than zero.");
+                return Error.Validation("GuideOffer.InvalidPrice", "Proposed price must be greater than zero.");
 
             return new GuideOffer(requestId, guideId, proposedPrice, currencyCode, message, expiresAt);
         }
 
-        public void Accept()
+        public Result<Success> Accept()
         {
             if (Status != GuideOfferStatus.Pending)
-                throw new InvalidOperationException("Only pending offers can be accepted.");
+                return Error.Conflict("GuideOffer.NotPending", "Only pending offers can be accepted.");
             if (IsExpired())
-                throw new InvalidOperationException("Cannot accept an expired offer.");
+                return Error.Conflict("GuideOffer.Expired", "Cannot accept an expired offer.");
             Status = GuideOfferStatus.Accepted;
             Updated();
+            return Result.Success;
         }
 
-        public void Reject()
+        public Result<Success> Reject()
         {
             if (Status != GuideOfferStatus.Pending)
-                throw new InvalidOperationException("Only pending offers can be rejected.");
-            if (IsExpired())
-                throw new InvalidOperationException("Cannot reject an expired offer.");
+                return Error.Conflict("GuideOffer.NotPending", "Only pending offers can be rejected.");
             Status = GuideOfferStatus.Rejected;
             Updated();
+            return Result.Success;
         }
 
-        public void Withdraw()
+        public Result<Success> Withdraw()
         {
             if (Status != GuideOfferStatus.Pending)
-                throw new InvalidOperationException("Only pending offers can be withdrawn.");
+                return Error.Conflict("GuideOffer.NotPending", "Only pending offers can be withdrawn.");
             Status = GuideOfferStatus.Withdrawn;
             Updated();
+            return Result.Success;
         }
 
-        public void Expire()
+        public Result<Success> Expire()
         {
             if (Status != GuideOfferStatus.Pending)
-                throw new InvalidOperationException("Only pending offers can expire.");
+                return Error.Conflict("GuideOffer.NotPending", "Only pending offers can expire.");
             Status = GuideOfferStatus.Expired;
             Updated();
+            return Result.Success;
         }
+
+        public Result<Success> UpdatePrice(decimal newPrice)
+        {
+            if (Status != GuideOfferStatus.Pending)
+                return Error.Conflict("GuideOffer.NotPending", "Cannot update price for a closed offer.");
+            if (newPrice <= 0)
+                return Error.Validation("GuideOffer.InvalidPrice", "Price must be greater than zero.");
+            ProposedPrice = newPrice;
+            Updated();
+            return Result.Success;
+        }
+
 
 
         public bool IsExpired() => ExpiresAt.HasValue && ExpiresAt.Value < DateTimeOffset.UtcNow;
 
-        public void UpdatePrice(decimal newPrice)
-        {
-            if (Status != GuideOfferStatus.Pending)
-                throw new InvalidOperationException("Cannot update price for a closed offer.");
-            if (newPrice <= 0)
-                throw new InvalidOperationException("Price must be greater than zero.");
-            ProposedPrice = newPrice;
-            Updated();
-        }
+
 
 
 
