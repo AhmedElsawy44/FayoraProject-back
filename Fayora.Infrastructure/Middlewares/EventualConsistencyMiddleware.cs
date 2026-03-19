@@ -1,5 +1,5 @@
 using Fayora.Domain.Common.Interfaces.IdentityModule;
-using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
+using Fayora.Infrastructure.Persistence.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 

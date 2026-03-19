@@ -1,5 +1,5 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
-using Fayora.Domain.Entitties.Identity;
+using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
@@ -46,7 +46,7 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         return await query.FirstOrDefaultAsync(cancellationToken);
     }
 
-    // 🚀 تم تنفيذ هذه الدالة
+
     public async Task<User?> GetUserByEmailAsync(string email, UserQueryOptions? options = null, CancellationToken cancellationToken = default)
     {
         var emailResult = Email.Create(email);
@@ -60,7 +60,6 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         return await query.FirstOrDefaultAsync(cancellationToken);
     }
 
-    // 🚀 تم تنفيذ هذه الدالة
     public async Task<User?> GetUserByPhoneAsync(string phoneNumber, UserQueryOptions? options = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(phoneNumber)) return null;
@@ -133,5 +132,20 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         }
 
         return query;
+    }
+
+    public async Task<bool> IsEmailExistsAsync(string email, CancellationToken cancellationToken = default)
+    {
+        var emailResult = Email.Create(email);
+        if (emailResult.IsError) return false;
+
+        return await context.Users
+            .AnyAsync(u => u.PrimaryEmail == emailResult.Value, cancellationToken);
+    }
+
+    public async Task<bool> IsPhoneNumberExistsAsync(string phoneNumber, CancellationToken cancellationToken = default)
+    {
+        return await context.Users
+            .AnyAsync(u => u.PhoneNumber == phoneNumber, cancellationToken);
     }
 }
