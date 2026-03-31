@@ -6,7 +6,7 @@ namespace Fayora.Application.Features.AuthModule.Commands.LoginWithApple
     {
         public LoginWithAppleCommandValidator()
         {
-            RuleFor(x => x.AccessToken)
+            RuleFor(x => x.IdToken)
             .NotEmpty().WithMessage("Facebook Access Token is required.")
             .MinimumLength(50).WithMessage("Access Token is too short to be a valid Facebook token.");
 

@@ -71,7 +71,14 @@ namespace Fayora.Application.Features.AuthModule.Commands.LoginWithEmail
 
             await unitOfWork.CommitChangesAsync(cancellationToken);
 
-            return new LoginWithEmailResult(user.Id, request.Email, tokens.AccessToken, tokens.RefreshToken, tokens.ExpiresIn);
+            return new LoginWithEmailResult(
+                user.Id, user.FirstName,
+                user.LastName,
+                request.Email,
+                user.ProfileImageUrl,
+                tokens.AccessToken,
+                tokens.RefreshToken,
+                tokens.ExpiresIn);
         }
     }
 }

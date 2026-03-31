@@ -39,7 +39,7 @@ public class VerifyPhoneCommandHandler(
         var registerOtp = await verificationCodeRepository.GetUserCodeAsync(
             user.Id,
             request.PhoneNumber,
-            CodePurpose.Registration,
+            CodePurpose.VerifyAccount,
             cancellationToken);
 
         if (registerOtp is null) return AuthErrors.InvalidVerificationCode;
@@ -98,6 +98,8 @@ public class VerifyPhoneCommandHandler(
 
         return new VerifyPhoneResult(
             user.Id,
+            user.FirstName,
+            user.LastName,
             request.PhoneNumber,
             tokens.AccessToken,
             tokens.RefreshToken,

@@ -38,7 +38,7 @@ public class VerifyEmailCommandHandler(
         var registerOtp = await verificationCodeRepository.GetUserCodeAsync(
             user.Id,
             request.Email,
-            CodePurpose.Registration,
+            CodePurpose.VerifyAccount,
             cancellationToken);
 
         if (registerOtp is null) return AuthErrors.InvalidVerificationCode;
@@ -97,6 +97,8 @@ public class VerifyEmailCommandHandler(
 
         return new VerifyEmailResult(
             user.Id,
+            user.FirstName,
+            user.LastName,
             request.Email,
             tokens.AccessToken,
             tokens.RefreshToken,

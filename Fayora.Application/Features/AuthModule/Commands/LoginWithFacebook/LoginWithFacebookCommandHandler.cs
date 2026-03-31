@@ -33,6 +33,8 @@ public class LoginWithFacebookCommandHandler(
             IdentityProvider.Facebook,
             cancellationToken);
 
+        bool isFirstLogin = existingIdentity is null;
+
         User? user = null;
 
         if (existingIdentity is not null)
@@ -46,8 +48,8 @@ public class LoginWithFacebookCommandHandler(
         if (user is null)
         {
             user = User.CreateWithSocialLogin(
-                facebookUser.Email,
                 facebookUser.Name,
+                facebookUser.Email,
                 facebookUser.PictureUrl);
 
             user.UpdateRegionalPreferences(
@@ -118,7 +120,11 @@ public class LoginWithFacebookCommandHandler(
 
         return new LoginWithFacebookResult(
             user.Id,
+            user.FirstName,
+            user.LastName,
             user.PrimaryEmail?.Value ?? string.Empty,
+            user.ProfileImageUrl,
+            isFirstLogin,
             tokens.AccessToken,
             tokens.RefreshToken,
             tokens.ExpiresIn);

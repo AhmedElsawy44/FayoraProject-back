@@ -32,6 +32,8 @@ public class LoginWithGoogleCommandHandler(
             IdentityProvider.Google,
             cancellationToken);
 
+        var isFirstLogin = existingIdentity is null;
+
         var options = new UserQueryOptions { IsReadOnly = false, IncludeRoles = true };
         User? user = null;
 
@@ -122,7 +124,11 @@ public class LoginWithGoogleCommandHandler(
 
         return new LoginWithGoogleResult(
             user.Id,
+            user.FirstName,
+            user.LastName,
             googleUser.Email,
+            googleUser.PictureUrl,
+            isFirstLogin,
             tokens.AccessToken,
             tokens.RefreshToken,
             tokens.ExpiresIn);

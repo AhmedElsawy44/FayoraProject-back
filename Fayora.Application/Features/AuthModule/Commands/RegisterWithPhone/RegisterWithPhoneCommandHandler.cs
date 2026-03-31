@@ -33,7 +33,7 @@ namespace Fayora.Application.Features.AuthModule.Commands.RegisterWithPhone
 
                 var codeForExistingUser = messageGenerator.GenerateCode();
 
-                existUser.SendPhoneCode(request.PhoneNumber, codeForExistingUser, CodePurpose.Registration, request.DeliveryMethod, codeHasher);
+                existUser.SendPhoneCode(request.PhoneNumber, codeForExistingUser, CodePurpose.VerifyAccount, request.DeliveryMethod, codeHasher);
 
                 existUser.ChangePassword(request.Password, passwordHasher);
 
@@ -41,7 +41,7 @@ namespace Fayora.Application.Features.AuthModule.Commands.RegisterWithPhone
                 return new RegisterWithPhoneResult(existUser.Id, request.PhoneNumber);
             }
 
-            var userResult = User.CreateWithPhone(request.PhoneNumber, request.Password, passwordHasher);
+            var userResult = User.CreateWithPhone(request.FirstName, request.LastName, request.PhoneNumber, request.Password, passwordHasher);
 
             if (userResult.IsError) return userResult.Errors;
 
@@ -49,7 +49,7 @@ namespace Fayora.Application.Features.AuthModule.Commands.RegisterWithPhone
 
             var codeForNewUser = messageGenerator.GenerateCode();
 
-            newUser.SendPhoneCode(request.PhoneNumber, codeForNewUser, CodePurpose.Registration, request.DeliveryMethod, codeHasher);
+            newUser.SendPhoneCode(request.PhoneNumber, codeForNewUser, CodePurpose.VerifyAccount, request.DeliveryMethod, codeHasher);
 
             userRepository.AddUser(newUser);
             await unitOfWork.CommitChangesAsync(cancellationToken);

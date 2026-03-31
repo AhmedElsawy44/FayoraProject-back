@@ -98,4 +98,14 @@ public static class AuthErrors
         code: "Authentication.PhoneNumberAlreadyExists",
         description: "A user with this phone number already exists."
     );
+
+    public static readonly Error EmailIsSameAsCurrent = Error.Validation(
+        code: "Authentication.EmailIsSameAsCurrent",
+        description: "The new email is the same as the current email."
+    );
+
+    public static readonly Error PhoneIsSameAsCurrent = Error.Validation(
+        code: "Authentication.PhoneIsSameAsCurrent",
+        description: "The new phone number is the same as the current phone number."
+    );
 }

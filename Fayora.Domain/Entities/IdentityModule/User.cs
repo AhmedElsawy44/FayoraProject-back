@@ -18,8 +18,8 @@ public class User : AuditableEntity<Guid>
     public static readonly int MaxFailedAccessAttempts = 5;
     public static readonly TimeSpan FailedAccessAttemptWindow = TimeSpan.FromMinutes(15);
 
-    public string? FirstName { get; private set; }
-    public string? LastName { get; private set; }
+    public string FirstName { get; private set; }
+    public string LastName { get; private set; }
     public DateOnly? BirthDate { get; private set; }
     public Gender? Gender { get; private set; }
     public Email? PrimaryEmail { get; private set; }
@@ -60,7 +60,12 @@ public class User : AuditableEntity<Guid>
     public bool IsDeleted => Status == UserStatus.Deleted && DeletedAt.HasValue;
     public bool IsBanned => Status == UserStatus.Banned;
 
-    public static Result<User> CreateWithEmail(string email, string password, IPasswordHasher passwordHasher)
+    public static Result<User> CreateWithEmail(
+        string fristName,
+        string LastName,
+        string email,
+        string password,
+        IPasswordHasher passwordHasher)
     {
         var emailResult = Email.Create(email);
         if (emailResult.IsError) return emailResult.Errors;
@@ -71,6 +76,8 @@ public class User : AuditableEntity<Guid>
         return new User
         {
             Id = Guid.CreateVersion7(),
+            FirstName = fristName,
+            LastName = LastName,
             PrimaryEmail = emailResult.Value,
             PhoneNumber = null,
             _passwordHash = passwordHashResult.Value,
@@ -78,7 +85,12 @@ public class User : AuditableEntity<Guid>
         };
     }
 
-    public static Result<User> CreateWithPhone(string phoneNumber, string password, IPasswordHasher passwordHasher)
+    public static Result<User> CreateWithPhone(
+        string fristName,
+        string lastName,
+        string phoneNumber,
+        string password,
+        IPasswordHasher passwordHasher)
     {
         var passwordHashResult = passwordHasher.HashPassword(password);
         if (passwordHashResult.IsError) return passwordHashResult.Errors;
@@ -86,6 +98,8 @@ public class User : AuditableEntity<Guid>
         return new User
         {
             Id = Guid.CreateVersion7(),
+            FirstName = fristName,
+            LastName = lastName,
             PrimaryEmail = null,
             PhoneNumber = phoneNumber,
             _passwordHash = passwordHashResult.Value,
@@ -95,19 +109,19 @@ public class User : AuditableEntity<Guid>
 
 
     public static User CreateWithSocialLogin(
+    string name,
     string? email,
-    string? name,
     string? pictureUrl)
     {
-        var names = name?.Split(' ');
+        var names = name.Split(' ');
 
         var user = new User
         {
             Id = Guid.CreateVersion7(),
             IsEmailVerified = !string.IsNullOrWhiteSpace(email),
             ProfileImageUrl = pictureUrl,
-            FirstName = names?.FirstOrDefault(),
-            LastName = names?.LastOrDefault(),
+            FirstName = names[0],
+            LastName = names.Length > 1 ? names[1] : string.Empty,
             Status = UserStatus.Active,
         };
 
@@ -121,20 +135,10 @@ public class User : AuditableEntity<Guid>
         return user;
     }
 
-    public static User CreateWithSocialLogin(string? email)
-    {
-        return new User
-        {
-            Id = Guid.CreateVersion7(),
-            PrimaryEmail = Email.Create(email).Value,
-            Status = UserStatus.Active,
-        };
-    }
-
     public static User CreateWithSocialLogin(
-    string? email,
-    string? firstName,
-    string? lastName,
+    string firstName,
+    string lastName,
+    string email,
     string? pictureUrl)
     {
         var user = new User

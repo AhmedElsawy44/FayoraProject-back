@@ -106,7 +106,10 @@ namespace Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithPhon
 
             return new RestoreAccountWithPhoneResult(
                 user.Id,
+                user.FirstName,
+                user.LastName,
                 request.PhoneNumber,
+                user.ProfileImageUrl,
                 tokens.AccessToken,
                 tokens.RefreshToken,
                 tokens.ExpiresIn);

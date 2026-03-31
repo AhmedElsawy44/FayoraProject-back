@@ -84,7 +84,10 @@ public class LoginWithPhoneCommandHandler(
 
         return new LoginWithPhoneResult(
             user.Id,
-            request.PhoneNumber,
+            user.FirstName,
+            user.LastName,
+            user.PhoneNumber!,
+            user.ProfileImageUrl,
             tokens.AccessToken,
             tokens.RefreshToken,
             tokens.ExpiresIn);

@@ -105,7 +105,10 @@ public class RestoreAccountWithEmailCommandHandler(
 
         return new RestoreAccountWithEmailResult(
             user.Id,
+            user.FirstName,
+            user.LastName,
             request.Email,
+            user.ProfileImageUrl,
             tokens.AccessToken,
             tokens.RefreshToken,
             tokens.ExpiresIn);

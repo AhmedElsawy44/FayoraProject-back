@@ -5,7 +5,9 @@ using MediatR;
 namespace Fayora.Application.Features.AuthModule.Commands.LoginWithApple;
 
 public record LoginWithAppleCommand(
-    string AccessToken,
+    string IdToken,
+    string FirstName,
+    string LastName,
     string DeviceId,
     string FcmToken,
     string? SimCountryIsoCode,
