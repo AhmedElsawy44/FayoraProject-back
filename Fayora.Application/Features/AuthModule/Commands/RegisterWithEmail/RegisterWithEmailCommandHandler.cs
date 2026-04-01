@@ -38,7 +38,7 @@ public class RegisterWithEmailCommandHandler(
 
             var codeForExistingUser = messageGenerator.GenerateCode();
 
-            existUser.SendEmailCode(request.Email, codeForExistingUser, CodePurpose.Registration, codeHasher);
+            existUser.SendEmailCode(request.Email, codeForExistingUser, CodePurpose.VerifyAccount, codeHasher);
 
             existUser.ChangePassword(request.Password, passwordHasher);
 
@@ -46,7 +46,7 @@ public class RegisterWithEmailCommandHandler(
             return new RegisterWithEmailResult(existUser.Id, request.Email);
         }
 
-        var userResult = User.CreateWithEmail(request.Email, request.Password, passwordHasher);
+        var userResult = User.CreateWithEmail(request.FirstName, request.LastName, request.Email, request.Password, passwordHasher);
 
         if (userResult.IsError) return userResult.Errors;
 
@@ -54,7 +54,7 @@ public class RegisterWithEmailCommandHandler(
 
         var codeForNewUser = messageGenerator.GenerateCode();
 
-        newUser.SendEmailCode(request.Email, codeForNewUser, CodePurpose.Registration, codeHasher);
+        newUser.SendEmailCode(request.Email, codeForNewUser, CodePurpose.VerifyAccount, codeHasher);
 
         userRepository.AddUser(newUser);
         await unitOfWork.CommitChangesAsync(cancellationToken);

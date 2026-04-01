@@ -4,4 +4,4 @@ using MediatR;
 
 namespace Fayora.Application.Features.AuthModule.Commands.ChangeEmail;
 
-public record ChangeEmailCommand(string Email, string Password, string DeviceId) : ICheckBannedRequest, IRequest<Result<ChangeEmailResult>>;
+public record ChangeEmailCommand(string Email, string Password, string DeviceId) : ICheckBannedRequest, IRequest<Result<Unit>>;

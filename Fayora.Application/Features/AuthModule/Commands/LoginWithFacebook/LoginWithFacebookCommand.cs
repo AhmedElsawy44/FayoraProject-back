@@ -1,9 +1,9 @@
 ﻿using Fayora.Application.Common.Interfaces.Validations;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.IdentityModule;
 using MediatR;
 
 namespace Fayora.Application.Features.AuthModule.Commands.LoginWithFacebook;
-
 
 public record LoginWithFacebookCommand(
     string AccessToken,
@@ -11,4 +11,5 @@ public record LoginWithFacebookCommand(
     string FcmToken,
     string? SimCountryIsoCode,
     string TimeZone,
-    string DeviceLanguage) : IRequest<Result<LoginWithFacebookResult>>, ICheckBannedRequest;
+    string DeviceLanguage
+) : IRequest<Result<LoginWithFacebookResult>>, ICheckBannedRequest;

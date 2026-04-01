@@ -10,16 +10,16 @@ namespace Fayora.Domain.Entities.IdentityModule;
 
 public class User : AuditableEntity<Guid>
 {
-    public static readonly int MaxSMSOtpPerDay = 5;
-    public static readonly int MaxEmailOtpPerDay = 10;
     public static readonly TimeSpan OtpResendCooldown = TimeSpan.FromMinutes(2);
-    public static readonly TimeSpan PasswordResetTokenExpiration = TimeSpan.FromMinutes(15);
-    public static readonly TimeSpan AccountLockoutDuration = TimeSpan.FromMinutes(15);
-    public static readonly int MaxFailedAccessAttempts = 5;
-    public static readonly TimeSpan FailedAccessAttemptWindow = TimeSpan.FromMinutes(15);
+    private static readonly int MaxSmsOtpPerDay = 5;
+    private static readonly int MaxEmailOtpPerDay = 10;
+    private static readonly TimeSpan PasswordResetTokenExpiration = TimeSpan.FromMinutes(15);
+    private static readonly TimeSpan AccountLockoutDuration = TimeSpan.FromMinutes(15);
+    private static readonly int MaxFailedAccessAttempts = 5;
+    private static readonly TimeSpan FailedAccessAttemptWindow = TimeSpan.FromMinutes(15);
 
-    public string? FirstName { get; private set; }
-    public string? LastName { get; private set; }
+    public string FirstName { get; private set; }
+    public string LastName { get; private set; }
     public DateOnly? BirthDate { get; private set; }
     public Gender? Gender { get; private set; }
     public Email? PrimaryEmail { get; private set; }
@@ -33,7 +33,9 @@ public class User : AuditableEntity<Guid>
     public decimal CurrentBalance { get; private set; } = 0;
     public string? NationalityCode { get; private set; }
     public string? SimCountryIsoCode { get; private set; }
-    public string? PreferredLanguage { get; private set; } = string.Empty;
+    public Language? PreferredLanguage { get; private set; } = Language.English;
+    public Language SpokenLanguages { get; private set; }
+    public List<UserLanguageProficiency> UserLanguageProficiency { get; private set; }
     public string? TimeZone { get; private set; } = string.Empty;
     public string? ProfileImageUrl { get; private set; }
     public string? Description { get; private set; }
@@ -51,7 +53,8 @@ public class User : AuditableEntity<Guid>
     private readonly List<UserRole> _roles = [];
     public IReadOnlyCollection<UserRole> Roles => _roles.AsReadOnly();
 
-    public List<string> GetRoleNames() => Roles.Select(r => r.Role.Name).ToList();
+    public List<string> GetRoleNames() => [.. Roles.Select(r => r.Role.Name)];
+
 
     private string _passwordHash = string.Empty;
 
@@ -59,8 +62,14 @@ public class User : AuditableEntity<Guid>
     public bool IsLocked => Status == UserStatus.Locked && LockedUntil.HasValue && LockedUntil.Value > DateTimeOffset.UtcNow;
     public bool IsDeleted => Status == UserStatus.Deleted && DeletedAt.HasValue;
     public bool IsBanned => Status == UserStatus.Banned;
+    public bool HasPassword => !string.IsNullOrEmpty(_passwordHash);
 
-    public static Result<User> CreateWithEmail(string email, string password, IPasswordHasher passwordHasher)
+    public static Result<User> CreateWithEmail(
+        string firstName,
+        string lastName,
+        string email,
+        string password,
+        IPasswordHasher passwordHasher)
     {
         var emailResult = Email.Create(email);
         if (emailResult.IsError) return emailResult.Errors;
@@ -71,6 +80,8 @@ public class User : AuditableEntity<Guid>
         return new User
         {
             Id = Guid.CreateVersion7(),
+            FirstName = firstName,
+            LastName = lastName,
             PrimaryEmail = emailResult.Value,
             PhoneNumber = null,
             _passwordHash = passwordHashResult.Value,
@@ -78,7 +89,12 @@ public class User : AuditableEntity<Guid>
         };
     }
 
-    public static Result<User> CreateWithPhone(string phoneNumber, string password, IPasswordHasher passwordHasher)
+    public static Result<User> CreateWithPhone(
+        string firstName,
+        string lastName,
+        string phoneNumber,
+        string password,
+        IPasswordHasher passwordHasher)
     {
         var passwordHashResult = passwordHasher.HashPassword(password);
         if (passwordHashResult.IsError) return passwordHashResult.Errors;
@@ -86,6 +102,8 @@ public class User : AuditableEntity<Guid>
         return new User
         {
             Id = Guid.CreateVersion7(),
+            FirstName = firstName,
+            LastName = lastName,
             PrimaryEmail = null,
             PhoneNumber = phoneNumber,
             _passwordHash = passwordHashResult.Value,
@@ -95,19 +113,19 @@ public class User : AuditableEntity<Guid>
 
 
     public static User CreateWithSocialLogin(
+    string name,
     string? email,
-    string? name,
     string? pictureUrl)
     {
-        var names = name?.Split(' ');
+        var names = name.Split(' ');
 
         var user = new User
         {
             Id = Guid.CreateVersion7(),
             IsEmailVerified = !string.IsNullOrWhiteSpace(email),
             ProfileImageUrl = pictureUrl,
-            FirstName = names?.FirstOrDefault(),
-            LastName = names?.LastOrDefault(),
+            FirstName = names[0],
+            LastName = names.Length > 1 ? names[1] : string.Empty,
             Status = UserStatus.Active,
         };
 
@@ -121,20 +139,10 @@ public class User : AuditableEntity<Guid>
         return user;
     }
 
-    public static User CreateWithSocialLogin(string? email)
-    {
-        return new User
-        {
-            Id = Guid.CreateVersion7(),
-            PrimaryEmail = Email.Create(email).Value,
-            Status = UserStatus.Active,
-        };
-    }
-
     public static User CreateWithSocialLogin(
-    string? email,
-    string? firstName,
-    string? lastName,
+    string firstName,
+    string lastName,
+    string email,
     string? pictureUrl)
     {
         var user = new User
@@ -158,7 +166,7 @@ public class User : AuditableEntity<Guid>
     }
 
 
-    public void UpdateRegionalPreferences(string? simCountryIso, string? preferredLanguage, string? timeZone)
+    public void UpdateRegionalPreferences(string? simCountryIso, Language? preferredLanguage, string? timeZone)
     {
         SimCountryIsoCode = simCountryIso ?? SimCountryIsoCode;
         PreferredLanguage = preferredLanguage ?? PreferredLanguage;
@@ -271,7 +279,7 @@ public class User : AuditableEntity<Guid>
     }
 
 
-    public void UpdateProfile(string? firstName, string? lastName, DateOnly? birthDate, Gender? gender, string? nationalityCode, string? profileImageUrl, string? description, string? preferredLanguage, string? timeZone)
+    public void UpdateProfile(string firstName, string lastName, DateOnly? birthDate, Gender? gender, string? nationalityCode, string? profileImageUrl, string? description, Language? preferredLanguage, List<UserLanguageProficiency> userLanguages, string? timeZone)
     {
         FirstName = firstName;
         LastName = lastName;
@@ -283,6 +291,11 @@ public class User : AuditableEntity<Guid>
 
         Description = description;
         PreferredLanguage = preferredLanguage;
+        SpokenLanguages = userLanguages.Count != 0
+            ? userLanguages.Select(x => x.Language)
+                    .Aggregate((a, b) => a | b)
+            : Language.None;
+        UserLanguageProficiency = userLanguages;
         TimeZone = timeZone;
         IsProfileComplete = CheckIfProfileComplete();
 
@@ -304,7 +317,7 @@ public class User : AuditableEntity<Guid>
     {
         return !string.IsNullOrWhiteSpace(FirstName)
                && !string.IsNullOrWhiteSpace(LastName)
-               && !string.IsNullOrWhiteSpace(PreferredLanguage)
+               && PreferredLanguage.HasValue
                && BirthDate.HasValue
                && Gender.HasValue
                && (PrimaryEmail != null || !string.IsNullOrWhiteSpace(PhoneNumber))
@@ -338,7 +351,7 @@ public class User : AuditableEntity<Guid>
         if (CheckOtpCooldown())
             return UserErrors.OtpCooldownNotMet;
 
-        if (HasReachedDailyOtpLimit(MaxSMSOtpPerDay))
+        if (HasReachedDailyOtpLimit(MaxSmsOtpPerDay))
             return UserErrors.DailyOtpLimitReached;
 
         return Result.Success;

@@ -24,6 +24,11 @@ public class LoginWithFacebookCommandHandler(
 {
     public async Task<Result<LoginWithFacebookResult>> Handle(LoginWithFacebookCommand request, CancellationToken cancellationToken)
     {
+        Language? languageEnum = null;
+        if (!Enum.TryParse<Language>(request.DeviceLanguage, true, out var parsedLanguage))
+            return AuthErrors.InvalidLanguage;
+        languageEnum = parsedLanguage;
+
         var facebookUser = await facebookAuthService.GetUserInfoAsync(request.AccessToken, cancellationToken);
         if (facebookUser is null)
             return AuthErrors.InvalidCredentials;
@@ -32,6 +37,8 @@ public class LoginWithFacebookCommandHandler(
             facebookUser.Id,
             IdentityProvider.Facebook,
             cancellationToken);
+
+        bool isFirstLogin = existingIdentity is null;
 
         User? user = null;
 
@@ -46,13 +53,13 @@ public class LoginWithFacebookCommandHandler(
         if (user is null)
         {
             user = User.CreateWithSocialLogin(
-                facebookUser.Email,
                 facebookUser.Name,
+                facebookUser.Email,
                 facebookUser.PictureUrl);
 
             user.UpdateRegionalPreferences(
                 request.SimCountryIsoCode,
-                request.DeviceLanguage,
+                languageEnum.Value,
                 request.TimeZone);
 
             userRepository.AddUser(user);
@@ -79,7 +86,7 @@ public class LoginWithFacebookCommandHandler(
             user.Id,
             request.DeviceId,
             request.FcmToken,
-            request.DeviceLanguage,
+            languageEnum.Value,
             cancellationToken);
 
         Guid? ownerId = null;
@@ -118,7 +125,11 @@ public class LoginWithFacebookCommandHandler(
 
         return new LoginWithFacebookResult(
             user.Id,
+            user.FirstName,
+            user.LastName,
             user.PrimaryEmail?.Value ?? string.Empty,
+            user.ProfileImageUrl,
+            isFirstLogin,
             tokens.AccessToken,
             tokens.RefreshToken,
             tokens.ExpiresIn);
