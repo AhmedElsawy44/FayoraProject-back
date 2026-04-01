@@ -2,8 +2,10 @@
 
 public enum CodePurpose
 {
-    Registration,
+    VerifyAccount,
     ResetPassword,
     AccountDeletion,
     ReactivateAccount,
+    ChangeEmail,
+    ChangePhoneNumber
 }

@@ -34,7 +34,7 @@ public class SendEmailCodeEventHandler(
     {
         return purpose switch
         {
-            CodePurpose.Registration => MessagelPurpose.Registration,
+            CodePurpose.VerifyAccount => MessagelPurpose.Registration,
             CodePurpose.ResetPassword => MessagelPurpose.ResetPassword,
             CodePurpose.AccountDeletion => MessagelPurpose.AccountDeletion,
             CodePurpose.ReactivateAccount => MessagelPurpose.ReactivateAccount,

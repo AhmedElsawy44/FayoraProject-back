@@ -1,15 +1,20 @@
-﻿using Fayora.Application.Common.Interfaces.Services.SharedModule;
+﻿namespace Fayora.Infrastructure.Services.SharedModule;
+
+using Fayora.Application.Common.Interfaces.Services.SharedModule;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
-
-namespace Fayora.Infrastructure.Services.SharedModule;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 public class LocalFileService(
     IWebHostEnvironment env,
     ILogger<LocalFileService> logger) : IFileStorageService
 {
     private static readonly string[] AllowedExtensions = [".pdf", ".jpg", ".jpeg", ".png"];
-    private const long MaxFileSize = 10 * 1024 * 1024;
+    private const long MaxFileSize = 10 * 1024 * 1024; // 10MB
 
     public async Task<string> SaveFileAsync(Stream fileStream, string fileName, string folderName)
     {
@@ -19,6 +24,7 @@ public class LocalFileService(
 
         if (fileStream.Length > MaxFileSize)
             throw new ArgumentException("File exceeds 10MB limit.");
+
 
         var directoryPath = Path.Combine(env.WebRootPath, "uploads", folderName);
         Directory.CreateDirectory(directoryPath);
@@ -52,6 +58,7 @@ public class LocalFileService(
         {
             var decodedUrl = Uri.UnescapeDataString(mediaURL);
 
+
             var relativePath = decodedUrl.TrimStart('/', '\\');
 
             relativePath = relativePath.Replace('/', Path.DirectorySeparatorChar);
@@ -80,6 +87,7 @@ public class LocalFileService(
             logger.LogError(ex, "Error while deleting file for URL: {MediaUrl}", mediaURL);
             throw new InvalidOperationException("An error occurred while deleting the file.", ex);
         }
+
         return Task.CompletedTask;
     }
 }

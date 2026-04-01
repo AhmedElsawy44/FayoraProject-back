@@ -2,5 +2,5 @@
 
 public record ChangePhoneRequest(
     string Phone,
-    string Password
-);
+    string Password,
+    string CodeDeliveryMethod);

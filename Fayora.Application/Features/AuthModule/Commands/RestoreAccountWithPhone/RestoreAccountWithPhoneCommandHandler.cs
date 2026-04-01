@@ -25,6 +25,11 @@ namespace Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithPhon
             RestoreAccountWithPhoneCommand request,
             CancellationToken cancellationToken)
         {
+            Language? languageEnum = null;
+            if (!Enum.TryParse<Language>(request.DeviceLanguage, true, out var parsedLanguage))
+                return AuthErrors.InvalidLanguage;
+            languageEnum = parsedLanguage;
+
             // 1 - Get the user
             var user = await userRepository.GetUserByPhoneAsync(
                 request.PhoneNumber,
@@ -66,7 +71,7 @@ namespace Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithPhon
                 user.Id,
                 request.DeviceId,
                 request.FcmToken,
-                request.DeviceLanguage,
+                languageEnum.Value,
                 cancellationToken);
 
             // 5 - Generate Tokens
@@ -106,7 +111,10 @@ namespace Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithPhon
 
             return new RestoreAccountWithPhoneResult(
                 user.Id,
+                user.FirstName,
+                user.LastName,
                 request.PhoneNumber,
+                user.ProfileImageUrl,
                 tokens.AccessToken,
                 tokens.RefreshToken,
                 tokens.ExpiresIn);

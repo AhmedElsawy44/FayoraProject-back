@@ -1,11 +1,14 @@
 ﻿using Fayora.Application.Common.Interfaces.Validations;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.IdentityModule;
 using MediatR;
 
 namespace Fayora.Application.Features.AuthModule.Commands.LoginWithApple;
 
 public record LoginWithAppleCommand(
-    string AccessToken,
+    string IdToken,
+    string FirstName,
+    string LastName,
     string DeviceId,
     string FcmToken,
     string? SimCountryIsoCode,

@@ -24,6 +24,11 @@ public class RestoreAccountWithEmailCommandHandler(
         RestoreAccountWithEmailCommand request,
         CancellationToken cancellationToken)
     {
+        Language? languageEnum = null;
+        if (!Enum.TryParse<Language>(request.DeviceLanguage, true, out var parsedLanguage))
+            return AuthErrors.InvalidLanguage;
+        languageEnum = parsedLanguage;
+
         // 1 - Get the user
         var user = await userRepository.GetUserByEmailAsync(
             request.Email,
@@ -65,7 +70,7 @@ public class RestoreAccountWithEmailCommandHandler(
             user.Id,
             request.DeviceId,
             request.FcmToken,
-            request.DeviceLanguage,
+            languageEnum.Value,
             cancellationToken);
 
         // 5 - Generate Tokens
@@ -105,7 +110,10 @@ public class RestoreAccountWithEmailCommandHandler(
 
         return new RestoreAccountWithEmailResult(
             user.Id,
+            user.FirstName,
+            user.LastName,
             request.Email,
+            user.ProfileImageUrl,
             tokens.AccessToken,
             tokens.RefreshToken,
             tokens.ExpiresIn);

@@ -26,7 +26,7 @@ public class SendEmailCodeCommandHandler(
         var statusCheck = user.CheckActiveStatus();
         if (statusCheck.IsError) return statusCheck.Errors;
 
-        if (user.IsVerified && request.Purpose == CodePurpose.Registration)
+        if (user.IsVerified && request.Purpose == CodePurpose.VerifyAccount)
             return AuthErrors.EmailIsAlreadyVerified;
 
         var canRequest = user.CanRequestEmailCode();

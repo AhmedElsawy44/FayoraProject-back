@@ -22,7 +22,12 @@ public class LoginWithAppleCommandHandler(
 {
     public async Task<Result<LoginWithAppleResult>> Handle(LoginWithAppleCommand request, CancellationToken cancellationToken)
     {
-        var appleUser = await appleAuthService.GetUserInfoAsync(request.AccessToken, cancellationToken);
+        Language? languageEnum = null;
+        if (!Enum.TryParse<Language>(request.DeviceLanguage, true, out var parsedLanguage))
+            return AuthErrors.InvalidLanguage;
+        languageEnum = parsedLanguage;
+
+        var appleUser = await appleAuthService.GetUserInfoAsync(request.IdToken, cancellationToken);
         if (appleUser == null)
             return AuthErrors.InvalidCredentials;
 
@@ -31,8 +36,11 @@ public class LoginWithAppleCommandHandler(
             IdentityProvider.Apple,
             cancellationToken);
 
+        var isFirstLogin = identity == null;
+
         User? user;
         var options = new UserQueryOptions { IsReadOnly = false, IncludeRoles = true };
+
 
         if (identity != null)
         {
@@ -46,16 +54,17 @@ public class LoginWithAppleCommandHandler(
             if (string.IsNullOrWhiteSpace(appleUser.Email))
                 return AuthErrors.EmailRequiredFromApple;
 
-            user = await userRepository.GetUserByEmailAsync(appleUser.Email, options, cancellationToken);
+            var appleEmail = appleUser.Email;
+
+            user = await userRepository.GetUserByEmailAsync(appleEmail, options, cancellationToken);
 
             if (user == null)
             {
-                user = User.CreateWithSocialLogin(appleUser.Email);
+                user = User.CreateWithSocialLogin(request.FirstName, request.LastName, appleEmail, pictureUrl: null);
                 userRepository.AddUser(user);
             }
 
-            var emailValueObject = Email.Create(appleUser.Email).Value;
-
+            var emailValueObject = Email.Create(appleEmail).Value;
             userIdentityRepository.AddIdentity(
                 new UserIdentity(
                     user.Id,
@@ -68,7 +77,7 @@ public class LoginWithAppleCommandHandler(
             user.Id,
             request.DeviceId,
             request.FcmToken,
-            request.DeviceLanguage,
+            languageEnum.Value,
             cancellationToken);
 
         Guid? ownerId = null;
@@ -107,7 +116,11 @@ public class LoginWithAppleCommandHandler(
 
         return new LoginWithAppleResult(
             user.Id,
+            user.FirstName,
+            user.LastName,
             userEmail,
+            user.ProfileImageUrl,
+            isFirstLogin,
             tokens.AccessToken,
             tokens.RefreshToken,
             tokens.ExpiresIn);

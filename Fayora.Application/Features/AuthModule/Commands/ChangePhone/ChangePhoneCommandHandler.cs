@@ -3,6 +3,7 @@ using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.IdentityModule;
 using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
 
@@ -12,11 +13,12 @@ namespace Fayora.Application.Features.AuthModule.Commands.ChangePhone
         IUserRepository userRepository,
         IUnitOfWork unitOfWork,
         IClientContextProvider clientContextProvider,
-        IPasswordHasher passwordHasher,
-        IAuthTokenGenerator authTokenGenerator) : IRequestHandler<ChangePhoneCommand, Result<ChangePhoneResult>>
+        ICodeHasher codeHasher,
+        IMessageGenerator messageGenerator,
+        IPasswordHasher passwordHasher) : IRequestHandler<ChangePhoneCommand, Result<Unit>>
     {
 
-        public async Task<Result<ChangePhoneResult>> Handle(ChangePhoneCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Unit>> Handle(ChangePhoneCommand request, CancellationToken cancellationToken)
         {
             var userId = clientContextProvider.GetContext().UserId;
 
@@ -24,53 +26,26 @@ namespace Fayora.Application.Features.AuthModule.Commands.ChangePhone
 
             if (user is null) return AuthErrors.UserNotFound;
 
+            var statusCheck = user.CheckActiveStatus();
+            if (statusCheck.IsError) return statusCheck.Errors;
+
             if (!user.IsCorrectPasswordHash(request.Password, passwordHasher)) return AuthErrors.InvalidPassword;
+
+            if (user.PhoneNumber == request.PhoneNumber)
+                return AuthErrors.PhoneIsSameAsCurrent;
 
             if (await userRepository.IsPhoneNumberExistsAsync(request.PhoneNumber, cancellationToken)) return AuthErrors.PhoneNumberAlreadyExists;
 
-            user.ChangePhoneNumber(request.PhoneNumber);
+            var canRequest = user.CanRequestEmailCode();
+            if (canRequest.IsError) return canRequest.Errors;
 
-            Guid? ownerId = null;
-            Guid? touristId = null;
-            Guid? tourGuideId = null;
+            string code = messageGenerator.GenerateCode();
 
-            var roleNames = user.GetRoleNames();
-
-            //if (roleNames.Contains("Owner", StringComparer.OrdinalIgnoreCase))
-            //{
-            //    var owner = await unitOwnerRepository.GetOwnerByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
-            //    ownerId = owner?.Id;
-            //}
-
-            //if (roleNames.Contains("Tourist", StringComparer.OrdinalIgnoreCase))
-            //{
-            //    var tourist = await touristRepository.GetProfileByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
-            //    touristId = tourist?.Id;
-            //}
-
-            //if (roleNames.Contains("TourGuide", StringComparer.OrdinalIgnoreCase))
-            //{
-            //    var tourGuide = await tourGuideRepository.GetProfileByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
-            //    tourGuideId = tourGuide?.Id;
-            //}
-
-            var tokens = await authTokenGenerator.GenerateTokensAsync(
-                user,
-                request.DeviceId,
-                touristId: touristId,
-                tourGuideId: tourGuideId,
-                ownerId: ownerId,
-                cancellationToken);
+            user.SendPhoneCode(request.PhoneNumber, code, CodePurpose.ChangePhoneNumber, request.DeliveryMethod, codeHasher);
 
             await unitOfWork.CommitChangesAsync(cancellationToken);
 
-
-            return new ChangePhoneResult(
-                user.Id,
-                request.PhoneNumber,
-                tokens.AccessToken,
-                tokens.RefreshToken,
-                tokens.ExpiresIn);
+            return Unit.Value;
         }
     }
 }

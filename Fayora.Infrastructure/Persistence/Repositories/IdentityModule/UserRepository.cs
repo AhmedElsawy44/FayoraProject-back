@@ -60,6 +60,7 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         return await query.FirstOrDefaultAsync(cancellationToken);
     }
 
+
     public async Task<User?> GetUserByPhoneAsync(string phoneNumber, UserQueryOptions? options = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(phoneNumber)) return null;
