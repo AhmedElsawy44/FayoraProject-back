@@ -10,13 +10,13 @@ namespace Fayora.Domain.Entities.IdentityModule;
 
 public class User : AuditableEntity<Guid>
 {
-    public static readonly int MaxSMSOtpPerDay = 5;
-    public static readonly int MaxEmailOtpPerDay = 10;
     public static readonly TimeSpan OtpResendCooldown = TimeSpan.FromMinutes(2);
-    public static readonly TimeSpan PasswordResetTokenExpiration = TimeSpan.FromMinutes(15);
-    public static readonly TimeSpan AccountLockoutDuration = TimeSpan.FromMinutes(15);
-    public static readonly int MaxFailedAccessAttempts = 5;
-    public static readonly TimeSpan FailedAccessAttemptWindow = TimeSpan.FromMinutes(15);
+    private static readonly int MaxSmsOtpPerDay = 5;
+    private static readonly int MaxEmailOtpPerDay = 10;
+    private static readonly TimeSpan PasswordResetTokenExpiration = TimeSpan.FromMinutes(15);
+    private static readonly TimeSpan AccountLockoutDuration = TimeSpan.FromMinutes(15);
+    private static readonly int MaxFailedAccessAttempts = 5;
+    private static readonly TimeSpan FailedAccessAttemptWindow = TimeSpan.FromMinutes(15);
 
     public string FirstName { get; private set; }
     public string LastName { get; private set; }
@@ -59,10 +59,11 @@ public class User : AuditableEntity<Guid>
     public bool IsLocked => Status == UserStatus.Locked && LockedUntil.HasValue && LockedUntil.Value > DateTimeOffset.UtcNow;
     public bool IsDeleted => Status == UserStatus.Deleted && DeletedAt.HasValue;
     public bool IsBanned => Status == UserStatus.Banned;
+    public bool HasPassword => !string.IsNullOrEmpty(_passwordHash);
 
     public static Result<User> CreateWithEmail(
-        string fristName,
-        string LastName,
+        string firstName,
+        string lastName,
         string email,
         string password,
         IPasswordHasher passwordHasher)
@@ -76,8 +77,8 @@ public class User : AuditableEntity<Guid>
         return new User
         {
             Id = Guid.CreateVersion7(),
-            FirstName = fristName,
-            LastName = LastName,
+            FirstName = firstName,
+            LastName = lastName,
             PrimaryEmail = emailResult.Value,
             PhoneNumber = null,
             _passwordHash = passwordHashResult.Value,
@@ -275,7 +276,7 @@ public class User : AuditableEntity<Guid>
     }
 
 
-    public void UpdateProfile(string? firstName, string? lastName, DateOnly? birthDate, Gender? gender, string? nationalityCode, string? profileImageUrl, string? description, string? preferredLanguage, string? timeZone)
+    public void UpdateProfile(string firstName, string lastName, DateOnly? birthDate, Gender? gender, string? nationalityCode, string? profileImageUrl, string? description, string? preferredLanguage, string? timeZone)
     {
         FirstName = firstName;
         LastName = lastName;
@@ -342,7 +343,7 @@ public class User : AuditableEntity<Guid>
         if (CheckOtpCooldown())
             return UserErrors.OtpCooldownNotMet;
 
-        if (HasReachedDailyOtpLimit(MaxSMSOtpPerDay))
+        if (HasReachedDailyOtpLimit(MaxSmsOtpPerDay))
             return UserErrors.DailyOtpLimitReached;
 
         return Result.Success;

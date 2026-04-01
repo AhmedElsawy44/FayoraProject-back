@@ -27,13 +27,19 @@ public class ChangePasswordCommandHandler(
         var statusCheck = user.CheckActiveStatus();
         if (statusCheck.IsError) return statusCheck.Errors;
 
-        if (!user.IsCorrectPasswordHash(request.CurrentPassword, passwordHasher))
-            return AuthErrors.InvalidPassword;
+        
+        if (!user.HasPassword)
+        {
+            if (string.IsNullOrEmpty(request.CurrentPassword) ||
+                !user.IsCorrectPasswordHash(request.CurrentPassword, passwordHasher))
+            {
+                return AuthErrors.InvalidPassword;
+            }
+        }
 
         var updateResult = user.ChangePassword(request.NewPassword, passwordHasher);
 
         if (updateResult.IsError) return updateResult.Errors;
-
 
         await unitOfWork.CommitChangesAsync(cancellationToken);
 

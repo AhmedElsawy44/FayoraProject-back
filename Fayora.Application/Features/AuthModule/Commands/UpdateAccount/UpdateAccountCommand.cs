@@ -5,8 +5,8 @@ using MediatR;
 namespace Fayora.Application.Features.AuthModule.Commands.UpdateAccount;
 
 public record UpdateAccountCommand(
-    string? FirstName,
-    string? LastName,
+    string FirstName,
+    string LastName,
     DateOnly? BirthDate,
     Gender? Gender,
     string? NationalityCode,

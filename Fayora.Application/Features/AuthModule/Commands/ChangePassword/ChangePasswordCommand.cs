@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Fayora.Application.Features.AuthModule.Commands.ChangePassword;
 
-public record ChangePasswordCommand(string CurrentPassword, string NewPassword) : IRequest<Result<Unit>>;
+public record ChangePasswordCommand(string? CurrentPassword, string NewPassword) : IRequest<Result<Unit>>;

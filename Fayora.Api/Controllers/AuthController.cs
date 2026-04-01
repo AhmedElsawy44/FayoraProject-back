@@ -2,6 +2,8 @@
 using Fayora.Application.Features.AuthModule.Commands.ChangeEmail;
 using Fayora.Application.Features.AuthModule.Commands.ChangePassword;
 using Fayora.Application.Features.AuthModule.Commands.ChangePhone;
+using Fayora.Application.Features.AuthModule.Commands.ConfirmChangeEmail;
+using Fayora.Application.Features.AuthModule.Commands.ConfirmChangePhone;
 using Fayora.Application.Features.AuthModule.Commands.LoginWithApple;
 using Fayora.Application.Features.AuthModule.Commands.LoginWithEmail;
 using Fayora.Application.Features.AuthModule.Commands.LoginWithFacebook;
@@ -27,6 +29,8 @@ using Fayora.Contracts.AuthModule.AppleLogin;
 using Fayora.Contracts.AuthModule.ChangeEmail;
 using Fayora.Contracts.AuthModule.ChangePassword;
 using Fayora.Contracts.AuthModule.ChangePhone;
+using Fayora.Contracts.AuthModule.ConfirmChangeEmail;
+using Fayora.Contracts.AuthModule.ConfirmChangePhone;
 using Fayora.Contracts.AuthModule.FacebookLogin;
 using Fayora.Contracts.AuthModule.GoogleLogin;
 using Fayora.Contracts.AuthModule.Login;
@@ -41,6 +45,7 @@ using Fayora.Contracts.AuthModule.VerifyDeleteEmailAccount;
 using Fayora.Contracts.AuthModule.VerifyDeletePhoneAccount;
 using Fayora.Domain.Enums.IdentityModule;
 using MediatR;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fayora.Api.Controllers;
@@ -48,26 +53,6 @@ namespace Fayora.Api.Controllers;
 [Route("api/[controller]")]
 public class AuthController(ISender sender, IMapper mapper) : ApiController
 {
-    #region 6. Refresh Token
-
-    [HttpPost("refresh-token")]
-    public async Task<IActionResult> RefreshToken(
-        [FromBody] RefreshTokenRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
-        CancellationToken cancellationToken)
-    {
-        var command = new RefreshTokenCommand(
-            request.RefreshToken,
-            deviceId);
-
-        var result = await sender.Send(command, cancellationToken);
-
-        return result.Match(
-            value => Ok(mapper.Map<RefreshTokenResponse>(value)),
-            Problem);
-    }
-
-    #endregion
 
     #region 1. Registration & Verification
 
@@ -403,6 +388,27 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
 
     #endregion
 
+    #region 6. Refresh Token
+
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken(
+        [FromBody] RefreshTokenRequest request,
+        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        CancellationToken cancellationToken)
+    {
+        var command = new RefreshTokenCommand(
+            request.RefreshToken,
+            deviceId);
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            value => Ok(mapper.Map<RefreshTokenResponse>(value)),
+            Problem);
+    }
+
+    #endregion
+
     #region 7. Account Management
 
     [HttpPost("account/delete/verify/email")]
@@ -524,6 +530,37 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
         return result.Match(
             _ => NoContent(),
             errors => Problem(errors)
+        );
+    }
+
+    [HttpPost("account/confirm-change-email")]
+    public async Task<IActionResult> ConfirmChangeEmail(
+        [FromBody] ConfirmChangeEmailRequest request,
+        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        CancellationToken cancellationToken)
+    {
+        var command = new ConfirmChangeEmailCommand(deviceId, request.NewEmail, request.Code); 
+
+        var result = await sender.Send(command, cancellationToken);
+        return result.Match(
+            value => Ok(mapper.Map<ConfirmChangeEmailResponse>(value)),
+            Problem
+        );
+    }
+
+    [HttpPost("account/confirm-change-phone")]
+    public async Task<IActionResult> ConfirmChangePhone(
+        [FromBody] ConfirmChangePhoneRequest request,
+        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        CancellationToken cancellationToken)
+    {
+        var command = new ConfirmChangePhoneCommand(deviceId, request.NewPhoneNumber, request.Code);
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            value => Ok(mapper.Map<ConfirmChangePhoneResponse>(value)),
+            Problem
         );
     }
 
