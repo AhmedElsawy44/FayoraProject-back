@@ -98,4 +98,29 @@ public static class AuthErrors
         code: "Authentication.PhoneNumberAlreadyExists",
         description: "A user with this phone number already exists."
     );
+
+    public static readonly Error EmailIsSameAsCurrent = Error.Validation(
+        code: "Authentication.EmailIsSameAsCurrent",
+        description: "The new email is the same as the current email."
+    );
+
+    public static readonly Error PhoneIsSameAsCurrent = Error.Validation(
+        code: "Authentication.PhoneIsSameAsCurrent",
+        description: "The new phone number is the same as the current phone number."
+    );
+
+    public static readonly Error InvalidGender = Error.Validation(
+        code: "Authentication.InvalidGender",
+        description: "Invalid gender"
+    );
+
+    public static readonly Error InvalidLanguage = Error.Validation(
+        code: "Authentication.InvalidLanguage",
+        description: "Invalid language."
+    );
+
+    public static readonly Error InvalidLanguageLevel = Error.Validation(
+        code: "Authentication.InvalidLanguageLevel",
+        description: "Invalid language proficiency level. It should be between 0 and 1."
+    );
 }

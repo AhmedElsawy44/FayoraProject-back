@@ -12,7 +12,7 @@ public class VerificationCode : BaseEntity<int>
     public Guid UserId { get; init; }
     public string Target { get; init; } = string.Empty;
     public string CodeHash { get; init; } = string.Empty;
-    public CodePurpose Purpose { get; init; } = CodePurpose.Registration;
+    public CodePurpose Purpose { get; init; } = CodePurpose.VerifyAccount;
     public DateTimeOffset ExpiresAt { get; init; } = DateTimeOffset.UtcNow.Add(DefaultExpiration);
     public DateTimeOffset? RevokedAt { get; private set; } = null;
     public int AttemptCount { get; private set; } = 0;

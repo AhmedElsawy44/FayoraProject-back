@@ -6,6 +6,8 @@ using MediatR;
 namespace Fayora.Application.Features.AuthModule.Commands.RegisterWithPhone;
 
 public record RegisterWithPhoneCommand(
+    string FirstName,
+    string LastName,
     string PhoneNumber,
     string Password,
     CodeDeliveryMethod DeliveryMethod,

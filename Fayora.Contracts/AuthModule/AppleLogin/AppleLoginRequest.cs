@@ -2,6 +2,8 @@
 
 public record AppleLoginRequest(
     string IdToken,
+    string FirstName,
+    string LastName,
     string FcmToken,
     string? SimCountryIsoCode,
     string TimeZone,

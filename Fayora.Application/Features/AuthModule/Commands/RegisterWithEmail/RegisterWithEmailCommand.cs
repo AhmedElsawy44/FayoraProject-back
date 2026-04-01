@@ -5,6 +5,8 @@ using MediatR;
 namespace Fayora.Application.Features.AuthModule.Commands.RegisterWithEmail;
 
 public record RegisterWithEmailCommand(
+    string FirstName,
+    string LastName,
     string Email,
     string Password,
     string DeviceId

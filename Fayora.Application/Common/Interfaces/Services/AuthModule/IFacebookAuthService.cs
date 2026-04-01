@@ -4,7 +4,7 @@
     public record FacebookUserInfo(
         string Id,
         string? Email,
-        string? Name,
+        string Name,
         string? PictureUrl
     );
 

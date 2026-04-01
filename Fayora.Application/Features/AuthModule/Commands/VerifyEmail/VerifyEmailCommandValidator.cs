@@ -24,8 +24,7 @@ public class VerifyEmailCommandValidator : AbstractValidator<VerifyEmailCommand>
             .MaximumLength(500).WithMessage("FCM Token must not exceed 500 characters.");
 
         RuleFor(x => x.DeviceLanguage)
-            .NotEmpty().WithMessage("Device language is required.")
-            .Length(2).WithMessage("Device language should be a 2-letter ISO code (e.g., 'en', 'ar').");
+            .IsInEnum().WithMessage("Invalid device language selection.");
 
         RuleFor(x => x.TimeZone)
             .NotEmpty().WithMessage("Time zone is required.")
