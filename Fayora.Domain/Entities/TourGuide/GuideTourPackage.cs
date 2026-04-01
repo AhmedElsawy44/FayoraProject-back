@@ -1,4 +1,5 @@
 ﻿using Fayora.Domain.Common.Entity;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 
@@ -59,32 +60,27 @@ namespace Fayora.Domain.Entities.TourGuide
         private GuideTourPackage() { }
 
 
-        public static GuideTourPackage Create(
-            Guid guideId,
-            string title,
-            string description,
-            int durationHours,
-            GeoPoint meetingPoint,
-            TransportType transportType,
-            int maxCapacity,
-            decimal pricePerPerson,
-            string? mainImageUrl = null)
+
+        public static Result<GuideTourPackage> Create(
+           Guid guideId, string title, string description,
+           int durationHours, GeoPoint meetingPoint,
+           TransportType transportType, int maxCapacity,
+           decimal pricePerPerson, string? mainImageUrl = null)
         {
             if (string.IsNullOrWhiteSpace(title))
-                throw new InvalidOperationException("Title cannot be empty.");
+                return Error.Validation("Package.EmptyTitle", "Title cannot be empty.");
 
             if (durationHours <= 0)
-                throw new InvalidOperationException("Duration must be greater than zero.");
+                return Error.Validation("Package.InvalidDuration", "Duration must be greater than zero.");
 
             if (pricePerPerson <= 0)
-                throw new InvalidOperationException("Price must be greater than zero.");
+                return Error.Validation("Package.InvalidPrice", "Price must be greater than zero.");
 
             if (maxCapacity <= 0)
-                throw new InvalidOperationException("Max capacity must be greater than zero.");
+                return Error.Validation("Package.InvalidCapacity", "Max capacity must be greater than zero.");
 
             return new GuideTourPackage(guideId, title, description, durationHours,
-                meetingPoint, transportType, maxCapacity,
-                pricePerPerson, mainImageUrl);
+                meetingPoint, transportType, maxCapacity, pricePerPerson, mainImageUrl);
         }
 
         public void AddImage(string imageUrl)
@@ -108,32 +104,36 @@ namespace Fayora.Domain.Entities.TourGuide
             Updated();
         }
 
-        public void IncrementBookingsCount()
+        public Result<Success> IncrementBookingsCount()
         {
             if (BookingsCount >= MaxCapacity)
-                throw new InvalidOperationException("Package is fully booked.");
+                return Error.Conflict("Package.FullyBooked", "Package is fully booked.");
             BookingsCount++;
+            return Result.Success;
         }
 
-        public void DecrementBookingsCount()
+        public Result<Success> DecrementBookingsCount()
         {
             if (BookingsCount <= 0)
-                throw new InvalidOperationException("Bookings count cannot be negative.");
+                return Error.Validation("Package.InvalidCount", "Bookings count cannot be negative.");
             BookingsCount--;
+            return Result.Success;
         }
 
-        public void Activate()
+        public Result<Success> Activate()
         {
             if (IsActive)
-                throw new InvalidOperationException("Package is already active.");
+                return Error.Conflict("Package.AlreadyActive", "Package is already active.");
             IsActive = true;
+            return Result.Success;
         }
 
-        public void Deactivate()
+        public Result<Success> Deactivate()
         {
             if (!IsActive)
-                throw new InvalidOperationException("Package is already inactive.");
+                return Error.Conflict("Package.AlreadyInactive", "Package is already inactive.");
             IsActive = false;
+            return Result.Success;
         }
         public void IncrementViews() => Views++;
 
@@ -143,13 +143,13 @@ namespace Fayora.Domain.Entities.TourGuide
             Updated();
         }
 
-        public void UpdateMainImage(string imageUrl)
+        public Result<Success> UpdateMainImage(string imageUrl)
         {
             if (string.IsNullOrWhiteSpace(imageUrl))
-                throw new InvalidOperationException("Image URL cannot be empty.");
-
+                return Error.Validation("Package.InvalidImage", "Image URL cannot be empty.");
             MainImageUrl = imageUrl;
             Updated();
+            return Result.Success;
         }
 
         public void RemoveImage(Guid imageId)

@@ -1,4 +1,5 @@
 ﻿using Fayora.Domain.Common.Entity;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 
@@ -60,13 +61,13 @@ namespace Fayora.Domain.Entities.TourGuide
 
         // Factory Methods
 
-        public static TourGuide Create(Guid userId, PricingUnit pricingUnit, decimal baseRate, string licenseNumber, DateOnly licenseExpiryDate, string currencyCode = "EGP")
+        public static Result<TourGuide> Create(Guid userId, PricingUnit pricingUnit, decimal baseRate, string licenseNumber, DateOnly licenseExpiryDate, string currencyCode = "EGP")
         {
             if (baseRate <= 0)
-                throw new InvalidOperationException("Base rate must be greater than zero.");
+                return Error.Validation("TourGuide.InvalidBaseRate", "Base rate must be greater than zero.");
 
             if (licenseExpiryDate < DateOnly.FromDateTime(DateTime.UtcNow))
-                throw new InvalidOperationException("License is already expired.");
+                return Error.Validation("TourGuide.ExpiredLicense", "License is already expired.");
 
             return new TourGuide(userId, pricingUnit, baseRate, licenseNumber, licenseExpiryDate, currencyCode);
         }
@@ -102,13 +103,13 @@ namespace Fayora.Domain.Entities.TourGuide
         }
 
 
-        public void SetAvailability(bool isAvailable)
+        public Result<Success> SetAvailability(bool isAvailable)
         {
             if (Status != GuideStatus.Active)
-                throw new InvalidOperationException("Guide must be active to change availability.");
-
+                return Error.Validation("TourGuide.NotActive", "Guide must be active to change availability.");
             IsAvailableForBooking = isAvailable;
             Updated();
+            return Result.Success;
         }
 
 
@@ -121,15 +122,14 @@ namespace Fayora.Domain.Entities.TourGuide
         }
 
 
-        public void UpdateStatus(GuideStatus newStatus)
+        public Result<Success> UpdateStatus(GuideStatus newStatus)
         {
             if (newStatus == GuideStatus.Pending)
-                throw new InvalidOperationException("Cannot set status back to Pending.");
-
+                return Error.Validation("TourGuide.InvalidStatus", "Cannot set status back to Pending.");
             Status = newStatus;
-
             IsAvailableForBooking = newStatus == GuideStatus.Active;
             Updated();
+            return Result.Success;
         }
 
 
@@ -145,25 +145,25 @@ namespace Fayora.Domain.Entities.TourGuide
         }
 
 
-        public void UpdateBaseRate(decimal newRate, PricingUnit pricingUnit)
+        public Result<Success> UpdateBaseRate(decimal newRate, PricingUnit pricingUnit)
         {
             if (newRate <= 0)
-                throw new InvalidOperationException("Base rate must be greater than zero.");
-
+                return Error.Validation("TourGuide.InvalidBaseRate", "Base rate must be greater than zero.");
             BaseRate = newRate;
             PricingUnit = pricingUnit;
             Updated();
+            return Result.Success;
         }
 
         public bool IsLicenseValid() => LicenseExpiryDate >= DateOnly.FromDateTime(DateTime.UtcNow);
 
 
-        public void AddCity(int cityId)
+        public Result<Success> AddCity(int cityId)
         {
             if (_guideCities.Any(c => c.CityId == cityId))
-                throw new InvalidOperationException("City already added.");
-
+                return Error.Conflict("TourGuide.CityAlreadyAdded", "City already added.");
             _guideCities.Add(new GuideCity(Id, cityId));
+            return Result.Success;
         }
 
         public void RemoveCity(int cityId)
