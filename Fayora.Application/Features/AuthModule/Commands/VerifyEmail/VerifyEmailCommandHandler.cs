@@ -23,6 +23,11 @@ public class VerifyEmailCommandHandler(
 {
     public async Task<Result<VerifyEmailResult>> Handle(VerifyEmailCommand request, CancellationToken cancellationToken)
     {
+        Language? languageEnum = null;
+        if (!Enum.TryParse<Language>(request.DeviceLanguage, true, out var parsedLanguage))
+            return AuthErrors.InvalidLanguage;
+        languageEnum = parsedLanguage;
+
         var user = await userRepository.GetUserByEmailAsync(
             request.Email,
             new UserQueryOptions { IsReadOnly = false, IncludeRoles = true },
@@ -51,14 +56,14 @@ public class VerifyEmailCommandHandler(
         }
 
         user.VerifyEmail();
-        user.UpdateRegionalPreferences(request.SimCountryIsoCode, request.DeviceLanguage, request.TimeZone);
+        user.UpdateRegionalPreferences(request.SimCountryIsoCode, languageEnum.Value, request.TimeZone);
         user.Login();
 
         await userDeviceManager.UpsertDeviceAsync(
             user.Id,
             request.DeviceId,
             request.FcmToken,
-            request.DeviceLanguage,
+            languageEnum.Value,
             cancellationToken);
 
         Guid? ownerId = null;

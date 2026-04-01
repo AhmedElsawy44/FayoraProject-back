@@ -1,4 +1,6 @@
-﻿using Fayora.Domain.Common.Results;
+﻿using Fayora.Contracts.AuthModule.UpdateAccount;
+using Fayora.Domain.Common.Results;
+using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.Enums.IdentityModule;
 using MediatR;
 
@@ -8,9 +10,10 @@ public record UpdateAccountCommand(
     string FirstName,
     string LastName,
     DateOnly? BirthDate,
-    Gender? Gender,
+    string? Gender,
     string? NationalityCode,
     string? ProfileImageUrl,
     string? Description,
     string? PreferredLanguage,
+    List<UserLanguageDto> UserLanguages,
     string? TimeZone) : IRequest<Result<Success>>;

@@ -108,4 +108,19 @@ public static class AuthErrors
         code: "Authentication.PhoneIsSameAsCurrent",
         description: "The new phone number is the same as the current phone number."
     );
+
+    public static readonly Error InvalidGender = Error.Validation(
+        code: "Authentication.InvalidGender",
+        description: "Invalid gender"
+    );
+
+    public static readonly Error InvalidLanguage = Error.Validation(
+        code: "Authentication.InvalidLanguage",
+        description: "Invalid language."
+    );
+
+    public static readonly Error InvalidLanguageLevel = Error.Validation(
+        code: "Authentication.InvalidLanguageLevel",
+        description: "Invalid language proficiency level. It should be between 0 and 1."
+    );
 }

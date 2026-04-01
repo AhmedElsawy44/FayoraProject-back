@@ -24,6 +24,11 @@ public class LoginWithFacebookCommandHandler(
 {
     public async Task<Result<LoginWithFacebookResult>> Handle(LoginWithFacebookCommand request, CancellationToken cancellationToken)
     {
+        Language? languageEnum = null;
+        if (!Enum.TryParse<Language>(request.DeviceLanguage, true, out var parsedLanguage))
+            return AuthErrors.InvalidLanguage;
+        languageEnum = parsedLanguage;
+
         var facebookUser = await facebookAuthService.GetUserInfoAsync(request.AccessToken, cancellationToken);
         if (facebookUser is null)
             return AuthErrors.InvalidCredentials;
@@ -54,7 +59,7 @@ public class LoginWithFacebookCommandHandler(
 
             user.UpdateRegionalPreferences(
                 request.SimCountryIsoCode,
-                request.DeviceLanguage,
+                languageEnum.Value,
                 request.TimeZone);
 
             userRepository.AddUser(user);
@@ -81,7 +86,7 @@ public class LoginWithFacebookCommandHandler(
             user.Id,
             request.DeviceId,
             request.FcmToken,
-            request.DeviceLanguage,
+            languageEnum.Value,
             cancellationToken);
 
         Guid? ownerId = null;

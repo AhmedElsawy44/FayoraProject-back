@@ -23,6 +23,11 @@ public class VerifyPhoneCommandHandler(
 {
     public async Task<Result<VerifyPhoneResult>> Handle(VerifyPhoneCommand request, CancellationToken cancellationToken)
     {
+        Language? languageEnum = null;
+        if (!Enum.TryParse<Language>(request.DeviceLanguage, true, out var parsedLanguage))
+            return AuthErrors.InvalidLanguage;
+        languageEnum = parsedLanguage;
+
         var user = await userRepository.GetUserByPhoneAsync(
             request.PhoneNumber,
             new UserQueryOptions { IsReadOnly = false, IncludeRoles = true },
@@ -52,14 +57,14 @@ public class VerifyPhoneCommandHandler(
         }
 
         user.VerifyPhone();
-        user.UpdateRegionalPreferences(request.SimCountryIsoCode, request.DeviceLanguage, request.TimeZone);
+        user.UpdateRegionalPreferences(request.SimCountryIsoCode, languageEnum.Value, request.TimeZone);
         user.Login();
 
         await userDeviceManager.UpsertDeviceAsync(
             user.Id,
             request.DeviceId,
             request.FcmToken,
-            request.DeviceLanguage,
+            languageEnum.Value,
             cancellationToken);
 
         Guid? ownerId = null;

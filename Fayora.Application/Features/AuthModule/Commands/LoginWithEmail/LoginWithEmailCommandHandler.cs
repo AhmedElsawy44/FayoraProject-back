@@ -3,6 +3,7 @@ using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.IdentityModule;
 using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
 
@@ -20,6 +21,11 @@ namespace Fayora.Application.Features.AuthModule.Commands.LoginWithEmail
     {
         public async Task<Result<LoginWithEmailResult>> Handle(LoginWithEmailCommand request, CancellationToken cancellationToken)
         {
+            Language? languageEnum = null;
+            if (!Enum.TryParse<Language>(request.DeviceLanguage, true, out var parsedLanguage))
+                return AuthErrors.InvalidLanguage;
+            languageEnum = parsedLanguage;
+
             var user = await userRepository.GetUserByEmailAsync(request.Email, new UserQueryOptions { IsReadOnly = false, IncludeRoles = true }, cancellationToken);
 
             if (user is null) return AuthErrors.InvalidCredentials;
@@ -37,7 +43,7 @@ namespace Fayora.Application.Features.AuthModule.Commands.LoginWithEmail
 
             user.Login();
 
-            await userDeviceManager.UpsertDeviceAsync(user.Id, request.DeviceId, request.FcmToken, request.DeviceLanguage, cancellationToken);
+            await userDeviceManager.UpsertDeviceAsync(user.Id, request.DeviceId, request.FcmToken, languageEnum.Value, cancellationToken);
 
             Guid? ownerId = null;
             Guid? touristId = null;

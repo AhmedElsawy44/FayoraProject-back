@@ -24,6 +24,11 @@ public class LoginWithGoogleCommandHandler(
 {
     public async Task<Result<LoginWithGoogleResult>> Handle(LoginWithGoogleCommand request, CancellationToken cancellationToken)
     {
+        Language? languageEnum = null;
+        if (!Enum.TryParse<Language>(request.DeviceLanguage, true, out var parsedLanguage))
+            return AuthErrors.InvalidLanguage;
+        languageEnum = parsedLanguage;
+
         var googleUser = await googleAuthService.GetUserInfoAsync(request.IdToken, cancellationToken);
         if (googleUser is null) return AuthErrors.InvalidCredentials;
 
@@ -56,8 +61,8 @@ public class LoginWithGoogleCommandHandler(
 
                 user.UpdateRegionalPreferences(
                     request.SimCountryIsoCode,
-                    request.TimeZone,
-                    request.DeviceLanguage);
+                    languageEnum.Value,
+                    request.TimeZone);
 
                 userRepository.AddUser(user);
             }
@@ -85,7 +90,7 @@ public class LoginWithGoogleCommandHandler(
             user.Id,
             request.DeviceId,
             request.FcmToken,
-            request.DeviceLanguage,
+            languageEnum.Value,
             cancellationToken);
 
         Guid? ownerId = null;

@@ -21,8 +21,8 @@ public class UpdateAccountCommandValidator : AbstractValidator<UpdateAccountComm
             .When(x => x.BirthDate.HasValue);
 
         RuleFor(x => x.Gender)
-            .IsInEnum().WithMessage("Invalid gender selection.")
-            .When(x => x.Gender.HasValue);
+            .MaximumLength(20).WithMessage("Gender cannot exceed 20 characters.")
+            .When(x => x.Gender != null);
 
         RuleFor(x => x.NationalityCode)
             .Length(2, 3).WithMessage("Nationality code must be 2 or 3 characters.")
@@ -37,8 +37,7 @@ public class UpdateAccountCommandValidator : AbstractValidator<UpdateAccountComm
             .When(x => x.Description != null);
 
         RuleFor(x => x.PreferredLanguage)
-            .Length(2).WithMessage("Preferred language must be a 2-character ISO code (e.g., 'en', 'ar').")
-            .When(x => x.PreferredLanguage != null);
+            .IsInEnum().WithMessage("Invalid language selection.");
 
         RuleFor(x => x.TimeZone)
             .MaximumLength(100).WithMessage("Time zone string is too long.")

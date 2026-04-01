@@ -1,7 +1,9 @@
 ﻿using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Text.Json;
 
 namespace Fayora.Infrastructure.Persistence.Configurations.IdentityModule;
 
@@ -45,7 +47,7 @@ internal class UserConfigurations : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.SimCountryIsoCode).HasMaxLength(10);
 
-        builder.Property(u => u.PreferredLanguage).HasColumnType("NVARCHAR(20)");
+        builder.Property(u => u.PreferredLanguage).HasConversion<int>();
 
         builder.Property(u => u.TimeZone).HasMaxLength(50);
 
@@ -60,6 +62,28 @@ internal class UserConfigurations : IEntityTypeConfiguration<User>
                 value => value != null ? Email.Create(value).Value : null)
             .HasColumnName("Email")
             .HasMaxLength(255);
+
+        builder.Property(u => u.UserLanguageProficiency)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v ?? new List<UserLanguageProficiency>(), (JsonSerializerOptions?)null),
+                v => string.IsNullOrWhiteSpace(v)
+                    ? new List<UserLanguageProficiency>()
+                    : JsonSerializer.Deserialize<List<UserLanguageProficiency>>(v, (JsonSerializerOptions?)null) ?? new List<UserLanguageProficiency>()
+            )
+            .Metadata.SetValueComparer(new ValueComparer<List<UserLanguageProficiency>>(
+                (c1, c2) =>
+                    (c1 ?? new List<UserLanguageProficiency>())
+                    .SequenceEqual(c2 ?? new List<UserLanguageProficiency>()),
+
+                c =>
+                    (c ?? new List<UserLanguageProficiency>())
+                    .Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+
+                c => (c ?? new List<UserLanguageProficiency>()).ToList()
+            ));
+
+
+        builder.Property(x => x.ProfileImageUrl).HasColumnType("NVARCHAR(MAX)");
 
 
         builder.Property<string>("_passwordHash")

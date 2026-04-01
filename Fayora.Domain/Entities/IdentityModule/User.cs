@@ -33,7 +33,9 @@ public class User : AuditableEntity<Guid>
     public decimal CurrentBalance { get; private set; } = 0;
     public string? NationalityCode { get; private set; }
     public string? SimCountryIsoCode { get; private set; }
-    public string? PreferredLanguage { get; private set; } = string.Empty;
+    public Language? PreferredLanguage { get; private set; } = Language.English;
+    public Language SpokenLanguages { get; private set; }
+    public List<UserLanguageProficiency> UserLanguageProficiency { get; private set; }
     public string? TimeZone { get; private set; } = string.Empty;
     public string? ProfileImageUrl { get; private set; }
     public string? Description { get; private set; }
@@ -51,7 +53,8 @@ public class User : AuditableEntity<Guid>
     private readonly List<UserRole> _roles = [];
     public IReadOnlyCollection<UserRole> Roles => _roles.AsReadOnly();
 
-    public List<string> GetRoleNames() => Roles.Select(r => r.Role.Name).ToList();
+    public List<string> GetRoleNames() => [.. Roles.Select(r => r.Role.Name)];
+
 
     private string _passwordHash = string.Empty;
 
@@ -87,7 +90,7 @@ public class User : AuditableEntity<Guid>
     }
 
     public static Result<User> CreateWithPhone(
-        string fristName,
+        string firstName,
         string lastName,
         string phoneNumber,
         string password,
@@ -99,7 +102,7 @@ public class User : AuditableEntity<Guid>
         return new User
         {
             Id = Guid.CreateVersion7(),
-            FirstName = fristName,
+            FirstName = firstName,
             LastName = lastName,
             PrimaryEmail = null,
             PhoneNumber = phoneNumber,
@@ -163,7 +166,7 @@ public class User : AuditableEntity<Guid>
     }
 
 
-    public void UpdateRegionalPreferences(string? simCountryIso, string? preferredLanguage, string? timeZone)
+    public void UpdateRegionalPreferences(string? simCountryIso, Language? preferredLanguage, string? timeZone)
     {
         SimCountryIsoCode = simCountryIso ?? SimCountryIsoCode;
         PreferredLanguage = preferredLanguage ?? PreferredLanguage;
@@ -276,7 +279,7 @@ public class User : AuditableEntity<Guid>
     }
 
 
-    public void UpdateProfile(string firstName, string lastName, DateOnly? birthDate, Gender? gender, string? nationalityCode, string? profileImageUrl, string? description, string? preferredLanguage, string? timeZone)
+    public void UpdateProfile(string firstName, string lastName, DateOnly? birthDate, Gender? gender, string? nationalityCode, string? profileImageUrl, string? description, Language? preferredLanguage, List<UserLanguageProficiency> userLanguages, string? timeZone)
     {
         FirstName = firstName;
         LastName = lastName;
@@ -288,6 +291,11 @@ public class User : AuditableEntity<Guid>
 
         Description = description;
         PreferredLanguage = preferredLanguage;
+        SpokenLanguages = userLanguages.Count != 0
+            ? userLanguages.Select(x => x.Language)
+                    .Aggregate((a, b) => a | b)
+            : Language.None;
+        UserLanguageProficiency = userLanguages;
         TimeZone = timeZone;
         IsProfileComplete = CheckIfProfileComplete();
 
@@ -309,7 +317,7 @@ public class User : AuditableEntity<Guid>
     {
         return !string.IsNullOrWhiteSpace(FirstName)
                && !string.IsNullOrWhiteSpace(LastName)
-               && !string.IsNullOrWhiteSpace(PreferredLanguage)
+               && PreferredLanguage.HasValue
                && BirthDate.HasValue
                && Gender.HasValue
                && (PrimaryEmail != null || !string.IsNullOrWhiteSpace(PhoneNumber))

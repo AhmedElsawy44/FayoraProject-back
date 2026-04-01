@@ -22,6 +22,11 @@ public class LoginWithAppleCommandHandler(
 {
     public async Task<Result<LoginWithAppleResult>> Handle(LoginWithAppleCommand request, CancellationToken cancellationToken)
     {
+        Language? languageEnum = null;
+        if (!Enum.TryParse<Language>(request.DeviceLanguage, true, out var parsedLanguage))
+            return AuthErrors.InvalidLanguage;
+        languageEnum = parsedLanguage;
+
         var appleUser = await appleAuthService.GetUserInfoAsync(request.IdToken, cancellationToken);
         if (appleUser == null)
             return AuthErrors.InvalidCredentials;
@@ -72,7 +77,7 @@ public class LoginWithAppleCommandHandler(
             user.Id,
             request.DeviceId,
             request.FcmToken,
-            request.DeviceLanguage,
+            languageEnum.Value,
             cancellationToken);
 
         Guid? ownerId = null;

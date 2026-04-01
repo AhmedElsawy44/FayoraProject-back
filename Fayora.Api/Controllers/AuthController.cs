@@ -443,27 +443,19 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
 
     [HttpPut("account/profile")]
     public async Task<IActionResult> UpdateAccountProfile(
-        [FromBody] UpdateAccountRequest request,
-        CancellationToken cancellationToken)
+    [FromBody] UpdateAccountRequest request,
+    CancellationToken cancellationToken)
     {
-        Gender? genderEnum = null;
-        if (!string.IsNullOrWhiteSpace(request.Gender))
-        {
-            if (Enum.TryParse<Gender>(request.Gender, true, out var parsedGender))
-                genderEnum = parsedGender;
-            else
-                return BadRequest("Invalid Gender value.");
-        }
-
         var command = new UpdateAccountCommand(
             request.FirstName,
             request.LastName,
             request.BirthDate,
-            genderEnum,
+            request.Gender,
             request.NationalityCode,
             request.ProfileImageUrl,
             request.Description,
             request.PreferredLanguage,
+            request.UserLanguages,
             request.TimeZone
         );
 
@@ -471,7 +463,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
 
         return result.Match(
             _ => NoContent(),
-            Problem
+            errors => Problem(errors)
         );
     }
 
