@@ -25,6 +25,7 @@ using Fayora.Application.Features.AuthModule.Commands.VerifyEmail;
 using Fayora.Application.Features.AuthModule.Commands.VerifyPhone;
 using Fayora.Application.Features.AuthModule.Commands.VerifyResetPasswordEmailCode;
 using Fayora.Application.Features.AuthModule.Commands.VerifyResetPasswordPhoneCode;
+using Fayora.Application.Features.AuthModule.Queries.GetUser;
 using Fayora.Contracts.AuthModule.AppleLogin;
 using Fayora.Contracts.AuthModule.ChangeEmail;
 using Fayora.Contracts.AuthModule.ChangePassword;
@@ -32,6 +33,7 @@ using Fayora.Contracts.AuthModule.ChangePhone;
 using Fayora.Contracts.AuthModule.ConfirmChangeEmail;
 using Fayora.Contracts.AuthModule.ConfirmChangePhone;
 using Fayora.Contracts.AuthModule.FacebookLogin;
+using Fayora.Contracts.AuthModule.GetUser;
 using Fayora.Contracts.AuthModule.GoogleLogin;
 using Fayora.Contracts.AuthModule.Login;
 using Fayora.Contracts.AuthModule.RefreshToken;
@@ -410,6 +412,19 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     #endregion
 
     #region 7. Account Management
+
+    [HttpGet("account/profile")]
+    public async Task<IActionResult> GetAccountProfile(CancellationToken cancellationToken)
+    {
+        var query = new GetUserCommand();
+
+        var result = await sender.Send(query, cancellationToken);
+
+        return result.Match(
+            value => Ok(mapper.Map<GetUserResponse>(value)),
+            Problem
+        );
+    }
 
     [HttpPost("account/delete/verify/email")]
     public async Task<IActionResult> VerifyDeleteEmailAccount(

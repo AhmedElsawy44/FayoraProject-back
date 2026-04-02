@@ -19,8 +19,4 @@
     <ProjectReference Include="..\Fayora.Domain\Fayora.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\AuthModule\Queries\" />
-  </ItemGroup>
-
 </Project>
