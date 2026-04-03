@@ -33,4 +33,24 @@ public static class TourGuideErrors
         "TourGuide.GuideNotFound",
         "The specified tour guide was not found."
     );
+
+    public static readonly Error PackageNotFound = Error.NotFound(
+        "TourGuide.PackageNotFound",
+        "The specified tour guide package was not found."
+    );
+
+    public static readonly Error UnauthorizedPackageModification = Error.Unauthorized(
+        "TourGuide.UnauthorizedPackageModification",
+        "The specified tour guide package was not authorized to be modified by that tour guide."
+    );
+
+    public static Error PackageIsAlreadyDeactivated = Error.Validation(
+        "TourGuide.PackageIsAlreadyDeactivated",
+        "The specified tour guide package was already deactivated."
+    );
+
+    public static Error PackageIsAlreadyActivated = Error.Validation(
+        "TourGuide.PackageIsAlreadyActivated",
+        "The specified tour guide package was already activated."
+    );
 }

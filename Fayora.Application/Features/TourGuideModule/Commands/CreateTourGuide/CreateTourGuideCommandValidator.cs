@@ -6,7 +6,6 @@ public class CreateTourGuideCommandValidator : AbstractValidator<CreateTourGuide
 {
     public CreateTourGuideCommandValidator()
     {
-        // 1. Device ID
         RuleFor(x => x.DeviceId)
             .NotEmpty().WithMessage("Device ID is required.");
 
@@ -16,12 +15,12 @@ public class CreateTourGuideCommandValidator : AbstractValidator<CreateTourGuide
             .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _))
             .WithMessage("Profile picture must be a valid URL.");
 
-        // 3. Description (يفضل أن يكون طويلاً نسبياً للمرشد السياحي)
+
         RuleFor(x => x.Description)
             .NotEmpty().WithMessage("Description is required.")
             .MinimumLength(50).WithMessage("Description must be at least 50 characters long to provide a good profile.");
 
-        // 4. Pricing & Rates
+
         RuleFor(x => x.PricingUnit)
             .NotEmpty().WithMessage("Pricing unit is required.");
 
@@ -32,12 +31,10 @@ public class CreateTourGuideCommandValidator : AbstractValidator<CreateTourGuide
             .NotEmpty().WithMessage("Currency code is required.")
             .Length(3).WithMessage("Currency code must be exactly 3 characters (e.g., EGP, USD).");
 
-        // 5. Experience
         RuleFor(x => x.YearsOfExperience)
             .GreaterThanOrEqualTo(0).WithMessage("Years of experience cannot be negative.")
             .LessThanOrEqualTo(60).WithMessage("Years of experience seems invalid.");
 
-        // 6. License Verification
         RuleFor(x => x.LicenseNumber)
             .NotEmpty().WithMessage("License number is required.");
 
@@ -45,12 +42,10 @@ public class CreateTourGuideCommandValidator : AbstractValidator<CreateTourGuide
             .GreaterThan(DateOnly.FromDateTime(DateTime.UtcNow))
             .WithMessage("License expiry date must be in the future.");
 
-        // 7. Location (Cities)
         RuleFor(x => x.CityIds)
             .NotEmpty().WithMessage("At least one city must be selected.")
             .Must(cities => cities != null && cities.Count > 0).WithMessage("City list cannot be empty.");
 
-        // 8. Languages
         RuleFor(x => x.PreferredLanguage)
             .NotEmpty().WithMessage("Preferred language is required.");
 

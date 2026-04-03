@@ -31,6 +31,8 @@ namespace Fayora.Domain.Entities.TourGuide
         private readonly List<GuideTourPackageImage> _images = [];
         public IReadOnlyCollection<GuideTourPackageImage> Images => _images.AsReadOnly();
 
+        public IReadOnlyCollection<string> ImageURLs => _images.Select(i => i.ImageUrl).ToList().AsReadOnly();
+
         private readonly List<string> _includedItems = [];
         public IReadOnlyCollection<string> IncludedItems => _includedItems.AsReadOnly();
 
@@ -114,18 +116,16 @@ namespace Fayora.Domain.Entities.TourGuide
             return Result.Success;
         }
 
-        public Result<Success> Activate()
+        public void Activate()
         {
             IsActive = true;
             Updated();
-            return Result.Success;
         }
 
-        public Result<Success> Deactivate()
+        public void Deactivate()
         {
             IsActive = false;
             Updated();
-            return Result.Success;
         }
 
         public void UpdateMeetingPoint(GeoPoint newMeetingPoint)

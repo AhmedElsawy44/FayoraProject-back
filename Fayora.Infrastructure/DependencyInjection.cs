@@ -37,6 +37,7 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
 
+        // Auth Module
         services.AddScoped<IDeviceRepository, DeviceRepository>();
         services.AddScoped<IUserTokenRepository, UserTokenRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
@@ -44,7 +45,11 @@ public static class DependencyInjection
         services.AddScoped<IUserIdentityRepository, UserIdentityRepository>();
         services.AddScoped<IVerificationRepository, VerificationRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
+
+        // Tour Guide Module
         services.AddScoped<ITourGuideRepository, TourGuideRepository>();
+        services.AddScoped<ITourGuidePackageRepository, TourGuidePackageRepository>();
+
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
 
 

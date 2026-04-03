@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <Folder Include="Features\AuthModule\Queries\" />
-    <Folder Include="Features\TourGuideModule\Queries\" />
   </ItemGroup>
 
 </Project>

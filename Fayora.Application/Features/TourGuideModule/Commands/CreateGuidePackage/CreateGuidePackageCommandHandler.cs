@@ -57,7 +57,7 @@ public class CreateGuidePackageCommandHandler(
             foreach (var url in request.ImageURLs) package.AddImage(url);
         }
 
-        await tourGuidePackageRepository.AddPackageAsync(package, cancellationToken);
+        tourGuidePackageRepository.AddPackageAsync(package, cancellationToken);
         await unitOfWork.CommitChangesAsync(cancellationToken);
 
         return new CreateGuidePackageResult(package.Id);
