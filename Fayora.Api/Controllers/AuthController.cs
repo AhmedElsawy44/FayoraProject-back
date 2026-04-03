@@ -45,7 +45,6 @@ using Fayora.Contracts.AuthModule.VerifyDeleteEmailAccount;
 using Fayora.Contracts.AuthModule.VerifyDeletePhoneAccount;
 using Fayora.Domain.Enums.IdentityModule;
 using MediatR;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fayora.Api.Controllers;
@@ -531,7 +530,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
         [FromHeader(Name = "X-Device-Id")] string deviceId,
         CancellationToken cancellationToken)
     {
-        var command = new ConfirmChangeEmailCommand(deviceId, request.NewEmail, request.Code); 
+        var command = new ConfirmChangeEmailCommand(deviceId, request.NewEmail, request.Code);
 
         var result = await sender.Send(command, cancellationToken);
         return result.Match(

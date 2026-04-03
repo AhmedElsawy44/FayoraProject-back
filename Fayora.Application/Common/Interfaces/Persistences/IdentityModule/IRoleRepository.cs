@@ -1,6 +1,6 @@
 ﻿using Fayora.Domain.Entities.IdentityModule;
 
-namespace Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+namespace Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 
 public interface IRoleRepository
 {

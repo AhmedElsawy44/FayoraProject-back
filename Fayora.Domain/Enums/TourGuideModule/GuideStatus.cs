@@ -1,10 +1,9 @@
-﻿namespace Fayora.Domain.Enums.TourGuideModule
+﻿namespace Fayora.Domain.Enums.TourGuideModule;
+
+public enum GuideStatus
 {
-    public enum GuideStatus
-    {
-        Pending,
-        Active,
-        Suspended,
-        Banned
-    }
+    Pending,
+    Active,
+    Suspended,
+    Banned
 }

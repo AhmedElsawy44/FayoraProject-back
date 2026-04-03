@@ -1,7 +1,5 @@
 ﻿using Fayora.Contracts.AuthModule.UpdateAccount;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Entities.IdentityModule;
-using Fayora.Domain.Enums.IdentityModule;
 using MediatR;
 
 namespace Fayora.Application.Features.AuthModule.Commands.UpdateAccount;
