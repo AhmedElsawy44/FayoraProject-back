@@ -19,7 +19,7 @@ public class CreateGuidePackageCommandHandler(
     public async Task<Result<CreateGuidePackageResult>> Handle(CreateGuidePackageCommand request, CancellationToken cancellationToken)
     {
         if (Enum.TryParse<TourType>(request.TourType, true, out var tourType) == false) return TourGuideErrors.InvalidTourType;
-        if(Enum.TryParse<TransportType>(request.TransportType, true, out var transportType) == false) return TourGuideErrors.InvalidTransportType;
+        if (Enum.TryParse<TransportType>(request.TransportType, true, out var transportType) == false) return TourGuideErrors.InvalidTransportType;
 
         var tourGuideId = clientContextProvider.GetContext().TourGuideId;
         if (tourGuideId is null) return TourGuideErrors.GuidIdNotExist;
