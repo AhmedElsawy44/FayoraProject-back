@@ -21,7 +21,7 @@ namespace Fayora.Infrastructure.Persistence.Configurations.TourGuideModule
             builder.Property(x => x.Description)
                 .HasMaxLength(2000);
 
-            builder.Property(x => x.PricePerPerson)
+            builder.Property(x => x.AdultPrice)
                 .IsRequired()
                 .HasPrecision(18, 2);
 
