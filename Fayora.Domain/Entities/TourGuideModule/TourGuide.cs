@@ -24,7 +24,7 @@ public class TourGuide : AuditableEntity<Guid>
     public bool IsOnline { get; private set; }
     public int CompletedToursCount { get; private set; }
     public bool IsSuperGuide { get; private set; }
-    public int CancellationRate { get; private set; } // Percentage of tours cancelled by the guide
+    public decimal CancellationRate { get; private set; } // Percentage of tours cancelled by the guide
     public GeoPoint LastLocation { get; private set; } = new GeoPoint(0, 0);
     public DateTimeOffset? LastLocationUpdate { get; private set; }
     public TransportInfo? TransportInfo { get; private set; }

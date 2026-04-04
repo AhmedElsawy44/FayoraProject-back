@@ -17,16 +17,31 @@ public class TourGuideRepository(ApplicationDbContext context) : ITourGuideRepos
             .AnyAsync(g => g.Id == id, cancellationToken);
     }
 
-    public async Task<TourGuide?> GetGuideByIdAsync(Guid id, bool IsReadOnly, CancellationToken cancellationToken)
+    public async Task<TourGuide?> GetGuideByIdAsync(Guid id, ITourGuideRepository.GuideQueryOptions options, CancellationToken cancellationToken)
     {
-        IQueryable<TourGuide> query = context.TourGuides;
+        var query = context.TourGuides.AsQueryable();
 
-        if (IsReadOnly)
+        if (options is null)
+        {
+            return await query.FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
+        }
+
+        if(options.ReadOnly)
         {
             query = query.AsNoTracking();
         }
 
-        return await query
-            .FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
+        if (options.IncludeCities)
+        {
+            query = query.Include(g => g.GuideCities)
+                         .ThenInclude(gc => gc.City);
+        }
+
+        if (options.IncludeTourPackages)
+        {
+            query = query.Include(g => g.TourPackages);
+        }
+
+        return await query.FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
     }
 }

@@ -1,22 +1,26 @@
-﻿namespace Fayora.Domain.Entities.Shared
+﻿using Fayora.Domain.ValueObjects;
+
+namespace Fayora.Domain.Entities.Shared;
+
+public class City
 {
-    public class City
+    public int CityId { get; init; }
+    public string Name { get; init; }
+    public string CountryCode { get; init; }
+    public GeoPoint CenterCoordinates { get; init; }
+
+    public City(int cityId, string name, string countryCode, GeoPoint centerCoordinates)
     {
-        public int CityId { get; init; }
-        public string Name { get; init; }
-        public string CountryCode { get; init; }
+        CityId = cityId;
+        Name = name;
+        CountryCode = countryCode;
+        CenterCoordinates = centerCoordinates;
+    }
 
-        public City(int cityId, string name, string countryCode)
-        {
-            CityId = cityId;
-            Name = name;
-            CountryCode = countryCode;
-        }
-
-        private City()
-        {
-            Name = string.Empty;
-            CountryCode = string.Empty;
-        }
+    private City()
+    {
+        Name = string.Empty;
+        CountryCode = string.Empty;
+        CenterCoordinates = null!;
     }
 }

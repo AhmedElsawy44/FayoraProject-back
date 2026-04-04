@@ -19,6 +19,19 @@ namespace Fayora.Infrastructure.Persistence.Configurations.TourGuideModule
             builder.Property(x => x.CountryCode)
                 .IsRequired()
                 .HasMaxLength(3);
+
+            builder.OwnsOne(x => x.CenterCoordinates, coord =>
+            {
+                coord.Property(p => p.Latitude)
+                    .HasColumnName("Latitude") 
+                    .HasPrecision(9, 6)        
+                    .IsRequired();
+
+                coord.Property(p => p.Longitude)
+                    .HasColumnName("Longitude")
+                    .HasPrecision(9, 6)
+                    .IsRequired();
+            });
         }
     }
 }

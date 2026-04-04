@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -13,6 +14,47 @@ namespace Fayora.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Cities",
+                columns: table => new
+                {
+                    CityId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    CountryCode = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
+                    Latitude = table.Column<decimal>(type: "decimal(9,6)", precision: 9, scale: 6, nullable: false),
+                    Longitude = table.Column<decimal>(type: "decimal(9,6)", precision: 9, scale: 6, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Cities", x => x.CityId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GuideRequests",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TripPlanId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CurrencyCode = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
+                    BudgetAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    NumberOfPeople = table.Column<int>(type: "int", nullable: false),
+                    MeetingPointLatitude = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    MeetingPointLongitude = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GuideRequests", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Roles",
                 columns: table => new
                 {
@@ -23,6 +65,44 @@ namespace Fayora.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Roles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TourGuides",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    BaseRate = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    PricingUnit = table.Column<int>(type: "int", nullable: false),
+                    YearsOfExperience = table.Column<int>(type: "int", nullable: false),
+                    LicenseNumber = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    LicenseExpiryDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    TaxRegistrationNumber = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    TaxRegistrationDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    CurrencyCode = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
+                    ReviewCount = table.Column<int>(type: "int", nullable: false),
+                    AverageRating = table.Column<float>(type: "real", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    IsAvailableForBooking = table.Column<bool>(type: "bit", nullable: false),
+                    LastActiveDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    IsOnline = table.Column<bool>(type: "bit", nullable: false),
+                    CompletedToursCount = table.Column<int>(type: "int", nullable: false),
+                    IsSuperGuide = table.Column<bool>(type: "bit", nullable: false),
+                    CancellationRate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Latitude = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Longitude = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    LastLocationUpdate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    HasOwnVehicle = table.Column<bool>(type: "bit", nullable: true),
+                    VehicleDetails = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TransportType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ResponseRate = table.Column<float>(type: "real", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TourGuides", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -121,6 +201,95 @@ namespace Fayora.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_VerificationRequests", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GuideOffers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RequestId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    GuideId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ProposedPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    CurrencyCode = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    ExpiresAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GuideOffers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_GuideOffers_GuideRequests_RequestId",
+                        column: x => x.RequestId,
+                        principalTable: "GuideRequests",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GuideCities",
+                columns: table => new
+                {
+                    GuideId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CityId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GuideCities", x => new { x.GuideId, x.CityId });
+                    table.ForeignKey(
+                        name: "FK_GuideCities_Cities_CityId",
+                        column: x => x.CityId,
+                        principalTable: "Cities",
+                        principalColumn: "CityId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_GuideCities_TourGuides_GuideId",
+                        column: x => x.GuideId,
+                        principalTable: "TourGuides",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GuideTourPackages",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    GuideId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
+                    TourType = table.Column<int>(type: "int", nullable: false),
+                    DurationHours = table.Column<int>(type: "int", nullable: false),
+                    MeetingPointLatitude = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    MeetingPointLongitude = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ArrivalNote = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TransportType = table.Column<int>(type: "int", nullable: false),
+                    MaxCapacity = table.Column<int>(type: "int", nullable: false),
+                    BookingsCount = table.Column<int>(type: "int", nullable: false),
+                    AdultPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    ChildPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    Views = table.Column<int>(type: "int", nullable: false),
+                    MainImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MainVideoUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    GuestRequirements = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IncludedItems = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ExcludedItems = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GuideTourPackages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_GuideTourPackages_TourGuides_GuideId",
+                        column: x => x.GuideId,
+                        principalTable: "TourGuides",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -226,6 +395,25 @@ namespace Fayora.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "GuideTourPackageImages",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PackageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GuideTourPackageImages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_GuideTourPackageImages_GuideTourPackages_PackageId",
+                        column: x => x.PackageId,
+                        principalTable: "GuideTourPackages",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "Roles",
                 columns: new[] { "Id", "Name" },
@@ -236,6 +424,26 @@ namespace Fayora.Infrastructure.Migrations
                     { 3, "TourGuide" },
                     { 4, "Host" }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GuideCities_CityId",
+                table: "GuideCities",
+                column: "CityId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GuideOffers_RequestId",
+                table: "GuideOffers",
+                column: "RequestId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GuideTourPackageImages_PackageId",
+                table: "GuideTourPackageImages",
+                column: "PackageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GuideTourPackages_GuideId",
+                table: "GuideTourPackages",
+                column: "GuideId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Roles_Name",
@@ -336,6 +544,15 @@ namespace Fayora.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "GuideCities");
+
+            migrationBuilder.DropTable(
+                name: "GuideOffers");
+
+            migrationBuilder.DropTable(
+                name: "GuideTourPackageImages");
+
+            migrationBuilder.DropTable(
                 name: "UserDevices");
 
             migrationBuilder.DropTable(
@@ -354,6 +571,15 @@ namespace Fayora.Infrastructure.Migrations
                 name: "VerificationDocuments");
 
             migrationBuilder.DropTable(
+                name: "Cities");
+
+            migrationBuilder.DropTable(
+                name: "GuideRequests");
+
+            migrationBuilder.DropTable(
+                name: "GuideTourPackages");
+
+            migrationBuilder.DropTable(
                 name: "Roles");
 
             migrationBuilder.DropTable(
@@ -361,6 +587,9 @@ namespace Fayora.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "VerificationRequests");
+
+            migrationBuilder.DropTable(
+                name: "TourGuides");
         }
     }
 }

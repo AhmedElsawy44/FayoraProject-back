@@ -485,6 +485,327 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("VerificationRequests", (string)null);
                 });
 
+            modelBuilder.Entity("Fayora.Domain.Entities.Shared.City", b =>
+                {
+                    b.Property<int>("CityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CityId"));
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("CityId");
+
+                    b.ToTable("Cities", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.TourGuide.GuideCity", b =>
+                {
+                    b.Property<Guid>("GuideId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("int");
+
+                    b.HasKey("GuideId", "CityId");
+
+                    b.HasIndex("CityId");
+
+                    b.ToTable("GuideCities", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.TourGuide.GuideOffer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CurrencyCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<DateTimeOffset?>("ExpiresAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("GuideId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<decimal>("ProposedPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RequestId");
+
+                    b.ToTable("GuideOffers", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.TourGuide.GuideRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("BudgetAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CurrencyCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("NumberOfPeople")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("TripPlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GuideRequests", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.TourGuide.GuideTourPackage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("AdultPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ArrivalNote")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("BookingsCount")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ChildPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("DurationHours")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ExcludedItems")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GuestRequirements")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("GuideId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("IncludedItems")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MainImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MainVideoUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MaxCapacity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("TourType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TransportType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("Views")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GuideId");
+
+                    b.ToTable("GuideTourPackages", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.TourGuide.GuideTourPackageImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("PackageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PackageId");
+
+                    b.ToTable("GuideTourPackageImages", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.TourGuide.TourGuide", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<float>("AverageRating")
+                        .HasColumnType("real");
+
+                    b.Property<decimal>("BaseRate")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("CancellationRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("CompletedToursCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CurrencyCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<bool>("IsAvailableForBooking")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsOnline")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSuperGuide")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LastActiveDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("LastLocationUpdate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateOnly>("LicenseExpiryDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("LicenseNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("PricingUnit")
+                        .HasColumnType("int");
+
+                    b.Property<float>("ResponseRate")
+                        .HasColumnType("real");
+
+                    b.Property<int>("ReviewCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly?>("TaxRegistrationDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("TaxRegistrationNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("YearsOfExperience")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TourGuides", (string)null);
+                });
+
             modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.UserDevice", b =>
                 {
                     b.HasOne("Fayora.Domain.Entities.IdentityModule.User", null)
@@ -528,6 +849,186 @@ namespace Fayora.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("Fayora.Domain.Entities.Shared.City", b =>
+                {
+                    b.OwnsOne("Fayora.Domain.ValueObjects.GeoPoint", "CenterCoordinates", b1 =>
+                        {
+                            b1.Property<int>("CityId")
+                                .HasColumnType("int");
+
+                            b1.Property<decimal>("Latitude")
+                                .HasPrecision(9, 6)
+                                .HasColumnType("decimal(9,6)")
+                                .HasColumnName("Latitude");
+
+                            b1.Property<decimal>("Longitude")
+                                .HasPrecision(9, 6)
+                                .HasColumnType("decimal(9,6)")
+                                .HasColumnName("Longitude");
+
+                            b1.HasKey("CityId");
+
+                            b1.ToTable("Cities");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CityId");
+                        });
+
+                    b.Navigation("CenterCoordinates")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.TourGuide.GuideCity", b =>
+                {
+                    b.HasOne("Fayora.Domain.Entities.Shared.City", "City")
+                        .WithMany()
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Fayora.Domain.Entities.TourGuide.TourGuide", "TourGuide")
+                        .WithMany("GuideCities")
+                        .HasForeignKey("GuideId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("City");
+
+                    b.Navigation("TourGuide");
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.TourGuide.GuideOffer", b =>
+                {
+                    b.HasOne("Fayora.Domain.Entities.TourGuide.GuideRequest", null)
+                        .WithMany("GuideOffers")
+                        .HasForeignKey("RequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.TourGuide.GuideRequest", b =>
+                {
+                    b.OwnsOne("Fayora.Domain.ValueObjects.GeoPoint", "MeetingPoint", b1 =>
+                        {
+                            b1.Property<Guid>("GuideRequestId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Latitude")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("MeetingPointLatitude");
+
+                            b1.Property<decimal>("Longitude")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("MeetingPointLongitude");
+
+                            b1.HasKey("GuideRequestId");
+
+                            b1.ToTable("GuideRequests");
+
+                            b1.WithOwner()
+                                .HasForeignKey("GuideRequestId");
+                        });
+
+                    b.Navigation("MeetingPoint")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.TourGuide.GuideTourPackage", b =>
+                {
+                    b.HasOne("Fayora.Domain.Entities.TourGuide.TourGuide", null)
+                        .WithMany("TourPackages")
+                        .HasForeignKey("GuideId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("Fayora.Domain.ValueObjects.GeoPoint", "MeetingPoint", b1 =>
+                        {
+                            b1.Property<Guid>("GuideTourPackageId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Latitude")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("MeetingPointLatitude");
+
+                            b1.Property<decimal>("Longitude")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("MeetingPointLongitude");
+
+                            b1.HasKey("GuideTourPackageId");
+
+                            b1.ToTable("GuideTourPackages");
+
+                            b1.WithOwner()
+                                .HasForeignKey("GuideTourPackageId");
+                        });
+
+                    b.Navigation("MeetingPoint")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.TourGuide.GuideTourPackageImage", b =>
+                {
+                    b.HasOne("Fayora.Domain.Entities.TourGuide.GuideTourPackage", null)
+                        .WithMany("Images")
+                        .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.TourGuide.TourGuide", b =>
+                {
+                    b.OwnsOne("Fayora.Domain.ValueObjects.GeoPoint", "LastLocation", b1 =>
+                        {
+                            b1.Property<Guid>("TourGuideId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Latitude")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("Latitude");
+
+                            b1.Property<decimal>("Longitude")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("Longitude");
+
+                            b1.HasKey("TourGuideId");
+
+                            b1.ToTable("TourGuides");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TourGuideId");
+                        });
+
+                    b.OwnsOne("Fayora.Domain.ValueObjects.TransportInfo", "TransportInfo", b1 =>
+                        {
+                            b1.Property<Guid>("TourGuideId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<bool>("HasOwnVehicle")
+                                .HasColumnType("bit")
+                                .HasColumnName("HasOwnVehicle");
+
+                            b1.Property<string>("TransportType")
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("TransportType");
+
+                            b1.Property<string>("VehicleDetails")
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("VehicleDetails");
+
+                            b1.HasKey("TourGuideId");
+
+                            b1.ToTable("TourGuides");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TourGuideId");
+                        });
+
+                    b.Navigation("LastLocation")
+                        .IsRequired();
+
+                    b.Navigation("TransportInfo");
+                });
+
             modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.User", b =>
                 {
                     b.Navigation("Roles");
@@ -538,6 +1039,23 @@ namespace Fayora.Infrastructure.Migrations
             modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.VerificationRequest", b =>
                 {
                     b.Navigation("VerificationDocuments");
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.TourGuide.GuideRequest", b =>
+                {
+                    b.Navigation("GuideOffers");
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.TourGuide.GuideTourPackage", b =>
+                {
+                    b.Navigation("Images");
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.TourGuide.TourGuide", b =>
+                {
+                    b.Navigation("GuideCities");
+
+                    b.Navigation("TourPackages");
                 });
 #pragma warning restore 612, 618
         }
