@@ -198,8 +198,8 @@ namespace Fayora.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FirstName = table.Column<string>(type: "NVARCHAR(50)", nullable: true),
-                    LastName = table.Column<string>(type: "NVARCHAR(50)", nullable: true),
+                    FirstName = table.Column<string>(type: "NVARCHAR(50)", nullable: false),
+                    LastName = table.Column<string>(type: "NVARCHAR(50)", nullable: false),
                     BirthDate = table.Column<DateOnly>(type: "DATE", nullable: true),
                     Gender = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
@@ -213,9 +213,11 @@ namespace Fayora.Infrastructure.Migrations
                     CurrentBalance = table.Column<decimal>(type: "DECIMAL(18,4)", nullable: false),
                     NationalityCode = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
                     SimCountryIsoCode = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
-                    PreferredLanguage = table.Column<string>(type: "NVARCHAR(20)", nullable: true),
+                    PreferredLanguage = table.Column<int>(type: "int", nullable: true),
+                    SpokenLanguages = table.Column<int>(type: "int", nullable: false),
+                    UserLanguageProficiency = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TimeZone = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    ProfileImageUrl = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
+                    ProfileImageUrl = table.Column<string>(type: "NVARCHAR(MAX)", maxLength: 2048, nullable: true),
                     Description = table.Column<string>(type: "NVARCHAR(1000)", nullable: true),
                     LastLogin = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     DeletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
@@ -372,7 +374,7 @@ namespace Fayora.Infrastructure.Migrations
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     DeviceId = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     FCMToken = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
-                    DeviceLanguage = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    DeviceLanguage = table.Column<int>(type: "int", maxLength: 100, nullable: false),
                     IsBanned = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     LastUsedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)

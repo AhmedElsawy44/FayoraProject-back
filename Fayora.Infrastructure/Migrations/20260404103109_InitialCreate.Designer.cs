@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260318212258_InitialCreate")]
+    [Migration("20260404103109_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -321,6 +321,7 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("NVARCHAR(1000)");
 
                     b.Property<string>("FirstName")
+                        .IsRequired()
                         .HasColumnType("NVARCHAR(50)");
 
                     b.Property<string>("Gender")
@@ -343,6 +344,7 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("LastName")
+                        .IsRequired()
                         .HasColumnType("NVARCHAR(50)");
 
                     b.Property<DateTimeOffset?>("LastOtpSentAt")
@@ -365,8 +367,8 @@ namespace Fayora.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("PreferredLanguage")
-                        .HasColumnType("NVARCHAR(20)");
+                    b.Property<int?>("PreferredLanguage")
+                        .HasColumnType("int");
 
                     b.Property<string>("PrimaryEmail")
                         .HasMaxLength(255)
@@ -375,11 +377,14 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.Property<string>("ProfileImageUrl")
                         .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)");
+                        .HasColumnType("NVARCHAR(MAX)");
 
                     b.Property<string>("SimCountryIsoCode")
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
+
+                    b.Property<int>("SpokenLanguages")
+                        .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -392,6 +397,10 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("UserLanguageProficiency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ViolationCount")
                         .HasColumnType("int");
@@ -431,10 +440,9 @@ namespace Fayora.Infrastructure.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<string>("DeviceLanguage")
-                        .IsRequired()
+                    b.Property<int>("DeviceLanguage")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("int");
 
                     b.Property<string>("FCMToken")
                         .IsRequired()
