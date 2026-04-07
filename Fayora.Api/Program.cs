@@ -2,6 +2,7 @@ using Fayora.Api.Externals;
 using Fayora.Api.Hubs;
 using Fayora.Application;
 using Fayora.Infrastructure;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Fayora.Api;
 

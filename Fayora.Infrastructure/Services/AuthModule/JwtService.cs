@@ -23,23 +23,14 @@ public class JwtService(IOptions<JwtSettings> jwtSettings) : IJwtService
         {
             new(JwtRegisteredClaimNames.Sub,        user.Id.ToString()),
             new(JwtRegisteredClaimNames.Jti,        Guid.NewGuid().ToString()),
-
-            new(JwtRegisteredClaimNames.Name,       user.FirstName + " " + user.LastName),
+            new(JwtRegisteredClaimNames.Name,       $"{user.FirstName} {user.LastName}"),
             new(JwtRegisteredClaimNames.Picture,    user.ProfileImageUrl ?? string.Empty),
+            new(JwtRegisteredClaimNames.Email,      user.PrimaryEmail?.Value ?? string.Empty),
+            new("phone",                            user.PhoneNumber ?? string.Empty),
             new("device_id",                        deviceId),
-            new("email_verified",                   user.IsEmailVerified.ToString(), ClaimValueTypes.Boolean),
-            new("phone_verified",                   user.IsPhoneVerified.ToString(), ClaimValueTypes.Boolean),
+            new("email_verified",                   user.IsEmailVerified.ToString().ToLower(), ClaimValueTypes.Boolean),
+            new("phone_verified",                   user.IsPhoneVerified.ToString().ToLower(), ClaimValueTypes.Boolean),
         };
-
-        if (!string.IsNullOrEmpty(user.PrimaryEmail?.Value))
-        {
-            claims.Add(new(ClaimTypes.Email, user.PrimaryEmail.Value));
-        }
-
-        if (!string.IsNullOrEmpty(user.PhoneNumber))
-        {
-            claims.Add(new(ClaimTypes.MobilePhone, user.PhoneNumber));
-        }
 
         if (ownerId.HasValue)
         {
