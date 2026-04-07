@@ -215,7 +215,7 @@ namespace Fayora.Infrastructure.Migrations
                     SimCountryIsoCode = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
                     PreferredLanguage = table.Column<int>(type: "int", nullable: true),
                     SpokenLanguages = table.Column<int>(type: "int", nullable: false),
-                    UserLanguageProficiency = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserLanguageProficiency = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TimeZone = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     ProfileImageUrl = table.Column<string>(type: "NVARCHAR(MAX)", maxLength: 2048, nullable: true),
                     Description = table.Column<string>(type: "NVARCHAR(1000)", nullable: true),

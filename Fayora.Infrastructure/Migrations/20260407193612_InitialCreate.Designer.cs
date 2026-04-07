@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260404103109_InitialCreate")]
+    [Migration("20260407193612_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -399,7 +399,6 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("UserLanguageProficiency")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ViolationCount")
