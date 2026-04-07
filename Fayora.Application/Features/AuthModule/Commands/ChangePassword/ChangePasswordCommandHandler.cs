@@ -27,7 +27,7 @@ public class ChangePasswordCommandHandler(
         var statusCheck = user.CheckActiveStatus();
         if (statusCheck.IsError) return statusCheck.Errors;
 
-        
+
         if (!user.HasPassword)
         {
             if (string.IsNullOrEmpty(request.CurrentPassword) ||

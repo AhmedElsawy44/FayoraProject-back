@@ -1,6 +1,8 @@
 using Fayora.Api.Externals;
 using Fayora.Application;
 using Fayora.Infrastructure;
+using Microsoft.IdentityModel.JsonWebTokens;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Fayora.Api;
 
@@ -8,6 +10,9 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
+        JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+        JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
         var builder = WebApplication.CreateBuilder(args);
         {
             builder.Services

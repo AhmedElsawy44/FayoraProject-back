@@ -35,7 +35,7 @@ public class User : AuditableEntity<Guid>
     public string? SimCountryIsoCode { get; private set; }
     public Language? PreferredLanguage { get; private set; } = Language.English;
     public Language SpokenLanguages { get; private set; }
-    public List<UserLanguageProficiency> UserLanguageProficiency { get; private set; }
+    public List<UserLanguageProficiency>? UserLanguageProficiency { get; private set; }
     public string? TimeZone { get; private set; } = string.Empty;
     public string? ProfileImageUrl { get; private set; }
     public string? Description { get; private set; }

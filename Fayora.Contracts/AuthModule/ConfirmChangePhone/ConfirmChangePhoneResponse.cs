@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Contracts.AuthModule.ConfirmChangePhone;
+﻿namespace Fayora.Contracts.AuthModule.ConfirmChangePhone;
 
 public record ConfirmChangePhoneResponse
 (
