@@ -1,6 +1,5 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
-using Fayora.Application.Features.AuthModule.Commands.ConfirmChangeEmail;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;

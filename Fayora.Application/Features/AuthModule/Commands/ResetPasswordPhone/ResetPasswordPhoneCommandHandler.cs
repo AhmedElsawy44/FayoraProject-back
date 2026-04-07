@@ -9,7 +9,7 @@ using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IU
 
 namespace Fayora.Application.Features.AuthModule.Commands.ResetPasswordPhone;
 
-public class ResetPasswordPhoneCommandHandler( 
+public class ResetPasswordPhoneCommandHandler(
     IUserRepository userRepository,
     IUserTokenRepository userTokenRepository,
     IUnitOfWork unitOfWork,

@@ -1,6 +1,6 @@
 ﻿namespace Fayora.Application.Features.AuthModule.Commands.LoginWithFacebook;
 
-public record LoginWithFacebookResult 
+public record LoginWithFacebookResult
 (
     Guid UserId,
     string FirstName,

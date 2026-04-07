@@ -20,7 +20,7 @@ public class UpdateAccountCommandHandler(
         if (!string.IsNullOrWhiteSpace(request.Gender))
         {
             if (!Enum.TryParse<Gender>(request.Gender, true, out var parsedGender))
-                return AuthErrors.InvalidGender; 
+                return AuthErrors.InvalidGender;
             genderEnum = parsedGender;
         }
 
