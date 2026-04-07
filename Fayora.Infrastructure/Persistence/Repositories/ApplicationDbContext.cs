@@ -1,5 +1,6 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
+using Fayora.Domain.Entities.ChatModule;
 using Fayora.Domain.Entities.IdentityModule;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -18,6 +19,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<VerificationDocument> VerificationDocuments { get; set; }
     public DbSet<VerificationRequest> VerificationRequests { get; set; }
     public DbSet<VerificationCode> VerificationCodes { get; set; }
+    public DbSet<Chat> Chats { get; set; }
+    public DbSet<Message> Messages { get; set; }
 
     public async Task CommitChangesAsync(CancellationToken cancellationToken = default)
     {

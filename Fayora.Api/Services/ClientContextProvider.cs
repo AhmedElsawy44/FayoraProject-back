@@ -19,7 +19,11 @@ public class ClientContextProvider(IHttpContextAccessor accessor) : IClientConte
         var phoneNumber = GetClaimsValue(ClaimTypes.MobilePhone);
 
         var userIdString = GetClaimsValue(ClaimTypes.NameIdentifier) ?? GetClaimsValue(JwtRegisteredClaimNames.Sub);
-        Guid.TryParse(userIdString, out var userId);
+        Guid.TryParse(userIdString, out Guid userId);
+
+        var userName = GetClaimsValue(JwtRegisteredClaimNames.Name);
+
+        var avatarUrl = GetClaimsValue(JwtRegisteredClaimNames.Picture);
 
         var roles = GetClaimsValues(ClaimTypes.Role);
 
@@ -31,8 +35,10 @@ public class ClientContextProvider(IHttpContextAccessor accessor) : IClientConte
             userId,
             ipAddress,
             deviceId,
+            userName,
             email,
             phoneNumber,
+            avatarUrl,
             roles,
             OwnerId: ownerId,
             TouristId: touristId,
