@@ -26,7 +26,7 @@ public class SendMessageCommandHandler(
         var name = context.UserName;
         var avatarUrl = context.UserAvatarUrl;
 
-        Chat chat = null!;
+        Chat? chat = null;
 
         if (request.ChatId is not null)
         {

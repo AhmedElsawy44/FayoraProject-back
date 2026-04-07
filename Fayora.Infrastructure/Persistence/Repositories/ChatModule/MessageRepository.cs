@@ -9,4 +9,9 @@ public class MessageRepository(ApplicationDbContext context) : IMessageRepositor
     {
         context.Messages.Add(message);
     }
+
+    public async Task<Message?> GetMessageByIdAsync(Guid messageId, CancellationToken cancellationToken = default)
+    {
+        return await context.Messages.FindAsync(new object[] { messageId }, cancellationToken);
+    }
 }
