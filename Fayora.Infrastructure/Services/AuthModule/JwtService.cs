@@ -23,6 +23,7 @@ public class JwtService(IOptions<JwtSettings> jwtSettings) : IJwtService
         {
             new(JwtRegisteredClaimNames.Sub,        user.Id.ToString()),
             new(JwtRegisteredClaimNames.Jti,        Guid.NewGuid().ToString()),
+
             new(JwtRegisteredClaimNames.Name,       user.FirstName + " " + user.LastName),
             new(JwtRegisteredClaimNames.Picture,    user.ProfileImageUrl ?? string.Empty),
             new("device_id",                        deviceId),

@@ -18,7 +18,7 @@ public class ClientContextProvider(IHttpContextAccessor accessor) : IClientConte
         var email = GetClaimsValue(ClaimTypes.Email);
         var phoneNumber = GetClaimsValue(ClaimTypes.MobilePhone);
 
-        var userIdString = GetClaimsValue(ClaimTypes.NameIdentifier) ?? GetClaimsValue(JwtRegisteredClaimNames.Sub);
+        var userIdString = GetClaimsValue(JwtRegisteredClaimNames.Sub);
         Guid.TryParse(userIdString, out Guid userId);
 
         var userName = GetClaimsValue(JwtRegisteredClaimNames.Name);
