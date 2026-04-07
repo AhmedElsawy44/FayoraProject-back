@@ -1,5 +1,7 @@
 ﻿using Fayora.Application.Features.ChatModule.SendMessage;
+using Fayora.Application.Features.ChatModule.UpdateMessage;
 using Fayora.Contracts.ChatModule.SendMessage;
+using Fayora.Contracts.ChatModule.UpdateMessage;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
 
@@ -36,6 +38,31 @@ public class ChatHub(ISender sender) : Hub
                     MessageType = request.MessageType,
                     SentAt = DateTimeOffset.UtcNow
                 });
+        }
+        else
+        {
+            await Clients.Caller.SendAsync("ReceiveError", result.Errors);
+        }
+    }
+
+    public async Task UpdateMessage(UpdateMessageRequest request)
+    {
+        var command = new UpdateMessageCommand(request.MessageId, request.NewContent);
+        var result = await sender.Send(command);
+
+        if (result.IsSuccess)
+        {
+            var responsePayload = new
+            {
+                MessageId = result.Value.MessageId,
+                ChatId = result.Value.ChatId,
+                NewContent = result.Value.Content,
+                UpdatedAt = result.Value.UpdatedAt
+            };
+
+            await Clients.User(result.Value.ReceiverId.ToString()).SendAsync("MessageUpdated", responsePayload);
+
+            await Clients.Caller.SendAsync("MessageUpdateSuccess", responsePayload);
         }
         else
         {

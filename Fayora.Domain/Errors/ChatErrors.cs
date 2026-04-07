@@ -18,4 +18,9 @@ public static class ChatErrors
         "Chat.NonTextMessageCannotBeEdited",
         "Only text messages can be edited."
     );
+
+    public static readonly Error MessageEditTimeExpired = Error.Validation(
+        "Chat.MessageEditTimeExpired",
+        "Message cannot be edited after 1 hour of sending."
+    );
 }

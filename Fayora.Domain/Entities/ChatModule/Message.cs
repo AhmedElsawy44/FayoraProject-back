@@ -36,6 +36,11 @@ public class Message : AuditableEntity<long>
 
     public Result<Success> UpdateContent(string newContent)
     {
+        if(CreatedAt + TimeSpan.FromHours(1) < DateTimeOffset.UtcNow)
+        {
+            return ChatErrors.MessageEditTimeExpired;
+        }
+
         if (Type != MessageType.Text)
         {
             return ChatErrors.NonTextMessageCannotBeEdited;

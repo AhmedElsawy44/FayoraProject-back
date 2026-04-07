@@ -23,4 +23,9 @@ public static class ChatErrors
         code: "ReceiverNotFound",
         description: "The receiver user was not found."
     );
+
+    public static readonly Error MessageNotFound = Error.NotFound(
+        code: "MessageNotFound",
+        description: "The message was not found."
+    );
 }
