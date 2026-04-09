@@ -9,33 +9,31 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fayora.Api.Controllers;
 
 [Route("api/[controller]")]
-public class ChatController : ApiController
+public class ChatController(ISender sender, IMapper mapper) : ApiController
 {
-    public class ChatsController(ISender sender, IMapper mapper) : ControllerBase
+    [HttpGet]
+    public async Task<IActionResult> GetChats(
+        [FromQuery] GetChatsRequest request,
+        CancellationToken cancellationToken = default)
     {
-        [HttpGet]
-        public async Task<IActionResult> GetChats(
-            [FromQuery] GetChatsRequest request,
-            CancellationToken cancellationToken = default)
-        {
-            var query = new GetChatsQuery(request.Limit, request.Cursor);
+        var query = new GetChatsQuery(request.Limit, request.Cursor);
 
-            var result = await sender.Send(query, cancellationToken);
+        var result = await sender.Send(query, cancellationToken);
 
-            return Ok(mapper.Map<GetChatsResponse>(result));
-        }
-
-        [HttpGet("{chatId}/messages")]
-        public async Task<IActionResult> GetMessages(
-            [FromRoute] Guid chatId,
-            [FromQuery] GetMessagesRequest request,
-            CancellationToken cancellationToken = default)
-        {
-            var query = new GetMessagesQuery(chatId, request.Limit, request.Cursor);
-
-            var result = await sender.Send(query, cancellationToken);
-
-            return Ok(mapper.Map<GetMessagesResponse>(result));
-        }
+        return Ok(mapper.Map<GetChatsResponse>(result));
     }
+
+    [HttpGet("{chatId}/messages")]
+    public async Task<IActionResult> GetMessages(
+        [FromRoute] Guid chatId,
+        [FromQuery] GetMessagesRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetMessagesQuery(chatId, request.Limit, request.Cursor);
+
+        var result = await sender.Send(query, cancellationToken);
+
+        return Ok(mapper.Map<GetMessagesResponse>(result));
+    }
+
 }
