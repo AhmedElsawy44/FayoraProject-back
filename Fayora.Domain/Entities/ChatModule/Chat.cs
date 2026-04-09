@@ -39,5 +39,14 @@ public class Chat : AuditableEntity<Guid>
         Updated();
     }
 
+    public void MarkAllMessagesAsRead()
+    {
+        foreach (var message in _messages)
+        {
+                message.MarkAsRead();
+        }
+        Updated();
+    }
+
     private Chat() { }
 }

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.ChatModule.UpdateMessage;
+namespace Fayora.Application.Features.ChatModule.Commands.UpdateMessage;
 
 public class UpdateMessageCommandValidator : AbstractValidator<UpdateMessageCommand>
 {

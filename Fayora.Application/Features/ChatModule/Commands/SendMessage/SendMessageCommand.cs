@@ -2,7 +2,7 @@
 using Fayora.Domain.Common.Results;
 using MediatR;
 
-namespace Fayora.Application.Features.ChatModule.SendMessage;
+namespace Fayora.Application.Features.ChatModule.Commands.SendMessage;
 
 [Authorize]
 public record SendMessageCommand(

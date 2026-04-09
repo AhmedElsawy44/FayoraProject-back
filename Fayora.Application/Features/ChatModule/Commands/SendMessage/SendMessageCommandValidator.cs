@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Fayora.Domain.Enums.ChatModule;
 
-namespace Fayora.Application.Features.ChatModule.SendMessage;
+namespace Fayora.Application.Features.ChatModule.Commands.SendMessage;
 
 public class SendMessageCommandValidator : AbstractValidator<SendMessageCommand>
 {

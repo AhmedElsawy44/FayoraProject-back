@@ -1,5 +1,7 @@
-﻿using Fayora.Application.Features.ChatModule.SendMessage;
-using Fayora.Application.Features.ChatModule.UpdateMessage;
+﻿using Fayora.Application.Features.ChatModule.Commands.DeleteMessage;
+using Fayora.Application.Features.ChatModule.Commands.MarkChatAsRead;
+using Fayora.Application.Features.ChatModule.Commands.SendMessage;
+using Fayora.Application.Features.ChatModule.Commands.UpdateMessage;
 using Fayora.Contracts.ChatModule.SendMessage;
 using Fayora.Contracts.ChatModule.UpdateMessage;
 using MediatR;
@@ -7,7 +9,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Fayora.Api.Hubs;
 
-public class ChatHub(ISender sender) : Hub
+public class ChatHub(ISender sender) : Hub<IChatClient>
 {
     public async Task SendMessage(SendMessageRequest request)
     {
@@ -24,24 +26,27 @@ public class ChatHub(ISender sender) : Hub
 
         if (result.IsSuccess)
         {
-            await Clients.User(request.ReceiverId.ToString())
-                .SendAsync("ReceiveMessage", new
-                {
-                    MessageId = result.Value.MessageId,
-                    SenderId = result.Value.SenderId,
-                    SenderName = result.Value.SenderName,
-                    SenderAvatar = result.Value.SenderAvatarUrl,
-                    ChatId = result.Value.ChatId,
-                    ScopeType = request.ScopeType,
-                    ScopeId = request.ScopeId,
-                    Content = request.Content,
-                    MessageType = request.MessageType,
-                    SentAt = DateTimeOffset.UtcNow
-                });
+            var responsePayload = new
+            {
+                MessageId = result.Value.MessageId,
+                SenderId = result.Value.SenderId,
+                SenderName = result.Value.SenderName,
+                SenderAvatar = result.Value.SenderAvatarUrl,
+                ChatId = result.Value.ChatId,
+                ScopeType = request.ScopeType,
+                ScopeId = request.ScopeId,
+                Content = request.Content,
+                MessageType = request.MessageType,
+                SentAt = result.Value.SentAt
+            };
+
+            await Clients.User(request.ReceiverId.ToString()).ReceiveMessage(responsePayload);
+
+            await Clients.Caller.MessageSentSuccess(responsePayload);
         }
         else
         {
-            await Clients.Caller.SendAsync("ReceiveError", result.Errors);
+            await Clients.Caller.ReceiveError(result.Errors);
         }
     }
 
@@ -60,13 +65,55 @@ public class ChatHub(ISender sender) : Hub
                 UpdatedAt = result.Value.UpdatedAt
             };
 
-            await Clients.User(result.Value.ReceiverId.ToString()).SendAsync("MessageUpdated", responsePayload);
+            await Clients.User(result.Value.ReceiverId.ToString()).MessageUpdated(responsePayload);
 
-            await Clients.Caller.SendAsync("MessageUpdateSuccess", responsePayload);
+            await Clients.Caller.MessageUpdateSuccess(responsePayload);
         }
         else
         {
-            await Clients.Caller.SendAsync("ReceiveError", result.Errors);
+            await Clients.Caller.ReceiveError(result.Errors);
+        }
+    }
+
+    public async Task DeleteMessage(Guid messageId)
+    {
+        var command = new DeleteMessageCommand(messageId);
+
+        var result = await sender.Send(command);
+
+        if (result.IsSuccess)
+        {
+            var responsePayload = new
+            {
+                MessageId = result.Value.MessageId,
+                ChatId = result.Value.ChatId,
+                DeletedAt = result.Value.DeletedAt
+            };
+
+            await Clients.User(result.Value.ReceiverId.ToString()).MessageDeleted(responsePayload);
+
+            await Clients.Caller.MessageDeleteSuccess(responsePayload);
+        }
+        else
+        {
+            await Clients.Caller.ReceiveError(result.Errors);
+        }
+    }
+
+    public async Task MarkAsRead(Guid chatId)
+    {
+        var command = new MarkChatAsReadCommand(chatId);
+        var result = await sender.Send(command);
+
+        if (result.IsSuccess)
+        {
+            var responsePayload = new
+            {
+                ChatId = chatId,
+                ReadAt = result.Value.ReadAt
+            };
+
+            await Clients.User(result.Value.ReceiverId.ToString()).MessagesSeen(responsePayload);
         }
     }
 }

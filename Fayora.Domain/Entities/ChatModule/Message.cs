@@ -12,6 +12,7 @@ public class Message : AuditableEntity<long>
     public string Content { get; private set; } = default!;
     public MessageType Type { get; private set; }
     public DateTimeOffset? ReadAt { get; private set; }
+    public DateTimeOffset? DeleteAt { get; private set; } = null;
 
     private Message(Guid chatId, Guid senderId, string content, MessageType type)
     {
@@ -31,12 +32,12 @@ public class Message : AuditableEntity<long>
 
     public void MarkAsRead()
     {
-        ReadAt = DateTimeOffset.UtcNow;
+        if (ReadAt is null) ReadAt = DateTimeOffset.UtcNow;
     }
 
     public Result<Success> UpdateContent(string newContent)
     {
-        if(CreatedAt + TimeSpan.FromHours(1) < DateTimeOffset.UtcNow)
+        if (CreatedAt + TimeSpan.FromHours(1) < DateTimeOffset.UtcNow)
         {
             return ChatErrors.MessageEditTimeExpired;
         }
@@ -55,6 +56,12 @@ public class Message : AuditableEntity<long>
         Updated();
 
         return Result.Success;
+    }
+
+    public void Delete()
+    {
+        DeleteAt = DateTimeOffset.UtcNow;
+        Updated();
     }
 
     private Message() { }

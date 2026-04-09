@@ -149,4 +149,31 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         return await context.Users
             .AnyAsync(u => u.PhoneNumber == phoneNumber, cancellationToken);
     }
+
+    public async Task<List<User>> GetUsersByIdsAsync(
+    List<Guid> ids,
+    UserQueryOptions? options = null,
+    CancellationToken cancellationToken = default)
+    {
+        if (ids is null || !ids.Any())
+        {
+            return new List<User>();
+        }
+
+        var query = context.Users.AsQueryable();
+
+        if (options is not null)
+        {
+            if (options.IsReadOnly)
+            {
+                query = query.AsNoTracking();
+            }
+        }
+
+        var users = await query
+            .Where(u => ids.Contains(u.Id))
+            .ToListAsync(cancellationToken);
+
+        return users;
+    }
 }

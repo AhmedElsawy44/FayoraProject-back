@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260407153352_InitialCreate")]
+    [Migration("20260409080741_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -75,6 +75,9 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("DeleteAt")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset?>("ReadAt")

@@ -4,8 +4,9 @@ using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.ChatModule.Common;
 using Fayora.Domain.Common.Results;
 using MediatR;
+using static Fayora.Application.Common.Interfaces.Presistances.ChatModule.IChatRepository;
 
-namespace Fayora.Application.Features.ChatModule.UpdateMessage;
+namespace Fayora.Application.Features.ChatModule.Commands.UpdateMessage;
 
 public class UpdateMessageCommandHandler(
     IMessageRepository messageRepository,
@@ -21,7 +22,7 @@ public class UpdateMessageCommandHandler(
 
         if (message is null || message.SenderId != userId) return ChatErrors.MessageNotFound;
 
-        var chat = await chatRepository.GetChatByIdAsync(message.ChatId, cancellationToken);
+        var chat = await chatRepository.GetChatByIdAsync(message.ChatId, true, cancellationToken);
 
         if (chat is null) return ChatErrors.ChatNotFound;
 

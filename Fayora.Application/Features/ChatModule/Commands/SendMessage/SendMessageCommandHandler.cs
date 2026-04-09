@@ -6,8 +6,9 @@ using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.ChatModule;
 using Fayora.Domain.Enums.ChatModule;
 using MediatR;
+using static Fayora.Application.Common.Interfaces.Presistances.ChatModule.IChatRepository;
 
-namespace Fayora.Application.Features.ChatModule.SendMessage;
+namespace Fayora.Application.Features.ChatModule.Commands.SendMessage;
 
 public class SendMessageCommandHandler(
     IChatRepository chatRepository,
@@ -30,7 +31,7 @@ public class SendMessageCommandHandler(
 
         if (request.ChatId is not null)
         {
-            chat = await chatRepository.GetChatByIdAsync(request.ChatId.Value, cancellationToken);
+            chat = await chatRepository.GetChatByIdAsync(request.ChatId.Value, false, cancellationToken);
 
             if (chat is null
                 ||
@@ -87,7 +88,8 @@ public class SendMessageCommandHandler(
             chat.Id,
             senderId,
             name,
-            avatarUrl
+            avatarUrl,
+            message.Value.CreatedAt
         );
     }
 }

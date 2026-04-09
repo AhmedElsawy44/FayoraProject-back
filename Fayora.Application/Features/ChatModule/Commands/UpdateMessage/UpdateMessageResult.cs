@@ -1,4 +1,4 @@
-﻿namespace Fayora.Application.Features.ChatModule.UpdateMessage;
+﻿namespace Fayora.Application.Features.ChatModule.Commands.UpdateMessage;
 
 public record UpdateMessageResult(
     Guid ReceiverId,
