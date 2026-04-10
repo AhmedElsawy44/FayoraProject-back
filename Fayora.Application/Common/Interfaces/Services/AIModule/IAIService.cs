@@ -1,4 +1,6 @@
-﻿namespace Fayora.Application.Common.Interfaces.Services.AIModule;
+﻿using System.Runtime.CompilerServices;
+
+namespace Fayora.Application.Common.Interfaces.Services.AIModule;
 
 public interface IAIService
 {
@@ -6,10 +8,11 @@ public interface IAIService
 
     Task<string> GenerateChatTitleAsync(string firstUserMessage);
 
-    Task<string> GenerateFriendlyResponseAsync(
+    IAsyncEnumerable<string> GenerateFriendlyResponseAsync(
         string userMessage,
         string rawContextData,
-        string userMetadata);
+        string userMetadata,
+        CancellationToken cancellationToken = default);
 
     public record AIExtractionResult(string Intent, SearchParams Params, string SearchQuery);
 

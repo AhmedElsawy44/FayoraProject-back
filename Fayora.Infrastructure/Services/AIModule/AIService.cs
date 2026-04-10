@@ -1,6 +1,7 @@
 ﻿using Fayora.Application.Common.Interfaces.Services.AIModule;
 using Fayora.Infrastructure.Settings;
 using Microsoft.Extensions.Options;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -25,14 +26,59 @@ public class AIService(HttpClient httpClient, IOptions<AISettings> aiSettings, I
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
     }
 
-    public async Task<string> GenerateFriendlyResponseAsync(string userMessage, string rawContextData, string userMetadata)
+    public async IAsyncEnumerable<string> GenerateFriendlyResponseAsync(
+    string userMessage,
+    string rawContextData,
+    string userMetadata,
+    [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var activePrompt = aiSettings.Value.Step2_Sales_Prompt;
-
         var fullMessage = $"User Name/Context: {userMetadata}\nUser Asked: {userMessage}\nFound Data: {rawContextData}";
 
-        var payload = CreatePayload("openai/gpt-4o-mini", activePrompt, fullMessage);
-        return await SendRequestAsync(payload);
+        var payload = new
+        {
+            model = "openai/gpt-4o-mini",
+            messages = new[] {
+            new { role = "system", content = activePrompt },
+            new { role = "user", content = fullMessage }
+        },
+            stream = true
+        };
+
+        var request = new HttpRequestMessage(HttpMethod.Post, OpenRouterUrl);
+        request.Headers.Add("Authorization", $"Bearer {openRouterSettings.Value.ApiKey}");
+        request.Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+
+        using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        using var reader = new StreamReader(stream);
+
+        while (!reader.EndOfStream)
+        {
+            var line = await reader.ReadLineAsync(cancellationToken);
+            if (string.IsNullOrWhiteSpace(line)) continue;
+
+            if (line.StartsWith("data: "))
+            {
+                var data = line.Substring(6).Trim();
+                if (data == "[DONE]") break;
+
+                JsonDocument doc;
+                try { doc = JsonDocument.Parse(data); } catch { continue; }
+
+                using (doc)
+                {
+                    if (doc.RootElement.TryGetProperty("choices", out var choices) &&
+                        choices[0].TryGetProperty("delta", out var delta) &&
+                        delta.TryGetProperty("content", out var content))
+                    {
+                        yield return content.GetString() ?? "";
+                    }
+                }
+            }
+        }
     }
 
     public async Task<string> GenerateChatTitleAsync(string firstUserMessage)
