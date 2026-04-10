@@ -54,9 +54,9 @@ public class LoginWithGoogleCommandHandler(
             if (user is null)
             {
                 user = User.CreateWithSocialLogin(
-                    googleUser.Email,
                     googleUser.FirstName,
                     googleUser.LastName,
+                    googleUser.Email,
                     googleUser.PictureUrl);
 
                 user.UpdateRegionalPreferences(
