@@ -9,17 +9,23 @@ public class ClientContextProvider(IHttpContextAccessor accessor) : IClientConte
 {
     public ClientContext GetContext()
     {
-        var ipAddress = accessor.HttpContext?.Request.Headers["X-Forwarded-For"].FirstOrDefault()
-            ?? accessor.HttpContext?.Connection.RemoteIpAddress?.ToString()
+        var context = accessor.HttpContext;
+        if (context == null) return default!;
+
+        var ipAddress = context.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+            ?? context.Connection.RemoteIpAddress?.ToString()
             ?? "Unknown";
 
         var deviceId = GetClaimsValue("device_id");
 
-        var email = GetClaimsValue(ClaimTypes.Email);
-        var phoneNumber = GetClaimsValue(ClaimTypes.MobilePhone);
+        var email = GetClaimsValue(JwtRegisteredClaimNames.Email);
+        var phoneNumber = GetClaimsValue("phone");
 
-        var userIdString = GetClaimsValue(ClaimTypes.NameIdentifier) ?? GetClaimsValue(JwtRegisteredClaimNames.Sub);
+        var userIdString = GetClaimsValue(JwtRegisteredClaimNames.Sub);
         Guid.TryParse(userIdString, out var userId);
+
+        var userName = GetClaimsValue(JwtRegisteredClaimNames.Name);
+        var avatarUrl = GetClaimsValue(JwtRegisteredClaimNames.Picture);
 
         var roles = GetClaimsValues(ClaimTypes.Role);
 
@@ -31,12 +37,14 @@ public class ClientContextProvider(IHttpContextAccessor accessor) : IClientConte
             userId,
             ipAddress,
             deviceId,
+            userName,
             email,
             phoneNumber,
+            avatarUrl,
             roles,
-            OwnerId: ownerId,
-            TouristId: touristId,
-            TourGuideId: tourGuideId);
+            ownerId,
+            touristId,
+            tourGuideId);
     }
 
     private IEnumerable<string> GetClaimsValues(string claimType)
@@ -48,17 +56,14 @@ public class ClientContextProvider(IHttpContextAccessor accessor) : IClientConte
 
     private string GetClaimsValue(string claimType)
     {
-        return accessor.HttpContext?.User.Claims
-            .FirstOrDefault(c => c.Type == claimType)?.Value ?? string.Empty;
-    }
+        var value = accessor.HttpContext?.User.Claims
+            .FirstOrDefault(c => c.Type == claimType)?.Value;
 
+        return value ?? string.Empty;
+    }
 
     private static Guid? TryParseNullableGuid(string value)
     {
-        if (Guid.TryParse(value, out var guid))
-        {
-            return guid;
-        }
-        return null;
+        return Guid.TryParse(value, out var guid) ? guid : null;
     }
 }

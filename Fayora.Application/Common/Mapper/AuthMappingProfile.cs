@@ -13,10 +13,12 @@ using Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithEmail;
 using Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithPhone;
 using Fayora.Application.Features.AuthModule.Commands.VerifyEmail;
 using Fayora.Application.Features.AuthModule.Commands.VerifyPhone;
+using Fayora.Application.Features.AuthModule.Queries.GetUser;
 using Fayora.Contracts.AuthModule.AppleLogin;
 using Fayora.Contracts.AuthModule.ConfirmChangeEmail;
 using Fayora.Contracts.AuthModule.ConfirmChangePhone;
 using Fayora.Contracts.AuthModule.FacebookLogin;
+using Fayora.Contracts.AuthModule.GetUser;
 using Fayora.Contracts.AuthModule.GoogleLogin;
 using Fayora.Contracts.AuthModule.Login;
 using Fayora.Contracts.AuthModule.RefreshToken;
@@ -44,5 +46,17 @@ public class AuthMappingProfile : Profile
         CreateMap<RefreshTokenResult, RefreshTokenResponse>();
         CreateMap<ConfirmChangeEmailResult, ConfirmChangeEmailResponse>();
         CreateMap<ConfirmChangePhoneResult, ConfirmChangePhoneResponse>();
+
+        CreateMap<GetUserResult, GetUserResponse>()
+            .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender.HasValue ? src.Gender.Value.ToString() : null))
+            .ForMember(dest => dest.PreferredLanguage, opt => opt.MapFrom(src => src.PreferredLanguage.HasValue ? src.PreferredLanguage.Value.ToString() : null))
+
+            .ForMember(dest => dest.LanguageProficiencies, opt => opt.MapFrom(src =>
+                src.LanguageProficiencies.Select(lp =>
+                    new ValueTuple<string, decimal>(
+                        lp.Language.ToString(),
+                        (decimal)lp.ProficiencyLevel
+                    )).ToList()
+            ));
     }
 }

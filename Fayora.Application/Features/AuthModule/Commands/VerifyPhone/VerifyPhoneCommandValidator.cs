@@ -24,7 +24,7 @@ public class VerifyPhoneCommandValidator : AbstractValidator<VerifyPhoneCommand>
             .MaximumLength(500).WithMessage("FCM Token must not exceed 500 characters.");
 
         RuleFor(x => x.DeviceLanguage)
-            .IsInEnum().WithMessage("Invalid device language selection.");
+            .NotEmpty().WithMessage("Device language is required.");
 
         RuleFor(x => x.TimeZone)
             .NotEmpty().WithMessage("Time zone is required.")

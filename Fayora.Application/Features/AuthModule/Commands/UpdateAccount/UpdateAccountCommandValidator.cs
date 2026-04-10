@@ -37,7 +37,7 @@ public class UpdateAccountCommandValidator : AbstractValidator<UpdateAccountComm
             .When(x => x.Description != null);
 
         RuleFor(x => x.PreferredLanguage)
-            .IsInEnum().WithMessage("Invalid language selection.");
+            .NotEmpty().WithMessage("Device language is required.");
 
         RuleFor(x => x.TimeZone)
             .MaximumLength(100).WithMessage("Time zone string is too long.")
