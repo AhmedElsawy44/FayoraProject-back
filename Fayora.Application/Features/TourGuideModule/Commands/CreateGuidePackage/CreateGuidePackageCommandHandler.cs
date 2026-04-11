@@ -3,6 +3,7 @@ using Fayora.Application.Common.Interfaces.Persistences.TourGuideModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Common;
+using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.TourGuide;
 using Fayora.Domain.Enums.TourGuideModule;

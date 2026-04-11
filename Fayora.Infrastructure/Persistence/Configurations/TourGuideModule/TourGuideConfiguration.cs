@@ -42,11 +42,21 @@ namespace Fayora.Infrastructure.Persistence.Configurations.TourGuideModule
             builder.Property(x => x.Status)
                 .IsRequired();
 
+            builder.Property(x => x.CancellationRate)
+                .HasPrecision(5, 2);
+
             builder.OwnsOne(x => x.LastLocation, geo =>
             {
-                geo.Property(g => g.Latitude).HasColumnName("Latitude");
-                geo.Property(g => g.Longitude).HasColumnName("Longitude");
+                geo.Property(g => g.Latitude)
+                    .HasColumnName("Latitude")
+                    .HasPrecision(18, 6);
+                geo.Property(g => g.Longitude)
+                    .HasColumnName("Longitude")
+                    .HasPrecision(18, 6);
             });
+
+            builder.Property(x => x.CancellationRate)
+                .HasPrecision(5, 2);
 
             builder.OwnsOne(x => x.TransportInfo, transport =>
             {

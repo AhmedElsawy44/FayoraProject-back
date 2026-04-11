@@ -43,8 +43,12 @@ namespace Fayora.Infrastructure.Persistence.Configurations.TourGuideModule
 
             builder.OwnsOne(x => x.MeetingPoint, geo =>
             {
-                geo.Property(g => g.Latitude).HasColumnName("MeetingPointLatitude");
-                geo.Property(g => g.Longitude).HasColumnName("MeetingPointLongitude");
+                geo.Property(g => g.Latitude)
+                    .HasColumnName("MeetingPointLatitude")
+                    .HasPrecision(18, 6);
+                geo.Property(g => g.Longitude)
+                    .HasColumnName("MeetingPointLongitude")
+                    .HasPrecision(18, 6);
             });
 
             builder.HasMany(x => x.GuideOffers)
