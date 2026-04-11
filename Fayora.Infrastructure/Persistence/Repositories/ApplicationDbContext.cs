@@ -1,4 +1,5 @@
 ﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Services.AIModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Entities.IdentityModule;
 using MediatR;
@@ -63,5 +64,62 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+    }
+
+
+    public async Task<IEnumerable<object>> SearchAsync(string intent, IAIService.SearchParams parameters)
+    {
+        return intent?.ToLower() switch
+        {
+            "housing" => await SearchHotelsAsync(parameters),
+            "trip" => await SearchTripsAsync(parameters),
+            "guiding" => await SearchGuidesAsync(parameters),
+            _ => Enumerable.Empty<object>()
+        };
+    }
+
+    private async Task<IEnumerable<object>> SearchHotelsAsync(IAIService.SearchParams parameters)
+    {
+        var query = this.Set<Hotel>().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(parameters.Location))
+            query = query.Where(h => h.City.Contains(parameters.Location) || h.Name.Contains(parameters.Location));
+
+        if (parameters.Budget_Max.HasValue)
+            query = query.Where(h => h.PricePerNight <= parameters.Budget_Max.Value);
+
+        if (parameters.People_Count.HasValue)
+            query = query.Where(h => h.MaxCapacity >= parameters.People_Count.Value);
+
+        return await query.AsNoTracking().Take(10).ToListAsync();
+    }
+
+    private async Task<IEnumerable<object>> SearchTripsAsync(IAIService.SearchParams parameters)
+    {
+        var query = this.Set<Trip>().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(parameters.Location))
+            query = query.Where(t => t.Destination.Contains(parameters.Location));
+
+        if (parameters.Budget_Max.HasValue)
+            query = query.Where(t => t.Price <= parameters.Budget_Max.Value);
+
+        if (parameters.Duration_Days.HasValue)
+            query = query.Where(t => t.DurationInDays == parameters.Duration_Days.Value);
+
+        return await query.AsNoTracking().Take(10).ToListAsync();
+    }
+
+    private async Task<IEnumerable<object>> SearchGuidesAsync(IAIService.SearchParams parameters)
+    {
+        var query = this.Set<Guide>().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(parameters.Location))
+            query = query.Where(g => g.CitiesCovered.Contains(parameters.Location));
+
+        if (parameters.Budget_Max.HasValue)
+            query = query.Where(g => g.DailyRate <= parameters.Budget_Max.Value);
+
+        return await query.AsNoTracking().Take(10).ToListAsync();
     }
 }

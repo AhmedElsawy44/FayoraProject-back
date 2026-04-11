@@ -55,7 +55,7 @@ public class AIService(HttpClient httpClient, IOptions<AISettings> aiSettings, I
         using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
         using var reader = new StreamReader(stream);
 
-        while (!reader.EndOfStream)
+        while (reader.EndOfStream)
         {
             var line = await reader.ReadLineAsync(cancellationToken);
             if (string.IsNullOrWhiteSpace(line)) continue;
