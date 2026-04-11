@@ -1,6 +1,8 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+﻿using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Entities.IdentityModule;
+using Fayora.Domain.Entities.Shared;
+using Fayora.Domain.Entities.TourGuide;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +20,15 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<VerificationDocument> VerificationDocuments { get; set; }
     public DbSet<VerificationRequest> VerificationRequests { get; set; }
     public DbSet<VerificationCode> VerificationCodes { get; set; }
+
+    //for tour guide
+    public DbSet<TourGuide> TourGuides { get; set; }
+    public DbSet<GuideTourPackage> GuideTourPackages { get; set; }
+    public DbSet<City> Cities { get; set; }
+    public DbSet<GuideCity> GuideCities { get; set; }
+    public DbSet<GuideRequest> GuideRequests { get; set; }
+    public DbSet<GuideOffer> GuideOffers { get; set; }
+
 
     public async Task CommitChangesAsync(CancellationToken cancellationToken = default)
     {

@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+﻿using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Results;
@@ -6,7 +6,7 @@ using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.Enums.IdentityModule;
 using Fayora.Domain.ValueObjects;
 using MediatR;
-using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
+using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.LoginWithFacebook;
 

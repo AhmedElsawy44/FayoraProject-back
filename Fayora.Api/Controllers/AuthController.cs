@@ -571,4 +571,5 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     }
 
     #endregion
+
 }
