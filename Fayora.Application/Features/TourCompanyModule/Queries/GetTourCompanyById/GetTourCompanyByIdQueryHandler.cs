@@ -2,7 +2,7 @@
 using Fayora.Application.Common.Interfaces.Persistences.TouCompanyModule;
 using MediatR;
 
-namespace Fayora.Application.Features.TourCompanyModule.Queries
+namespace Fayora.Application.Features.TourCompanyModule.Queries.GetTorCompanyById
 {
     public class GetTourCompanyByIdQueryHandler(
         ITourCompanyRepository tourCompanyRepository)

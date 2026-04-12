@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
-using Fayora.Application.Features.TourCompanyModule.CreateTourCompany;
 using Fayora.Application.Features.TourCompanyModule.Commands.CreateCompanyPackage;
+using Fayora.Application.Features.TourCompanyModule.CreateTourCompany;
 using Fayora.Application.Features.TourCompanyModule.Queries;
+using Fayora.Application.Features.TourCompanyModule.Queries.GetAllCompanyPackages;
+using Fayora.Application.Features.TourCompanyModule.Queries.GetTorCompanyById;
 using Fayora.Contracts.TourCompanyModule.CreateCompanyPackage;
 using Fayora.Contracts.TourCompanyModule.CreateTourCompany;
+using Fayora.Contracts.TourCompanyModule.GetAllCompanyPackages;
 using Fayora.Contracts.TourCompanyModule.GetTourCompanyById;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.ValueObjects;
@@ -78,6 +81,17 @@ namespace Fayora.Api.Controllers
 
             return result.Match(
                 onValue: value => Ok(mapper.Map<CreateCompanyPackageResponse>(value)),
+                onError: Problem);
+        }
+
+        [HttpGet("{companyId:guid}/packages")]
+        public async Task<IActionResult> GetCompanyPackages(Guid companyId, CancellationToken ct)
+        {
+            var query = new GetAllCompanyPackagesQuery(companyId);
+            var result = await sender.Send(query, ct);
+
+            return result.Match(
+                onValue: value => Ok(value.Select(p => mapper.Map<GetCompanyPackagesResponse>(p)).ToList()),
                 onError: Problem);
         }
     }

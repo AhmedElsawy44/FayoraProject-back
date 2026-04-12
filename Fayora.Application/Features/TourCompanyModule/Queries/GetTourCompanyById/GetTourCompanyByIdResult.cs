@@ -1,4 +1,4 @@
-﻿namespace Fayora.Application.Features.TourCompanyModule.Queries
+﻿namespace Fayora.Application.Features.TourCompanyModule.Queries.GetTorCompanyById
 {
     public record GetTourCompanyByIdResult(
         Guid CompanyId,

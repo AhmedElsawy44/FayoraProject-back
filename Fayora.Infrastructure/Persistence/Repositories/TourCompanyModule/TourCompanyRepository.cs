@@ -19,6 +19,11 @@ namespace Fayora.Infrastructure.Persistence.Repositories.TourCompanyModule
         public async Task<bool> ExistsAsync(Guid userId, CancellationToken cancellationToken = default)
             => await context.TourCompanies.AnyAsync(x => x.UserId == userId, cancellationToken);
 
+        public async Task<List<CompanyTourPackage>> GetCompanyPackagesAsync(Guid companyId, CancellationToken ct = default)
+            => await context.CompanyTourPackages
+                .Where(x => x.CompanyId == companyId)
+                .ToListAsync(ct);
+
         public async Task<TourCompany?> GetTourCompanyByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
           return await context.TourCompanies
