@@ -9,6 +9,9 @@ namespace Fayora.Infrastructure.Persistence.Repositories.TourCompanyModule
 {
     public class TourCompanyRepository(ApplicationDbContext context) : ITourCompanyRepository
     {
+        public async Task AddPackageAsync(CompanyTourPackage package, CancellationToken ct = default)
+           => await context.CompanyTourPackages.AddAsync(package, ct);
+
         public async Task AddTourCompanyAsync(TourCompany tourCompany, CancellationToken cancellationToken = default) 
             => await context.TourCompanies.AddAsync(tourCompany, cancellationToken);
 
