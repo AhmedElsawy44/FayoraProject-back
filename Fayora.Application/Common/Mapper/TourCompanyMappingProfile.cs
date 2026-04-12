@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.TourCompanyModule.Commands.CreateTourCompany;
+using Fayora.Application.Features.TourCompanyModule.Queries;
 using Fayora.Contracts.TourCompanyModule.CreateTourCompany;
+using Fayora.Contracts.TourCompanyModule.GetTourCompanyById;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,6 +14,7 @@ namespace Fayora.Application.Common.Mapper
         public TourCompanyMappingProfile()
         {
             CreateMap<CreateTourCompanyResult, CreateTourCompanyResponse>();
+            CreateMap<GetTourCompanyByIdResult, GetTourCompanyByIdResponse>();
         }
     }
 }

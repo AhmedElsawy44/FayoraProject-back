@@ -1,6 +1,8 @@
-﻿using Fayora.Application.Features.TourCompanyModule.CreateTourCompany;
+﻿using AutoMapper;
+using Fayora.Application.Features.TourCompanyModule.CreateTourCompany;
+using Fayora.Application.Features.TourCompanyModule.Queries;
 using Fayora.Contracts.TourCompanyModule.CreateTourCompany;
-using AutoMapper;
+using Fayora.Contracts.TourCompanyModule.GetTourCompanyById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,6 +30,17 @@ namespace Fayora.Api.Controllers
 
             return result.Match(
                 onValue: value => Ok(mapper.Map<CreateTourCompanyResponse>(value)),
+                onError: Problem);
+        }
+
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetTourCompany(Guid id, CancellationToken ct)
+        {
+            var query = new GetTourCompanyByIdQuery(id);
+            var result = await sender.Send(query, ct);
+
+            return result.Match(
+                onValue: value => Ok(mapper.Map<GetTourCompanyByIdResponse>(value)),
                 onError: Problem);
         }
     }
