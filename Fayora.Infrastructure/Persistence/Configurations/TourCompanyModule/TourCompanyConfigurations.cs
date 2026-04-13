@@ -46,7 +46,7 @@ namespace Fayora.Infrastructure.Persistence.Configurations.TourCompanyModule
 
             // Relationships
             builder.HasMany(x => x.Packages)
-                .WithOne()
+                .WithOne(x => x.Company)
                 .HasForeignKey(x => x.CompanyId)
                 .OnDelete(DeleteBehavior.Cascade);
         }

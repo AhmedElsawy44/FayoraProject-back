@@ -1,4 +1,4 @@
-﻿namespace Fayora.Application.Features.TourCompanyModule.Queries.GetAllCompanyPackages
+﻿namespace Fayora.Application.Features.TourCompanyModule.Queries.GetCompanyPackages
 {
     public record GetCompanyPackagesResult(
         Guid PackageId,

@@ -3,10 +3,13 @@ using Fayora.Application.Features.TourCompanyModule.Commands.CreateCompanyPackag
 using Fayora.Application.Features.TourCompanyModule.CreateTourCompany;
 using Fayora.Application.Features.TourCompanyModule.Queries;
 using Fayora.Application.Features.TourCompanyModule.Queries.GetAllCompanyPackages;
+using Fayora.Application.Features.TourCompanyModule.Queries.GetAllPackages;
+using Fayora.Application.Features.TourCompanyModule.Queries.GetCompanyPackages;
 using Fayora.Application.Features.TourCompanyModule.Queries.GetTorCompanyById;
 using Fayora.Contracts.TourCompanyModule.CreateCompanyPackage;
 using Fayora.Contracts.TourCompanyModule.CreateTourCompany;
 using Fayora.Contracts.TourCompanyModule.GetAllCompanyPackages;
+using Fayora.Contracts.TourCompanyModule.GetAllPackages;
 using Fayora.Contracts.TourCompanyModule.GetTourCompanyById;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.ValueObjects;
@@ -87,11 +90,39 @@ namespace Fayora.Api.Controllers
         [HttpGet("{companyId:guid}/packages")]
         public async Task<IActionResult> GetCompanyPackages(Guid companyId, CancellationToken ct)
         {
-            var query = new GetAllCompanyPackagesQuery(companyId);
+            var query = new GetCompanyPackagesQuery(companyId);
             var result = await sender.Send(query, ct);
 
             return result.Match(
                 onValue: value => Ok(value.Select(p => mapper.Map<GetCompanyPackagesResponse>(p)).ToList()),
+                onError: Problem);
+        }
+
+        [HttpGet("allPackages")]
+        public async Task<IActionResult> GetAllPackages(
+
+           [FromQuery] TourTypeDto? tourType,
+           [FromQuery] decimal? minPrice,
+           [FromQuery] decimal? maxPrice,
+           [FromQuery] DateOnly? startDate,
+           [FromQuery] DateOnly? endDate,
+           [FromQuery] int page = 1,
+           [FromQuery] int pageSize = 10,
+           CancellationToken ct = default)
+        {
+            var query = new GetAllPackagesQuery(
+                TourType: tourType.HasValue ? mapper.Map<TourType>(tourType.Value) : null,
+                MinPrice: minPrice,
+                MaxPrice: maxPrice,
+                StartDate: startDate,
+                EndDate: endDate,
+                Page: page,
+                PageSize: pageSize);
+
+            var result = await sender.Send(query, ct);
+
+            return result.Match(
+                onValue: value => Ok(mapper.Map<GetAllPackagesResponse>(value)),
                 onError: Problem);
         }
     }

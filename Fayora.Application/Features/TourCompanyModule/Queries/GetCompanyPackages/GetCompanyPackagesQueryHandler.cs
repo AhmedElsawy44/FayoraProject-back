@@ -1,16 +1,18 @@
 ﻿using Fayora.Application.Common.Interfaces.Persistences.TouCompanyModule;
+using Fayora.Application.Features.TourCompanyModule.Queries.GetAllCompanyPackages;
+using Fayora.Application.Features.TourCompanyModule.Queries.GetCompanyPackages;
 using Fayora.Domain.Common.Results;
 using MediatR;
 
-namespace Fayora.Application.Features.TourCompanyModule.Queries.GetAllCompanyPackages
+namespace Fayora.Application.Features.TourCompanyModule.Queries.GetCompanyPackages
 {
 
-    public class GetAllCompanyPackagesQueryHandler(
+    public class GetCompanyPackagesQueryHandler(
         ITourCompanyRepository tourCompanyRepository)
-        : IRequestHandler<GetAllCompanyPackagesQuery, Result<List<GetCompanyPackagesResult>>>
+        : IRequestHandler<GetCompanyPackagesQuery, Result<List<GetCompanyPackagesResult>>>
     {
         public async Task<Result<List<GetCompanyPackagesResult>>> Handle(
-            GetAllCompanyPackagesQuery query,
+            GetCompanyPackagesQuery query,
             CancellationToken cancellationToken)
         {
 

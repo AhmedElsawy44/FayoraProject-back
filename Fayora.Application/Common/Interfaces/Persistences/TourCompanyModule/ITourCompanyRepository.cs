@@ -1,4 +1,5 @@
 ﻿using Fayora.Domain.Entities.TourCompanyModule;
+using Fayora.Domain.Enums.SharedModule;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,6 +15,15 @@ namespace Fayora.Application.Common.Interfaces.Persistences.TouCompanyModule
 
         Task AddPackageAsync(CompanyTourPackage package, CancellationToken ct = default);
         Task<List<CompanyTourPackage>> GetCompanyPackagesAsync(Guid companyId, CancellationToken ct = default);
+        Task<(List<CompanyTourPackage> Items, int TotalCount)> GetAllPackagesAsync(
+             TourType? tourType,
+             decimal? minPrice,
+             decimal? maxPrice,
+             DateOnly? startDate,
+             DateOnly? endDate,
+             int page,
+             int pageSize,
+             CancellationToken ct = default);
     }
 
 }

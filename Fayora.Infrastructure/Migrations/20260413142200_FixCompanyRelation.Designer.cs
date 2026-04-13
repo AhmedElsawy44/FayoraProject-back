@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260411190314_AddTourCompanyModule")]
-    partial class AddTourCompanyModule
+    [Migration("20260413142200_FixCompanyRelation")]
+    partial class FixCompanyRelation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1090,7 +1090,7 @@ namespace Fayora.Infrastructure.Migrations
 
             modelBuilder.Entity("Fayora.Domain.Entities.TourCompanyModule.CompanyTourPackage", b =>
                 {
-                    b.HasOne("Fayora.Domain.Entities.TourCompanyModule.TourCompany", null)
+                    b.HasOne("Fayora.Domain.Entities.TourCompanyModule.TourCompany", "Company")
                         .WithMany("Packages")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1118,6 +1118,8 @@ namespace Fayora.Infrastructure.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("CompanyTourPackageId");
                         });
+
+                    b.Navigation("Company");
 
                     b.Navigation("DepartureLocation")
                         .IsRequired();

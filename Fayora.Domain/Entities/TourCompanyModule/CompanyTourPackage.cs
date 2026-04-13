@@ -20,6 +20,8 @@ namespace Fayora.Domain.Entities.TourCompanyModule
         private readonly List<PackageActivity> _activities = [];
         public IReadOnlyCollection<PackageActivity> Activities => _activities.AsReadOnly();
 
+        public TourCompany Company { get; private set; } = null!; // Navigation property
+
         private CompanyTourPackage(
             Guid companyId, string title, string description,
             TourType tourTypes, int durationHours,

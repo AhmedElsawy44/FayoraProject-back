@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Fayora.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddTourCompanyModule : Migration
+    public partial class FixCompanyRelation : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
