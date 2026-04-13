@@ -62,6 +62,12 @@ namespace Fayora.Domain.Entities.SharedModule
         public void AddIncludedItems(IEnumerable<string> items) => _includedItems.AddRange(items);
         public void AddExcludedItems(IEnumerable<string> items) => _excludedItems.AddRange(items);
 
+
+
+        public void ClearIncludedItems() => _includedItems.Clear();
+        public void ClearExcludedItems() => _excludedItems.Clear();
+
+
         public void Activate()
         {
             IsActive = true;

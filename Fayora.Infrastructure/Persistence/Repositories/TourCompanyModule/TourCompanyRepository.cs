@@ -78,5 +78,27 @@ namespace Fayora.Infrastructure.Persistence.Repositories.TourCompanyModule
                 .Include(x => x.Packages)
                 .FirstOrDefaultAsync(x => x.UserId == userId, cancellationToken);
         }
+
+        public async Task<CompanyTourPackage?> GetPackageByIdAsync(Guid packageId, CancellationToken ct = default)
+    => await context.CompanyTourPackages
+        .FirstOrDefaultAsync(x => x.Id == packageId, ct);
+
+        //public async Task<bool> HasConfirmedBookingsAsync(Guid packageId, CancellationToken ct = default)
+        //    => await context.Bookings
+        //        .AnyAsync(x => x.ServiceId == packageId &&
+        //                  x.Status == BookingStatus.Confirmed, ct);
+        public async Task<bool> HasConfirmedBookingsAsync(Guid packageId, CancellationToken ct = default)
+    => false; // TODO: implement when Booking module is ready
+
+
+        //    public async Task<bool> HasAnyBookingsAsync(Guid packageId, CancellationToken ct = default)
+        //=> await context.Bookings
+        //    .AnyAsync(x => x.ServiceId == packageId, ct);
+        public async Task<bool> HasAnyBookingsAsync(Guid packageId, CancellationToken ct = default)
+        => false; // TODO: implement when Booking module is ready
+
+        public void DeletePackage(CompanyTourPackage package)
+            => context.CompanyTourPackages.Remove(package);
+
     }
 }

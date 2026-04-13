@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.TourCompanyModule.Commands.CreateCompanyPackage;
+using Fayora.Application.Features.TourCompanyModule.Commands.DeleteCompanyPackage;
+using Fayora.Application.Features.TourCompanyModule.Commands.UpdateCompanyPackage;
 using Fayora.Application.Features.TourCompanyModule.CreateTourCompany;
 using Fayora.Application.Features.TourCompanyModule.Queries;
 using Fayora.Application.Features.TourCompanyModule.Queries.GetAllCompanyPackages;
@@ -11,6 +13,7 @@ using Fayora.Contracts.TourCompanyModule.CreateTourCompany;
 using Fayora.Contracts.TourCompanyModule.GetAllCompanyPackages;
 using Fayora.Contracts.TourCompanyModule.GetAllPackages;
 using Fayora.Contracts.TourCompanyModule.GetTourCompanyById;
+using Fayora.Contracts.TourCompanyModule.UpdateCompanyPackage;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.ValueObjects;
 using MediatR;
@@ -125,5 +128,55 @@ namespace Fayora.Api.Controllers
                 onValue: value => Ok(mapper.Map<GetAllPackagesResponse>(value)),
                 onError: Problem);
         }
+
+
+
+
+
+
+        [HttpPut("packages/{id:guid}")]
+        public async Task<IActionResult> UpdateCompanyPackage(
+             Guid id,
+             [FromBody] UpdateCompanyPackageRequest request,
+             CancellationToken ct)
+        {
+            var command = new UpdateCompanyPackageCommand(
+                PackageId: id,
+                Title: request.Title,
+                Description: request.Description,
+                TourTypes: mapper.Map<TourType>(request.TourTypes),
+                DurationHours: request.DurationHours,
+                StartDate: request.StartDate,
+                EndDate: request.EndDate,
+                DepartureLocation: new GeoPoint(request.DepartureLat, request.DepartureLng),
+                MaxCapacity: request.MaxCapacity,
+                AdultPrice: request.AdultPrice,
+                ChildPrice: request.ChildPrice,
+                CancellationPolicy: request.CancellationPolicy,
+                MainImageUrl: request.MainImageUrl,
+                MainVideoUrl: request.MainVideoUrl,
+                GuestRequirements: request.GuestRequirements,
+                IncludedItems: request.IncludedItems,
+                ExcludedItems: request.ExcludedItems);
+
+            var result = await sender.Send(command, ct);
+
+            return result.Match(
+                onValue: _ => NoContent(),
+                onError: Problem);
+        }
+
+        [HttpDelete("packages/{id:guid}")]
+        public async Task<IActionResult> DeleteCompanyPackage(Guid id, CancellationToken ct)
+        {
+            var result = await sender.Send(new DeleteCompanyPackageCommand(id), ct);
+
+            return result.Match(
+                onValue: _ => NoContent(),
+                onError: Problem);
+        }
+
+
+
     }
 }

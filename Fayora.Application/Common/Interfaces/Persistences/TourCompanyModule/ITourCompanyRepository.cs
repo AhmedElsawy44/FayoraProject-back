@@ -24,6 +24,12 @@ namespace Fayora.Application.Common.Interfaces.Persistences.TouCompanyModule
              int page,
              int pageSize,
              CancellationToken ct = default);
+
+
+        Task<CompanyTourPackage?> GetPackageByIdAsync(Guid packageId, CancellationToken ct = default);
+        Task<bool> HasConfirmedBookingsAsync(Guid packageId, CancellationToken ct = default);
+        Task<bool> HasAnyBookingsAsync(Guid packageId, CancellationToken ct = default);
+        void DeletePackage(CompanyTourPackage package);
     }
 
 }
