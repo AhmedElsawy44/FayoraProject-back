@@ -28,10 +28,6 @@ public class UpdateAccountCommandValidator : AbstractValidator<UpdateAccountComm
             .Length(2, 3).WithMessage("Nationality code must be 2 or 3 characters.")
             .When(x => x.NationalityCode != null);
 
-        RuleFor(x => x.ProfileImageUrl)
-            .Must(BeAValidUrl).WithMessage("Profile image must be a valid URL.")
-            .When(x => !string.IsNullOrWhiteSpace(x.ProfileImageUrl));
-
         RuleFor(x => x.Description)
             .MaximumLength(500).WithMessage("Description cannot exceed 500 characters.")
             .When(x => x.Description != null);
