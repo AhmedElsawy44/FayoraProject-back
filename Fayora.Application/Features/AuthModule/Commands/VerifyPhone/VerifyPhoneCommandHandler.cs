@@ -1,11 +1,20 @@
+<<<<<<< HEAD
 using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Application.Abstractions.Messaging;
+=======
+﻿using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+>>>>>>> f50de591342cfd91cb5e500935cbeb8d57ede447
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.IdentityModule;
+<<<<<<< HEAD
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
+=======
+using MediatR;
+using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
+>>>>>>> f50de591342cfd91cb5e500935cbeb8d57ede447
 
 namespace Fayora.Application.Features.AuthModule.Commands.VerifyPhone;
 

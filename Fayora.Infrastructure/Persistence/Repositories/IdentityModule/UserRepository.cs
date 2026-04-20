@@ -1,8 +1,8 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+﻿using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
-using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
+using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 

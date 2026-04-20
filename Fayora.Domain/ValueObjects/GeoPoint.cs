@@ -4,10 +4,10 @@ namespace Fayora.Domain.ValueObjects;
 
 public class GeoPoint : ValueObject
 {
-    public double Latitude { get; private set; }
-    public double Longitude { get; private set; }
+    public decimal Latitude { get; private set; }
+    public decimal Longitude { get; private set; }
 
-    public GeoPoint(double latitude, double longitude)
+    public GeoPoint(decimal latitude, decimal longitude)
     {
         Latitude = latitude;
         Longitude = longitude;

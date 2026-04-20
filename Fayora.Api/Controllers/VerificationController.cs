@@ -20,15 +20,13 @@ namespace Fayora.Api.Controllers
             var command = new SubmitVerificationRequestCommand(
                 UserId: request.UserId,
                 RequestType: request.RequestType,
-                Documents: request.Documents
-                    .Select(d => (d.DocumentType, d.File))
-                    .ToList());
+                Documents: [.. request.Documents.Select(d => (d.DocumentType, d.File))]);
 
             var result = await sender.Send(command, ct);
 
             return result.Match(
-                onValue: response => Ok(response),
-                onError: Problem);
+                Ok,
+                Problem);
         }
 
 
@@ -39,7 +37,7 @@ namespace Fayora.Api.Controllers
             var result = await sender.Send(query, ct);
 
             return result.Match(
-                onValue: response => Ok(response),
+                Ok,
                 onError: Problem);
         }
 
@@ -56,7 +54,7 @@ namespace Fayora.Api.Controllers
             var result = await sender.Send(command, ct);
 
             return result.Match(
-                onValue: response => Ok(response),
+                Ok,
                 onError: Problem);
         }
 
