@@ -15,5 +15,8 @@ public record GetUserResponse
     DateOnly? BirthDate,
     string? Description,
     string? PreferredLanguage,
-    List<(string Language, decimal Proficiency)> LanguageProficiencies
+    List<LanguageProficiencyDto> LanguageProficiencies
 );
+
+public record LanguageProficiencyDto(string Language, decimal Proficiency);
+

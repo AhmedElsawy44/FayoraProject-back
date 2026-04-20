@@ -48,15 +48,20 @@ public class AuthMappingProfile : Profile
         CreateMap<ConfirmChangePhoneResult, ConfirmChangePhoneResponse>();
 
         CreateMap<GetUserResult, GetUserResponse>()
-            .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender.HasValue ? src.Gender.Value.ToString() : null))
-            .ForMember(dest => dest.PreferredLanguage, opt => opt.MapFrom(src => src.PreferredLanguage.HasValue ? src.PreferredLanguage.Value.ToString() : null))
+            .ForCtorParam("Gender", opt => opt.MapFrom(src =>
+                src.Gender.HasValue ? src.Gender.Value.ToString() : null))
 
-            .ForMember(dest => dest.LanguageProficiencies, opt => opt.MapFrom(src =>
-                src.LanguageProficiencies.Select(lp =>
-                    new ValueTuple<string, decimal>(
-                        lp.Language.ToString(),
-                        (decimal)lp.ProficiencyLevel
-                    )).ToList()
+            .ForCtorParam("PreferredLanguage", opt => opt.MapFrom(src =>
+                src.PreferredLanguage.HasValue ? src.PreferredLanguage.Value.ToString() : null))
+
+            .ForCtorParam("LanguageProficiencies", opt => opt.MapFrom(src =>
+                src.LanguageProficiencies != null
+                    ? src.LanguageProficiencies.Select(lp =>
+                        new LanguageProficiencyDto(
+                            lp.Language.ToString(),
+                            lp.ProficiencyLevel
+                        )).ToList()
+                    : new List<LanguageProficiencyDto>()
             ));
     }
 }
