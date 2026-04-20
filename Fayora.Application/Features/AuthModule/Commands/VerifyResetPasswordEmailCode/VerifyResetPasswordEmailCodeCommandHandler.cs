@@ -1,11 +1,11 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.Enums.IdentityModule;
-using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.VerifyResetPasswordEmailCode;
@@ -18,7 +18,7 @@ public class VerifyResetPasswordEmailCodeCommandHandler(
     IUnitOfWork unitOfWork,
     ICodeHasher codeHasher,
     ITokenHasher tokenHasher)
-    : IRequestHandler<VerifyResetPasswordEmailCodeCommand, Result<string>>
+    : ICommandHandler<VerifyResetPasswordEmailCodeCommand, Result<string>>
 {
     public async Task<Result<string>> Handle(VerifyResetPasswordEmailCodeCommand request, CancellationToken cancellationToken)
     {

@@ -1,6 +1,6 @@
-﻿using Fayora.Application.Common.Interfaces.Services.SharedModule;
-using Fayora.Domain.Common.Events.IdentityModule;
+using Fayora.Application.Common.Interfaces.Services.SharedModule;
 using MediatR;
+using Fayora.Domain.Common.Events.IdentityModule;
 using Microsoft.Extensions.Logging;
 
 namespace Fayora.Application.Features.AuthModule.Events;

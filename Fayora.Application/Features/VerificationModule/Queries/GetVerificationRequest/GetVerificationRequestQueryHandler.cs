@@ -1,12 +1,11 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
-using MediatR;
-
 namespace Fayora.Application.Features.VerificationModule.Queries.GetVerificationRequest
 {
     public class GetVerificationRequestQueryHandler(
         IVerificationRepository verificationRepository)
-        : IRequestHandler<GetVerificationRequestQuery, Result<GetVerificationRequestResponse>>
+        : IQueryHandler<GetVerificationRequestQuery, Result<GetVerificationRequestResponse>>
     {
         public async Task<Result<GetVerificationRequestResponse>> Handle(
             GetVerificationRequestQuery query,

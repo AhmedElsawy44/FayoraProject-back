@@ -1,7 +1,6 @@
-﻿using Fayora.Application.Common.Interfaces.Validations;
+using Fayora.Application.Common.Interfaces.Validations;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
-using MediatR;
-
 namespace Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithEmail;
 
 
@@ -11,5 +10,5 @@ public record RestoreAccountWithEmailCommand(
     string DeviceId,
     string FcmToken,
     string DeviceLanguage
-) : IRequest<Result<RestoreAccountWithEmailResult>>, ICheckBannedRequest;
+) : ICommand<Result<RestoreAccountWithEmailResult>>, ICheckBannedRequest;
 

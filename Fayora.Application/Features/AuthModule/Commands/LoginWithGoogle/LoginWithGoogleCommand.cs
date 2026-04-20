@@ -1,7 +1,6 @@
-﻿using Fayora.Application.Common.Interfaces.Validations;
+using Fayora.Application.Common.Interfaces.Validations;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
-using MediatR;
-
 namespace Fayora.Application.Features.AuthModule.Commands.LoginWithGoogle;
 
 public record LoginWithGoogleCommand
@@ -12,4 +11,4 @@ public record LoginWithGoogleCommand
     string? SimCountryIsoCode,
     string TimeZone,
     string DeviceLanguage
-) : IRequest<Result<LoginWithGoogleResult>>, ICheckBannedRequest;
+) : ICommand<Result<LoginWithGoogleResult>>, ICheckBannedRequest;

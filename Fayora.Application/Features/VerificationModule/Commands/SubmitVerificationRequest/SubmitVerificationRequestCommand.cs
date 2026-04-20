@@ -1,6 +1,6 @@
-﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Common.Results;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Domain.Enums.SharedModule;
-using MediatR;
 using Microsoft.AspNetCore.Http;
 
 
@@ -10,6 +10,6 @@ namespace Fayora.Application.Features.VerificationModule.Commands.SubmitVerifica
         Guid UserId,
         RequestType RequestType,
         List<(DocumentType DocumentType, IFormFile File)> Documents
-    ) : IRequest<Result<SubmitVerificationRequestResponse>>;
+    ) : ICommand<Result<SubmitVerificationRequestResponse>>;
 }
 

@@ -1,9 +1,10 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using MediatR;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
-using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.SendPhoneCode;
@@ -13,7 +14,7 @@ public class SendPhoneCodeCommandHandler(
     IUnitOfWork unitOfWork,
     ICodeHasher codeHasher,
     IMessageGenerator messageGenerator)
-    : IRequestHandler<SendPhoneCodeCommand, Result<Unit>>
+    : ICommandHandler<SendPhoneCodeCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(SendPhoneCodeCommand request, CancellationToken cancellationToken)
     {

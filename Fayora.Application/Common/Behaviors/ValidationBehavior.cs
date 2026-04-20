@@ -1,12 +1,12 @@
 using Fayora.Domain.Common.Results;
-using FluentValidation;
 using MediatR;
-
+using Fayora.Application.Abstractions.Messaging;
+using FluentValidation;
 namespace Fayora.Application.Common.Behaviors;
 
 public class ValidationBehavior<TRequest, TResponse>(IValidator<TRequest>? validator = null)
     : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : IRequest<TResponse>
+        where TRequest : ICommand<TResponse>
         where TResponse : Result
 {
     private readonly IValidator<TRequest>? _validator = validator;

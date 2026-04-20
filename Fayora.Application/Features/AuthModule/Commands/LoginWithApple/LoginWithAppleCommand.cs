@@ -1,7 +1,6 @@
-﻿using Fayora.Application.Common.Interfaces.Validations;
+using Fayora.Application.Common.Interfaces.Validations;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
-using MediatR;
-
 namespace Fayora.Application.Features.AuthModule.Commands.LoginWithApple;
 
 public record LoginWithAppleCommand(
@@ -12,4 +11,4 @@ public record LoginWithAppleCommand(
     string FcmToken,
     string? SimCountryIsoCode,
     string TimeZone,
-    string DeviceLanguage) : IRequest<Result<LoginWithAppleResult>>, ICheckBannedRequest;
+    string DeviceLanguage) : ICommand<Result<LoginWithAppleResult>>, ICheckBannedRequest;

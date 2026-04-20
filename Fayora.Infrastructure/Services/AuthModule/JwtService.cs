@@ -14,7 +14,7 @@ public class JwtService(IOptions<JwtSettings> jwtSettings) : IJwtService
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     public int ExpiresIn => _jwtSettings.TokenExpirationInMinutes * 60;
 
-    public string GenerateToken(string deviceId, User user, Guid? touristId = null, Guid? tourGuideId = null, Guid? ownerId = null)
+    public string GenerateToken(string deviceId, User user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -30,31 +30,8 @@ public class JwtService(IOptions<JwtSettings> jwtSettings) : IJwtService
             new("device_id",                        deviceId),
             new("email_verified",                   user.IsEmailVerified.ToString().ToLower(), ClaimValueTypes.Boolean),
             new("phone_verified",                   user.IsPhoneVerified.ToString().ToLower(), ClaimValueTypes.Boolean),
+            new("roles",                            user.Roles.ToString())
         };
-
-        if (ownerId.HasValue)
-        {
-            claims.Add(new("owner_id", ownerId.Value.ToString()));
-        }
-
-        if (tourGuideId.HasValue)
-        {
-            claims.Add(new("tour_guide_id", tourGuideId.Value.ToString()));
-        }
-
-        if (touristId.HasValue)
-        {
-            claims.Add(new("tourist_id", touristId.Value.ToString()));
-        }
-
-        var roles = user.GetRoleNames();
-
-        if (roles.Count != 0)
-        {
-            claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
-        }
-
-
 
         var token = new JwtSecurityToken(
             issuer: _jwtSettings.Issuer,

@@ -1,11 +1,11 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithEmail;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.IdentityModule;
-using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
 
 public class RestoreAccountWithEmailCommandHandler(
@@ -13,12 +13,9 @@ public class RestoreAccountWithEmailCommandHandler(
     IVerificationCodeRepository verificationCodeRepository,
     IUserDeviceManager userDeviceManager,
     IAuthTokenGenerator authTokenGenerator,
-    //IUnitOwnerRepository unitOwnerRepository,
-    //ITouristRepository touristRepository,
-    //ITourGuideRepository tourGuideRepository,
     ICodeHasher codeHasher,
     IUnitOfWork unitOfWork
-) : IRequestHandler<RestoreAccountWithEmailCommand, Result<RestoreAccountWithEmailResult>>
+) : ICommandHandler<RestoreAccountWithEmailCommand, Result<RestoreAccountWithEmailResult>>
 {
     public async Task<Result<RestoreAccountWithEmailResult>> Handle(
         RestoreAccountWithEmailCommand request,
@@ -36,7 +33,6 @@ public class RestoreAccountWithEmailCommandHandler(
             {
                 IsReadOnly = false,
                 IncludeVerificationCodes = true,
-                IncludeRoles = true,
                 UserStatus = UserStatus.Deleted
             },
             cancellationToken);
@@ -74,36 +70,10 @@ public class RestoreAccountWithEmailCommandHandler(
             cancellationToken);
 
         // 5 - Generate Tokens
-        Guid? ownerId = null;
-        Guid? touristId = null;
-        Guid? tourGuideId = null;
-
-        var roleNames = user.GetRoleNames();
-
-        //if (roleNames.Contains("Owner", StringComparer.OrdinalIgnoreCase))
-        //{
-        //    var owner = await unitOwnerRepository.GetOwnerByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
-        //    ownerId = owner?.Id;
-        //}
-
-        //if (roleNames.Contains("Tourist", StringComparer.OrdinalIgnoreCase))
-        //{
-        //    var tourist = await touristRepository.GetProfileByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
-        //    touristId = tourist?.Id;
-        //}
-
-        //if (roleNames.Contains("TourGuide", StringComparer.OrdinalIgnoreCase))
-        //{
-        //    var tourGuide = await tourGuideRepository.GetProfileByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
-        //    tourGuideId = tourGuide?.Id;
-        //}
 
         var tokens = await authTokenGenerator.GenerateTokensAsync(
             user,
             request.DeviceId,
-            touristId: touristId,
-            tourGuideId: tourGuideId,
-            ownerId: ownerId,
             cancellationToken);
 
         await unitOfWork.CommitChangesAsync(cancellationToken);

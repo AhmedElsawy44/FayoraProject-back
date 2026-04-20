@@ -1,8 +1,8 @@
-﻿using Fayora.Api.Requests;
+using Fayora.Api.Requests;
+using MediatR;
 using Fayora.Application.Features.VerificationModule.Commands.ReviewVerificationRequest;
 using Fayora.Application.Features.VerificationModule.Commands.SubmitVerificationRequest;
 using Fayora.Application.Features.VerificationModule.Queries.GetVerificationRequest;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 

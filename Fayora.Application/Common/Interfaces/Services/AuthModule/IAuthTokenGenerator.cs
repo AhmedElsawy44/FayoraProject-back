@@ -9,8 +9,5 @@ public interface IAuthTokenGenerator
     Task<AuthTokensDto> GenerateTokensAsync(
         User user,
         string deviceId,
-        Guid? touristId = null,
-        Guid? tourGuideId = null,
-        Guid? ownerId = null,
         CancellationToken cancellationToken = default);
 }

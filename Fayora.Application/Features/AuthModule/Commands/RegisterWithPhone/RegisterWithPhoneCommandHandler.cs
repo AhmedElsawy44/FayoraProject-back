@@ -1,16 +1,16 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.Enums.IdentityModule;
-using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.RegisterWithPhone
 {
-    public class RegisterWithPhoneCommandHandler(IUserRepository userRepository, IMessageGenerator messageGenerator, IPasswordHasher passwordHasher, ICodeHasher codeHasher, IUnitOfWork unitOfWork) : IRequestHandler<RegisterWithPhoneCommand, Result<RegisterWithPhoneResult>>
+    public class RegisterWithPhoneCommandHandler(IUserRepository userRepository, IMessageGenerator messageGenerator, IPasswordHasher passwordHasher, ICodeHasher codeHasher, IUnitOfWork unitOfWork) : ICommandHandler<RegisterWithPhoneCommand, Result<RegisterWithPhoneResult>>
     {
 
         public async Task<Result<RegisterWithPhoneResult>> Handle(RegisterWithPhoneCommand request, CancellationToken cancellationToken)

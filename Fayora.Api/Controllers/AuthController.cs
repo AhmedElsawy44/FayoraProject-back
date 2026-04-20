@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+using AutoMapper;
+using MediatR;
 using Fayora.Application.Features.AuthModule.Commands.ChangeEmail;
 using Fayora.Application.Features.AuthModule.Commands.ChangePassword;
 using Fayora.Application.Features.AuthModule.Commands.ChangePhone;
@@ -46,7 +47,6 @@ using Fayora.Contracts.AuthModule.Verify;
 using Fayora.Contracts.AuthModule.VerifyDeleteEmailAccount;
 using Fayora.Contracts.AuthModule.VerifyDeletePhoneAccount;
 using Fayora.Domain.Enums.IdentityModule;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fayora.Api.Controllers;

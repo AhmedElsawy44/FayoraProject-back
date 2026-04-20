@@ -22,49 +22,6 @@ namespace Fayora.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.Role", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Roles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Admin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Tourist"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "TourGuide"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Host"
-                        });
-                });
-
             modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -147,6 +104,9 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<string>("ProfileImageUrl")
                         .HasMaxLength(2048)
                         .HasColumnType("NVARCHAR(MAX)");
+
+                    b.Property<int>("Roles")
+                        .HasColumnType("int");
 
                     b.Property<string>("SimCountryIsoCode")
                         .HasMaxLength(10)
@@ -277,33 +237,6 @@ namespace Fayora.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("UserIdentities", (string)null);
-                });
-
-            modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.UserRole", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset>("AssignedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("UserId", "RoleId")
-                        .IsUnique();
-
-                    b.ToTable("UserRoles", (string)null);
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.UserTokens", b =>
@@ -493,23 +426,6 @@ namespace Fayora.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.UserRole", b =>
-                {
-                    b.HasOne("Fayora.Domain.Entities.IdentityModule.Role", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Fayora.Domain.Entities.IdentityModule.User", null)
-                        .WithMany("Roles")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Role");
-                });
-
             modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.VerificationCode", b =>
                 {
                     b.HasOne("Fayora.Domain.Entities.IdentityModule.User", null)
@@ -529,8 +445,6 @@ namespace Fayora.Infrastructure.Migrations
 
             modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.User", b =>
                 {
-                    b.Navigation("Roles");
-
                     b.Navigation("VerificationCodes");
                 });
 

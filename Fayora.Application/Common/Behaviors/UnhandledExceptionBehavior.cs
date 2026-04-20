@@ -1,11 +1,12 @@
-﻿using MediatR;
 using Microsoft.Extensions.Logging;
 
+using MediatR;
+using Fayora.Application.Abstractions.Messaging;
 namespace Fayora.Application.Common.Behaviors;
 
 public class UnhandledExceptionBehavior<TRequest, TResponse>(ILogger<UnhandledExceptionBehavior<TRequest, TResponse>> logger)
     : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
+    where TRequest : ICommand<TResponse>
 {
     public async Task<TResponse> Handle(
         TRequest request,

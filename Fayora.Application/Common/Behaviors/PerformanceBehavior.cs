@@ -1,12 +1,13 @@
-﻿using MediatR;
 using Microsoft.Extensions.Logging;
+using MediatR;
+using Fayora.Application.Abstractions.Messaging;
 using System.Diagnostics;
 
 namespace Fayora.Application.Common.Behaviors;
 
 public class PerformanceBehavior<TRequest, TResponse>(ILogger<PerformanceBehavior<TRequest, TResponse>> logger)
     : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
+    where TRequest : ICommand<TResponse>
 {
 
     public async Task<TResponse> Handle(

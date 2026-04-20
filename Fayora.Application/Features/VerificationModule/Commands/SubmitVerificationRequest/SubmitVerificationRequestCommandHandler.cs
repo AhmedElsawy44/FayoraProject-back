@@ -1,10 +1,9 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Services.SharedModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.Enums.SharedModule;
-using MediatR;
-
 namespace Fayora.Application.Features.VerificationModule.Commands.SubmitVerificationRequest
 {
 
@@ -12,7 +11,7 @@ namespace Fayora.Application.Features.VerificationModule.Commands.SubmitVerifica
     IFileStorageService fileStorage,
     IVerificationRepository verificationRepository,
     IUnitOfWork unitOfWork)
-    : IRequestHandler<SubmitVerificationRequestCommand, Result<SubmitVerificationRequestResponse>>
+    : ICommandHandler<SubmitVerificationRequestCommand, Result<SubmitVerificationRequestResponse>>
     {
         public async Task<Result<SubmitVerificationRequestResponse>> Handle(
             SubmitVerificationRequestCommand command,

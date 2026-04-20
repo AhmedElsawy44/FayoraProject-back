@@ -100,16 +100,6 @@ internal class UserConfigurations : IEntityTypeConfiguration<User>
             .HasField("_verificationCodes")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.HasMany(u => u.Roles)
-            .WithOne()
-            .HasForeignKey(ur => ur.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Navigation(u => u.Roles)
-            .HasField("_roles")
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
-
-
         builder.HasMany<UserDevice>()
             .WithOne()
             .HasForeignKey(d => d.UserId)

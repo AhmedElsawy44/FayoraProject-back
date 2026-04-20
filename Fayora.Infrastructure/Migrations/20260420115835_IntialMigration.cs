@@ -3,29 +3,14 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace Fayora.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class IntialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Roles",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Roles", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "UserIdentities",
                 columns: table => new
@@ -76,6 +61,7 @@ namespace Fayora.Infrastructure.Migrations
                     ViolationCount = table.Column<int>(type: "int", nullable: false),
                     AccessFailedCount = table.Column<int>(type: "int", nullable: false),
                     LastViolationDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    Roles = table.Column<int>(type: "int", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
@@ -149,33 +135,6 @@ namespace Fayora.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserRoles",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RoleId = table.Column<int>(type: "int", nullable: false),
-                    AssignedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserRoles", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UserRoles_Roles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "Roles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_UserRoles_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "VerificationCodes",
                 columns: table => new
                 {
@@ -227,23 +186,6 @@ namespace Fayora.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.InsertData(
-                table: "Roles",
-                columns: new[] { "Id", "Name" },
-                values: new object[,]
-                {
-                    { 1, "Admin" },
-                    { 2, "Tourist" },
-                    { 3, "TourGuide" },
-                    { 4, "Host" }
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Roles_Name",
-                table: "Roles",
-                column: "Name",
-                unique: true);
-
             migrationBuilder.CreateIndex(
                 name: "IX_UserDevices_FCMToken",
                 table: "UserDevices",
@@ -275,17 +217,6 @@ namespace Fayora.Infrastructure.Migrations
                 name: "IX_UserIdentities_UserId_Provider",
                 table: "UserIdentities",
                 columns: new[] { "UserId", "Provider" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserRoles_RoleId",
-                table: "UserRoles",
-                column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserRoles_UserId_RoleId",
-                table: "UserRoles",
-                columns: new[] { "UserId", "RoleId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -343,9 +274,6 @@ namespace Fayora.Infrastructure.Migrations
                 name: "UserIdentities");
 
             migrationBuilder.DropTable(
-                name: "UserRoles");
-
-            migrationBuilder.DropTable(
                 name: "UserTokens");
 
             migrationBuilder.DropTable(
@@ -353,9 +281,6 @@ namespace Fayora.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "VerificationDocuments");
-
-            migrationBuilder.DropTable(
-                name: "Roles");
 
             migrationBuilder.DropTable(
                 name: "Users");

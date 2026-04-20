@@ -1,10 +1,11 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using MediatR;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.IdentityModule;
-using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.ChangePhone
@@ -15,14 +16,14 @@ namespace Fayora.Application.Features.AuthModule.Commands.ChangePhone
         IClientContextProvider clientContextProvider,
         ICodeHasher codeHasher,
         IMessageGenerator messageGenerator,
-        IPasswordHasher passwordHasher) : IRequestHandler<ChangePhoneCommand, Result<Unit>>
+        IPasswordHasher passwordHasher) : ICommandHandler<ChangePhoneCommand, Result<Unit>>
     {
 
         public async Task<Result<Unit>> Handle(ChangePhoneCommand request, CancellationToken cancellationToken)
         {
             var userId = clientContextProvider.GetContext().UserId;
 
-            var user = await userRepository.GetUserByIdAsync(userId, new UserQueryOptions { IncludeRoles = true, IsReadOnly = false }, cancellationToken);
+            var user = await userRepository.GetUserByIdAsync(userId, new UserQueryOptions {IsReadOnly = false }, cancellationToken);
 
             if (user is null) return AuthErrors.UserNotFound;
 

@@ -1,7 +1,5 @@
-﻿using Fayora.Domain.Common.Results;
-using MediatR;
+using Fayora.Domain.Common.Results;
+using Fayora.Application.Abstractions.Messaging;
+namespace Fayora.Application.Features.VerificationModule.Queries.GetVerificationRequest;
 
-namespace Fayora.Application.Features.VerificationModule.Queries.GetVerificationRequest
-{
-    public record GetVerificationRequestQuery(int RequestId) : IRequest<Result<GetVerificationRequestResponse>>;
-}
+public record GetVerificationRequestQuery(int RequestId) : IQuery<Result<GetVerificationRequestResponse>>;

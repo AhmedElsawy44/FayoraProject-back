@@ -1,11 +1,11 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Commands.VerifyDeleteEmailAccount;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.IdentityModule;
-using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.VerifyDeletePhoneAccountCommand;
@@ -15,7 +15,7 @@ public class VerifyDeletePhoneAccountCommandHandler(IUserRepository userReposito
     IUserTokenRepository userTokenRepository,
     IUnitOfWork unitOfWork,
     ICodeHasher codeHasher,
-    IClientContextProvider clientContextProvider) : IRequestHandler<VerifyDeleteEmailAccountCommand, Result<Success>>
+    IClientContextProvider clientContextProvider) : ICommandHandler<VerifyDeleteEmailAccountCommand, Result<Success>>
 {
 
     public async Task<Result<Success>> Handle(VerifyDeleteEmailAccountCommand request, CancellationToken cancellationToken)

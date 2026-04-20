@@ -1,11 +1,11 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.Enums.IdentityModule;
-using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.RegisterWithEmail;
@@ -16,7 +16,7 @@ public class RegisterWithEmailCommandHandler(
     IMessageGenerator messageGenerator,
     IUserRepository userRepository,
     IUnitOfWork unitOfWork)
-    : IRequestHandler<RegisterWithEmailCommand, Result<RegisterWithEmailResult>>
+    : ICommandHandler<RegisterWithEmailCommand, Result<RegisterWithEmailResult>>
 {
     public async Task<Result<RegisterWithEmailResult>> Handle(RegisterWithEmailCommand request, CancellationToken cancellationToken)
     {

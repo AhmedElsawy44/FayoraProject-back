@@ -1,7 +1,7 @@
-﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using MediatR;
 using Fayora.Domain.Common.Events.IdentityModule;
 using Fayora.Domain.Enums.IdentityModule;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using static Fayora.Application.Common.Interfaces.Services.AuthModule.IMessageGenerator;
 
@@ -38,7 +38,7 @@ public class SendPhoneCodeEventHandler(
                     }
                     catch (Exception ex)
                     {
-                        // خطة الطوارئ: إذا فشل الواتساب، نرسل SMS
+                        // ??? ???????: ??? ??? ????????? ???? SMS
                         logger.LogWarning(ex, "WhatsApp failed for {Phone}. Falling back to SMS.", notification.PhoneNumber);
                         var fallbackSms = messageGenerator.CreateSmsMessage(messagePurpose, notification.Code);
                         await smsService.SendSmsAsync(notification.PhoneNumber, fallbackSms);

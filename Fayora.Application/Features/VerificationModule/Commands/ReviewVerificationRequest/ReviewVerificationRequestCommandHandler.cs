@@ -1,14 +1,13 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
-using MediatR;
-
 namespace Fayora.Application.Features.VerificationModule.Commands.ReviewVerificationRequest
 {
     public class ReviewVerificationRequestCommandHandler(
         IVerificationRepository verificationRepository,
         IUnitOfWork unitOfWork)
-        : IRequestHandler<ReviewVerificationRequestCommand, Result<ReviewVerificationRequestResponse>>
+        : ICommandHandler<ReviewVerificationRequestCommand, Result<ReviewVerificationRequestResponse>>
     {
         public async Task<Result<ReviewVerificationRequestResponse>> Handle(
             ReviewVerificationRequestCommand command,

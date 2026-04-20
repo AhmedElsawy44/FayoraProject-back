@@ -1,10 +1,10 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.Enums.IdentityModule;
-using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.UpdateAccount;
@@ -12,7 +12,7 @@ namespace Fayora.Application.Features.AuthModule.Commands.UpdateAccount;
 public class UpdateAccountCommandHandler(
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
-    IClientContextProvider clientContextProvider) : IRequestHandler<UpdateAccountCommand, Result<Success>>
+    IClientContextProvider clientContextProvider) : ICommandHandler<UpdateAccountCommand, Result<Success>>
 {
     public async Task<Result<Success>> Handle(UpdateAccountCommand request, CancellationToken cancellationToken)
     {

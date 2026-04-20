@@ -1,7 +1,6 @@
-﻿using Fayora.Application.Common.Interfaces.Validations;
+using Fayora.Application.Common.Interfaces.Validations;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
-using MediatR;
-
 namespace Fayora.Application.Features.AuthModule.Commands.RegisterWithEmail;
 
 public record RegisterWithEmailCommand(
@@ -10,4 +9,4 @@ public record RegisterWithEmailCommand(
     string Email,
     string Password,
     string DeviceId
-    ) : IRequest<Result<RegisterWithEmailResult>>, ICheckBannedRequest;
+    ) : ICommand<Result<RegisterWithEmailResult>>, ICheckBannedRequest;

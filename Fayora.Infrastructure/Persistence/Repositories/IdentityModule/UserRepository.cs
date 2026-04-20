@@ -89,12 +89,6 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
             collectionsIncluded++;
         }
 
-        if (options.IncludeRoles)
-        {
-            query = query.Include(u => u.Roles).ThenInclude(ur => ur.Role);
-            collectionsIncluded++;
-        }
-
         if (collectionsIncluded > 1)
         {
             query = query.AsSplitQuery();

@@ -18,8 +18,8 @@ public class User : AuditableEntity<Guid>
     private static readonly int MaxFailedAccessAttempts = 5;
     private static readonly TimeSpan FailedAccessAttemptWindow = TimeSpan.FromMinutes(15);
 
-    public string FirstName { get; private set; }
-    public string LastName { get; private set; }
+    public string FirstName { get; private set; } = default!;
+    public string LastName { get; private set; } = default!;
     public DateOnly? BirthDate { get; private set; }
     public Gender? Gender { get; private set; }
     public Email? PrimaryEmail { get; private set; }
@@ -49,11 +49,7 @@ public class User : AuditableEntity<Guid>
 
     private readonly List<VerificationCode> _verificationCodes = [];
     public IReadOnlyCollection<VerificationCode> VerificationCodes => _verificationCodes.AsReadOnly();
-
-    private readonly List<UserRole> _roles = [];
-    public IReadOnlyCollection<UserRole> Roles => _roles.AsReadOnly();
-
-    public List<string> GetRoleNames() => [.. Roles.Select(r => r.Role.Name)];
+    public Role Roles { get; private set; }
 
 
     private string _passwordHash = string.Empty;
@@ -427,13 +423,6 @@ public class User : AuditableEntity<Guid>
             return Error.Failure("User.UserBanned", "This user account has been banned.");
 
         return Result.Success;
-    }
-
-    public void AddRole(Role role)
-    {
-        if (Roles.Any(r => r.RoleId == role.Id))
-            return;
-        _roles.Add(new UserRole(Id, role.Id));
     }
 
     private User() { }

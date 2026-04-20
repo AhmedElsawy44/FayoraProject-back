@@ -23,7 +23,6 @@ public interface IUserRepository
     public record UserQueryOptions(
         bool IsReadOnly = false,
         bool IncludeVerificationCodes = false,
-        bool IncludeRoles = false,
         AccountStatus Status = AccountStatus.All,
         UserStatus? UserStatus = null
     );

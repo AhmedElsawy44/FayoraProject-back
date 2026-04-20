@@ -1,8 +1,8 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Results;
-using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Queries.GetUser;
@@ -10,7 +10,7 @@ namespace Fayora.Application.Features.AuthModule.Queries.GetUser;
 public class GetUserCommandHandler(
     IUserRepository userRepository,
     IClientContextProvider clientContextProvider
-    ) : IRequestHandler<GetUserCommand, Result<GetUserResult>>
+    ) : IQueryHandler<GetUserCommand, Result<GetUserResult>>
 {
     public async Task<Result<GetUserResult>> Handle(GetUserCommand request, CancellationToken cancellationToken)
     {

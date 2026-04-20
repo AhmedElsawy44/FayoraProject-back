@@ -1,7 +1,6 @@
-﻿using Fayora.Contracts.AuthModule.UpdateAccount;
+using Fayora.Contracts.AuthModule.UpdateAccount;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
-using MediatR;
-
 namespace Fayora.Application.Features.AuthModule.Commands.UpdateAccount;
 
 public record UpdateAccountCommand(
@@ -14,4 +13,4 @@ public record UpdateAccountCommand(
     string? Description,
     string? PreferredLanguage,
     List<UserLanguageDto> UserLanguages,
-    string? TimeZone) : IRequest<Result<Success>>;
+    string? TimeZone) : ICommand<Result<Success>>;

@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Entities.IdentityModule;
 using MediatR;
@@ -10,8 +10,6 @@ namespace Fayora.Infrastructure.Persistence.Repositories;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor, IPublisher publisher) : DbContext(options), IUnitOfWork
 {
     public DbSet<User> Users { get; set; }
-    public DbSet<Role> Roles { get; set; }
-    public DbSet<UserRole> UserRoles { get; set; }
     public DbSet<UserIdentity> UserIdentities { get; set; }
     public DbSet<UserTokens> UserTokens { get; set; }
     public DbSet<UserDevice> UserDevices { get; set; }

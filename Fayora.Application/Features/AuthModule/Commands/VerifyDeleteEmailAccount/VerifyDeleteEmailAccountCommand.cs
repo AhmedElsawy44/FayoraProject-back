@@ -1,6 +1,5 @@
-﻿using Fayora.Domain.Common.Results;
-using MediatR;
-
+using Fayora.Domain.Common.Results;
+using Fayora.Application.Abstractions.Messaging;
 namespace Fayora.Application.Features.AuthModule.Commands.VerifyDeleteEmailAccount;
 
-public record VerifyDeleteEmailAccountCommand(string Code) : IRequest<Result<Success>>;
+public record VerifyDeleteEmailAccountCommand(string Code) : ICommand<Result<Success>>;

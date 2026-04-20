@@ -1,10 +1,10 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.IdentityModule;
-using MediatR;
 using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.LoginWithEmail
@@ -12,12 +12,9 @@ namespace Fayora.Application.Features.AuthModule.Commands.LoginWithEmail
     public class LoginWithEmailCommandHandler(
     IUserRepository userRepository,
     IUserDeviceManager userDeviceManager,
-    //IUnitOwnerRepository unitOwnerRepository,
-    //ITouristRepository touristRepository,
-    //ITourGuideRepository tourGuideRepository,
     IUnitOfWork unitOfWork,
     IAuthTokenGenerator authTokenGenerator,
-    IPasswordHasher passwordHasher) : IRequestHandler<LoginWithEmailCommand, Result<LoginWithEmailResult>>
+    IPasswordHasher passwordHasher) : ICommandHandler<LoginWithEmailCommand, Result<LoginWithEmailResult>>
     {
         public async Task<Result<LoginWithEmailResult>> Handle(LoginWithEmailCommand request, CancellationToken cancellationToken)
         {
@@ -26,7 +23,7 @@ namespace Fayora.Application.Features.AuthModule.Commands.LoginWithEmail
                 return AuthErrors.InvalidLanguage;
             languageEnum = parsedLanguage;
 
-            var user = await userRepository.GetUserByEmailAsync(request.Email, new UserQueryOptions { IsReadOnly = false, IncludeRoles = true }, cancellationToken);
+            var user = await userRepository.GetUserByEmailAsync(request.Email, new UserQueryOptions { IsReadOnly = false }, cancellationToken);
 
             if (user is null) return AuthErrors.InvalidCredentials;
 
@@ -45,34 +42,9 @@ namespace Fayora.Application.Features.AuthModule.Commands.LoginWithEmail
 
             await userDeviceManager.UpsertDeviceAsync(user.Id, request.DeviceId, request.FcmToken, languageEnum.Value, cancellationToken);
 
-            Guid? ownerId = null;
-            Guid? touristId = null;
-            Guid? tourGuideId = null;
-
-            //if (roleNames.Contains("Owner", StringComparer.OrdinalIgnoreCase))
-            //{
-            //    var owner = await unitOwnerRepository.GetOwnerByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
-            //    ownerId = owner?.Id;
-            //}
-
-            //if (roleNames.Contains("Tourist", StringComparer.OrdinalIgnoreCase))
-            //{
-            //    var tourist = await touristRepository.GetProfileByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
-            //    touristId = tourist?.Id;
-            //}
-
-            //if (roleNames.Contains("TourGuide", StringComparer.OrdinalIgnoreCase))
-            //{
-            //    var tourGuide = await tourGuideRepository.GetProfileByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
-            //    tourGuideId = tourGuide?.Id;
-            //}
-
             var tokens = await authTokenGenerator.GenerateTokensAsync(
             user,
             request.DeviceId,
-            touristId: touristId,
-            tourGuideId: tourGuideId,
-            ownerId: ownerId,
             cancellationToken);
 
             await unitOfWork.CommitChangesAsync(cancellationToken);
