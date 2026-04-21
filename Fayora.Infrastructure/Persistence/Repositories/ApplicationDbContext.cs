@@ -1,6 +1,8 @@
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
+using Fayora.Domain.Entities.AccommodationModule;
 using Fayora.Domain.Entities.IdentityModule;
+using Fayora.Domain.Entities.TouristModule;
 using Fayora.Domain.Entities.Shared;
 using Fayora.Domain.Entities.TourGuide;
 using MediatR;
@@ -18,6 +20,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<VerificationDocument> VerificationDocuments { get; set; }
     public DbSet<VerificationRequest> VerificationRequests { get; set; }
     public DbSet<VerificationCode> VerificationCodes { get; set; }
+    public DbSet<HousingUnit> HousingUnits { get; set; }
+    public DbSet<UnitOwner> UnitOwners { get; set; }
+    public DbSet<MasterInterest> MasterInterests { get; set; }
+    public DbSet<TouristProfile> Tourists { get; set; }
+    public DbSet<MasterAmenity> MasterAmenities { get; set; }
 
     //for tour guide
     public DbSet<TourGuide> TourGuides { get; set; }
