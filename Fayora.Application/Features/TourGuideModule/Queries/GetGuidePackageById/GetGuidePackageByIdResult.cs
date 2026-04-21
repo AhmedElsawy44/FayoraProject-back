@@ -1,4 +1,5 @@
-﻿using Fayora.Domain.Enums.TourGuideModule;
+﻿using Fayora.Domain.Enums.SharedModule;
+using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Application.Features.TourGuideModule.Queries.GetGuidePackageById;

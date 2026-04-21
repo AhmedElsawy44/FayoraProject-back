@@ -34,14 +34,34 @@ public class TourGuideConfiguration : IEntityTypeConfiguration<TourGuide>
         builder.Property(x => x.AverageRating)
             .IsRequired();
 
-        builder.Property(x => x.Status)
-            .IsRequired();
+            builder.Property(x => x.CancellationRate)
+                .HasPrecision(5, 2);
 
-        builder.OwnsOne(x => x.LastLocation, geo =>
-        {
-            geo.Property(g => g.Latitude).HasColumnName("Latitude");
-            geo.Property(g => g.Longitude).HasColumnName("Longitude");
-        });
+            builder.OwnsOne(x => x.LastLocation, geo =>
+            {
+                geo.Property(g => g.Latitude)
+                    .HasColumnName("Latitude")
+                    .HasPrecision(18, 6);
+                geo.Property(g => g.Longitude)
+                    .HasColumnName("Longitude")
+                    .HasPrecision(18, 6);
+            });
+
+            builder.Property(x => x.CancellationRate)
+                .HasPrecision(5, 2);
+
+            builder.OwnsOne(x => x.TransportInfo, transport =>
+            {
+                transport.Property(t => t.HasOwnVehicle).HasColumnName("HasOwnVehicle");
+                transport.Property(t => t.VehicleDetails).HasColumnName("VehicleDetails");
+                transport.Property(t => t.TransportType).HasColumnName("TransportType");
+            });
+
+            // Relationships
+            builder.HasMany(x => x.GuideCities)
+                .WithOne(x => x.TourGuide)
+                .HasForeignKey(x => x.GuideId)
+                .OnDelete(DeleteBehavior.Cascade);
 
         builder.OwnsOne(x => x.TransportInfo, transport =>
         {

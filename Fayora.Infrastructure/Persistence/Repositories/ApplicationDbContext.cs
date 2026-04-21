@@ -4,6 +4,7 @@ using Fayora.Domain.Entities.AccommodationModule;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.Entities.TouristModule;
 using Fayora.Domain.Entities.Shared;
+using Fayora.Domain.Entities.TourCompanyModule;
 using Fayora.Domain.Entities.TourGuide;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -33,6 +34,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<GuideCity> GuideCities { get; set; }
     public DbSet<GuideRequest> GuideRequests { get; set; }
     public DbSet<GuideOffer> GuideOffers { get; set; }
+
+    //for tour company
+    public DbSet<TourCompany> TourCompanies { get; set; }
+    public DbSet<CompanyTourPackage> CompanyTourPackages { get; set; }
+    public DbSet<PackageActivity> PackageActivities { get; set; }
 
 
     public async Task CommitChangesAsync(CancellationToken cancellationToken = default)
