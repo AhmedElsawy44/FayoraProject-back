@@ -31,7 +31,6 @@ public class VerificationRequest : AuditableEntity<int>
             [
                 DocumentType.NationalId,
                 DocumentType.TourGuideLicense,
-                DocumentType.CriminalRecord
             ],
             RequestType.HousingUnit =>
             [

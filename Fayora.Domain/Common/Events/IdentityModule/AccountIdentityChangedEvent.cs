@@ -16,4 +16,5 @@ public enum SecurityActivityType
     AccountLocked = 4,
     AccountRestored = 5,
     AccountDeleted = 6,
+    AccountBanned = 7,
 }

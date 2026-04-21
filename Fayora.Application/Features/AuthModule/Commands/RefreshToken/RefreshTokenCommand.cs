@@ -1,10 +1,8 @@
-﻿using Fayora.Domain.Common.Results;
-using MediatR;
+using Fayora.Application.Abstractions.Messaging;
+using Fayora.Domain.Common.Results;
+namespace Fayora.Application.Features.AuthModule.Commands.RefreshToken;
 
-namespace Fayora.Application.Features.AuthModule.Commands.RefreshToken
-{
-    public record RefreshTokenCommand(
-        string RefreshToken,
-        string DeviceId
-    ) : IRequest<Result<RefreshTokenResult>>;
-}
+public record RefreshTokenCommand(
+    string RefreshToken,
+    string DeviceId
+) : ICommand<Result<RefreshTokenResult>>;

@@ -1,6 +1,8 @@
 using Fayora.Application.Common.Interfaces.Presistances.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Application.Common.Interfaces.Presistances.TouristModule;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Persistences.TourGuideModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Interfaces.Services.SharedModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
@@ -8,6 +10,7 @@ using Fayora.Infrastructure.Persistence.Repositories;
 using Fayora.Infrastructure.Persistence.Repositories.AccommodationModule;
 using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories.TouristModule;
+using Fayora.Infrastructure.Persistence.Repositories.TourGuideModule;
 using Fayora.Infrastructure.Services.Authentication;
 using Fayora.Infrastructure.Services.AuthModule;
 using Fayora.Infrastructure.Services.SharedModule;
@@ -39,6 +42,7 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
 
+        // Auth Module
         services.AddScoped<IDeviceRepository, DeviceRepository>();
         services.AddScoped<IUserTokenRepository, UserTokenRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
@@ -51,6 +55,11 @@ public static class DependencyInjection
         services.AddScoped<IMasterInterestRepository, MasterInterestRepository>();
         services.AddScoped<ITouristRepository, TouristRepository>();
         services.AddScoped<IMasterAmenityRepository, MasterAmenityRepository>();
+
+        // Tour Guide Module
+        services.AddScoped<ITourGuideRepository, TourGuideRepository>();
+        services.AddScoped<ITourGuidePackageRepository, TourGuidePackageRepository>();
+
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
 
 
@@ -68,17 +77,21 @@ public static class DependencyInjection
         services.AddScoped<IAuthTokenGenerator, AuthTokenGenerator>();
 
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
-        services.Configure<SmsSettings>(configuration.GetSection("SmsSettings"));
+        services.Configure<TwilioSettings>(configuration.GetSection("TwilioSettings"));
         services.Configure<GoogleSettings>(configuration.GetSection("GoogleSettings"));
         services.Configure<FacebookSettings>(configuration.GetSection("FacebookSettings"));
 
-        services.AddSingleton<IEmailService, EmailService>();
-        services.AddSingleton<ISmsService, MockSmsService>();
-        services.AddSingleton<IWhatsAppService, MockWhatsAppService>();
+        services.AddScoped<IMessageService, MessageService>();
 
-        services.AddHttpClient<IFacebookAuthService, FacebookAuthService>();
-        services.AddSingleton<IGoogleAuthService, GoogleAuthService>();
-        services.AddSingleton<IAppleAuthService, MockAppleAuthService>();
+        services.AddSingleton<IEmailService, EmailService>();
+        services.AddSingleton<SmsSenderStrategy, SmsSenderStrategy>();
+        services.AddSingleton<WhatsAppSenderStrategy, WhatsAppSenderStrategy>();
+
+        services.AddSingleton<ISocialAuthService, SocialAuthService>();
+        services.AddHttpClient<ISocialAuthStrategy, FacebookAuthStrategy>();
+        services.AddSingleton<ISocialAuthStrategy, GoogleAuthStrategy>();
+        services.AddSingleton<ISocialAuthStrategy, MockAppleAuthService>();
+
 
         services.AddScoped<IFileStorageService, LocalFileService>();
 

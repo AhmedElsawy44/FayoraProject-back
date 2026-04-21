@@ -1,79 +1,49 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
-using Fayora.Application.Common.Interfaces.Services.SharedModule;
+using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Features.VerificationModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.Enums.SharedModule;
-using MediatR;
 
-namespace Fayora.Application.Features.VerificationModule.Commands.SubmitVerificationRequest
-{
+namespace Fayora.Application.Features.VerificationModule.Commands.SubmitVerificationRequest;
 
-    public class SubmitVerificationRequestCommandHandler(
-    IFileStorageService fileStorage,
+public class SubmitVerificationRequestCommandHandler(
     IVerificationRepository verificationRepository,
-    IUnitOfWork unitOfWork)
-    : IRequestHandler<SubmitVerificationRequestCommand, Result<SubmitVerificationRequestResponse>>
+    IUnitOfWork unitOfWork,
+    IClientContextProvider clientContextProvider)
+    : ICommandHandler<SubmitVerificationRequestCommand, Result<SubmitVerificationRequestResult>>
+{
+    public async Task<Result<SubmitVerificationRequestResult>> Handle(
+        SubmitVerificationRequestCommand command,
+        CancellationToken cancellationToken)
     {
-        public async Task<Result<SubmitVerificationRequestResponse>> Handle(
-            SubmitVerificationRequestCommand command,
-            CancellationToken ct)
-        {
-            // Check if there's an existing pending request of the same type for the user
-            var existing = await verificationRepository.GetByUserIdAndTypeAsync(
-                command.UserId, command.RequestType, ct);
+        var userId = clientContextProvider.GetContext().UserId;
 
-            if (existing is not null && existing.RequestStatus == RequestStatus.Pending)
-                return Error.Conflict(
-                    code: "Verification.AlreadyExists",
-                    description: "You already have a pending verification request.");
+        var existing = await verificationRepository.GetByUserIdAndTypeAsync(
+            userId, command.RequestType, cancellationToken);
 
-            // upload files to storage and get URLs
-            var folderName = command.RequestType switch
-            {
-                RequestType.TourGuide => "guides",
-                RequestType.HousingUnit => "owners",
-                RequestType.TourCompany => "companies",
-                _ => "documents"
-            };
+        if (existing is not null && existing.RequestStatus == RequestStatus.Pending)
+            return VerificationErrors.PendingRequestAlreadyExists;
 
-            var uploadedDocuments = new List<(DocumentType Type, string Url)>();
+        var documents = command.Documents
+            .Select(d => (d.DocumentType, d.FileUrl))
+            .ToList();
 
-            foreach (var (docType, file) in command.Documents)
-            {
-                var url = await fileStorage.SaveFileAsync(
-                    file.OpenReadStream(),
-                    file.FileName,
-                    folderName);
+        var result = VerificationRequest.Create(
+            userId,
+            command.RequestType,
+            documents);
 
-                uploadedDocuments.Add((docType, url));
-            }
+        if (result.IsError) return result.Errors;
 
-            //  Make a VerificationRequest
-            var result = VerificationRequest.Create(
-                command.UserId,
-                command.RequestType,
-                uploadedDocuments);
+        await verificationRepository.AddAsync(result.Value, cancellationToken);
+        await unitOfWork.CommitChangesAsync(cancellationToken);
 
-            if (result.IsError)
-                return result.Errors;
-
-            // Save In DB
-            await verificationRepository.AddAsync(result.Value, ct);
-            await unitOfWork.CommitChangesAsync(ct);
-
-            return new SubmitVerificationRequestResponse(
-                VerificationRequestId: result.Value.Id,
-                RequestType: result.Value.RequestType.ToString(),
-                Status: result.Value.RequestStatus,
-                Message: "Your request has been submitted successfully.",
-                SubmittedAt: result.Value.CreatedAt
-                    //Documents: result.Value.VerificationDocuments
-                    //    .Select(d => new DocumentResponseDto(
-                    //        DocumentType: d.DocumentType.ToString(),
-                    //        Status: d.DocumentStatus))
-                    //    .ToList()
-                    );
-        }
+        return new SubmitVerificationRequestResult(
+            result.Value.Id,
+            result.Value.RequestType.ToString(),
+            result.Value.RequestStatus,
+            result.Value.CreatedAt);
     }
-
 }

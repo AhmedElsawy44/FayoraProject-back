@@ -4,27 +4,21 @@ using Fayora.Application.Features.AuthModule.Commands.ChangePassword;
 using Fayora.Application.Features.AuthModule.Commands.ChangePhone;
 using Fayora.Application.Features.AuthModule.Commands.ConfirmChangeEmail;
 using Fayora.Application.Features.AuthModule.Commands.ConfirmChangePhone;
-using Fayora.Application.Features.AuthModule.Commands.LoginWithApple;
 using Fayora.Application.Features.AuthModule.Commands.LoginWithEmail;
-using Fayora.Application.Features.AuthModule.Commands.LoginWithFacebook;
-using Fayora.Application.Features.AuthModule.Commands.LoginWithGoogle;
 using Fayora.Application.Features.AuthModule.Commands.LoginWithPhone;
+using Fayora.Application.Features.AuthModule.Commands.LoginWithSocial;
 using Fayora.Application.Features.AuthModule.Commands.RefreshToken;
 using Fayora.Application.Features.AuthModule.Commands.RegisterWithEmail;
 using Fayora.Application.Features.AuthModule.Commands.RegisterWithPhone;
 using Fayora.Application.Features.AuthModule.Commands.ResetPasswordEmail;
-using Fayora.Application.Features.AuthModule.Commands.ResetPasswordPhone;
 using Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithEmail;
-using Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithPhone;
 using Fayora.Application.Features.AuthModule.Commands.SendEmailCode;
 using Fayora.Application.Features.AuthModule.Commands.SendPhoneCode;
 using Fayora.Application.Features.AuthModule.Commands.UpdateAccount;
-using Fayora.Application.Features.AuthModule.Commands.VerifyDeleteEmailAccount;
-using Fayora.Application.Features.AuthModule.Commands.VerifyDeletePhoneAccountCommand;
+using Fayora.Application.Features.AuthModule.Commands.VerifyDeleteAccount;
 using Fayora.Application.Features.AuthModule.Commands.VerifyEmail;
 using Fayora.Application.Features.AuthModule.Commands.VerifyPhone;
-using Fayora.Application.Features.AuthModule.Commands.VerifyResetPasswordEmailCode;
-using Fayora.Application.Features.AuthModule.Commands.VerifyResetPasswordPhoneCode;
+using Fayora.Application.Features.AuthModule.Commands.VerifyResetPasswordCode;
 using Fayora.Application.Features.AuthModule.Queries.GetUser;
 using Fayora.Contracts.AuthModule.AppleLogin;
 using Fayora.Contracts.AuthModule.ChangeEmail;
@@ -32,9 +26,7 @@ using Fayora.Contracts.AuthModule.ChangePassword;
 using Fayora.Contracts.AuthModule.ChangePhone;
 using Fayora.Contracts.AuthModule.ConfirmChangeEmail;
 using Fayora.Contracts.AuthModule.ConfirmChangePhone;
-using Fayora.Contracts.AuthModule.FacebookLogin;
 using Fayora.Contracts.AuthModule.GetUser;
-using Fayora.Contracts.AuthModule.GoogleLogin;
 using Fayora.Contracts.AuthModule.Login;
 using Fayora.Contracts.AuthModule.RefreshToken;
 using Fayora.Contracts.AuthModule.Register;
@@ -44,7 +36,6 @@ using Fayora.Contracts.AuthModule.SendCode;
 using Fayora.Contracts.AuthModule.UpdateAccount;
 using Fayora.Contracts.AuthModule.Verify;
 using Fayora.Contracts.AuthModule.VerifyDeleteEmailAccount;
-using Fayora.Contracts.AuthModule.VerifyDeletePhoneAccount;
 using Fayora.Domain.Enums.IdentityModule;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -60,7 +51,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("register/email")]
     public async Task<IActionResult> RegisterWithEmail(
         [FromBody] EmailRegisterRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
         CancellationToken cancellationToken)
     {
         var command = new RegisterWithEmailCommand(
@@ -81,10 +72,12 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("register/phone")]
     public async Task<IActionResult> RegisterWithPhone(
         [FromBody] PhoneRegisterRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
         CancellationToken cancellationToken)
     {
-        if (!Enum.TryParse<CodeDeliveryMethod>(request.DeliveryMethod, true, out var deliveryMethod))
+        var (success, deliveryMethod) = EnumParser.TryParseEnum<CodeDeliveryMethod>(request.DeliveryMethod);
+
+        if (!success)
             return BadRequest("Invalid Delivery Method");
 
         var command = new RegisterWithPhoneCommand(
@@ -105,12 +98,17 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("register/verify/email")]
     public async Task<IActionResult> VerifyEmailRegistration(
         [FromBody] EmailVerifyRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
         CancellationToken cancellationToken)
     {
+        var (success, deviceLanguage) = EnumParser.TryParseEnum<Language>(request.DeviceLanguage);
+
+        if (!success)
+            return BadRequest("Invalid Device Language");
+
         var command = new VerifyEmailCommand(
             request.Email, request.Code, deviceId,
-            request.FcmToken, request.SimCountryIsoCode, request.TimeZone, request.DeviceLanguage);
+            request.FcmToken, request.SimCountryIsoCode, request.TimeZone, deviceLanguage);
 
         var result = await sender.Send(command, cancellationToken);
 
@@ -123,12 +121,17 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("register/verify/phone")]
     public async Task<IActionResult> VerifyPhoneRegistration(
         [FromBody] PhoneVerifyRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
         CancellationToken cancellationToken)
     {
+        var (success, deviceLanguage) = EnumParser.TryParseEnum<Language>(request.DeviceLanguage);
+
+        if (!success)
+            return BadRequest("Invalid Device Language");
+
         var command = new VerifyPhoneCommand(
             request.PhoneNumber, request.Code, deviceId,
-            request.FcmToken, request.SimCountryIsoCode, request.TimeZone, request.DeviceLanguage);
+            request.FcmToken, request.SimCountryIsoCode, request.TimeZone, deviceLanguage);
 
         var result = await sender.Send(command, cancellationToken);
 
@@ -145,11 +148,16 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("login/email")]
     public async Task<IActionResult> LoginWithEmail(
         [FromBody] EmailLoginRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
         CancellationToken cancellationToken)
     {
+        var (success, deviceLanguage) = EnumParser.TryParseEnum<Language>(request.DeviceLanguage);
+
+        if (!success)
+            return BadRequest("Invalid Device Language");
+
         var command = new LoginWithEmailCommand(
-            request.Email, request.Password, deviceId, request.FcmToken, request.DeviceLanguage);
+            request.Email, request.Password, deviceId, request.FcmToken, deviceLanguage);
 
         var result = await sender.Send(command, cancellationToken);
 
@@ -162,11 +170,16 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("login/phone")]
     public async Task<IActionResult> LoginWithPhone(
         [FromBody] PhoneLoginRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
         CancellationToken cancellationToken)
     {
+        var (success, deviceLanguage) = EnumParser.TryParseEnum<Language>(request.DeviceLanguage);
+
+        if (!success)
+            return BadRequest("Invalid Device Language");
+
         var command = new LoginWithPhoneCommand(
-            request.PhoneNumber, request.Password, deviceId, request.FcmToken, request.DeviceLanguage);
+            request.PhoneNumber, request.Password, deviceId, request.FcmToken, deviceLanguage);
 
         var result = await sender.Send(command, cancellationToken);
 
@@ -176,69 +189,38 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
         );
     }
 
-    [HttpPost("login/facebook")]
-    public async Task<IActionResult> FacebookLogin(
-        [FromBody] FacebookLoginRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
-        CancellationToken cancellationToken)
+
+    [HttpPost("login/social")]
+    public async Task<IActionResult> SocialLogin(
+    [FromBody] SocialLoginRequest request,
+    [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
+    CancellationToken cancellationToken)
     {
-        var command = new LoginWithFacebookCommand(
-            request.AccessToken,
-            deviceId,
-            request.FcmToken,
-            request.SimCountryIsoCode,
-            request.TimeZone,
-            request.DeviceLanguage);
+        var (success, deviceLanguage) = EnumParser.TryParseEnum<Language>(request.DeviceLanguage);
 
-        var result = await sender.Send(command, cancellationToken);
+        if (!success)
+            return BadRequest("Invalid Device Language");
 
-        return result.Match(
-            value => Ok(mapper.Map<FacebookLoginResponse>(value)),
-            Problem);
-    }
+        var (providerSuccess, provider) = EnumParser.TryParseEnum<IdentityProvider>(request.SocialProvider);
 
-    [HttpPost("login/google")]
-    public async Task<IActionResult> GoogleLogin(
-        [FromBody] GoogleLoginRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
-        CancellationToken cancellationToken)
-    {
-        var command = new LoginWithGoogleCommand(
-            request.AccessToken,
-            deviceId,
-            request.FcmToken,
-            request.SimCountryIsoCode,
-            request.TimeZone,
-            request.DeviceLanguage);
+        if (!providerSuccess)
+            return BadRequest("Invalid Social Provider");
 
-        var result = await sender.Send(command, cancellationToken);
-
-        return result.Match(
-            value => Ok(mapper.Map<GoogleLoginResponse>(value)),
-            Problem
-        );
-    }
-
-    [HttpPost("login/apple")]
-    public async Task<IActionResult> AppleLogin(
-        [FromBody] AppleLoginRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
-        CancellationToken cancellationToken)
-    {
-        var command = new LoginWithAppleCommand(
-            request.IdToken,
+        var command = new LoginWithSocialCommand(
+            request.Token,
             request.FirstName,
             request.LastName,
             deviceId,
             request.FcmToken,
             request.SimCountryIsoCode,
             request.TimeZone,
-            request.DeviceLanguage);
+            deviceLanguage,
+            provider);
 
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
-            value => Ok(mapper.Map<AppleLoginResponse>(value)),
+            value => Ok(mapper.Map<SocialLoginResponse>(value)),
             Problem
         );
     }
@@ -250,10 +232,12 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("otp/send/email")]
     public async Task<IActionResult> SendEmailOtp(
         [FromBody] SendEmailCodeRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
         CancellationToken cancellationToken)
     {
-        if (!Enum.TryParse<CodePurpose>(request.Purpose, true, out var purpose))
+        var (success, purpose) = EnumParser.TryParseEnum<CodePurpose>(request.Purpose);
+
+        if (!success)
             return BadRequest("Invalid Code Purpose");
 
         var command = new SendEmailCodeCommand(request.Email, deviceId, purpose);
@@ -266,13 +250,17 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("otp/send/phone")]
     public async Task<IActionResult> SendPhoneOtp(
         [FromBody] SendPhoneCodeRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
         CancellationToken cancellationToken)
     {
-        if (!Enum.TryParse<CodePurpose>(request.Purpose, true, out var purpose))
+        var (success, purpose) = EnumParser.TryParseEnum<CodePurpose>(request.Purpose);
+
+        if (!success)
             return BadRequest("Invalid Code Purpose");
 
-        if (!Enum.TryParse<CodeDeliveryMethod>(request.DeliveryMethod, true, out var deliveryMethod))
+        var (success2, deliveryMethod) = EnumParser.TryParseEnum<CodeDeliveryMethod>(request.DeliveryMethod);
+
+        if (!success2)
             return BadRequest("Invalid Delivery Method");
 
         var command = new SendPhoneCodeCommand(request.PhoneNumber, deviceId, purpose, deliveryMethod);
@@ -285,13 +273,18 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
 
     #region 4. Password Reset Journey
 
-    [HttpPost("password/reset/verify/email")]
+    [HttpPost("password/reset/verify/")]
     public async Task<IActionResult> VerifyEmailPasswordReset(
-        [FromBody] VerifyEmailResetPasswordRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        [FromBody] VerifyResetPasswordRequest request,
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
         CancellationToken cancellationToken)
     {
-        var command = new VerifyResetPasswordEmailCodeCommand(request.Email, deviceId, request.Code);
+        var (success, method) = EnumParser.TryParseEnum<CodeDeliveryMethod>(request.CodeDeliveryMethod);
+
+        if (!success)
+            return BadRequest("Invalid Code Delivery Method.");
+
+        var command = new VerifyResetPasswordCodeCommand(request.Code, request.Identifier, method, deviceId);
 
         var result = await sender.Send(command, cancellationToken);
 
@@ -301,42 +294,19 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
         );
     }
 
-    [HttpPost("password/reset/verify/phone")]
-    public async Task<IActionResult> VerifyPhonePasswordReset(
-        [FromBody] VerifyResetPhonePasswordRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
-        CancellationToken cancellationToken)
-    {
-        var command = new VerifyResetPasswordPhoneCodeCommand(request.PhoneNumber, deviceId, request.Code);
-        var result = await sender.Send(command, cancellationToken);
-
-        return result.Match(
-            token => Ok(new VerifyResetPasswordResponse(token)),
-            Problem
-        );
-    }
-
-    [HttpPost("password/reset/email")]
+    [HttpPost("password/reset/")]
     public async Task<IActionResult> ResetPasswordWithEmail(
         [FromBody] ResetEmailPasswordRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
         CancellationToken cancellationToken)
     {
-        var command = new ResetPasswordEmailCommand(request.Email, request.ResetToken, request.NewPassword, deviceId);
+        var (success, codeDeliveryMethod) = EnumParser.TryParseEnum<CodeDeliveryMethod>(request.CodeDeliveryMethod);
 
-        var result = await sender.Send(command, cancellationToken);
+        if (!success)
+            return BadRequest("Invalid Code Delivery Method.");
 
-        return result.Match(_ => Ok(), Problem);
-    }
+        var command = new ResetPasswordCommand(request.Identifier, request.ResetToken, request.NewPassword, codeDeliveryMethod, deviceId);
 
-    [HttpPost("password/reset/phone")]
-    public async Task<IActionResult> ResetPasswordWithPhone(
-        [FromBody] ResetPhonePasswordRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
-        CancellationToken cancellationToken)
-    {
-        var command =
-            new ResetPasswordPhoneCommand(request.PhoneNumber, request.ResetToken, request.NewPassword, deviceId);
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match(_ => Ok(), Problem);
@@ -344,46 +314,36 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
 
     #endregion
 
-    #region 5. Rsstore Account
+    #region 5. Restore Account
 
-    [HttpPost("restore-account/email")]
+    [HttpPost("restore-account/")]
     public async Task<IActionResult> RestoreAccountWithEmail(
-        [FromBody] RestoreAccountWithEmailRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        [FromBody] RestoreAccountRequest request,
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
         CancellationToken cancellationToken)
     {
-        var command = new RestoreAccountWithEmailCommand(
-            request.Email,
+        var (languageSuccess, deviceLanguage) = EnumParser.TryParseEnum<Language>(request.DeviceLanguage);
+
+        if (!languageSuccess)
+            return BadRequest("Invalid Device Language");
+
+        var (codeSuccess, codeDeliveryMethod) = EnumParser.TryParseEnum<CodeDeliveryMethod>(request.CodeDeliveryMethod);
+
+        if (!codeSuccess)
+            return BadRequest("Invalid Code Delivery Method.");
+
+        var command = new RestoreAccountCommand(
+            request.Identifier,
             request.Code,
+            codeDeliveryMethod,
             deviceId,
             request.FcmToken,
-            request.DeviceLanguage);
+            deviceLanguage);
 
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
-            value => Ok(mapper.Map<RestoreAccountWithEmailResponse>(value)),
-            Problem);
-    }
-
-
-    [HttpPost("restore-account/phone")]
-    public async Task<IActionResult> RestoreAccountWithPhone(
-        [FromBody] RestoreAccountWithPhoneRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
-        CancellationToken cancellationToken)
-    {
-        var command = new RestoreAccountWithPhoneCommand(
-            request.PhoneNumber,
-            request.Code,
-            deviceId,
-            request.FcmToken,
-            request.DeviceLanguage);
-
-        var result = await sender.Send(command, cancellationToken);
-
-        return result.Match(
-            value => Ok(mapper.Map<RestoreAccountWithPhoneResponse>(value)),
+            value => Ok(mapper.Map<RestoreAccountResponse>(value)),
             Problem);
     }
 
@@ -394,7 +354,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken(
         [FromBody] RefreshTokenRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
         CancellationToken cancellationToken)
     {
         var command = new RefreshTokenCommand(
@@ -415,7 +375,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpGet("account/profile")]
     public async Task<IActionResult> GetAccountProfile(CancellationToken cancellationToken)
     {
-        var query = new GetUserCommand();
+        var query = new GetUserQuery();
 
         var result = await sender.Send(query, cancellationToken);
 
@@ -425,34 +385,21 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
         );
     }
 
-    [HttpPost("account/delete/verify/email")]
+    [HttpPost("account/delete/verify/")]
     public async Task<IActionResult> VerifyDeleteEmailAccount(
         [FromBody] VerifyDeleteEmailAccountRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new VerifyDeleteEmailAccountCommand(request.Code);
+        var (success, codeDeliveryMethod) = EnumParser.TryParseEnum<CodeDeliveryMethod>(request.CodeDeliveryMethod);
+
+        if (!success)
+            return BadRequest("Invalid Code Delivery Method.");
+
+        var command = new VerifyDeleteAccountCommand(request.Code, codeDeliveryMethod);
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match(
-            _ => NoContent(),
-            Problem
-        );
-    }
-
-    [HttpPost("account/delete/verify/phone")]
-    public async Task<IActionResult> VerifyDeletePhoneAccount(
-        [FromBody] VerifyDeletePhoneAccountRequest request,
-        CancellationToken cancellationToken)
-    {
-        var command = new VerifyDeletePhoneAccountCommand(request.Code);
-
-        var result = await sender.Send(command, cancellationToken);
-
-        return result.Match(
-            _ => NoContent(),
-            Problem
-        );
+        return result.Match(_ => NoContent(), Problem);
     }
 
     [HttpPut("account/profile")]
@@ -460,31 +407,59 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [FromBody] UpdateAccountRequest request,
     CancellationToken cancellationToken)
     {
+        Gender? gender = null;
+        if (!string.IsNullOrWhiteSpace(request.Gender))
+        {
+            var (success, parsedGender) = EnumParser.TryParseEnum<Gender>(request.Gender);
+            if (!success)
+                return BadRequest("Invalid Gender");
+            gender = parsedGender;
+        }
+
+        Language? preferredLanguage = null;
+        if (!string.IsNullOrWhiteSpace(request.PreferredLanguage))
+        {
+            var (success, parsedLanguage) = EnumParser.TryParseEnum<Language>(request.PreferredLanguage);
+            if (!success)
+                return BadRequest("Invalid Preferred Language");
+            preferredLanguage = parsedLanguage;
+        }
+
+        var userLanguages = new List<UserLanguageProficiencyDto>();
+        if (request.UserLanguages is not null && request.UserLanguages.Count != 0)
+        {
+            foreach (var dto in request.UserLanguages)
+            {
+                var (langSuccess, language) = EnumParser.TryParseEnum<Language>(dto.Language);
+                if (!langSuccess)
+                    return BadRequest("Invalid User Language");
+
+                userLanguages.Add(new UserLanguageProficiencyDto(language, dto.ProficiencyLevel));
+            }
+        }
+
         var command = new UpdateAccountCommand(
             request.FirstName,
             request.LastName,
             request.BirthDate,
-            request.Gender,
+            gender,
             request.NationalityCode,
             request.ProfileImageUrl,
             request.Description,
-            request.PreferredLanguage,
-            request.UserLanguages,
+            preferredLanguage,
+            userLanguages,
             request.TimeZone
         );
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match(
-            _ => NoContent(),
-            errors => Problem(errors)
-        );
+        return result.Match(_ => NoContent(), Problem);
     }
 
     [HttpPost("account/email/change")]
     public async Task<IActionResult> ChangeEmail(
         [FromBody] ChangeEmailRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
         CancellationToken cancellationToken)
     {
         var command = new ChangeEmailCommand(
@@ -504,11 +479,12 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("account/phone/change")]
     public async Task<IActionResult> ChangePhone(
         [FromBody] ChangePhoneRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
         CancellationToken cancellationToken)
     {
-        if (!Enum.TryParse(request.CodeDeliveryMethod, true, out CodeDeliveryMethod codeDeliveryMethod))
-            return BadRequest("Invalid CodeDeliveryMethod value.");
+        var (success, codeDeliveryMethod) = EnumParser.TryParseEnum<CodeDeliveryMethod>(request.CodeDeliveryMethod);
+        if (!success)
+            return BadRequest("Invalid Code Delivery Method.");
 
         var command = new ChangePhoneCommand(
             request.Phone,
@@ -533,16 +509,13 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
         var command = new ChangePasswordCommand(request.CurrentPassword, request.NewPassword);
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match(
-            _ => NoContent(),
-            errors => Problem(errors)
-        );
+        return result.Match(_ => NoContent(), Problem);
     }
 
     [HttpPost("account/confirm-change-email")]
     public async Task<IActionResult> ConfirmChangeEmail(
         [FromBody] ConfirmChangeEmailRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
         CancellationToken cancellationToken)
     {
         var command = new ConfirmChangeEmailCommand(deviceId, request.NewEmail, request.Code);
@@ -557,7 +530,7 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     [HttpPost("account/confirm-change-phone")]
     public async Task<IActionResult> ConfirmChangePhone(
         [FromBody] ConfirmChangePhoneRequest request,
-        [FromHeader(Name = "X-Device-Id")] string deviceId,
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
         CancellationToken cancellationToken)
     {
         var command = new ConfirmChangePhoneCommand(deviceId, request.NewPhoneNumber, request.Code);
@@ -571,4 +544,5 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
     }
 
     #endregion
+
 }

@@ -1,25 +1,23 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.IdentityModule;
-using MediatR;
-using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
+using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.ConfirmChangeEmail;
 
 public class ConfirmChangeEmailCommandHandler(
     IUserRepository userRepository,
     IVerificationCodeRepository verificationCodeRepository,
-    //IUnitOwnerRepository unitOwnerRepository,
-    //ITouristRepository touristRepository,
-    //ITourGuideRepository tourGuideRepository,
+    IUserTokenRepository userTokenRepository,
     IUnitOfWork unitOfWork,
     IClientContextProvider clientContextProvider,
     ICodeHasher codeHasher,
-    IJwtService jwtService)
-    : IRequestHandler<ConfirmChangeEmailCommand, Result<ConfirmChangeEmailResult>>
+    IAuthTokenGenerator authTokenGenerator)
+    : ICommandHandler<ConfirmChangeEmailCommand, Result<ConfirmChangeEmailResult>>
 {
     public async Task<Result<ConfirmChangeEmailResult>> Handle(ConfirmChangeEmailCommand request, CancellationToken cancellationToken)
     {
@@ -28,9 +26,7 @@ public class ConfirmChangeEmailCommandHandler(
         var user = await userRepository.GetUserByIdAsync(userId,
         new UserQueryOptions
         {
-            IsReadOnly = false,
-            IncludeVerificationCodes = true,
-            IncludeRoles = true
+            IsReadOnly = false
         },
         cancellationToken);
 
@@ -38,6 +34,9 @@ public class ConfirmChangeEmailCommandHandler(
 
         var statusCheck = user.CheckActiveStatus();
         if (statusCheck.IsError) return statusCheck.Errors;
+
+        if (await userRepository.IsEmailExistsAsync(request.NewEmail, cancellationToken))
+            return AuthErrors.EmailAlreadyExists;
 
         var changeEmailOtp = await verificationCodeRepository.GetUserCodeAsync(
             user.Id, request.NewEmail, CodePurpose.ChangeEmail, cancellationToken);
@@ -54,39 +53,22 @@ public class ConfirmChangeEmailCommandHandler(
         var changeResult = user.ChangeEmail(request.NewEmail);
         if (changeResult.IsError) return changeResult.Errors;
 
+        await userTokenRepository.RevokeAllTokensForUserAsync(user.Id, cancellationToken);
+
+        var tokens = await authTokenGenerator.GenerateTokensAsync(
+            user,
+            request.DeviceId);
+
         await unitOfWork.CommitChangesAsync(cancellationToken);
 
-        Guid? ownerId = null;
-        Guid? touristId = null;
-        Guid? tourGuideId = null;
-
-        var roleNames = user.GetRoleNames();
-
-        //if (roleNames.Contains("Owner", StringComparer.OrdinalIgnoreCase))
-        //{
-        //    var owner = await unitOwnerRepository.GetOwnerByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
-        //    ownerId = owner?.Id;
-        //}
-
-        //if (roleNames.Contains("Tourist", StringComparer.OrdinalIgnoreCase))
-        //{
-        //    var tourist = await touristRepository.GetProfileByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
-        //    touristId = tourist?.Id;
-        //}
-
-        //if (roleNames.Contains("TourGuide", StringComparer.OrdinalIgnoreCase))
-        //{
-        //    var tourGuide = await tourGuideRepository.GetProfileByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
-        //    tourGuideId = tourGuide?.Id;
-        //}
-
-        var token = jwtService.GenerateToken(
-            request.DeviceId,
-            user,
-            touristId,
-            tourGuideId,
-            ownerId);
-
-        return new ConfirmChangeEmailResult(user.Id, request.NewEmail, token, jwtService.ExpiresIn);
+        return new ConfirmChangeEmailResult(
+            user.Id,
+            user.FirstName,
+            user.LastName,
+            request.NewEmail,
+            user.ProfileImageUrl?.Value,
+            tokens.AccessToken,
+            tokens.RefreshToken,
+            tokens.ExpiresIn);
     }
 }

@@ -1,4 +1,4 @@
-﻿public abstract class BaseEntity<TKey> : HasDomainEvents
+﻿public abstract class BaseEntity<TKey> : AggregateRoot
 {
     public TKey Id { get; init; } = default!;
 }

@@ -21,13 +21,6 @@ public class VerificationDocumentConfigurations : IEntityTypeConfiguration<Verif
             .HasMaxLength(1000)
             .IsRequired();
 
-        builder.Property(d => d.DocumentStatus)
-            .HasConversion<string>()
-            .IsRequired();
-
-        builder.Property(d => d.RejectionReason)
-            .HasMaxLength(500);
-
         builder.Property(d => d.RequestId)
             .IsRequired();
 

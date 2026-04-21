@@ -1,12 +1,12 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.Enums.IdentityModule;
-using MediatR;
-using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
+using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.RegisterWithEmail;
 
@@ -16,11 +16,11 @@ public class RegisterWithEmailCommandHandler(
     IMessageGenerator messageGenerator,
     IUserRepository userRepository,
     IUnitOfWork unitOfWork)
-    : IRequestHandler<RegisterWithEmailCommand, Result<RegisterWithEmailResult>>
+    : ICommandHandler<RegisterWithEmailCommand, Result<RegisterWithEmailResult>>
 {
     public async Task<Result<RegisterWithEmailResult>> Handle(RegisterWithEmailCommand request, CancellationToken cancellationToken)
     {
-        var options = new UserQueryOptions { IsReadOnly = false, IncludeVerificationCodes = true };
+        var options = new UserQueryOptions { IsReadOnly = false };
 
         var existUser = await userRepository.GetUserByEmailAsync(request.Email, options, cancellationToken);
 
@@ -31,16 +31,15 @@ public class RegisterWithEmailCommandHandler(
 
             if (existUser.IsVerified) return AuthErrors.EmailAlreadyExists;
 
-
             var check = existUser.CanRequestEmailCode();
-
             if (check.IsError) return check.Errors;
+
+            var changePasswordResult = existUser.ChangePassword(request.Password, passwordHasher);
+            if (changePasswordResult.IsError) return changePasswordResult.Errors;
 
             var codeForExistingUser = messageGenerator.GenerateCode();
 
             existUser.SendEmailCode(request.Email, codeForExistingUser, CodePurpose.VerifyAccount, codeHasher);
-
-            existUser.ChangePassword(request.Password, passwordHasher);
 
             await unitOfWork.CommitChangesAsync(cancellationToken);
             return new RegisterWithEmailResult(existUser.Id, request.Email);

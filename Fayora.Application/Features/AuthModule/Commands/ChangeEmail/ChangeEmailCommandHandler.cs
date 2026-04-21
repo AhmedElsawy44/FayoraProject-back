@@ -1,11 +1,12 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.IdentityModule;
 using MediatR;
-using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
+using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.ChangeEmail;
 
@@ -15,7 +16,7 @@ public class ChangeEmailCommandHandler(
     IClientContextProvider clientContextProvider,
     ICodeHasher codeHasher,
     IMessageGenerator messageGenerator,
-    IPasswordHasher passwordHasher) : IRequestHandler<ChangeEmailCommand, Result<Unit>>
+    IPasswordHasher passwordHasher) : ICommandHandler<ChangeEmailCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(ChangeEmailCommand request, CancellationToken cancellationToken)
     {
@@ -28,7 +29,13 @@ public class ChangeEmailCommandHandler(
         var statusCheck = user.CheckActiveStatus();
         if (statusCheck.IsError) return statusCheck.Errors;
 
-        if (!user.IsCorrectPasswordHash(request.Password, passwordHasher)) return AuthErrors.InvalidPassword;
+        if (!user.HasPassword) return AuthErrors.PasswordNotSet;
+
+        if (!user.IsCorrectPasswordHash(request.Password, passwordHasher))
+        {
+            await unitOfWork.CommitChangesAsync(cancellationToken);
+            return AuthErrors.InvalidPassword;
+        }
 
         if (user.PrimaryEmail?.Value == request.Email)
             return AuthErrors.EmailIsSameAsCurrent;

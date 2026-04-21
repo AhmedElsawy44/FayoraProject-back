@@ -1,35 +1,26 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Enums.IdentityModule;
-using MediatR;
-using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
+using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.LoginWithPhone;
 
 public class LoginWithPhoneCommandHandler(
     IUserRepository userRepository,
-    //IUnitOwnerRepository unitOwnerRepository,
-    //ITouristRepository touristRepository,
-    //ITourGuideRepository tourGuideRepository,
     IUserDeviceManager userDeviceManager,
     IAuthTokenGenerator authTokenGenerator,
     IPasswordHasher passwordHasher,
     IUnitOfWork unitOfWork)
-    : IRequestHandler<LoginWithPhoneCommand, Result<LoginWithPhoneResult>>
+    : ICommandHandler<LoginWithPhoneCommand, Result<LoginWithPhoneResult>>
 {
     public async Task<Result<LoginWithPhoneResult>> Handle(LoginWithPhoneCommand request, CancellationToken cancellationToken)
     {
-        Language? languageEnum = null;
-        if (!Enum.TryParse<Language>(request.DeviceLanguage, true, out var parsedLanguage))
-            return AuthErrors.InvalidLanguage;
-        languageEnum = parsedLanguage;
-
         var user = await userRepository.GetUserByPhoneAsync(
             request.PhoneNumber,
-            new UserQueryOptions { IsReadOnly = false, IncludeRoles = true },
+            new UserQueryOptions { IsReadOnly = false },
             cancellationToken);
 
         if (user is null) return AuthErrors.InvalidCredentials;
@@ -51,39 +42,12 @@ public class LoginWithPhoneCommandHandler(
             user.Id,
             request.DeviceId,
             request.FcmToken,
-            languageEnum.Value,
+            request.DeviceLanguage,
             cancellationToken);
-
-        Guid? ownerId = null;
-        Guid? touristId = null;
-        Guid? tourGuideId = null;
-
-        var roleNames = user.GetRoleNames();
-
-        //if (roleNames.Contains("Owner", StringComparer.OrdinalIgnoreCase))
-        //{
-        //    var owner = await unitOwnerRepository.GetOwnerByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
-        //    ownerId = owner?.Id;
-        //}
-
-        //if (roleNames.Contains("Tourist", StringComparer.OrdinalIgnoreCase))
-        //{
-        //    var tourist = await touristRepository.GetProfileByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
-        //    touristId = tourist?.Id;
-        //}
-
-        //if (roleNames.Contains("TourGuide", StringComparer.OrdinalIgnoreCase))
-        //{
-        //    var tourGuide = await tourGuideRepository.GetProfileByUserIdAsync(user.Id, isReadOnly: true, cancellationToken);
-        //    tourGuideId = tourGuide?.Id;
-        //}
 
         var tokens = await authTokenGenerator.GenerateTokensAsync(
             user,
             request.DeviceId,
-            touristId: touristId,
-            tourGuideId: tourGuideId,
-            ownerId: ownerId,
             cancellationToken);
 
         await unitOfWork.CommitChangesAsync(cancellationToken);
@@ -92,8 +56,8 @@ public class LoginWithPhoneCommandHandler(
             user.Id,
             user.FirstName,
             user.LastName,
-            user.PhoneNumber!,
-            user.ProfileImageUrl,
+            user.PhoneNumber!.Value,
+            user.ProfileImageUrl?.ToString(),
             tokens.AccessToken,
             tokens.RefreshToken,
             tokens.ExpiresIn);

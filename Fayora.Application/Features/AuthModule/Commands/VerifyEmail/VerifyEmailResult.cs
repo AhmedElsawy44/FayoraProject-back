@@ -6,6 +6,7 @@ public record VerifyEmailResult
     string FirstName,
     string LastName,
     string Email,
+    string? ProfileImageUrl,
     string AccessToken,
     string RefreshToken,
     int ExpiresIn

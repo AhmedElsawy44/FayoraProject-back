@@ -6,7 +6,7 @@ public record LoginWithEmailResult
     string FirstName,
     string LastName,
     string Email,
-    string? ImageUrl,
+    string? ProfileImageUrl,
     string AccessToken,
     string RefreshToken,
     int ExpiresIn

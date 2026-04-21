@@ -8,6 +8,7 @@ public class VerifyEmailCommandValidator : AbstractValidator<VerifyEmailCommand>
     {
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email is required.")
+            .MaximumLength(255).WithMessage("Email must not exceed 255 characters.")
             .EmailAddress().WithMessage("Invalid email format.");
 
         RuleFor(x => x.Code)
@@ -24,7 +25,7 @@ public class VerifyEmailCommandValidator : AbstractValidator<VerifyEmailCommand>
             .MaximumLength(500).WithMessage("FCM Token must not exceed 500 characters.");
 
         RuleFor(x => x.DeviceLanguage)
-            .NotEmpty().WithMessage("Device language is required.");
+            .IsInEnum().WithMessage("Invalid device language.");
 
         RuleFor(x => x.TimeZone)
             .NotEmpty().WithMessage("Time zone is required.")

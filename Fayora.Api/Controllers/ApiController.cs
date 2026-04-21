@@ -51,4 +51,13 @@ public class ApiController : ControllerBase
 
         return ValidationProblem(modelStateDictionary);
     }
+
+    public static class EnumParser
+    {
+        public static (bool Success, T Value) TryParseEnum<T>(string value) where T : struct, Enum
+        {
+            var success = Enum.TryParse<T>(value, true, out var result);
+            return (success, result);
+        }
+    }
 }
