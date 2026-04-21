@@ -1,7 +1,7 @@
-﻿using Fayora.Application.Common.Interfaces.Validations;
+using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Validations;
 using Fayora.Domain.Common.Results;
-using MediatR;
-
+using Fayora.Domain.Enums.IdentityModule;
 namespace Fayora.Application.Features.AuthModule.Commands.VerifyPhone;
 
 public record VerifyPhoneCommand(
@@ -11,4 +11,4 @@ string DeviceId,
 string FcmToken,
 string? SimCountryIsoCode,
 string TimeZone,
-string DeviceLanguage) : IRequest<Result<VerifyPhoneResult>>, ICheckBannedRequest;
+Language DeviceLanguage) : ICommand<Result<VerifyPhoneResult>>, ICheckBannedRequest;

@@ -1,21 +1,27 @@
-﻿using Fayora.Contracts.AuthModule.UpdateAccount;
+﻿using Fayora.Application.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
-using MediatR;
+using Fayora.Domain.Enums.IdentityModule;
+using Fayora.Domain.Enums.TourGuideModule;
 
 namespace Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 
 public record CreateTourGuideCommand
 (
+    DateOnly? BirthDate,
+    Gender? Gender,
     string DeviceId,
     string ProfilePictureUrl,
     string Description,
-    string PricingUnit,
+    PricingUnit PricingUnit,
     decimal BaseRate,
     int YearsOfExperience,
-    string LicenseNumber,
-    DateOnly LicenseExpiryDate,
-    string CurrencyCode,
+    string NationalityCode,
     List<Guid> CityIds,
-    string PreferredLanguage,
-    List<UserLanguageDto> TourGuideLanguages
-) : IRequest<Result<CreateTourGuideResult>>;
+    Language? PreferredLanguage,
+    List<UserLanguageProficiencyDto> TourGuideLanguages,
+    string? TimeZone
+) : ICommand<Result<CreateTourGuideResult>>;
+
+public record UserLanguageProficiencyDto(
+    Language Language,
+    decimal ProficiencyLevel);

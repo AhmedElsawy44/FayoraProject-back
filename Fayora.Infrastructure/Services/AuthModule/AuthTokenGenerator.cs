@@ -15,12 +15,9 @@ public class AuthTokenGenerator(
     public async Task<AuthTokensDto> GenerateTokensAsync(
         User user,
         string deviceId,
-        Guid? touristId = null,
-        Guid? tourGuideId = null,
-        Guid? ownerId = null,
         CancellationToken cancellationToken = default)
     {
-        var accessToken = jwtService.GenerateToken(deviceId, user, touristId, tourGuideId, ownerId);
+        var accessToken = jwtService.GenerateToken(deviceId, user);
 
         var refreshTokenString = userTokenService.GenerateTokenString();
         var hashedRefreshToken = tokenHasher.HashToken(refreshTokenString);

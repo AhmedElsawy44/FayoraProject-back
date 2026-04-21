@@ -1,4 +1,5 @@
 ﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.TourGuideModule;
 using MediatR;
 
 namespace Fayora.Application.Features.TourGuideModule.Commands.CreateGuidePackage;
@@ -7,11 +8,11 @@ public record CreateGuidePackageCommand
 (
     string Title,
     string Description,
-    string TourType,
+    TourType TourType,
     int DurationHours,
     decimal Longitude,
     decimal Latitude,
-    string TransportType,
+    TransportType TransportType,
     string ArrivalNote,
     decimal AdultPrice,
     decimal ChildPrice,

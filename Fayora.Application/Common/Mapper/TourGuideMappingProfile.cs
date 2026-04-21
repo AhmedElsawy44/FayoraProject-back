@@ -32,10 +32,6 @@ public class TourGuideMappingProfile : Profile
             .ForMember(dest => dest.TourPackages, opt => opt.MapFrom(src => src.GuideTourPackages))
 
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
-            .ForMember(dest => dest.TransportInfo, opt => opt.MapFrom(src => src.TransportInfo != null ? src.TransportInfo.ToString() : null))
-
-            .ForMember(dest => dest.LicenseExpiryDate, opt => opt.MapFrom(src => src.LicenseExpiryDate.ToDateTime(TimeOnly.MinValue)))
-            .ForMember(dest => dest.TaxRegistrationDate, opt => opt.MapFrom(src =>
-                src.TaxRegistrationDate.HasValue ? src.TaxRegistrationDate.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null));
+            .ForMember(dest => dest.TransportInfo, opt => opt.MapFrom(src => src.TransportInfo != null ? src.TransportInfo.ToString() : null));
     }
 }

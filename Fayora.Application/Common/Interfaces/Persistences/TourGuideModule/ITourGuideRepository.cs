@@ -9,7 +9,7 @@ public interface ITourGuideRepository
 
     public Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken);
 
-    public record GuideQueryOptions (
+    public record GuideQueryOptions(
         bool ReadOnly = true,
         bool IncludeCities = false,
         bool IncludeTourPackages = false

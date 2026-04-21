@@ -1,7 +1,7 @@
-﻿using Fayora.Application.Common.Interfaces.Validations;
+using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Validations;
 using Fayora.Domain.Common.Results;
-using MediatR;
-
+using Fayora.Domain.Enums.IdentityModule;
 namespace Fayora.Application.Features.AuthModule.Commands.LoginWithEmail;
 
 public record LoginWithEmailCommand(
@@ -9,4 +9,4 @@ public record LoginWithEmailCommand(
     string Password,
     string DeviceId,
     string FcmToken,
-    string DeviceLanguage) : IRequest<Result<LoginWithEmailResult>>, ICheckBannedRequest;
+    Language DeviceLanguage) : ICommand<Result<LoginWithEmailResult>>, ICheckBannedRequest;

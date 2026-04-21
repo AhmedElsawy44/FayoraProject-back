@@ -79,6 +79,11 @@ public static class AuthErrors
         description: "Email is required from Apple. Please register again and provide email permission."
     );
 
+    public static readonly Error EmailRequiredFromIdentityProvider = Error.Validation(
+        code: "Authentication.EmailRequiredFromIdentityProvider",
+        description: "Email is required from the identity provider."
+    );
+
     public static readonly Error EmailRequired = Error.Validation(
         code: "Authentication.EmailRequired",
         description: "Email is required."
@@ -92,6 +97,11 @@ public static class AuthErrors
     public static readonly Error InvalidPassword = Error.Validation(
         code: "Authentication.InvalidPassword",
         description: "Invalid password."
+    );
+
+    public static readonly Error PasswordNotSet = Error.Validation(
+        code: "Authentication.PasswordNotSet",
+        description: "You must set a password first."
     );
 
     public static readonly Error PhoneNumberAlreadyExists = Error.Conflict(

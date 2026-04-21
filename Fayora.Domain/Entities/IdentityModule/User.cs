@@ -13,17 +13,18 @@ public class User : AuditableEntity<Guid>
     public static readonly TimeSpan OtpResendCooldown = TimeSpan.FromMinutes(2);
     private static readonly int MaxSmsOtpPerDay = 5;
     private static readonly int MaxEmailOtpPerDay = 10;
-    private static readonly TimeSpan PasswordResetTokenExpiration = TimeSpan.FromMinutes(15);
     private static readonly TimeSpan AccountLockoutDuration = TimeSpan.FromMinutes(15);
     private static readonly int MaxFailedAccessAttempts = 5;
     private static readonly TimeSpan FailedAccessAttemptWindow = TimeSpan.FromMinutes(15);
+    private static readonly int ViolationsBeforeBan = 3;
+    private static readonly TimeSpan ViolationWindowForBan = TimeSpan.FromDays(30);
 
-    public string FirstName { get; private set; }
-    public string LastName { get; private set; }
+    public string FirstName { get; private set; } = default!;
+    public string LastName { get; private set; } = default!;
     public DateOnly? BirthDate { get; private set; }
     public Gender? Gender { get; private set; }
     public Email? PrimaryEmail { get; private set; }
-    public string? PhoneNumber { get; private set; }
+    public PhoneNumber? PhoneNumber { get; private set; }
     public DateTimeOffset? PasswordChangedAt { get; private set; }
     public DateTimeOffset? LastOtpSentAt { get; private set; }
     public DateTimeOffset? LockedUntil { get; private set; }
@@ -31,14 +32,12 @@ public class User : AuditableEntity<Guid>
     public bool IsPhoneVerified { get; private set; }
     public UserStatus Status { get; private set; } = UserStatus.Active;
     public decimal CurrentBalance { get; private set; } = 0;
-    public string? NationalityCode { get; private set; }
     public string? SimCountryIsoCode { get; private set; }
     public Language? PreferredLanguage { get; private set; } = Language.English;
-    public Language SpokenLanguages { get; private set; }
-    public List<UserLanguageProficiency>? UserLanguageProficiency { get; private set; }
     public string? TimeZone { get; private set; } = string.Empty;
-    public string? ProfileImageUrl { get; private set; }
+    public FileUrl? ProfileImageUrl { get; private set; }
     public string? Description { get; private set; }
+    public string? NationalityCode { get; private set; } = string.Empty;
     public DateTimeOffset? LastLogin { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
     public DateTimeOffset? LastFailedLoginAt { get; private set; }
@@ -49,15 +48,20 @@ public class User : AuditableEntity<Guid>
 
     private readonly List<VerificationCode> _verificationCodes = [];
     public IReadOnlyCollection<VerificationCode> VerificationCodes => _verificationCodes.AsReadOnly();
-
-    private readonly List<UserRole> _roles = [];
-    public IReadOnlyCollection<UserRole> Roles => _roles.AsReadOnly();
-
-    public List<string> GetRoleNames() => [.. Roles.Select(r => r.Role.Name)];
+    public Role Roles { get; private set; }
+    public Language SpokenLanguages =>
+    _userLanguageProficiencies.Count != 0
+        ? _userLanguageProficiencies
+            .Select(x => x.Language)
+            .Aggregate((a, b) => a | b)
+        : Language.None;
 
 
     private string _passwordHash = string.Empty;
 
+    private readonly List<UserLanguageProficiency> _userLanguageProficiencies = [];
+
+    public IReadOnlyCollection<UserLanguageProficiency> UserLanguageProficiencies => _userLanguageProficiencies.AsReadOnly();
     public bool IsVerified => IsEmailVerified || IsPhoneVerified;
     public bool IsLocked => Status == UserStatus.Locked && LockedUntil.HasValue && LockedUntil.Value > DateTimeOffset.UtcNow;
     public bool IsDeleted => Status == UserStatus.Deleted && DeletedAt.HasValue;
@@ -84,8 +88,7 @@ public class User : AuditableEntity<Guid>
             LastName = lastName,
             PrimaryEmail = emailResult.Value,
             PhoneNumber = null,
-            _passwordHash = passwordHashResult.Value,
-            Status = UserStatus.Active,
+            _passwordHash = passwordHashResult.Value
         };
     }
 
@@ -96,6 +99,9 @@ public class User : AuditableEntity<Guid>
         string password,
         IPasswordHasher passwordHasher)
     {
+        var phoneResult = PhoneNumber.Create(phoneNumber);
+        if (phoneResult.IsError) return phoneResult.Errors;
+
         var passwordHashResult = passwordHasher.HashPassword(password);
         if (passwordHashResult.IsError) return passwordHashResult.Errors;
 
@@ -105,71 +111,43 @@ public class User : AuditableEntity<Guid>
             FirstName = firstName,
             LastName = lastName,
             PrimaryEmail = null,
-            PhoneNumber = phoneNumber,
-            _passwordHash = passwordHashResult.Value,
-            Status = UserStatus.Active,
+            PhoneNumber = phoneResult.Value,
+            _passwordHash = passwordHashResult.Value
         };
-    }
-
-
-    public static User CreateWithSocialLogin(
-    string name,
-    string? email,
-    string? pictureUrl)
-    {
-        var names = name.Split(' ');
-
-        var user = new User
-        {
-            Id = Guid.CreateVersion7(),
-            IsEmailVerified = !string.IsNullOrWhiteSpace(email),
-            ProfileImageUrl = pictureUrl,
-            FirstName = names[0],
-            LastName = names.Length > 1 ? names[1] : string.Empty,
-            Status = UserStatus.Active,
-        };
-
-        if (!string.IsNullOrWhiteSpace(email))
-        {
-            var emailResult = Email.Create(email);
-            if (emailResult.IsSuccess)
-                user.PrimaryEmail = emailResult.Value;
-        }
-
-        return user;
     }
 
     public static User CreateWithSocialLogin(
     string firstName,
     string lastName,
-    string email,
+    string? email,
     string? pictureUrl)
     {
         var user = new User
         {
             Id = Guid.CreateVersion7(),
-            IsEmailVerified = !string.IsNullOrWhiteSpace(email),
-            ProfileImageUrl = pictureUrl,
+            IsEmailVerified = true,
+            ProfileImageUrl = GetDefaultProfileImageForSocialProvider(pictureUrl),
             FirstName = firstName,
-            LastName = lastName,
-            Status = UserStatus.Active,
+            LastName = lastName
         };
 
-        if (!string.IsNullOrWhiteSpace(email))
-        {
-            var emailResult = Email.Create(email);
-            if (emailResult.IsSuccess)
-                user.PrimaryEmail = emailResult.Value;
-        }
+        var emailResult = Email.Create(email);
+        if (emailResult.IsSuccess)
+            user.PrimaryEmail = emailResult.Value;
 
         return user;
     }
 
+    private static FileUrl? GetDefaultProfileImageForSocialProvider(string? pictureUrl)
+    {
+        var pictureResult = FileUrl.Create(pictureUrl);
+        return pictureResult.IsError ? null : pictureResult.Value;
+    }
 
-    public void UpdateRegionalPreferences(string? simCountryIso, Language? preferredLanguage, string? timeZone)
+
+    public void UpdateRegionalPreferences(string? simCountryIso, string? timeZone)
     {
         SimCountryIsoCode = simCountryIso ?? SimCountryIsoCode;
-        PreferredLanguage = preferredLanguage ?? PreferredLanguage;
         TimeZone = timeZone ?? TimeZone;
     }
 
@@ -201,9 +179,16 @@ public class User : AuditableEntity<Guid>
         AccessFailedCount = 0;
         LockedUntil = null;
         LastFailedLoginAt = null;
+
+        if (Status == UserStatus.Locked)
+            Status = UserStatus.Active;
     }
 
-    private void LockAccount() => LockedUntil = DateTimeOffset.UtcNow.Add(AccountLockoutDuration);
+    private void LockAccount()
+    {
+        Status = UserStatus.Locked;
+        LockedUntil = DateTimeOffset.UtcNow.Add(AccountLockoutDuration);
+    }
 
     public bool IsCorrectPasswordHash(string password, IPasswordHasher passwordHasher)
     {
@@ -248,15 +233,19 @@ public class User : AuditableEntity<Guid>
         return Result.Success;
     }
 
-    public void ChangePhoneNumber(string phoneNumber)
+    public Result<Success> ChangePhoneNumber(string phoneNumber)
     {
-        if (PhoneNumber == phoneNumber)
-            return;
+        if (PhoneNumber?.Value == phoneNumber)
+            return Result.Success;
 
-        PhoneNumber = phoneNumber;
+        var phoneNumberResult = PhoneNumber.Create(phoneNumber);
+        if (phoneNumberResult.IsError) return phoneNumberResult.Errors;
+
+        PhoneNumber = phoneNumberResult.Value;
         IsPhoneVerified = false;
 
         Updated();
+        return Result.Success;
     }
 
     public void Delete()
@@ -279,23 +268,32 @@ public class User : AuditableEntity<Guid>
     }
 
 
-    public void UpdateProfile(string firstName, string lastName, DateOnly? birthDate, Gender? gender, string? nationalityCode, string? profileImageUrl, string? description, Language? preferredLanguage, List<UserLanguageProficiency> userLanguages, string? timeZone)
+    public void UpdateProfile(
+        string firstName,
+        string lastName,
+        DateOnly? birthDate,
+        Gender? gender,
+        string? profileImageUrl,
+        string? description,
+        string? nationalityCode,
+        Language? preferredLanguage,
+        List<UserLanguageProficiency> userLanguages,
+        string? timeZone)
     {
         FirstName = firstName;
         LastName = lastName;
         BirthDate = birthDate;
         Gender = gender;
-        NationalityCode = nationalityCode;
 
         UpdateProfileImage(profileImageUrl);
 
         Description = description;
+        NationalityCode = nationalityCode;
         PreferredLanguage = preferredLanguage;
-        SpokenLanguages = userLanguages.Count != 0
-            ? userLanguages.Select(x => x.Language)
-                    .Aggregate((a, b) => a | b)
-            : Language.None;
-        UserLanguageProficiency = userLanguages;
+
+        _userLanguageProficiencies.Clear();
+        _userLanguageProficiencies.AddRange(userLanguages);
+
         TimeZone = timeZone;
         IsProfileComplete = CheckIfProfileComplete();
 
@@ -304,12 +302,12 @@ public class User : AuditableEntity<Guid>
 
     private void UpdateProfileImage(string? profileImageUrl)
     {
-        if (profileImageUrl != ProfileImageUrl)
+        if (GetDefaultProfileImageForSocialProvider(profileImageUrl) != ProfileImageUrl)
         {
             if (ProfileImageUrl is not null)
-                RaiseDomainEvent(new DeleteMediaEvent(ProfileImageUrl));
+                RaiseDomainEvent(new DeleteMediaEvent(ProfileImageUrl.ToString()));
 
-            ProfileImageUrl = profileImageUrl;
+            ProfileImageUrl = GetDefaultProfileImageForSocialProvider(profileImageUrl);
         }
     }
 
@@ -320,9 +318,8 @@ public class User : AuditableEntity<Guid>
                && PreferredLanguage.HasValue
                && BirthDate.HasValue
                && Gender.HasValue
-               && (PrimaryEmail != null || !string.IsNullOrWhiteSpace(PhoneNumber))
-               && !string.IsNullOrWhiteSpace(NationalityCode)
-               && !string.IsNullOrWhiteSpace(ProfileImageUrl);
+               && (PrimaryEmail != null || PhoneNumber != null)
+               && ProfileImageUrl is not null;
     }
 
     public Result<Success> Credit(decimal amount)
@@ -429,11 +426,62 @@ public class User : AuditableEntity<Guid>
         return Result.Success;
     }
 
+    public Result<Success> RecordViolation()
+    {
+        var statusCheck = CheckActiveStatus();
+        if (statusCheck.IsError) return statusCheck;
+
+        ViolationCount++;
+        LastViolationDate = DateTimeOffset.UtcNow;
+
+        if (ShouldBan())
+            Ban();
+
+        Updated();
+        return Result.Success;
+    }
+
+    private bool ShouldBan()
+    {
+        if (ViolationCount < ViolationsBeforeBan)
+            return false;
+
+        if (LastViolationDate.HasValue &&
+            DateTimeOffset.UtcNow - LastViolationDate.Value > ViolationWindowForBan)
+        {
+            ViolationCount = 1;
+            return false;
+        }
+
+        return true;
+    }
+
+    private void Ban()
+    {
+        Status = UserStatus.Banned;
+
+        if (PrimaryEmail is not null)
+            RaiseDomainEvent(new UserSecurityActivityDomainEvent(
+                Id,
+                PrimaryEmail.Value,
+                SecurityActivityType.AccountBanned));
+    }
+
+    public Result<Success> ResetViolations()
+    {
+        ViolationCount = 0;
+        LastViolationDate = null;
+        Updated();
+        return Result.Success;
+    }
+
     public void AddRole(Role role)
     {
-        if (Roles.Any(r => r.RoleId == role.Id))
-            return;
-        _roles.Add(new UserRole(Id, role.Id));
+        if (!Roles.HasFlag(role))
+        {
+            Roles |= role;
+            Updated();
+        }
     }
 
     private User() { }

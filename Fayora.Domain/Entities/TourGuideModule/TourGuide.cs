@@ -7,15 +7,12 @@ namespace Fayora.Domain.Entities.TourGuide;
 
 public class TourGuide : AuditableEntity<Guid>
 {
-    public Guid UserId { get; init; }
     public decimal BaseRate { get; private set; } //$180/day 
     public PricingUnit? PricingUnit { get; private set; }
     public int YearsOfExperience { get; private set; }
     public string LicenseNumber { get; private set; } = null!;
     public DateOnly LicenseExpiryDate { get; private set; }
-    public string TaxRegistrationNumber { get; private set; } = null!;
-    public DateOnly? TaxRegistrationDate { get; private set; }
-    public string CurrencyCode { get; private set; }
+    public string CurrencyCode { get; private set; } = default!;
     public int ReviewCount { get; private set; }
     public float AverageRating { get; private set; }
     public GuideStatus Status { get; private set; }
@@ -43,15 +40,12 @@ public class TourGuide : AuditableEntity<Guid>
         PricingUnit pricingUnit,
         decimal baseRate,
         int yearsOfExperience,
-        string licenseNumber,
-        DateOnly licenseExpiryDate,
         string currencyCode = "EGP")
     {
-        UserId = userId;
+        Id = userId;
         PricingUnit = pricingUnit;
         BaseRate = baseRate;
-        LicenseNumber = licenseNumber;
-        LicenseExpiryDate = licenseExpiryDate;
+        YearsOfExperience = yearsOfExperience;
         CurrencyCode = currencyCode;
         AverageRating = 0f;
         Status = GuideStatus.Pending;
@@ -66,27 +60,16 @@ public class TourGuide : AuditableEntity<Guid>
 
     private TourGuide()
     {
-        CurrencyCode = string.Empty;
     }
 
     // Factory Methods
 
-    public static Result<TourGuide> Create(Guid userId, PricingUnit pricingUnit, decimal baseRate, int yearsOfExperience, string licenseNumber, DateOnly licenseExpiryDate, string currencyCode = "EGP")
+    public static Result<TourGuide> Create(Guid userId, PricingUnit pricingUnit, decimal baseRate, int yearsOfExperience, string currencyCode = "EGP")
     {
         if (baseRate <= 0)
             return Error.Validation("TourGuide.InvalidBaseRate", "Base rate must be greater than zero.");
 
-        if (licenseExpiryDate < DateOnly.FromDateTime(DateTime.UtcNow))
-            return Error.Validation("TourGuide.ExpiredLicense", "License is already expired.");
-
-        return new TourGuide(userId, pricingUnit, baseRate, yearsOfExperience, licenseNumber, licenseExpiryDate, currencyCode);
-    }
-
-    public void SetTaxRegistration(string taxRegistrationNumber, DateOnly taxRegistrationDate)
-    {
-        TaxRegistrationNumber = taxRegistrationNumber;
-        TaxRegistrationDate = taxRegistrationDate;
-        Updated();
+        return new TourGuide(userId, pricingUnit, baseRate, yearsOfExperience, currencyCode);
     }
 
 

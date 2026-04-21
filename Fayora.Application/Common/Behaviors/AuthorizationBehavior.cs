@@ -1,3 +1,4 @@
+using Fayora.Application.Abstractions.Messaging;
 using Fayora.Application.Common.Authorization;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Domain.Common.Results;
@@ -8,7 +9,7 @@ namespace Fayora.Application.Common.Behaviors;
 
 public class AuthorizationBehavior<TRequest, TResponse>(IClientContextProvider clientContextProvider)
     : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : IRequest<TResponse>
+        where TRequest : ICommand<TResponse>
         where TResponse : Result
 {
     public async Task<TResponse> Handle(

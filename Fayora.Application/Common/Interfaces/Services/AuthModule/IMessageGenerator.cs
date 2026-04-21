@@ -3,11 +3,11 @@
 public interface IMessageGenerator
 {
     string GenerateCode(int length = 6);
-    (string Subject, string Body) CreateEmailMessage(MessagelPurpose purpose, string? code = null);
-    string CreateSmsMessage(MessagelPurpose purpose, string code);
-    string CreateWhatsAppMessage(MessagelPurpose purpose, string code);
+    (string Subject, string Body) CreateEmailMessage(MessagePurpose purpose, string? code = null);
+    string CreateSmsMessage(MessagePurpose purpose, string code);
+    string CreateWhatsAppMessage(MessagePurpose purpose, string code);
 
-    public enum MessagelPurpose
+    public enum MessagePurpose
     {
         Registration,
         Login,

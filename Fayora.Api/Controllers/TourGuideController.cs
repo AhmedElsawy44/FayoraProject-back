@@ -3,15 +3,14 @@ using Fayora.Application.Features.TourGuideModule.Commands.ActivateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Commands.DeactivateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.DeleteGuidePackage;
-using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Application.Features.TourGuideModule.Queries.GetGuidePackageById;
 using Fayora.Application.Features.TourGuideModule.Queries.GetTourGuideById;
 using Fayora.Contracts.TourGuideModule.CreateTourGuide;
 using Fayora.Contracts.TourGuideModule.GetGuidePackageById;
 using Fayora.Contracts.TourGuideModule.GetTourGuideById;
 using Fayora.Domain.Enums.IdentityModule;
+using Fayora.Domain.Enums.TourGuideModule;
 using MediatR;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fayora.Api.Controllers;
@@ -24,19 +23,45 @@ public class TourGuideController(ISender sender, IMapper mapper) : ApiController
         [FromHeader(Name = "X-Device-Id")] string deviceId,
         [FromBody] CreateTourGuideRequest request)
     {
+        var (pricingUnitOk, pricingUnit) = EnumParser.TryParseEnum<PricingUnit>(request.PricingUnit);
+        if (!pricingUnitOk)
+            return BadRequest("Invalid Pricing Unit");
+
+        var (languageOk, preferredLanguage) = EnumParser.TryParseEnum<Language>(request.PreferredLanguage);
+        if (!languageOk)
+            return BadRequest("Invalid Preferred Language");
+
+        var (genderOk, gender) = EnumParser.TryParseEnum<Gender>(request.Gender);
+        if (!genderOk)
+            return BadRequest("Invalid Gender");
+
+        var tourGuideLanguages = new List<UserLanguageProficiencyDto>();
+        if (request.TourGuideLanguages is not null && request.TourGuideLanguages.Count != 0)
+        {
+            foreach (var dto in request.TourGuideLanguages)
+            {
+                var (langOk, language) = EnumParser.TryParseEnum<Language>(dto.Language);
+                if (!langOk)
+                    return BadRequest("Invalid Tour Guide Language");
+
+                tourGuideLanguages.Add(new UserLanguageProficiencyDto(language, dto.ProficiencyLevel));
+            }
+        }
+
         var command = new CreateTourGuideCommand(
+            request.BirthDate,
+            gender,
             deviceId,
             request.ProfilePictureUrl,
             request.Description,
-            request.PricingUnit,
+            pricingUnit,
             request.BaseRate,
             request.YearsOfExperience,
-            request.LicenseNumber,
-            request.LicenseExpiryDate,
-            request.CurrencyCode,
+            request.NationalityCode,
             request.CityIds,
-            request.PreferredLanguage,
-            request.TourGuideLanguages
+            preferredLanguage,
+            tourGuideLanguages,
+            request.TimeZone
         );
 
         var result = await sender.Send(command);
@@ -98,7 +123,6 @@ public class TourGuideController(ISender sender, IMapper mapper) : ApiController
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetTourGuideById(Guid id, CancellationToken cancellationToken)
     {
-        // 1. بنجهز الطلب
         var query = new GetTourGuideByIdQuery(id);
 
         var result = await sender.Send(query, cancellationToken);

@@ -1,7 +1,5 @@
-﻿namespace Fayora.Contracts.VerificationModule
-{
-    public record ReviewVerificationRequestRequest(
-    Guid AdminId,
-    string NewStatus,
-    string? AdminComment);
-}
+﻿namespace Fayora.Contracts.VerificationModule;
+
+public record ReviewVerificationRequestRequest(
+string NewStatus,
+string? AdminComment);

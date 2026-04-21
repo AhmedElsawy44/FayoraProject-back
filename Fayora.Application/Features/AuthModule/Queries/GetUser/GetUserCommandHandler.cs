@@ -4,6 +4,11 @@ using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.IdentityModule;
 using MediatR;
+using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Features.AuthModule.Common;
+using Fayora.Domain.Common.Results;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Queries.GetUser;
@@ -11,9 +16,9 @@ namespace Fayora.Application.Features.AuthModule.Queries.GetUser;
 public class GetUserCommandHandler(
     IUserRepository userRepository,
     IClientContextProvider clientContextProvider
-    ) : IRequestHandler<GetUserCommand, Result<GetUserResult>>
+    ) : IQueryHandler<GetUserQuery, Result<GetUserResult>>
 {
-    public async Task<Result<GetUserResult>> Handle(GetUserCommand request, CancellationToken cancellationToken)
+    public async Task<Result<GetUserResult>> Handle(GetUserQuery request, CancellationToken cancellationToken)
     {
         var userId = clientContextProvider.GetContext().UserId;
 
@@ -24,9 +29,9 @@ public class GetUserCommandHandler(
         return new GetUserResult
         (
             user.Id,
-            user.ProfileImageUrl,
+            user.ProfileImageUrl?.Value,
             user.PrimaryEmail?.Value,
-            user.PhoneNumber,
+            user.PhoneNumber?.Value,
             user.IsEmailVerified,
             user.IsPhoneVerified,
             user.FirstName,

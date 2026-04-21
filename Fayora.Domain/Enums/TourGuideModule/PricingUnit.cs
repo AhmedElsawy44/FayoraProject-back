@@ -1,10 +1,9 @@
-﻿namespace Fayora.Domain.Enums.TourGuideModule
+﻿namespace Fayora.Domain.Enums.TourGuideModule;
+
+public enum PricingUnit
 {
-    public enum PricingUnit
-    {
-        PerHour,
-        PerDay,
-        PerPerson,
-        PerTrip
-    }
+    PerHour,
+    PerDay,
+    PerPerson,
+    PerTrip
 }

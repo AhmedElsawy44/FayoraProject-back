@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
-
-namespace Fayora.Contracts.TourGuideModule.GetGuidePackageById;
+﻿namespace Fayora.Contracts.TourGuideModule.GetGuidePackageById;
 
 public record GetGuidePackageByIdResponse
 (

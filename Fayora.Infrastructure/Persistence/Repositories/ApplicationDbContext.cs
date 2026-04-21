@@ -1,6 +1,8 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
+using Fayora.Domain.Entities.AccommodationModule;
 using Fayora.Domain.Entities.IdentityModule;
+using Fayora.Domain.Entities.TouristModule;
 using Fayora.Domain.Entities.Shared;
 using Fayora.Domain.Entities.TourCompanyModule;
 using Fayora.Domain.Entities.TourGuide;
@@ -13,14 +15,17 @@ namespace Fayora.Infrastructure.Persistence.Repositories;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor, IPublisher publisher) : DbContext(options), IUnitOfWork
 {
     public DbSet<User> Users { get; set; }
-    public DbSet<Role> Roles { get; set; }
-    public DbSet<UserRole> UserRoles { get; set; }
     public DbSet<UserIdentity> UserIdentities { get; set; }
     public DbSet<UserTokens> UserTokens { get; set; }
     public DbSet<UserDevice> UserDevices { get; set; }
     public DbSet<VerificationDocument> VerificationDocuments { get; set; }
     public DbSet<VerificationRequest> VerificationRequests { get; set; }
     public DbSet<VerificationCode> VerificationCodes { get; set; }
+    public DbSet<HousingUnit> HousingUnits { get; set; }
+    public DbSet<UnitOwner> UnitOwners { get; set; }
+    public DbSet<MasterInterest> MasterInterests { get; set; }
+    public DbSet<TouristProfile> Tourists { get; set; }
+    public DbSet<MasterAmenity> MasterAmenities { get; set; }
 
     //for tour guide
     public DbSet<TourGuide> TourGuides { get; set; }
@@ -38,7 +43,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     public async Task CommitChangesAsync(CancellationToken cancellationToken = default)
     {
-        var domainEvents = ChangeTracker.Entries<HasDomainEvents>()
+        var domainEvents = ChangeTracker.Entries<AggregateRoot>()
             .SelectMany(x => x.Entity.GetDomainEvents())
             .ToList();
 

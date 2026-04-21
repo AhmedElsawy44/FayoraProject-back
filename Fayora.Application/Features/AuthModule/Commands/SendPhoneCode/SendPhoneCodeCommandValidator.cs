@@ -8,6 +8,7 @@ public class SendPhoneCodeCommandValidator : AbstractValidator<SendPhoneCodeComm
     {
         RuleFor(x => x.PhoneNumber)
             .NotEmpty().WithMessage("Phone number is required.")
+            .MaximumLength(20).WithMessage("Phone number must not exceed 20 characters.")
             .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format.");
 
         RuleFor(x => x.DeviceId)
@@ -15,10 +16,9 @@ public class SendPhoneCodeCommandValidator : AbstractValidator<SendPhoneCodeComm
             .MaximumLength(100).WithMessage("Device ID must not exceed 100 characters.");
 
         RuleFor(x => x.Purpose)
-        .IsInEnum().WithMessage("Invalid OTP purpose."); RuleFor(x => x.PhoneNumber);
+            .IsInEnum().WithMessage("Invalid OTP purpose.");
 
         RuleFor(x => x.DeliveryMethod)
-            .NotEmpty().WithMessage("Delivery method is required.")
             .IsInEnum().WithMessage("Invalid OTP delivery method.");
     }
 }

@@ -6,7 +6,6 @@ using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.TourGuide;
-using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 using MediatR;
 
@@ -19,9 +18,6 @@ public class CreateGuidePackageCommandHandler(
 {
     public async Task<Result<CreateGuidePackageResult>> Handle(CreateGuidePackageCommand request, CancellationToken cancellationToken)
     {
-        if (Enum.TryParse<TourType>(request.TourType, true, out var tourType) == false) return TourGuideErrors.InvalidTourType;
-        if (Enum.TryParse<TransportType>(request.TransportType, true, out var transportType) == false) return TourGuideErrors.InvalidTransportType;
-
         var tourGuideId = clientContextProvider.GetContext().TourGuideId;
         if (tourGuideId is null) return TourGuideErrors.GuidIdNotExist;
 
@@ -34,10 +30,10 @@ public class CreateGuidePackageCommandHandler(
             tourGuideId.Value,
             request.Title,
             request.Description,
-            tourType,
+            request.TourType,
             request.DurationHours,
             meetingPoint,
-            transportType,
+            request.TransportType,
             request.MaxCapacity,
             request.AdultPrice,
             request.ChildPrice,

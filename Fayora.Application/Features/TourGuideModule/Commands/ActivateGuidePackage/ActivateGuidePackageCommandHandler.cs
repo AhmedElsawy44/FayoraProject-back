@@ -4,11 +4,6 @@ using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Fayora.Application.Features.TourGuideModule.Commands.ActivateGuidePackage
 {

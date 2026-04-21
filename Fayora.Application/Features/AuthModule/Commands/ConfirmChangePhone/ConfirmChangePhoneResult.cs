@@ -2,8 +2,12 @@
 
 public record ConfirmChangePhoneResult
 (
-    Guid Id,
-    string Email,
+    Guid UserId,
+    string FirstName,
+    string LastName,
+    string PhoneNumber,
+    string? ImageUrl,
     string AccessToken,
+    string RefreshToken,
     int ExpiresIn
 );

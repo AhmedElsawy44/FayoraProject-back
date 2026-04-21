@@ -4,6 +4,8 @@ namespace Fayora.Contracts.TourGuideModule.CreateTourGuide;
 
 public record CreateTourGuideRequest
 (
+    DateOnly BirthDate,
+    string Gender,
     string ProfilePictureUrl,
     string Description,
     string PricingUnit,
@@ -11,8 +13,9 @@ public record CreateTourGuideRequest
     int YearsOfExperience,
     string LicenseNumber,
     DateOnly LicenseExpiryDate,
-    string CurrencyCode,
+    string NationalityCode,
     List<Guid> CityIds,
     string PreferredLanguage,
+    string TimeZone,
     List<UserLanguageDto> TourGuideLanguages
 );
