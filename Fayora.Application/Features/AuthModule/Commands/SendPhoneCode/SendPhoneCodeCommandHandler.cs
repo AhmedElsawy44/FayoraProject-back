@@ -1,11 +1,12 @@
-using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
-using MediatR;
 using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
-using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
+using Fayora.Domain.Enums.IdentityModule;
+using MediatR;
+using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.SendPhoneCode;
 
@@ -21,8 +22,23 @@ public class SendPhoneCodeCommandHandler(
         var options = new UserQueryOptions { IsReadOnly = false, IncludeVerificationCodes = true };
         var user = await userRepository.GetUserByPhoneAsync(request.PhoneNumber, options, cancellationToken);
 
-        if (user is null) return AuthErrors.UserNotFound;
+        if (user is null)
+        {
+            if (request.Purpose == CodePurpose.ResetPassword)
+                return Unit.Value;
 
+            return AuthErrors.UserNotFound;
+        }
+
+        if (user.IsBanned || user.IsLocked)
+            return AuthErrors.UserNotFound;
+
+        var isReactivating = request.Purpose == CodePurpose.ReactivateAccount;
+        if (user.IsDeleted ^ isReactivating)
+            return AuthErrors.UserNotFound;
+
+        if (user.IsPhoneVerified && request.Purpose == CodePurpose.VerifyAccount)
+            return AuthErrors.PhoneIsAlreadyVerified;
 
         var canRequest = user.CanRequestPhoneCode();
         if (canRequest.IsError) return canRequest.Errors;

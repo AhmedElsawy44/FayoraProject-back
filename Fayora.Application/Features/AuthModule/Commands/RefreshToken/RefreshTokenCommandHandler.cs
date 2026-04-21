@@ -1,10 +1,10 @@
-using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.IdentityModule;
-using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
+using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.RefreshToken;
 
@@ -30,13 +30,21 @@ public class RefreshTokenCommandHandler(
             TokenType.RefreshToken,
             cancellationToken);
 
-        if (refreshToken is null || !refreshToken.IsValid)
+        if (refreshToken is null)
             return AuthErrors.InvalidRefreshToken;
+
+        if (!refreshToken.IsValid)
+        {
+            await userTokenRepository.RevokeTokensForDeviceAsync(refreshToken.UserId, request.DeviceId, TokenType.RefreshToken, cancellationToken);
+            await unitOfWork.CommitChangesAsync(cancellationToken);
+
+            return AuthErrors.InvalidRefreshToken;
+        }
 
         // 3 - Get The User
         var user = await userRepository.GetUserByIdAsync(
             refreshToken.UserId,
-            new UserQueryOptions { IsReadOnly = true},
+            new UserQueryOptions { IsReadOnly = true },
             cancellationToken);
 
         if (user is null)

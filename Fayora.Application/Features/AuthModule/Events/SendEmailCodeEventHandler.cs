@@ -1,7 +1,7 @@
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
-using MediatR;
 using Fayora.Domain.Common.Events.IdentityModule;
 using Fayora.Domain.Enums.IdentityModule;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using static Fayora.Application.Common.Interfaces.Services.AuthModule.IMessageGenerator;
 
@@ -30,14 +30,14 @@ public class SendEmailCodeEventHandler(
         }
     }
 
-    private static MessagelPurpose MapToMessagePurpose(CodePurpose purpose)
+    private static MessagePurpose MapToMessagePurpose(CodePurpose purpose)
     {
         return purpose switch
         {
-            CodePurpose.VerifyAccount => MessagelPurpose.Registration,
-            CodePurpose.ResetPassword => MessagelPurpose.ResetPassword,
-            CodePurpose.AccountDeletion => MessagelPurpose.AccountDeletion,
-            CodePurpose.ReactivateAccount => MessagelPurpose.ReactivateAccount,
+            CodePurpose.VerifyAccount => MessagePurpose.Registration,
+            CodePurpose.ResetPassword => MessagePurpose.ResetPassword,
+            CodePurpose.AccountDeletion => MessagePurpose.AccountDeletion,
+            CodePurpose.ReactivateAccount => MessagePurpose.ReactivateAccount,
             _ => throw new ArgumentOutOfRangeException(nameof(purpose), $"Unexpected OTP purpose: {purpose}")
         };
     }

@@ -26,7 +26,7 @@ public class TourGuideRepository(ApplicationDbContext context) : ITourGuideRepos
             return await query.FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
         }
 
-        if(options.ReadOnly)
+        if (options.ReadOnly)
         {
             query = query.AsNoTracking();
         }

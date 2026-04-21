@@ -1,63 +1,75 @@
-using Fayora.Api.Requests;
-using MediatR;
 using Fayora.Application.Features.VerificationModule.Commands.ReviewVerificationRequest;
 using Fayora.Application.Features.VerificationModule.Commands.SubmitVerificationRequest;
 using Fayora.Application.Features.VerificationModule.Queries.GetVerificationRequest;
+using Fayora.Contracts.VerificationModule;
+using Fayora.Domain.Enums.SharedModule;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 
-namespace Fayora.Api.Controllers
+namespace Fayora.Api.Controllers;
+
+
+[Route("api/verification")]
+public class VerificationController(ISender sender) : ApiController
 {
-
-    [Route("api/verification")]
-    public class VerificationController(ISender sender) : ApiController
+    [HttpPost]
+    public async Task<IActionResult> SubmitVerificationRequest(
+        [FromForm] SubmitVerificationRequestRequest request,
+        CancellationToken cancellationToken)
     {
-        [HttpPost]
-        public async Task<IActionResult> SubmitVerificationRequest(
-            [FromForm] SubmitVerificationRequestRequest request,
-            CancellationToken ct)
+        var (success, requestType) = EnumParser.TryParseEnum<RequestType>(request.RequestType);
+        if (!success)
+            return BadRequest("Invalid request type.");
+
+        var documents = new List<VerificationDocument>();
+        foreach (var d in request.Documents)
         {
-            var command = new SubmitVerificationRequestCommand(
-                UserId: request.UserId,
-                RequestType: request.RequestType,
-                Documents: [.. request.Documents.Select(d => (d.DocumentType, d.File))]);
+            var (docOk, docType) = EnumParser.TryParseEnum<DocumentType>(d.DocumentType);
+            if (!docOk)
+                return BadRequest("Invalid document type.");
 
-            var result = await sender.Send(command, ct);
-
-            return result.Match(
-                Ok,
-                Problem);
+            documents.Add(new VerificationDocument(docType, d.FileUrl));
         }
 
+        var command = new SubmitVerificationRequestCommand(
+            RequestType: requestType,
+            Documents: documents);
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetVerificationRequest(int id, CancellationToken ct)
-        {
-            var query = new GetVerificationRequestQuery(id);
-            var result = await sender.Send(query, ct);
+        var result = await sender.Send(command, cancellationToken);
 
-            return result.Match(
-                Ok,
-                onError: Problem);
-        }
+        return result.Match(Ok, Problem);
+    }
 
 
-        [HttpPut("{id}/review")]
-        public async Task<IActionResult> ReviewVerificationRequest(int id, [FromBody] ReviewVerificationRequestRequest request, CancellationToken ct)
-        {
-            var command = new ReviewVerificationRequestCommand(
-                RequestId: id,
-                AdminId: request.AdminId,
-                NewStatus: request.NewStatus,
-                AdminComment: request.AdminComment);
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetVerificationRequest(int id, CancellationToken cancellationToken)
+    {
+        var query = new GetVerificationRequestQuery(id);
+        var result = await sender.Send(query, cancellationToken);
 
-            var result = await sender.Send(command, ct);
+        return result.Match(Ok, Problem);
+    }
 
-            return result.Match(
-                Ok,
-                onError: Problem);
-        }
 
+    [HttpPut("{id}/review")]
+    public async Task<IActionResult> ReviewVerificationRequest(
+        int id,
+        [FromBody] ReviewVerificationRequestRequest request,
+        CancellationToken cancellationToken)
+    {
+        var (success, newStatus) = EnumParser.TryParseEnum<RequestStatus>(request.NewStatus);
+        if (!success)
+            return BadRequest("Invalid request status.");
+
+        var command = new ReviewVerificationRequestCommand(
+            RequestId: id,
+            NewStatus: newStatus,
+            AdminComment: request.AdminComment);
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(Ok, Problem);
     }
 
 }

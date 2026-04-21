@@ -17,13 +17,10 @@ public class GetTourGuideByIdQueryHandler(
 
         return new GetTourGuideByIdResult(
             tourGuide.Id,
-            tourGuide.UserId,
             tourGuide.BaseRate,
             tourGuide.YearsOfExperience,
             tourGuide.LicenseNumber,
             tourGuide.LicenseExpiryDate,
-            tourGuide.TaxRegistrationNumber,
-            tourGuide.TaxRegistrationDate,
             tourGuide.CurrencyCode,
             tourGuide.ReviewCount,
             tourGuide.AverageRating,

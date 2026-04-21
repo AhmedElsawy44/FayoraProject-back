@@ -1,7 +1,8 @@
 ﻿namespace Fayora.Contracts.AuthModule.ResetPassword;
 
 public record ResetEmailPasswordRequest(
-    string Email,
+    string Identifier,
     string ResetToken,
-    string NewPassword
+    string NewPassword,
+    string CodeDeliveryMethod
 );

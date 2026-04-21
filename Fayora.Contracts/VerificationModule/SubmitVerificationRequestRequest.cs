@@ -1,13 +1,9 @@
-using Microsoft.AspNetCore.Http;
+namespace Fayora.Contracts.VerificationModule;
 
-namespace Fayora.Contracts.VerificationModule
-{
-    public record SubmitVerificationRequestRequest(
-        Guid UserId,
-        string RequestType,
-        List<DocumentRequestDto> Documents);
+public record SubmitVerificationRequestRequest(
+    string RequestType,
+    List<DocumentRequestDto> Documents);
 
-    public record DocumentRequestDto(
-        string DocumentType,
-        IFormFile File);
-}
+public record DocumentRequestDto(
+    string DocumentType,
+    string FileUrl);

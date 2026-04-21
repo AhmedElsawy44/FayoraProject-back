@@ -1,21 +1,22 @@
-using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.IdentityModule;
-using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
+using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.ConfirmChangeEmail;
 
 public class ConfirmChangeEmailCommandHandler(
     IUserRepository userRepository,
     IVerificationCodeRepository verificationCodeRepository,
+    IUserTokenRepository userTokenRepository,
     IUnitOfWork unitOfWork,
     IClientContextProvider clientContextProvider,
     ICodeHasher codeHasher,
-    IJwtService jwtService)
+    IAuthTokenGenerator authTokenGenerator)
     : ICommandHandler<ConfirmChangeEmailCommand, Result<ConfirmChangeEmailResult>>
 {
     public async Task<Result<ConfirmChangeEmailResult>> Handle(ConfirmChangeEmailCommand request, CancellationToken cancellationToken)
@@ -25,8 +26,7 @@ public class ConfirmChangeEmailCommandHandler(
         var user = await userRepository.GetUserByIdAsync(userId,
         new UserQueryOptions
         {
-            IsReadOnly = false,
-            IncludeVerificationCodes = true
+            IsReadOnly = false
         },
         cancellationToken);
 
@@ -34,6 +34,9 @@ public class ConfirmChangeEmailCommandHandler(
 
         var statusCheck = user.CheckActiveStatus();
         if (statusCheck.IsError) return statusCheck.Errors;
+
+        if (await userRepository.IsEmailExistsAsync(request.NewEmail, cancellationToken))
+            return AuthErrors.EmailAlreadyExists;
 
         var changeEmailOtp = await verificationCodeRepository.GetUserCodeAsync(
             user.Id, request.NewEmail, CodePurpose.ChangeEmail, cancellationToken);
@@ -50,12 +53,22 @@ public class ConfirmChangeEmailCommandHandler(
         var changeResult = user.ChangeEmail(request.NewEmail);
         if (changeResult.IsError) return changeResult.Errors;
 
+        await userTokenRepository.RevokeAllTokensForUserAsync(user.Id, cancellationToken);
+
+        var tokens = await authTokenGenerator.GenerateTokensAsync(
+            user,
+            request.DeviceId);
+
         await unitOfWork.CommitChangesAsync(cancellationToken);
 
-        var token = jwtService.GenerateToken(
-            request.DeviceId,
-            user);
-
-        return new ConfirmChangeEmailResult(user.Id, request.NewEmail, token, jwtService.ExpiresIn);
+        return new ConfirmChangeEmailResult(
+            user.Id,
+            user.FirstName,
+            user.LastName,
+            request.NewEmail,
+            user.ProfileImageUrl?.Value,
+            tokens.AccessToken,
+            tokens.RefreshToken,
+            tokens.ExpiresIn);
     }
 }

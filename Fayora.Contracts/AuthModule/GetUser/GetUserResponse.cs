@@ -2,7 +2,7 @@
 
 public record GetUserResponse
 (
-    Guid Id,
+    Guid UserId,
     string? ProfileImageUrl,
     string? Email,
     string? PhoneNumber,

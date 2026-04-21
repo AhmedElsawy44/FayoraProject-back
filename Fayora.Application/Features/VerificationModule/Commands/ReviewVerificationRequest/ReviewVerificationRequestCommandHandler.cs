@@ -1,49 +1,36 @@
-using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Features.VerificationModule.Common;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Enums.SharedModule;
-namespace Fayora.Application.Features.VerificationModule.Commands.ReviewVerificationRequest
+namespace Fayora.Application.Features.VerificationModule.Commands.ReviewVerificationRequest;
+
+public class ReviewVerificationRequestCommandHandler(
+    IVerificationRepository verificationRepository,
+    IUnitOfWork unitOfWork,
+    IClientContextProvider clientContextProvider)
+    : ICommandHandler<ReviewVerificationRequestCommand, Result<ReviewVerificationRequestResult>>
 {
-    public class ReviewVerificationRequestCommandHandler(
-        IVerificationRepository verificationRepository,
-        IUnitOfWork unitOfWork)
-        : ICommandHandler<ReviewVerificationRequestCommand, Result<ReviewVerificationRequestResponse>>
+    public async Task<Result<ReviewVerificationRequestResult>> Handle(
+        ReviewVerificationRequestCommand command,
+        CancellationToken cancellationToken)
     {
-        public async Task<Result<ReviewVerificationRequestResponse>> Handle(
-            ReviewVerificationRequestCommand command,
-            CancellationToken ct)
-        {
-            // Get The Request
-            var request = await verificationRepository.GetByIdAsync(command.RequestId, ct);
+        var adminId = clientContextProvider.GetContext().UserId;
+        // Get The Request
+        var request = await verificationRepository.GetByIdAsync(command.RequestId, cancellationToken);
 
-            if (request is null)
-                return Error.NotFound(
-                    code: "Verification.NotFound",
-                    description: $"Verification request {command.RequestId} not found.");
+        if (request is null)
+            return VerificationErrors.VerificationRequestNotFound(command.RequestId);
 
-            // Check if it's still pending
-            if (request.RequestStatus != RequestStatus.Pending)
-                return Error.Conflict(
-                    code: "Verification.AlreadyReviewed",
-                    description: "This request has already been reviewed.");
+        //Review the request
+        request.ReviewRequest(adminId, command.NewStatus, command.AdminComment);
 
-            //check if the new status is either Approved or Rejected 
-            if (command.NewStatus != RequestStatus.Approved &&
-                command.NewStatus != RequestStatus.Rejected)
-                return Error.Validation(
-                    code: "Verification.InvalidStatus",
-                    description: "Status must be either Approved or Rejected.");
+        await unitOfWork.CommitChangesAsync(cancellationToken);
 
-            //Review the request
-            request.ReviewRequest(command.AdminId, command.NewStatus, command.AdminComment);
-
-            await unitOfWork.CommitChangesAsync(ct);
-
-            return new ReviewVerificationRequestResponse(
-                VerificationRequestId: request.Id,
-                Status: request.RequestStatus,
-                AdminComment: request.AdminComment,
-                ReviewedAt: request.ReviewedAt!.Value);
-        }
+        return new ReviewVerificationRequestResult(
+            VerificationRequestId: request.Id,
+            Status: request.RequestStatus,
+            AdminComment: request.AdminComment,
+            ReviewedAt: request.ReviewedAt!.Value);
     }
 }

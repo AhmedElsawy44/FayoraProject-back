@@ -30,7 +30,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     public async Task CommitChangesAsync(CancellationToken cancellationToken = default)
     {
-        var domainEvents = ChangeTracker.Entries<HasDomainEvents>()
+        var domainEvents = ChangeTracker.Entries<AggregateRoot>()
             .SelectMany(x => x.Entity.GetDomainEvents())
             .ToList();
 

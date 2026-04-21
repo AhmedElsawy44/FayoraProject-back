@@ -1,15 +1,9 @@
-﻿using System.Threading.Tasks;
-using System.Threading;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Fayora.Domain.Common.Results;
+﻿using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Persistences.TourGuideModule;
-using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
-using Fayora.Domain.Entities.TourGuide;
 using Fayora.Application.Features.TourGuideModule.Common;
+using Fayora.Domain.Common.Results;
+using MediatR;
 
 namespace Fayora.Application.Features.TourGuideModule.Commands.DeactivateGuidePackage;
 

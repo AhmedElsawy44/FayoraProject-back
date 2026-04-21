@@ -7,13 +7,10 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetTourGuideById;
 public record GetTourGuideByIdResult
 (
     Guid Id,
-    Guid UserId,
     decimal BaseRate,
     int YearsOfExperience,
     string LicenseNumber,
     DateOnly LicenseExpiryDate,
-    string TaxRegistrationNumber,
-    DateOnly? TaxRegistrationDate,
     string CurrencyCode,
     int ReviewCount,
     float AverageRating,

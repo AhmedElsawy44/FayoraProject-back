@@ -1,8 +1,8 @@
-using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
-using MediatR;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Validations;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Results;
+using MediatR;
 namespace Fayora.Application.Common.Behaviors;
 
 public class BannedCheckBehavior<TRequest, TResponse>(IDeviceRepository deviceRepository)

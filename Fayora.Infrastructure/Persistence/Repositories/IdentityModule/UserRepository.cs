@@ -38,7 +38,10 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         }
         else
         {
-            query = query.Where(u => u.PhoneNumber == identity);
+            var phoneResult = PhoneNumber.Create(identity);
+            if (phoneResult.IsError) return null;
+
+            query = query.Where(u => u.PhoneNumber == phoneResult.Value);
         }
 
         query = ApplyQueryOptions(query, options, isEmail);
@@ -65,7 +68,10 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
     {
         if (string.IsNullOrWhiteSpace(phoneNumber)) return null;
 
-        var query = context.Users.Where(u => u.PhoneNumber == phoneNumber);
+        var phoneResult = PhoneNumber.Create(phoneNumber);
+        if (phoneResult.IsError) return null;
+
+        var query = context.Users.Where(u => u.PhoneNumber == phoneResult.Value);
 
         options ??= new UserQueryOptions();
         query = ApplyQueryOptions(query, options, isEmailIdentity: false);
@@ -121,10 +127,7 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
             }
         }
 
-        if (options.UserStatus.HasValue)
-        {
-            query = query.Where(u => u.Status == options.UserStatus.Value);
-        }
+        query = query.Where(u => (u.Status & options.UserStatus) != 0);
 
         return query;
     }
@@ -140,7 +143,10 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
 
     public async Task<bool> IsPhoneNumberExistsAsync(string phoneNumber, CancellationToken cancellationToken = default)
     {
+        var phoneResult = PhoneNumber.Create(phoneNumber);
+        if (phoneResult.IsError) return false;
+
         return await context.Users
-            .AnyAsync(u => u.PhoneNumber == phoneNumber, cancellationToken);
+            .AnyAsync(u => u.PhoneNumber == phoneResult.Value, cancellationToken);
     }
 }

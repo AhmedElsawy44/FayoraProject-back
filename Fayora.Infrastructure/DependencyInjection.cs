@@ -44,7 +44,6 @@ public static class DependencyInjection
         services.AddScoped<IVerificationCodeRepository, VerificationCodeRepository>();
         services.AddScoped<IUserIdentityRepository, UserIdentityRepository>();
         services.AddScoped<IVerificationRepository, VerificationRepository>();
-        services.AddScoped<IRoleRepository, RoleRepository>();
 
         // Tour Guide Module
         services.AddScoped<ITourGuideRepository, TourGuideRepository>();
@@ -67,17 +66,21 @@ public static class DependencyInjection
         services.AddScoped<IAuthTokenGenerator, AuthTokenGenerator>();
 
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
-        services.Configure<SmsSettings>(configuration.GetSection("SmsSettings"));
+        services.Configure<TwilioSettings>(configuration.GetSection("TwilioSettings"));
         services.Configure<GoogleSettings>(configuration.GetSection("GoogleSettings"));
         services.Configure<FacebookSettings>(configuration.GetSection("FacebookSettings"));
 
-        services.AddSingleton<IEmailService, EmailService>();
-        services.AddSingleton<ISmsService, MockSmsService>();
-        services.AddSingleton<IWhatsAppService, MockWhatsAppService>();
+        services.AddScoped<IMessageService, MessageService>();
 
-        services.AddHttpClient<IFacebookAuthService, FacebookAuthService>();
-        services.AddSingleton<IGoogleAuthService, GoogleAuthService>();
-        services.AddSingleton<IAppleAuthService, MockAppleAuthService>();
+        services.AddSingleton<IEmailService, EmailService>();
+        services.AddSingleton<SmsSenderStrategy, SmsSenderStrategy>();
+        services.AddSingleton<WhatsAppSenderStrategy, WhatsAppSenderStrategy>();
+
+        services.AddSingleton<ISocialAuthService, SocialAuthService>();
+        services.AddHttpClient<ISocialAuthStrategy, FacebookAuthStrategy>();
+        services.AddSingleton<ISocialAuthStrategy, GoogleAuthStrategy>();
+        services.AddSingleton<ISocialAuthStrategy, MockAppleAuthService>();
+
 
         services.AddScoped<IFileStorageService, LocalFileService>();
 

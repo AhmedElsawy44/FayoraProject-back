@@ -1,6 +1,6 @@
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
-using MediatR;
 using Fayora.Domain.Common.Events.IdentityModule;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using static Fayora.Application.Common.Interfaces.Services.AuthModule.IMessageGenerator;
 
@@ -26,23 +26,23 @@ public class UserSecurityActivityEventHandler(
         switch (notification.ActivityType)
         {
             case SecurityActivityType.PasswordReset:
-                await SendSecurityAlertAsync(email, MessagelPurpose.ResetPassword, notification.UserId);
+                await SendSecurityAlertAsync(email, MessagePurpose.ResetPassword, notification.UserId);
                 break;
 
             case SecurityActivityType.EmailChanged:
-                await SendSecurityAlertAsync(email, MessagelPurpose.ChangeEmail, notification.UserId);
+                await SendSecurityAlertAsync(email, MessagePurpose.ChangeEmail, notification.UserId);
                 break;
 
             case SecurityActivityType.AccountDeleted:
-                await SendSecurityAlertAsync(email, MessagelPurpose.AccountDeletion, notification.UserId);
+                await SendSecurityAlertAsync(email, MessagePurpose.AccountDeletion, notification.UserId);
                 break;
             case SecurityActivityType.EmailVerified:
-                await SendSecurityAlertAsync(email, MessagelPurpose.EmailVerified, notification.UserId);
+                await SendSecurityAlertAsync(email, MessagePurpose.EmailVerified, notification.UserId);
                 break;
         }
     }
 
-    private async Task SendSecurityAlertAsync(string email, MessagelPurpose purpose, Guid userId)
+    private async Task SendSecurityAlertAsync(string email, MessagePurpose purpose, Guid userId)
     {
         var (subject, message) = messageGenerator.CreateEmailMessage(purpose);
 

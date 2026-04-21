@@ -1,7 +1,7 @@
-using Fayora.Domain.Common.Results;
-using MediatR;
 using Fayora.Application.Abstractions.Messaging;
+using Fayora.Domain.Common.Results;
 using FluentValidation;
+using MediatR;
 namespace Fayora.Application.Common.Behaviors;
 
 public class ValidationBehavior<TRequest, TResponse>(IValidator<TRequest>? validator = null)

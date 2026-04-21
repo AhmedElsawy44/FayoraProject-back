@@ -1,16 +1,15 @@
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
-using MediatR;
 using Fayora.Domain.Common.Events.IdentityModule;
 using Fayora.Domain.Enums.IdentityModule;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using static Fayora.Application.Common.Interfaces.Services.AuthModule.IMessageGenerator;
 
 namespace Fayora.Application.Features.AuthModule.Events;
 
 public class SendPhoneCodeEventHandler(
-    ISmsService smsService,
-    IWhatsAppService whatsAppService,
     IMessageGenerator messageGenerator,
+    IMessageService messageService,
     ILogger<SendPhoneCodeEventHandler> logger)
     : INotificationHandler<PhoneCodeRequestedEvent>
 {
@@ -20,46 +19,36 @@ public class SendPhoneCodeEventHandler(
         {
             var messagePurpose = MapToMessagePurpose(notification.Purpose);
 
-            switch (notification.DeliveryMethod)
+            string message = notification.DeliveryMethod switch
             {
-                case CodeDeliveryMethod.Sms:
-                    var smsMessage = messageGenerator.CreateSmsMessage(messagePurpose, notification.Code);
-                    await smsService.SendSmsAsync(notification.PhoneNumber, smsMessage);
-                    logger.LogInformation("OTP SMS sent successfully to {Phone}", notification.PhoneNumber);
-                    break;
+                CodeDeliveryMethod.Sms => messageGenerator.CreateSmsMessage(messagePurpose, notification.Code),
+                CodeDeliveryMethod.WhatsApp => messageGenerator.CreateWhatsAppMessage(messagePurpose, notification.Code),
+                _ => throw new NotSupportedException()
+            };
 
-                case CodeDeliveryMethod.WhatsApp:
-                    var whatsappMessage = messageGenerator.CreateWhatsAppMessage(messagePurpose, notification.Code);
+            await messageService.SendMessageAsync(
+                notification.PhoneNumber,
+                message,
+                notification.DeliveryMethod);
 
-                    try
-                    {
-                        await whatsAppService.SendWhatsAppMessageAsync(notification.PhoneNumber, whatsappMessage);
-                        logger.LogInformation("OTP WhatsApp sent successfully to {Phone}", notification.PhoneNumber);
-                    }
-                    catch (Exception ex)
-                    {
-                        // ??? ???????: ??? ??? ????????? ???? SMS
-                        logger.LogWarning(ex, "WhatsApp failed for {Phone}. Falling back to SMS.", notification.PhoneNumber);
-                        var fallbackSms = messageGenerator.CreateSmsMessage(messagePurpose, notification.Code);
-                        await smsService.SendSmsAsync(notification.PhoneNumber, fallbackSms);
-                    }
-                    break;
-            }
+            logger.LogInformation("Successfully sent {Method} code to {Phone}",
+                notification.DeliveryMethod, notification.PhoneNumber);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to send OTP Phone Message to {Phone} for purpose {Purpose}", notification.PhoneNumber, notification.Purpose);
+            logger.LogError(ex, "Failed to send code to {Phone} via {Method}",
+                notification.PhoneNumber, notification.DeliveryMethod);
         }
     }
 
-    private static MessagelPurpose MapToMessagePurpose(CodePurpose purpose)
+    private static MessagePurpose MapToMessagePurpose(CodePurpose purpose)
     {
         return purpose switch
         {
-            CodePurpose.VerifyAccount => MessagelPurpose.Registration,
-            CodePurpose.ResetPassword => MessagelPurpose.ResetPassword,
-            CodePurpose.AccountDeletion => MessagelPurpose.AccountDeletion,
-            CodePurpose.ReactivateAccount => MessagelPurpose.ReactivateAccount,
+            CodePurpose.VerifyAccount => MessagePurpose.Registration,
+            CodePurpose.ResetPassword => MessagePurpose.ResetPassword,
+            CodePurpose.AccountDeletion => MessagePurpose.AccountDeletion,
+            CodePurpose.ReactivateAccount => MessagePurpose.ReactivateAccount,
             _ => throw new ArgumentOutOfRangeException(nameof(purpose), $"Unexpected OTP purpose: {purpose}")
         };
     }

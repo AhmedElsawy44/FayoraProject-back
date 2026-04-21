@@ -1,6 +1,6 @@
-using Microsoft.Extensions.Logging;
-using MediatR;
 using Fayora.Application.Abstractions.Messaging;
+using MediatR;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
 namespace Fayora.Application.Common.Behaviors;

@@ -1,11 +1,10 @@
-using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Enums.IdentityModule;
-using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
+using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.LoginWithPhone;
 
@@ -19,11 +18,6 @@ public class LoginWithPhoneCommandHandler(
 {
     public async Task<Result<LoginWithPhoneResult>> Handle(LoginWithPhoneCommand request, CancellationToken cancellationToken)
     {
-        Language? languageEnum = null;
-        if (!Enum.TryParse<Language>(request.DeviceLanguage, true, out var parsedLanguage))
-            return AuthErrors.InvalidLanguage;
-        languageEnum = parsedLanguage;
-
         var user = await userRepository.GetUserByPhoneAsync(
             request.PhoneNumber,
             new UserQueryOptions { IsReadOnly = false },
@@ -48,7 +42,7 @@ public class LoginWithPhoneCommandHandler(
             user.Id,
             request.DeviceId,
             request.FcmToken,
-            languageEnum.Value,
+            request.DeviceLanguage,
             cancellationToken);
 
         var tokens = await authTokenGenerator.GenerateTokensAsync(
@@ -62,8 +56,8 @@ public class LoginWithPhoneCommandHandler(
             user.Id,
             user.FirstName,
             user.LastName,
-            user.PhoneNumber!,
-            user.ProfileImageUrl,
+            user.PhoneNumber!.Value,
+            user.ProfileImageUrl?.ToString(),
             tokens.AccessToken,
             tokens.RefreshToken,
             tokens.ExpiresIn);

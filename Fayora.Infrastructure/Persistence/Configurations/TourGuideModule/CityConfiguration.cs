@@ -23,8 +23,8 @@ namespace Fayora.Infrastructure.Persistence.Configurations.TourGuideModule
             builder.OwnsOne(x => x.CenterCoordinates, coord =>
             {
                 coord.Property(p => p.Latitude)
-                    .HasColumnName("Latitude") 
-                    .HasPrecision(9, 6)        
+                    .HasColumnName("Latitude")
+                    .HasPrecision(9, 6)
                     .IsRequired();
 
                 coord.Property(p => p.Longitude)

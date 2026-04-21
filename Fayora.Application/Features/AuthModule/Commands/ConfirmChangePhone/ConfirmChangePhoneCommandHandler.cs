@@ -1,21 +1,22 @@
-using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.IdentityModule;
-using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
+using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.ConfirmChangePhone;
 
-public class ConfirmChangePhoneCommandHandlerIUserRepository(
+public class ConfirmChangePhoneCommandHandler(
     IUserRepository userRepository,
     IVerificationCodeRepository verificationCodeRepository,
+    IUserTokenRepository userTokenRepository,
     IUnitOfWork unitOfWork,
     IClientContextProvider clientContextProvider,
     ICodeHasher codeHasher,
-    IJwtService jwtService)
+    IAuthTokenGenerator authTokenGenerator)
     : ICommandHandler<ConfirmChangePhoneCommand, Result<ConfirmChangePhoneResult>>
 {
     public async Task<Result<ConfirmChangePhoneResult>> Handle(ConfirmChangePhoneCommand request, CancellationToken cancellationToken)
@@ -25,8 +26,7 @@ public class ConfirmChangePhoneCommandHandlerIUserRepository(
         var user = await userRepository.GetUserByIdAsync(userId,
         new UserQueryOptions
         {
-            IsReadOnly = false,
-            IncludeVerificationCodes = true
+            IsReadOnly = false
         },
         cancellationToken);
 
@@ -34,6 +34,9 @@ public class ConfirmChangePhoneCommandHandlerIUserRepository(
 
         var statusCheck = user.CheckActiveStatus();
         if (statusCheck.IsError) return statusCheck.Errors;
+
+        if (await userRepository.IsPhoneNumberExistsAsync(request.NewPhoneNumber, cancellationToken))
+            return AuthErrors.PhoneNumberAlreadyExists;
 
         var changePhoneOtp = await verificationCodeRepository.GetUserCodeAsync(
             user.Id, request.NewPhoneNumber, CodePurpose.ChangePhoneNumber, cancellationToken);
@@ -47,14 +50,26 @@ public class ConfirmChangePhoneCommandHandlerIUserRepository(
             return verifyResult.Errors;
         }
 
-        user.ChangePhoneNumber(request.NewPhoneNumber);
+        var changeResult = user.ChangePhoneNumber(request.NewPhoneNumber);
+        if (changeResult.IsError) return changeResult.Errors;
+
+        await userTokenRepository.RevokeAllTokensForUserAsync(user.Id, cancellationToken);
+
+        var tokens = await authTokenGenerator.GenerateTokensAsync(
+            user,
+            request.DeviceId,
+            cancellationToken);
 
         await unitOfWork.CommitChangesAsync(cancellationToken);
 
-        var token = jwtService.GenerateToken(
-            request.DeviceId,
-            user);
-
-        return new ConfirmChangePhoneResult(user.Id, request.NewPhoneNumber, token, jwtService.ExpiresIn);
+        return new ConfirmChangePhoneResult(
+            user.Id,
+            user.FirstName,
+            user.LastName,
+            request.NewPhoneNumber,
+            user.ProfileImageUrl?.Value,
+            tokens.AccessToken,
+            tokens.RefreshToken,
+            tokens.ExpiresIn);
     }
 }

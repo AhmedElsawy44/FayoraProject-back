@@ -1,6 +1,7 @@
-using Fayora.Application.Common.Interfaces.Validations;
 using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Validations;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.IdentityModule;
 namespace Fayora.Application.Features.AuthModule.Commands.VerifyEmail;
 
 public record VerifyEmailCommand(
@@ -10,4 +11,4 @@ public record VerifyEmailCommand(
     string FcmToken,
     string? SimCountryIsoCode,
     string TimeZone,
-    string DeviceLanguage) : ICommand<Result<VerifyEmailResult>>, ICheckBannedRequest;
+    Language DeviceLanguage) : ICommand<Result<VerifyEmailResult>>, ICheckBannedRequest;

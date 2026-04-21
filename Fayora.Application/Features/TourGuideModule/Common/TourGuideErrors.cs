@@ -53,4 +53,9 @@ public static class TourGuideErrors
         "TourGuide.PackageIsAlreadyActivated",
         "The specified tour guide package was already activated."
     );
+
+    public static readonly Error TourGuideIsAlreadyExist = Error.Validation(
+        "TourGuide.TourGuideIsAlreadyExist",
+        "The user already has a tour guide profile."
+    );
 }

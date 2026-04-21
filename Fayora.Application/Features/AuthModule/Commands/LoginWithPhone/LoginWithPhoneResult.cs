@@ -6,7 +6,7 @@ public record LoginWithPhoneResult
     string FirstName,
     string LastName,
     string PhoneNumber,
-    string? ImageUrl,
+    string? ProfileImageUrl,
     string AccessToken,
     string RefreshToken,
     int ExpiresIn

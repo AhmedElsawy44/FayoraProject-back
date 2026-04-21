@@ -1,7 +1,6 @@
-using Microsoft.Extensions.Logging;
-
-using MediatR;
 using Fayora.Application.Abstractions.Messaging;
+using MediatR;
+using Microsoft.Extensions.Logging;
 namespace Fayora.Application.Common.Behaviors;
 
 public class UnhandledExceptionBehavior<TRequest, TResponse>(ILogger<UnhandledExceptionBehavior<TRequest, TResponse>> logger)

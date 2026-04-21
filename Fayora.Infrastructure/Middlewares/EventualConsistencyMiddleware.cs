@@ -1,6 +1,6 @@
 using Fayora.Domain.Common.Interfaces.IdentityModule;
-using MediatR;
 using Fayora.Infrastructure.Persistence.Repositories;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 
 namespace Fayora.Infrastructure.Middlewares;

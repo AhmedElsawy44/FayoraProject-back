@@ -1,20 +1,11 @@
-<<<<<<< HEAD
-using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Application.Abstractions.Messaging;
-=======
-﻿using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
->>>>>>> f50de591342cfd91cb5e500935cbeb8d57ede447
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.IdentityModule;
-<<<<<<< HEAD
-using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
-=======
-using MediatR;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
->>>>>>> f50de591342cfd91cb5e500935cbeb8d57ede447
 
 namespace Fayora.Application.Features.AuthModule.Commands.VerifyPhone;
 
@@ -29,11 +20,6 @@ public class VerifyPhoneCommandHandler(
 {
     public async Task<Result<VerifyPhoneResult>> Handle(VerifyPhoneCommand request, CancellationToken cancellationToken)
     {
-        Language? languageEnum = null;
-        if (!Enum.TryParse<Language>(request.DeviceLanguage, true, out var parsedLanguage))
-            return AuthErrors.InvalidLanguage;
-        languageEnum = parsedLanguage;
-
         var user = await userRepository.GetUserByPhoneAsync(
             request.PhoneNumber,
             new UserQueryOptions { IsReadOnly = false },
@@ -63,14 +49,14 @@ public class VerifyPhoneCommandHandler(
         }
 
         user.VerifyPhone();
-        user.UpdateRegionalPreferences(request.SimCountryIsoCode, languageEnum.Value, request.TimeZone);
+        user.UpdateRegionalPreferences(request.SimCountryIsoCode, request.TimeZone);
         user.Login();
 
         await userDeviceManager.UpsertDeviceAsync(
             user.Id,
             request.DeviceId,
             request.FcmToken,
-            languageEnum.Value,
+            request.DeviceLanguage,
             cancellationToken);
 
         var tokens = await authTokenGenerator.GenerateTokensAsync(
@@ -85,6 +71,7 @@ public class VerifyPhoneCommandHandler(
             user.FirstName,
             user.LastName,
             request.PhoneNumber,
+            user.ProfileImageUrl?.Value,
             tokens.AccessToken,
             tokens.RefreshToken,
             tokens.ExpiresIn);

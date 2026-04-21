@@ -4,7 +4,7 @@ using Fayora.Domain.Enums.IdentityModule;
 namespace Fayora.Application.Features.AuthModule.Queries.GetUser;
 
 public record GetUserResult(
-    Guid Id,
+    Guid UserId,
     string? ProfileImageUrl,
     string? Email,
     string? PhoneNumber,
