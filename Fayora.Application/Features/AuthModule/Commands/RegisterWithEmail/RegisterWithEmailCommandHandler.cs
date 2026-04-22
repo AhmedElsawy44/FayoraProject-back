@@ -20,7 +20,7 @@ public class RegisterWithEmailCommandHandler(
 {
     public async Task<Result<RegisterWithEmailResult>> Handle(RegisterWithEmailCommand request, CancellationToken cancellationToken)
     {
-        var options = new UserQueryOptions { IsReadOnly = false };
+        var options = new UserQueryOptions { IsReadOnly = false, IncludeVerificationCodes = true };
 
         var existUser = await userRepository.GetUserByEmailAsync(request.Email, options, cancellationToken);
 

@@ -1,4 +1,5 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+﻿// UserRepository.cs
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
@@ -8,128 +9,53 @@ namespace Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 
 public class UserRepository(ApplicationDbContext context) : IUserRepository
 {
+    private static readonly UserQueryOptions DefaultOptions = new();
+    private static readonly UserQueryOptions DefaultEmailOptions = new(IncludeVerificationCodes: false);
+
     public void AddUser(User user) => context.Users.Add(user);
 
-    public async Task<User?> GetUserByIdAsync(Guid id, UserQueryOptions? options = null, CancellationToken cancellationToken = default)
+    public async Task<User?> GetUserByIdAsync(
+        Guid id,
+        UserQueryOptions? options = null,
+        CancellationToken cancellationToken = default)
     {
-        var query = context.Users.Where(u => u.Id == id);
-
         if (options is null)
-            return await query.AsNoTracking().FirstOrDefaultAsync(cancellationToken);
+            return await context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
 
-        query = ApplyQueryOptions(query, options);
-
-        return await query.FirstOrDefaultAsync(cancellationToken);
+        return await BuildBaseQuery(options)
+            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
 
-    public async Task<User?> GetUserByIdentityAsync(string identity, UserQueryOptions? options = null, CancellationToken cancellationToken = default)
-    {
-        options ??= new UserQueryOptions();
-        var query = context.Users.AsQueryable();
-
-        bool isEmail = identity.Contains('@');
-
-        if (isEmail)
-        {
-            var emailResult = Email.Create(identity);
-            if (emailResult.IsError) return null;
-
-            query = query.Where(u => u.PrimaryEmail == emailResult.Value);
-        }
-        else
-        {
-            var phoneResult = PhoneNumber.Create(identity);
-            if (phoneResult.IsError) return null;
-
-            query = query.Where(u => u.PhoneNumber == phoneResult.Value);
-        }
-
-        query = ApplyQueryOptions(query, options, isEmail);
-
-        return await query.FirstOrDefaultAsync(cancellationToken);
-    }
-
-
-    public async Task<User?> GetUserByEmailAsync(string email, UserQueryOptions? options = null, CancellationToken cancellationToken = default)
+    public async Task<User?> GetUserByEmailAsync(
+        string email,
+        UserQueryOptions? options = null,
+        CancellationToken cancellationToken = default)
     {
         var emailResult = Email.Create(email);
         if (emailResult.IsError) return null;
 
-        var query = context.Users.Where(u => u.PrimaryEmail == emailResult.Value);
+        options ??= DefaultEmailOptions;
 
-        options ??= new UserQueryOptions();
-        query = ApplyQueryOptions(query, options, isEmailIdentity: true);
-
-        return await query.FirstOrDefaultAsync(cancellationToken);
+        return await BuildBaseQuery(options)
+        .FirstOrDefaultAsync(u => u.PrimaryEmail == emailResult.Value, cancellationToken);
     }
 
-
-    public async Task<User?> GetUserByPhoneAsync(string phoneNumber, UserQueryOptions? options = null, CancellationToken cancellationToken = default)
+    public async Task<User?> GetUserByPhoneAsync(
+        string phoneNumber,
+        UserQueryOptions? options = null,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(phoneNumber)) return null;
 
         var phoneResult = PhoneNumber.Create(phoneNumber);
         if (phoneResult.IsError) return null;
 
-        var query = context.Users.Where(u => u.PhoneNumber == phoneResult.Value);
+        options ??= DefaultOptions;
 
-        options ??= new UserQueryOptions();
-        query = ApplyQueryOptions(query, options, isEmailIdentity: false);
-
-        return await query.FirstOrDefaultAsync(cancellationToken);
-    }
-
-    private static IQueryable<User> ApplyQueryOptions(IQueryable<User> query, UserQueryOptions options, bool? isEmailIdentity = null)
-    {
-
-        if (options.IsReadOnly)
-        {
-            query = query.AsNoTracking();
-        }
-
-        int collectionsIncluded = 0;
-
-        if (options.IncludeVerificationCodes)
-        {
-            query = query.Include(u => u.VerificationCodes);
-            collectionsIncluded++;
-        }
-
-        if (collectionsIncluded > 1)
-        {
-            query = query.AsSplitQuery();
-        }
-
-        if (options.Status is AccountStatus.Verified)
-        {
-            if (isEmailIdentity.HasValue)
-            {
-                query = isEmailIdentity.Value
-                    ? query.Where(u => u.IsEmailVerified)
-                    : query.Where(u => u.IsPhoneVerified);
-            }
-            else
-            {
-                query = query.Where(u => u.IsEmailVerified || u.IsPhoneVerified);
-            }
-        }
-        else if (options.Status is AccountStatus.NotVerified)
-        {
-            if (isEmailIdentity.HasValue)
-            {
-                query = isEmailIdentity.Value
-                    ? query.Where(u => !u.IsEmailVerified)
-                    : query.Where(u => !u.IsPhoneVerified);
-            }
-            else
-            {
-                query = query.Where(u => !u.IsEmailVerified && !u.IsPhoneVerified);
-            }
-        }
-
-        query = query.Where(u => (u.Status & options.UserStatus) != 0);
-
-        return query;
+        return await BuildBaseQuery(options)
+            .FirstOrDefaultAsync(u => u.PhoneNumber == phoneResult.Value, cancellationToken);
     }
 
     public async Task<bool> IsEmailExistsAsync(string email, CancellationToken cancellationToken = default)
@@ -147,6 +73,29 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         if (phoneResult.IsError) return false;
 
         return await context.Users
-            .AnyAsync(u => u.PhoneNumber == phoneResult.Value, cancellationToken);
+            .AnyAsync(u => u.PhoneNumber != null && u.PhoneNumber == phoneResult.Value, cancellationToken);
+    }
+
+
+    private IQueryable<User> BuildBaseQuery(UserQueryOptions options)
+    {
+        var query = options.IsReadOnly
+            ? context.Users.AsNoTracking()
+            : context.Users.AsQueryable();
+
+        if (options.IncludeVerificationCodes)
+            query = query.Include(u => u.VerificationCodes);
+
+        query = options.Status switch
+        {
+            AccountStatus.Verified => query.Where(u => u.IsEmailVerified || u.IsPhoneVerified),
+            AccountStatus.NotVerified => query.Where(u => !u.IsEmailVerified && !u.IsPhoneVerified),
+            _ => query  
+        };
+
+        if (options.ShouldFilterByUserStatus)
+            query = query.Where(u => (u.Status & options.UserStatus) != 0);
+
+        return query;
     }
 }

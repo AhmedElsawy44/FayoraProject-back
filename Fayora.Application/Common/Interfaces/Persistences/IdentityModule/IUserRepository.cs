@@ -25,5 +25,11 @@ public interface IUserRepository
         bool IncludeVerificationCodes = false,
         AccountStatus Status = AccountStatus.All,
         UserStatus UserStatus = UserStatus.Active | UserStatus.Locked | UserStatus.Deleted | UserStatus.Banned
-    );
+    )
+    {
+        private static readonly UserStatus AllStatuses =
+            UserStatus.Active | UserStatus.Locked | UserStatus.Deleted | UserStatus.Banned;
+
+        public bool ShouldFilterByUserStatus => UserStatus != AllStatuses;
+    }
 }

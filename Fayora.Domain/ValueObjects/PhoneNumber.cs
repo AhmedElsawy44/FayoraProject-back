@@ -1,9 +1,10 @@
 ﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Common.ValueObjects;
 using System.Text.RegularExpressions;
 
 namespace Fayora.Domain.ValueObjects;
 
-public record PhoneNumber
+public class PhoneNumber : ValueObject
 {
 
     private static readonly Regex PhoneRegex = new(@"^\+?[1-9]\d{1,14}$", RegexOptions.Compiled);
@@ -30,4 +31,9 @@ public record PhoneNumber
     }
 
     public override string ToString() => Value;
+
+    protected override IEnumerable<object> GetEqualityComponents()
+    {
+        return [Value];
+    }
 }

@@ -11,6 +11,7 @@ using Fayora.Infrastructure.Services.AuthModule;
 using Fayora.Infrastructure.Services.SharedModule;
 using Fayora.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -72,9 +73,9 @@ public static class DependencyInjection
 
         services.AddScoped<IMessageService, MessageService>();
 
+        services.AddSingleton<IMessageSenderStrategy, SmsSenderStrategy>();
+        services.AddSingleton<IMessageSenderStrategy, WhatsAppSenderStrategy>();
         services.AddSingleton<IEmailService, EmailService>();
-        services.AddSingleton<SmsSenderStrategy, SmsSenderStrategy>();
-        services.AddSingleton<WhatsAppSenderStrategy, WhatsAppSenderStrategy>();
 
         services.AddSingleton<ISocialAuthService, SocialAuthService>();
         services.AddHttpClient<ISocialAuthStrategy, FacebookAuthStrategy>();

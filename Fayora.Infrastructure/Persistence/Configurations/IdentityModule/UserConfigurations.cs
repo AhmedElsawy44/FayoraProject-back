@@ -31,8 +31,7 @@ internal class UserConfigurations : IEntityTypeConfiguration<User>
             .HasMaxLength(10);
 
         builder.Property(u => u.Status)
-            .HasConversion<string>()
-            .HasMaxLength(20)
+            .HasConversion<int>()
             .IsRequired();
 
         builder.Property(u => u.CurrentBalance)
@@ -60,6 +59,7 @@ internal class UserConfigurations : IEntityTypeConfiguration<User>
             .HasColumnName("PasswordHash")
             .HasMaxLength(256)
             .IsRequired();
+
 
         builder.Property(u => u.PrimaryEmail)
             .HasConversion(
