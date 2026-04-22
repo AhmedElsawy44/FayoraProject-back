@@ -8,7 +8,7 @@ using MediatR;
 namespace Fayora.Application.Features.TourGuideModule.Commands.ActivateGuidePackage
 {
     public class ActivateGuidePackageCommandHandler(
-        ITourGuideRepository tourGuideRepository,
+       // ITourGuideRepository tourGuideRepository,
         ITourGuidePackageRepository tourGuidePackageRepository,
         IUnitOfWork unitOfWork,
         IClientContextProvider clientContextProvider) : IRequestHandler<ActivateGuidePackageCommand, Result<Unit>>

@@ -1,8 +1,8 @@
 ﻿using Fayora.Application.Common.Interfaces.Persistences.TourGuideModule;
 using Fayora.Application.Features.TourGuideModule.Common;
+using static Fayora.Application.Common.Interfaces.Persistences.TourGuideModule.ITourGuideRepository;
 using Fayora.Domain.Common.Results;
 using MediatR;
-using static Fayora.Application.Common.Interfaces.Persistences.TourGuideModule.ITourGuideRepository;
 
 namespace Fayora.Application.Features.TourGuideModule.Queries.GetTourGuideById;
 
@@ -39,7 +39,7 @@ public class GetTourGuideByIdQueryHandler(
                 p.MainImageUrl,
                 p.AdultPrice,
                 p.DurationHours,
-                p.TourType,
+                p.TourTypes,
                 p.AvailableSpots
             ))]
         );

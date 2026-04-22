@@ -1,18 +1,11 @@
-﻿namespace Fayora.Domain.Entities.TourGuide;
+﻿using Fayora.Domain.Entities.SharedModule;
+
+namespace Fayora.Domain.Entities.TourGuide;
 
 
-public class GuideTourPackageImage
+public class GuideTourPackageImage : TourPackageImageBase
 {
-    public Guid Id { get; private set; }
-    public Guid PackageId { get; private set; }
-    public string ImageUrl { get; private set; } = null!;
-
     public GuideTourPackageImage(Guid packageId, string imageUrl)
-    {
-        Id = Guid.NewGuid();
-        PackageId = packageId;
-        ImageUrl = imageUrl;
-    }
-
+        : base(packageId, imageUrl) { }
     private GuideTourPackageImage() { }
 }

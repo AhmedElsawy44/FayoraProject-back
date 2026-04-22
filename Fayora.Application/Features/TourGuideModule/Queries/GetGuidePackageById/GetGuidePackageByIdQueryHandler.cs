@@ -20,7 +20,7 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetGuidePackageByI
                 package.GuideId,
                 package.Title,
                 package.Description,
-                package.TourType,
+                package.TourTypes,
                 package.DurationHours,
                 package.MeetingPoint,
                 package.ArrivalNote,

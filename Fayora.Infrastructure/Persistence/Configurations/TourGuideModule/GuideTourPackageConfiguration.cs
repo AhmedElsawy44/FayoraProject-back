@@ -25,6 +25,9 @@ namespace Fayora.Infrastructure.Persistence.Configurations.TourGuideModule
                 .IsRequired()
                 .HasPrecision(18, 2);
 
+            builder.Property(x => x.ChildPrice)
+               .HasPrecision(18, 2);
+
             builder.Property(x => x.DurationHours)
                 .IsRequired();
 
@@ -33,10 +36,17 @@ namespace Fayora.Infrastructure.Persistence.Configurations.TourGuideModule
 
             builder.OwnsOne(x => x.MeetingPoint, geo =>
             {
-                geo.Property(g => g.Latitude).HasColumnName("MeetingPointLatitude");
-                geo.Property(g => g.Longitude).HasColumnName("MeetingPointLongitude");
+                geo.Property(g => g.Latitude)
+                    .HasColumnName("MeetingPointLatitude")
+                    .HasPrecision(18, 6);
+                geo.Property(g => g.Longitude)
+                    .HasColumnName("MeetingPointLongitude")
+                    .HasPrecision(18, 6);
             });
 
+            builder.Property(x => x.TourTypes)
+                   .IsRequired()
+                   .HasConversion<int>(); 
 
             var listComparer = new ValueComparer<IReadOnlyCollection<string>>(
                 (c1, c2) => c1!.SequenceEqual(c2!),
