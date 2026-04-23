@@ -10,17 +10,12 @@ public class UnitAmenityConfiguration : IEntityTypeConfiguration<UnitAmenity>
     {
         builder.ToTable("UnitAmenities");
 
-        builder.HasKey(ua => ua.Id);
+        builder.HasKey(ua => new { ua.UnitId, ua.AmenityId });
 
         builder.HasIndex(ua => new { ua.UnitId, ua.AmenityId })
                .IsUnique();
 
         builder.HasIndex(ua => ua.AmenityId);
-
-        builder.HasOne<HousingUnit>()
-               .WithMany(h => h.Amenities)
-               .HasForeignKey(ua => ua.UnitId)
-               .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne<MasterAmenity>()
                .WithMany()

@@ -1,10 +1,10 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.AccommodationModule;
-using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+﻿using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
-using Fayora.Application.Features.AccommodationModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.AccommodationModule;
-using MediatR;
+using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Application.Features.AccommodationModule.Commands.CreateUnit;
 
@@ -12,24 +12,31 @@ public class CreateUnitCommandHandler(
     IClientContextProvider clientContextProvider,
     IHousingUnitRepository housingUnitRepository,
     IUnitOfWork unitOfWork)
-    : IRequestHandler<CreateUnitCommand, Result<Success>>
+    : ICommandHandler<CreateUnitCommand, Result<Success>>
 {
-    public async Task<Result<Success>> Handle(CreateUnitCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Success>> Handle(CreateUnitCommand  request, CancellationToken cancellationToken)
     {
-        var ownerId = clientContextProvider.GetContext().OwnerId;
+        var ownerId = clientContextProvider.GetContext().UserId;
 
-        if (ownerId is null)
-        {
-            return AccommodationErrors.OwnerProfileNotFound;
-        }
+        var coordinates = GeoPoint.Create(request.Latitude, request.Longitude);
+        if (coordinates.IsError) return coordinates.Errors;
 
-        var housingUnit = new HousingUnit(
-            ownerId.Value,
+        var mainImageResult = FileUrl.Create(request.MainImageUrl);
+        if (mainImageResult.IsError) return mainImageResult.Errors;
+
+        var imageResults = request.ImageUrls.Select(FileUrl.Create).ToList();
+        var failedImage = imageResults.FirstOrDefault(r => r.IsError);
+        if (failedImage is not null) return failedImage.Errors;
+
+        var images = imageResults.Select(r => r.Value).ToList();
+
+        var housingUnitResult = HousingUnit.Create(
+            ownerId,
             request.Title,
             request.Description,
             request.LocationId,
             request.AddressDetails,
-            request.Coordinates,
+            coordinates.Value,
             request.Type,
             request.PricePerNight,
             request.NumberOfRooms,
@@ -39,19 +46,14 @@ public class CreateUnitCommandHandler(
             request.MaxGuests,
             request.CheckInTime,
             request.CheckOutTime,
-            request.MainImageUrl);
+            mainImageResult.Value);
 
-        if (request.AmenityIds.Count != 0)
-        {
-            housingUnit.AddAmenities(request.AmenityIds);
-        }
+        if (housingUnitResult.IsError) return housingUnitResult.Errors;
+        var housingUnit = housingUnitResult.Value;
 
+        housingUnit.AddAmenities(request.AmenityIds);
 
-        if (request.ImageUrls.Count != 0)
-        {
-            var images = request.ImageUrls.Select(imageUrl => new HousingUnitImage(housingUnit.Id, imageUrl));
-            housingUnit.AddImages(images);
-        }
+        housingUnit.AddImages(images.Select(image => new HousingUnitImage(housingUnit.Id, image).Id));
 
         housingUnitRepository.AddUnit(housingUnit);
 

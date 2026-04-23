@@ -10,7 +10,7 @@ public class UnitOwnerConfiguration : IEntityTypeConfiguration<UnitOwner>
     {
         builder.ToTable("UnitOwners");
 
-        builder.HasKey(o => o.Id);
+        builder.HasKey(o => o.UserId);
 
         builder.HasIndex(o => o.UserId)
                .IsUnique();

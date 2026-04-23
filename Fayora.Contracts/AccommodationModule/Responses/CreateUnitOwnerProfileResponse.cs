@@ -1,7 +1,9 @@
 ﻿namespace Fayora.Contracts.AccommodationModule.Responses;
 
-public record CreateUnitOwnerProfileResponse(
+public record CreateUnitOwnerProfileResponse
+(
     Guid UserId,
-    string Token,
+    string AccessToken,
     string RefreshToken,
-    int ExpiresIn);
+    int ExpiresIn
+);

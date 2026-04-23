@@ -8,7 +8,4 @@ public record ClientContext(
     string Email,
     string PhoneNumber,
     string AvatarUrl,
-    IEnumerable<string> Roles,
-    Guid? OwnerId = null,
-    Guid? TouristId = null,
-    Guid? TourGuideId = null);
+    IEnumerable<string> Roles);

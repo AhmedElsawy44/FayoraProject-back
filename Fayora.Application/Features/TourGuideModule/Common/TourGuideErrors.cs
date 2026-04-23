@@ -58,4 +58,9 @@ public static class TourGuideErrors
         "TourGuide.TourGuideIsAlreadyExist",
         "The user already has a tour guide profile."
     );
+
+    public static readonly Error Unauthorized = Error.Unauthorized(
+            "TourGuide.Unauthorized",
+            "User is not authorized to perform this action."
+    );
 }

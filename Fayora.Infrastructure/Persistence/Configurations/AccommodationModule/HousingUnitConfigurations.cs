@@ -1,6 +1,7 @@
 ﻿using Fayora.Domain.Entities.AccommodationModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Text.Json;
 
 namespace Fayora.Infrastructure.Persistence.Configurations.AccommodationModule;
 
@@ -15,18 +16,6 @@ public class HousingUnitConfiguration : IEntityTypeConfiguration<HousingUnit>
         builder.HasIndex(h => h.OwnerId);
         builder.HasIndex(h => h.Status);
 
-        builder.OwnsOne(h => h.Coordinates, coord =>
-        {
-            coord.Property(c => c.Latitude)
-                 .HasColumnName("Latitude")
-                 .IsRequired();
-
-            coord.Property(c => c.Longitude)
-                 .HasColumnName("Longitude")
-                 .IsRequired();
-        });
-
-
         builder.Property(h => h.Title)
                .IsRequired()
                .HasMaxLength(200);
@@ -38,9 +27,24 @@ public class HousingUnitConfiguration : IEntityTypeConfiguration<HousingUnit>
                .IsRequired()
                .HasMaxLength(500);
 
-        builder.Property(h => h.MainImageUrl)
-               .HasMaxLength(2048);
+        builder.OwnsOne(h => h.Coordinates, coord =>
+        {
+            coord.Property(c => c.Latitude)
+                 .HasColumnName("Latitude")
+                 .IsRequired();
 
+            coord.Property(c => c.Longitude)
+                 .HasColumnName("Longitude")
+                 .IsRequired();
+        });
+
+        builder.OwnsOne(h => h.MainImageUrl, url =>
+        {
+            url.Property(u => u.Value)
+               .HasColumnName("MainImageUrl")
+               .HasMaxLength(2048)
+               .IsRequired(false);
+        });
 
         builder.Property(h => h.CheckInTime).HasColumnType("time");
         builder.Property(h => h.CheckOutTime).HasColumnType("time");
@@ -57,17 +61,15 @@ public class HousingUnitConfiguration : IEntityTypeConfiguration<HousingUnit>
                .HasConversion<string>()
                .HasMaxLength(50);
 
-        builder.Navigation(h => h.Images).UsePropertyAccessMode(PropertyAccessMode.Field);
-        builder.Navigation(h => h.Amenities).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Property(h => h.Amenities)
+            .HasField("_amenities")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.HasMany(h => h.Images)
-               .WithOne()
-               .HasForeignKey(i => i.UnitId)
-               .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasMany(h => h.Amenities)
-               .WithOne()
-               .HasForeignKey(ua => ua.UnitId)
-               .OnDelete(DeleteBehavior.Cascade);
+        builder.Property<List<Guid>>("_imageIds")
+               .HasColumnName("ImageIds")
+               .HasColumnType("nvarchar(max)")
+               .HasConversion(
+                   ids => JsonSerializer.Serialize(ids, JsonSerializerOptions.Default),
+                   json => JsonSerializer.Deserialize<List<Guid>>(json, JsonSerializerOptions.Default)!);
     }
 }

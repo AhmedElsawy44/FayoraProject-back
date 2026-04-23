@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.AccommodationModule;
+﻿using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using MediatR;
 
 namespace Fayora.Application.Features.AccommodationModule.Queries.GetAllMasterAmenities

@@ -14,34 +14,26 @@ public class TourGuideRepository(ApplicationDbContext context) : ITourGuideRepos
     public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)
     {
         return await context.TourGuides
-            .AnyAsync(g => g.Id == id, cancellationToken);
+            .AnyAsync(g => g.UserId == id, cancellationToken);
     }
 
-    public async Task<TourGuide?> GetGuideByIdAsync(Guid id, ITourGuideRepository.GuideQueryOptions options, CancellationToken cancellationToken)
+    public async Task<TourGuide?> GetGuideByIdAsync(
+    Guid id,
+    ITourGuideRepository.GuideQueryOptions options,
+    CancellationToken cancellationToken)
     {
-        var query = context.TourGuides.AsQueryable();
-
-        if (options is null)
-        {
-            return await query.FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
-        }
+        IQueryable<TourGuide> query = context.TourGuides;
 
         if (options.ReadOnly)
         {
             query = query.AsNoTracking();
         }
 
-        if (options.IncludeCities)
-        {
-            query = query.Include(g => g.GuideCities)
-                         .ThenInclude(gc => gc.City);
-        }
+        return await query.FirstOrDefaultAsync(g => g.UserId == id, cancellationToken);
+    }
 
-        if (options.IncludeTourPackages)
-        {
-            query = query.Include(g => g.TourPackages);
-        }
-
-        return await query.FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
+    public async Task<bool> TourGuideExistAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return await ExistsAsync(id, cancellationToken);
     }
 }

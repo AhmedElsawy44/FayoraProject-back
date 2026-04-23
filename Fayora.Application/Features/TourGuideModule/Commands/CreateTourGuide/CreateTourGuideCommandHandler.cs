@@ -8,6 +8,7 @@ using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.Entities.TourGuide;
 using Fayora.Domain.Enums.IdentityModule;
+using Fayora.Domain.ValueObjects;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
@@ -17,7 +18,7 @@ public class CreateTourGuideCommandHandler(
     ITourGuideRepository tourGuideRepository,
     IUnitOfWork unitOfWork,
     IClientContextProvider clientContextProvider,
-    IJwtService jwtService) : ICommandHandler<CreateTourGuideCommand, Result<CreateTourGuideResult>>
+    IAuthTokenGenerator authTokenGenerator) : ICommandHandler<CreateTourGuideCommand, Result<CreateTourGuideResult>>
 {
 
     public async Task<Result<CreateTourGuideResult>> Handle(CreateTourGuideCommand request, CancellationToken cancellationToken)
@@ -32,6 +33,9 @@ public class CreateTourGuideCommandHandler(
             }
         }
 
+        var imageUrl = FileUrl.Create(request.ProfilePictureUrl);
+        if (imageUrl.IsError) return imageUrl.Errors;
+
         var userId = clientContextProvider.GetContext().UserId;
 
         var user = await userRepository.GetUserByIdAsync(userId, new UserQueryOptions { IsReadOnly = false }, cancellationToken);
@@ -41,6 +45,8 @@ public class CreateTourGuideCommandHandler(
 
         if (user.Roles.HasFlag(Role.TourGuide)) return TourGuideErrors.TourGuideIsAlreadyExist;
 
+        if(await tourGuideRepository.TourGuideExistAsync(userId, cancellationToken)) return TourGuideErrors.TourGuideIsAlreadyExist;
+
         user.AddRole(Role.TourGuide);
 
         user.UpdateProfile(
@@ -48,31 +54,40 @@ public class CreateTourGuideCommandHandler(
             user.LastName,
             request.BirthDate,
             request.Gender,
-            request.NationalityCode,
-            request.ProfilePictureUrl,
+            imageUrl.Value,
             request.Description,
+            request.NationalityCode,
             request.PreferredLanguage,
             parsedUserLanguages,
             request.TimeZone);
 
-        var tourGuideProfile = TourGuide.Create(
+        var tourGuide = TourGuide.Create(
             user.Id,
             request.PricingUnit,
             request.BaseRate,
             request.YearsOfExperience);
 
-        if (tourGuideProfile.IsError) return tourGuideProfile.Errors;
+        if (tourGuide.IsError) return tourGuide.Errors;
 
-        tourGuideRepository.AddTourGuide(tourGuideProfile.Value);
+        tourGuideRepository.AddTourGuide(tourGuide.Value);
+
+
+        var token = await authTokenGenerator.GenerateTokensAsync(
+            user,
+            request.DeviceId,
+            cancellationToken);
 
         await unitOfWork.CommitChangesAsync(cancellationToken);
 
-        var token = jwtService.GenerateToken(request.DeviceId, user);
-
         return new CreateTourGuideResult
         (
-            token,
-            jwtService.ExpiresIn
+            tourGuide.Value.UserId,
+            user.FirstName,
+            user.LastName,
+            tourGuide.Value.Status.ToString(),
+            token.AccessToken,
+            token.RefreshToken,
+            token.ExpiresIn
         );
     }
 }

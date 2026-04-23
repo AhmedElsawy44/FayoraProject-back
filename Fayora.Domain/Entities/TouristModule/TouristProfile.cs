@@ -8,16 +8,16 @@ public class TouristProfile : BaseEntity<Guid>
     public Guid UserId { get; init; }
     public TravelStyle? TravelStyle { get; private set; }
     public BudgetTier? BudgetTier { get; private set; }
-    public GeoPoint LastLocation { get; private set; } = new GeoPoint(0, 0);
+    public GeoPoint LastLocation { get; private set; } = null!;
     public DateTimeOffset? LastLocationUpdate { get; private set; }
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
     public bool OnboardingComplete { get; private set; }
 
-    private readonly List<TouristInterest> _interests = [];
-    public IReadOnlyCollection<TouristInterest> Interests => _interests.AsReadOnly();
+    private readonly List<int> _interests = [];
+    public IReadOnlyCollection<int> Interests => _interests.AsReadOnly();
 
-    private readonly List<Wishlist> _wishlists = [];
-    public IReadOnlyCollection<Wishlist> Wishlists => _wishlists.AsReadOnly();
+    private readonly List<Guid> _wishIds = [];
+    public IReadOnlyCollection<Guid> WishIds => _wishIds.AsReadOnly();
 
     public TouristProfile(Guid userId, BudgetTier? budgetTier, TravelStyle? travelStyle)
     {
@@ -33,43 +33,34 @@ public class TouristProfile : BaseEntity<Guid>
         LastLocation = newLocation;
         LastLocationUpdate = DateTimeOffset.UtcNow;
     }
-    public void AddInterest(int interestId)
-    {
-        if (!_interests.Any(i => i.InterestId == interestId))
-            _interests.Add(new TouristInterest(this.Id, interestId));
-    }
 
-    public void AddInterests(IEnumerable<int> interestIds)
+    public void AddInterests(IEnumerable<int>? interestIds)
     {
-        foreach (var interestId in interestIds)
-        {
-            AddInterest(interestId);
-        }
+        if (interestIds is null || _interests.Any(_interests => interestIds.Contains(_interests)))
+            return;
+        _interests.AddRange(interestIds);
     }
 
     public void RemoveInterest(int interestId)
     {
-        var interest = _interests.FirstOrDefault(i => i.InterestId == interestId);
-        if (interest is not null)
+        if (_interests.Contains(interestId))
         {
-            _interests.Remove(interest);
+            _interests.Remove(interestId);
         }
     }
 
-    public void AddToWishlist(string itemType, Guid itemId)
+    public void AddToWishlist(Guid itemId)
     {
-        if (!_wishlists.Any(w => w.ItemType == itemType && w.ItemId == itemId))
-            _wishlists.Add(new Wishlist(this.Id, itemType, itemId));
+        if (!_wishIds.Any(w => w == itemId))
+            return;
+        _wishIds.Add(itemId);
     }
 
 
-    public void RemoveFromWishlist(string itemType, Guid itemId)
+    public void RemoveFromWishlist(Guid itemId)
     {
-        var wishlistItem = _wishlists.FirstOrDefault(w => w.ItemType == itemType && w.ItemId == itemId);
-        if (wishlistItem is not null)
-        {
-            _wishlists.Remove(wishlistItem);
-        }
+        _wishIds.Remove(itemId);
     }
+
     private TouristProfile() { }
 }

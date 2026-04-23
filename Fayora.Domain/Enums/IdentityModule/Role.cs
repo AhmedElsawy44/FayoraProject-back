@@ -7,5 +7,6 @@ public enum Role
     Tourist = 2,
     TourGuide = 4,
     TourCompany = 8,
-    Support = 16
+    UnitOwner = 16,
+    Support = 32,
 }

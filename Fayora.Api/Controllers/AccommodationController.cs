@@ -2,7 +2,6 @@
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnit;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitOwner;
 using Fayora.Application.Features.AccommodationModule.Queries.GetAllMasterAmenities;
-using Fayora.Application.Features.AccommodationModule.Queries.GetUnitById;
 using Fayora.Contracts.AccommodationModule.Requests;
 using Fayora.Contracts.AccommodationModule.Responses;
 using Fayora.Domain.Enums.AccommodationModule;
@@ -18,6 +17,7 @@ public class AccommodationController(ISender sender, IMapper mapper) : Controlle
 {
     [HttpPost("owner-profile")]
     public async Task<IActionResult> CreateUnitOwnerProfileAsync(
+    [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
     [FromBody] CreateUnitOwnerProfileRequest request,
     CancellationToken cancellationToken)
     {
@@ -27,10 +27,9 @@ public class AccommodationController(ISender sender, IMapper mapper) : Controlle
         }
 
         var command = new CreateUnitOwnerCommand(
+            deviceId,
             ownerType,
-            request.NationalIdUrl,
-            request.CommercialName,
-            request.TaxRegistrationNumber);
+            request.CommercialName);
 
         var result = await sender.Send(command, cancellationToken);
 
@@ -50,7 +49,8 @@ public class AccommodationController(ISender sender, IMapper mapper) : Controlle
             request.Description,
             request.LocationId,
             request.AddressDetails,
-            new GeoPoint(request.Latitude, request.Longitude),
+            request.Latitude, 
+            request.Longitude,
             Enum.Parse<HousingType>(request.Type, true),
             request.PricePerNight,
             request.NumberOfRooms,
@@ -74,20 +74,20 @@ public class AccommodationController(ISender sender, IMapper mapper) : Controlle
         );
     }
 
-    [HttpGet("housing-units/{id:guid}")]
-    public async Task<IActionResult> GetUnitById(
-        [FromRoute] Guid id,
-        CancellationToken cancellationToken)
-    {
-        var query = new GetUnitByIdQuery(id);
+    //[HttpGet("housing-units/{id:guid}")]
+    //public async Task<IActionResult> GetUnitById(
+    //    [FromRoute] Guid id,
+    //    CancellationToken cancellationToken)
+    //{
+    //    var query = new GetUnitByIdQuery(id);
 
-        var result = await sender.Send(query, cancellationToken);
+    //    var result = await sender.Send(query, cancellationToken);
 
-        return result.Match(
-            value => Ok(value),
-            errors => Problem()
-        );
-    }
+    //    return result.Match(
+    //        value => Ok(value),
+    //        errors => Problem()
+    //    );
+    //}
 
     //[HttpPost("housing-units/{id:guid}/views")]
     //public async Task<IActionResult> IncrementUnitViews(

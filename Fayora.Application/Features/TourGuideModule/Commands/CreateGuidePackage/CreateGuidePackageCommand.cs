@@ -1,6 +1,7 @@
-﻿using Fayora.Domain.Common.Results;
+﻿using Fayora.Application.Abstractions.Messaging;
+using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
-using MediatR;
 
 namespace Fayora.Application.Features.TourGuideModule.Commands.CreateGuidePackage;
 
@@ -17,11 +18,11 @@ public record CreateGuidePackageCommand
     decimal AdultPrice,
     decimal ChildPrice,
     int MaxCapacity,
-    List<string> IncludedItems,
-    List<string> ExcludedItems,
+    List<int> IncludedIds,
+    List<int> ExcludedIds,
     string MainImageUrl,
+    string? VideoURL,
     List<string> ImageURLs,
-    string VideoURL,
-    string CancellationPolicy,
-    string GuestRequirements
-) : IRequest<Result<CreateGuidePackageResult>>;
+    string? CancellationPolicy,
+    string? GuestRequirements
+) : ICommand<Result<CreateGuidePackageResult>>;

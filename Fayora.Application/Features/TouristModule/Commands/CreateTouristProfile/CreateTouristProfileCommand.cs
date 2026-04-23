@@ -1,7 +1,6 @@
-﻿using Fayora.Application.Common.Interfaces.Validations;
+﻿using Fayora.Application.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.TouristModule;
-using MediatR;
 
 namespace Fayora.Application.Features.TouristModule.Commands.CreateTouristProfile;
 
@@ -9,4 +8,4 @@ public record CreateTouristProfileCommand(
     string DeviceId,
     BudgetTier? BudgetTier,
     TravelStyle? TravelStyle,
-    HashSet<int> InterestIds) : IRequest<Result<CreateTouristProfileResult>>, ICheckBannedRequest;
+    HashSet<int>? InterestIds) : ICommand<Result<CreateTouristProfileResult>>;

@@ -4,6 +4,7 @@ using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.IdentityModule;
+using Fayora.Domain.ValueObjects;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.UpdateAccount;
@@ -25,6 +26,14 @@ public class UpdateAccountCommandHandler(
             }
         }
 
+        FileUrl? profileImageUrl = null;
+        if (request.ProfileImageUrl is not null)
+        {
+            var result = FileUrl.Create(request.ProfileImageUrl);
+            if (result.IsError) return result.Errors;
+            profileImageUrl = result.Value;
+        }
+
         var userId = clientContextProvider.GetContext().UserId;
 
         var user = await userRepository.GetUserByIdAsync(userId, new UserQueryOptions { IsReadOnly = false }, cancellationToken);
@@ -40,9 +49,9 @@ public class UpdateAccountCommandHandler(
             request.LastName,
             request.BirthDate,
             request.Gender,
-            request.NationalityCode,
-            request.ProfileImageUrl,
+            profileImageUrl,
             request.Description,
+            request.NationalityCode,
             request.PreferredLanguage,
             parsedUserLanguages,
             request.TimeZone

@@ -4,11 +4,11 @@ using Fayora.Domain.Entities.AccommodationModule;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.Entities.TouristModule;
 using Fayora.Domain.Entities.Shared;
-using Fayora.Domain.Entities.TourCompanyModule;
 using Fayora.Domain.Entities.TourGuide;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Fayora.Domain.Entities.TourGuideModule;
 
 namespace Fayora.Infrastructure.Persistence.Repositories;
 
@@ -29,15 +29,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     //for tour guide
     public DbSet<TourGuide> TourGuides { get; set; }
-    public DbSet<GuideTourPackage> GuideTourPackages { get; set; }
+    public DbSet<GuidePackage> GuideTourPackages { get; set; }
     public DbSet<City> Cities { get; set; }
     public DbSet<GuideCity> GuideCities { get; set; }
     public DbSet<GuideRequest> GuideRequests { get; set; }
     public DbSet<GuideOffer> GuideOffers { get; set; }
-
-    //for tour company
     public DbSet<TourCompany> TourCompanies { get; set; }
-    public DbSet<CompanyTourPackage> CompanyTourPackages { get; set; }
+
     public DbSet<PackageActivity> PackageActivities { get; set; }
 
 

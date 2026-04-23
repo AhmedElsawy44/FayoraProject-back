@@ -1,9 +1,9 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.TouristModule;
-using MediatR;
+﻿using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.TouristModule;
 
 namespace Fayora.Application.Features.TouristModule.Queries.GetInterests;
 
-public class GetInterestsQueryHandler(IMasterInterestRepository masterInterestRepository) : IRequestHandler<GetInterestsQuery, GetInterestsResult>
+public class GetInterestsQueryHandler(IMasterInterestRepository masterInterestRepository) : IQueryHandler<GetInterestsQuery, GetInterestsResult>
 {
     public async Task<GetInterestsResult> Handle(GetInterestsQuery request, CancellationToken cancellationToken)
     {

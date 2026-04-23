@@ -1,6 +1,6 @@
-﻿using Fayora.Domain.Common.Results;
-using MediatR;
+﻿//using Fayora.Domain.Common.Results;
+//using MediatR;
 
-namespace Fayora.Application.Features.TourGuideModule.Queries.GetTourGuideById;
+//namespace Fayora.Application.Features.TourGuideModule.Queries.GetTourGuideById;
 
-public record GetTourGuideByIdQuery(Guid TourGuideId) : IRequest<Result<GetTourGuideByIdResult>>;
+//public record GetTourGuideByIdQuery(Guid TourGuideId) : IRequest<Result<GetTourGuideByIdResult>>;

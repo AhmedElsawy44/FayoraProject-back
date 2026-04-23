@@ -273,7 +273,7 @@ public class User : AuditableEntity<Guid>
         string lastName,
         DateOnly? birthDate,
         Gender? gender,
-        string? profileImageUrl,
+        FileUrl? profileImageUrl,
         string? description,
         string? nationalityCode,
         Language? preferredLanguage,
@@ -300,14 +300,14 @@ public class User : AuditableEntity<Guid>
         Updated();
     }
 
-    private void UpdateProfileImage(string? profileImageUrl)
+    private void UpdateProfileImage(FileUrl? profileImageUrl)
     {
-        if (GetDefaultProfileImageForSocialProvider(profileImageUrl) != ProfileImageUrl)
+        if (profileImageUrl != ProfileImageUrl)
         {
             if (ProfileImageUrl is not null)
                 RaiseDomainEvent(new DeleteMediaEvent(ProfileImageUrl.ToString()));
 
-            ProfileImageUrl = GetDefaultProfileImageForSocialProvider(profileImageUrl);
+            ProfileImageUrl = profileImageUrl;
         }
     }
 

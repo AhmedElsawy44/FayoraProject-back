@@ -34,22 +34,6 @@ public class TouristProfileConfiguration : IEntityTypeConfiguration<TouristProfi
                 .IsRequired();
         });
 
-        builder.HasMany(tp => tp.Interests)
-            .WithOne()
-            .HasForeignKey(ti => ti.TouristId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Navigation(tp => tp.Interests)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
-
-        builder.HasMany(tp => tp.Wishlists)
-            .WithOne()
-            .HasForeignKey(w => w.TouristId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Navigation(tp => tp.Wishlists)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
-
         builder.Property(tp => tp.CreatedAt)
             .IsRequired();
 

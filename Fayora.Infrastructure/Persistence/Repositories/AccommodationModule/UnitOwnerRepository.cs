@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.AccommodationModule;
+﻿using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Domain.Entities.AccommodationModule;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,5 +21,11 @@ public class UnitOwnerRepository(ApplicationDbContext context) : IUnitOwnerRepos
         {
             return context.UnitOwners.FindAsync(userId, cancellationToken).AsTask();
         }
+    }
+
+    public async Task<bool> UnitOwnerExistAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        return await context.UnitOwners
+        .AnyAsync(o => o.UserId == userId, cancellationToken);
     }
 }

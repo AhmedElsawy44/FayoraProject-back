@@ -3,7 +3,7 @@ using Fayora.Domain.Enums.AccommodationModule;
 
 namespace Fayora.Domain.Entities.AccommodationModule;
 
-public class UnitOwner : AuditableEntity<Guid>
+public class UnitOwner : AggregateRoot
 {
     public Guid UserId { get; init; }
     public UnitOwnerType OwnerType { get; private set; }
@@ -19,33 +19,24 @@ public class UnitOwner : AuditableEntity<Guid>
     public Guid? PreferredPayoutMethodId { get; private set; }
     public string NationalIdUrl { get; private set; } = default!;
 
-    private UnitOwner(Guid userId, UnitOwnerType ownerType, string nationalIdUrl, string? taxRegistrationNumber)
+    public static UnitOwner CreateCommercialOwner(Guid userId, string commercialName)
     {
-        UserId = userId;
-        OwnerType = ownerType;
-        NationalIdUrl = nationalIdUrl;
-        ResponseRate = 1.0f;
-        AvgResponseTimeMinutes = 0;
-        OwnerRating = 0f;
-        IsSuperHost = false;
-        CommercialName = null;
-        TaxRegistrationNumber = taxRegistrationNumber;
-        PreferredPayoutMethodId = null;
-        VerificationStatus = VerificationStatus.Unverified;
-        VerifiedAt = null;
-        CancellationRate = 0f;
+         return new UnitOwner
+        {
+            UserId = userId,
+            OwnerType = UnitOwnerType.Commercial,
+            CommercialName = commercialName,
+        };
     }
 
-    public static UnitOwner CreateCommercialOwner(Guid userId, string nationalIdUrl, string commercialName, string? taxRegistrationNumber)
+    public static UnitOwner CreateIndividualOwner(Guid userId, string commercialName)
     {
-        var owner = new UnitOwner(userId, UnitOwnerType.Commercial, nationalIdUrl, taxRegistrationNumber);
-        owner.CommercialName = commercialName;
-        return owner;
-    }
-
-    public static UnitOwner CreateIndividualOwner(Guid userId, string nationalIdUrl)
-    {
-        return new UnitOwner(userId, UnitOwnerType.Individual, nationalIdUrl, null);
+        return new UnitOwner
+        {
+            UserId = userId,
+            OwnerType = UnitOwnerType.Individual,
+            CommercialName = commercialName,
+        };
     }
 
     private UnitOwner() { }

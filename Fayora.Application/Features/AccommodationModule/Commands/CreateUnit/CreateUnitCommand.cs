@@ -1,7 +1,6 @@
-﻿using Fayora.Domain.Common.Results;
+﻿using Fayora.Application.Abstractions.Messaging;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.AccommodationModule;
-using Fayora.Domain.ValueObjects;
-using MediatR;
 
 namespace Fayora.Application.Features.AccommodationModule.Commands.CreateUnit;
 
@@ -10,7 +9,8 @@ public record CreateUnitCommand(
     string? Description,
     int LocationId,
     string AddressDetails,
-    GeoPoint Coordinates,
+    decimal Latitude,
+    decimal Longitude,
     HousingType Type,
     decimal PricePerNight,
     int NumberOfRooms,
@@ -23,4 +23,4 @@ public record CreateUnitCommand(
     string MainImageUrl,
     Guid VerificationRequestId,
     HashSet<string> ImageUrls,
-    HashSet<int> AmenityIds) : IRequest<Result<Success>>;
+    HashSet<int> AmenityIds) : ICommand<Result<Success>>;

@@ -1,24 +1,20 @@
-using Fayora.Application.Common.Interfaces.Presistances.AccommodationModule;
-using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
-using Fayora.Application.Common.Interfaces.Presistances.TouristModule;
+using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
-using Fayora.Application.Common.Interfaces.Persistences.TouCompanyModule;
 using Fayora.Application.Common.Interfaces.Persistences.TourGuideModule;
+using Fayora.Application.Common.Interfaces.Persistences.TouristModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Interfaces.Services.SharedModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories;
 using Fayora.Infrastructure.Persistence.Repositories.AccommodationModule;
 using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
-using Fayora.Infrastructure.Persistence.Repositories.TourCompanyModule;
-using Fayora.Infrastructure.Persistence.Repositories.TouristModule;
 using Fayora.Infrastructure.Persistence.Repositories.TourGuideModule;
+using Fayora.Infrastructure.Persistence.Repositories.TouristModule;
 using Fayora.Infrastructure.Services.Authentication;
 using Fayora.Infrastructure.Services.AuthModule;
 using Fayora.Infrastructure.Services.SharedModule;
 using Fayora.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,7 +48,6 @@ public static class DependencyInjection
         services.AddScoped<IVerificationCodeRepository, VerificationCodeRepository>();
         services.AddScoped<IUserIdentityRepository, UserIdentityRepository>();
         services.AddScoped<IVerificationRepository, VerificationRepository>();
-        services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IHousingUnitRepository, HousingUnitRepository>();
         services.AddScoped<IUnitOwnerRepository, UnitOwnerRepository>();
         services.AddScoped<IMasterInterestRepository, MasterInterestRepository>();
@@ -61,7 +56,7 @@ public static class DependencyInjection
 
         // Tour Guide Module
         services.AddScoped<ITourGuideRepository, TourGuideRepository>();
-        services.AddScoped<ITourGuidePackageRepository, TourGuidePackageRepository>();
+        services.AddScoped<IPackageRepository, TourGuidePackageRepository>();
 
         // Tour Company Module
         services.AddScoped<ITourCompanyRepository, TourCompanyRepository>();

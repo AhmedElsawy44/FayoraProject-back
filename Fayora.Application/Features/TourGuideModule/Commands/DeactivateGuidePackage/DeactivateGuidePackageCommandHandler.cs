@@ -4,30 +4,30 @@ using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
 using MediatR;
+using static Fayora.Application.Common.Interfaces.Persistences.TourGuideModule.IPackageRepository;
 
 namespace Fayora.Application.Features.TourGuideModule.Commands.DeactivateGuidePackage;
 
 public class DeactivateGuidePackageCommandHandler(
-    ITourGuidePackageRepository tourGuidePackageRepository,
+    IPackageRepository tourGuidePackageRepository,
     IUnitOfWork unitOfWork,
     IClientContextProvider clientContextProvider
     ) : IRequestHandler<DeactivateGuidePackageCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(DeactivateGuidePackageCommand request, CancellationToken cancellationToken)
     {
-        var guideId = clientContextProvider.GetContext().TourGuideId;
+        var guideId = clientContextProvider.GetContext().UserId;
 
-        if (guideId is null) return TourGuideErrors.GuidIdNotExist;
-
-        var package = await tourGuidePackageRepository.GetPackageByIdAsync(request.PackageId, false, cancellationToken);
+        var package = await tourGuidePackageRepository.GetPackageByIdAsync(request.PackageId, new PackageQueryOptions { ReadOnly = false }, cancellationToken);
 
         if (package is null) return TourGuideErrors.PackageNotFound;
 
-        if (package.GuideId != guideId.Value) return TourGuideErrors.UnauthorizedPackageModification;
+        if (package.UserId != guideId) return TourGuideErrors.UnauthorizedPackageModification;
 
         if (package.IsActive is false) return TourGuideErrors.PackageIsAlreadyDeactivated;
 
-        package.Deactivate();
+        var result = package.Deactivate();
+        if (result.IsError) return result.Errors;
 
         await unitOfWork.CommitChangesAsync(cancellationToken);
 

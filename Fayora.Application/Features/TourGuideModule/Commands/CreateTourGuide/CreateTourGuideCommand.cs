@@ -7,9 +7,9 @@ namespace Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 
 public record CreateTourGuideCommand
 (
+    string DeviceId,
     DateOnly? BirthDate,
     Gender? Gender,
-    string DeviceId,
     string ProfilePictureUrl,
     string Description,
     PricingUnit PricingUnit,

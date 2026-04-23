@@ -1,4 +1,5 @@
-﻿using Fayora.Domain.Enums.AccommodationModule;
+﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.AccommodationModule;
 using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Domain.Entities.AccommodationModule;
@@ -32,17 +33,17 @@ public class HousingUnit : BaseEntity<Guid>
     public int ReviewCount { get; private set; }
     public int Views { get; private set; }
 
-    public string? MainImageUrl { get; private set; }
+    public FileUrl MainImageUrl { get; private set; } = null!;
 
-    private readonly List<HousingUnitImage> _images = [];
-    public IReadOnlyCollection<HousingUnitImage> Images => _images.AsReadOnly();
+    private readonly List<Guid> _imageIds = [];
+    public IReadOnlyCollection<Guid> ImageIds => _imageIds.AsReadOnly();
 
-    private readonly List<UnitAmenity> _amenities = [];
-    public IReadOnlyCollection<UnitAmenity> Amenities => _amenities.AsReadOnly();
+    private readonly List<int> _amenities = [];
+    public IReadOnlyCollection<int> Amenities => _amenities.AsReadOnly();
 
     public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
 
-    public HousingUnit(
+    private HousingUnit(
         Guid ownerId,
         string title,
         string? description,
@@ -58,7 +59,7 @@ public class HousingUnit : BaseEntity<Guid>
         int maxGuests,
         TimeSpan checkInTime,
         TimeSpan checkOutTime,
-        string? mainImageUrl)
+        FileUrl mainImageUrl)
     {
         OwnerId = ownerId;
         Title = title;
@@ -83,6 +84,76 @@ public class HousingUnit : BaseEntity<Guid>
         Views = 0;
     }
 
+    public static Result<HousingUnit> Create(
+    Guid ownerId,
+    string title,
+    string? description,
+    int locationId,
+    string addressDetails,
+    GeoPoint coordinates,
+    HousingType type,
+    decimal pricePerNight,
+    int numberOfRooms,
+    int bedRooms,
+    int bathRooms,
+    int numberOfBeds,
+    int maxGuests,
+    TimeSpan checkInTime,
+    TimeSpan checkOutTime,
+    FileUrl mainImageUrl)
+    {
+        if (ownerId == Guid.Empty)
+            return Error.Validation("HousingUnit.OwnerId", "Owner ID is required.");
+
+        if (string.IsNullOrWhiteSpace(title))
+            return Error.Validation("HousingUnit.Title", "Title is required.");
+
+        if (title.Length > 100)
+            return Error.Validation("HousingUnit.Title", "Title must not exceed 100 characters.");
+
+        if (pricePerNight <= 0)
+            return Error.Validation("HousingUnit.PricePerNight", "Price per night must be greater than zero.");
+
+        if (numberOfRooms <= 0)
+            return Error.Validation("HousingUnit.NumberOfRooms", "Number of rooms must be greater than zero.");
+
+        if (bedRooms < 0)
+            return Error.Validation("HousingUnit.BedRooms", "Bedrooms cannot be negative.");
+
+        if (bathRooms < 0)
+            return Error.Validation("HousingUnit.BathRooms", "Bathrooms cannot be negative.");
+
+        if (numberOfBeds <= 0)
+            return Error.Validation("HousingUnit.NumberOfBeds", "Number of beds must be greater than zero.");
+
+        if (maxGuests <= 0)
+            return Error.Validation("HousingUnit.MaxGuests", "Max guests must be greater than zero.");
+
+        if (checkInTime >= checkOutTime)
+            return Error.Validation("HousingUnit.CheckInTime", "Check-in time must be before check-out time.");
+
+        if (string.IsNullOrWhiteSpace(addressDetails))
+            return Error.Validation("HousingUnit.AddressDetails", "Address details are required.");
+
+        return new HousingUnit(
+            ownerId,
+            title,
+            description,
+            locationId,
+            addressDetails,
+            coordinates,
+            type,
+            pricePerNight,
+            numberOfRooms,
+            bedRooms,
+            bathRooms,
+            numberOfBeds,
+            maxGuests,
+            checkInTime,
+            checkOutTime,
+            mainImageUrl);
+    }
+
     public void Approve(decimal commissionRate)
     {
         if (commissionRate < 0)
@@ -101,32 +172,30 @@ public class HousingUnit : BaseEntity<Guid>
 
     public void IncrementViews() => Views++;
 
-    public void AddImage(HousingUnitImage image) => _images.Add(image);
+    public void AddImage(Guid id) => _imageIds.Add(id);
 
-    public void AddImages(IEnumerable<HousingUnitImage> images) => _images.AddRange(images);
+    public void AddImages(IEnumerable<Guid> ids) => _imageIds.AddRange(ids);
 
     public void RemoveImage(Guid imageId)
     {
-        var image = _images.FirstOrDefault(i => i.Id == imageId);
-        if (image is not null) _images.Remove(image);
+        _imageIds.Remove(imageId);
     }
 
     public void AddAmenity(int amenityId)
     {
-        if (!_amenities.Any(a => a.AmenityId == amenityId))
-            _amenities.Add(new UnitAmenity(this.Id, amenityId));
+        if (!_amenities.Any(a => a == amenityId))
+            _amenities.Add(amenityId);
     }
 
     public void AddAmenities(IEnumerable<int> amenityIds)
     {
-        foreach (var amenityId in amenityIds)
-            AddAmenity(amenityId);
+        if (_amenities.All(a => !amenityIds.Contains(a)))
+            _amenities.AddRange(amenityIds);
     }
 
     public void RemoveAmenity(int amenityId)
     {
-        var amenity = _amenities.FirstOrDefault(a => a.AmenityId == amenityId);
-        if (amenity is not null) _amenities.Remove(amenity);
+        _amenities.Remove(amenityId);
     }
 
     private HousingUnit() { }

@@ -1,33 +1,21 @@
 ﻿using AutoMapper;
-using Fayora.Application.Features.TourCompanyModule.Commands.CreateCompanyPackage;
-using Fayora.Application.Features.TourCompanyModule.Commands.CreateTourCompany;
-using Fayora.Application.Features.TourCompanyModule.Queries.GetAllCompanyPackages;
-using Fayora.Application.Features.TourCompanyModule.Queries.GetAllPackages;
-using Fayora.Application.Features.TourCompanyModule.Queries.GetCompanyPackages;
-using Fayora.Application.Features.TourCompanyModule.Queries.GetTorCompanyById;
+using Fayora.Application.Features.TourGuideModule.Commands.CreateTourCompany;
 using Fayora.Contracts.TourCompanyModule.CreateCompanyPackage;
 using Fayora.Contracts.TourCompanyModule.CreateTourCompany;
-using Fayora.Contracts.TourCompanyModule.GetAllCompanyPackages;
-using Fayora.Contracts.TourCompanyModule.GetAllPackages;
-using Fayora.Contracts.TourCompanyModule.GetTourCompanyById;
 using Fayora.Domain.Enums.SharedModule;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Fayora.Application.Common.Mapper
+namespace Fayora.Application.Common.Mapper;
+
+public class TourCompanyMappingProfile : Profile
 {
-    public class TourCompanyMappingProfile : Profile
+    public TourCompanyMappingProfile()
     {
-        public TourCompanyMappingProfile()
-        {
-            CreateMap<CreateTourCompanyResult, CreateTourCompanyResponse>();
-            CreateMap<GetTourCompanyByIdResult, GetTourCompanyByIdResponse>();
-            CreateMap<CreateCompanyPackageResult, CreateCompanyPackageResponse>();
-            CreateMap<TourTypeDto, TourType>();
-            CreateMap<GetCompanyPackagesResult, GetCompanyPackagesResponse>();
-            CreateMap<GetAllPackagesResult, GetAllPackagesResponse>();
-            CreateMap<PackageItemResult, PackageItemResponse>();
-        }
+        CreateMap<CreateTourCompanyResult, CreateTourCompanyResponse>();
+        //CreateMap<GetTourCompanyByIdResult, GetTourCompanyByIdResponse>();
+        CreateMap<CreateTourCompanyResult, CreateCompanyPackageResponse>();
+        CreateMap<TourTypeDto, TourType>();
+        //CreateMap<GetCompanyPackagesResult, GetCompanyPackagesResponse>();
+        //CreateMap<GetAllPackagesResult, GetAllPackagesResponse>();
+        //CreateMap<PackageItemResult, PackageItemResponse>();
     }
 }

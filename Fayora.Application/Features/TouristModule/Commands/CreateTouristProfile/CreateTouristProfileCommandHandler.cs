@@ -1,12 +1,12 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
-using Fayora.Application.Common.Interfaces.Presistances.TouristModule;
+﻿using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Persistences.TouristModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Application.Features.TouristModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.TouristModule;
-using MediatR;
-using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
+using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.TouristModule.Commands.CreateTouristProfile;
 
@@ -16,20 +16,15 @@ public class CreateTouristProfileCommandHandler(
     IMasterInterestRepository masterInterestRepository,
     IClientContextProvider clientContextProvider,
     IAuthTokenGenerator authTokenGenerator,
-    IUnitOfWork unitOfWork) : IRequestHandler<CreateTouristProfileCommand, Result<CreateTouristProfileResult>>
+    IUnitOfWork unitOfWork) : ICommandHandler<CreateTouristProfileCommand, Result<CreateTouristProfileResult>>
 {
     public async Task<Result<CreateTouristProfileResult>> Handle(CreateTouristProfileCommand request, CancellationToken cancellationToken)
     {
         var userId = clientContextProvider.GetContext().UserId;
 
-        var options = new UserQueryOptions { IncludeRoles = true, IsReadOnly = true };
+        var options = new UserQueryOptions { IsReadOnly = true };
         var user = await userRepository.GetUserByIdAsync(userId, options, cancellationToken);
         if (user is null) return AuthErrors.UserNotFound;
-
-        if (user.Roles.Any())
-        {
-            return TouristErrors.UserAlreadyHasRole;
-        }
 
         var touristProfile = new TouristProfile(
             userId,
@@ -50,13 +45,16 @@ public class CreateTouristProfileCommandHandler(
 
         var tokens = await authTokenGenerator.GenerateTokensAsync(
             user, request.DeviceId,
-            null,
-            touristProfile.Id,
-            null,
             cancellationToken);
 
         await unitOfWork.CommitChangesAsync(cancellationToken);
 
-        return new CreateTouristProfileResult(touristProfile.Id, tokens.AccessToken, tokens.RefreshToken, tokens.ExpiresIn);
+        return new CreateTouristProfileResult(
+            touristProfile.Id,
+            user.FirstName,
+            user.LastName,
+            tokens.AccessToken,
+            tokens.RefreshToken,
+            tokens.ExpiresIn);
     }
 }

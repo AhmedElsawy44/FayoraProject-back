@@ -10,7 +10,7 @@ public class TourGuideConfiguration : IEntityTypeConfiguration<TourGuide>
     {
         builder.ToTable("TourGuides");
 
-        builder.HasKey(x => x.Id);
+        builder.HasKey(x => x.UserId);
 
         builder.Property(x => x.BaseRate)
             .IsRequired()
@@ -30,38 +30,33 @@ public class TourGuideConfiguration : IEntityTypeConfiguration<TourGuide>
             .IsRequired()
             .HasMaxLength(3);
 
-
         builder.Property(x => x.AverageRating)
             .IsRequired();
 
-            builder.Property(x => x.CancellationRate)
-                .HasPrecision(5, 2);
+        builder.Property(x => x.ReviewCount)
+            .IsRequired();
 
-            builder.OwnsOne(x => x.LastLocation, geo =>
-            {
-                geo.Property(g => g.Latitude)
-                    .HasColumnName("Latitude")
-                    .HasPrecision(18, 6);
-                geo.Property(g => g.Longitude)
-                    .HasColumnName("Longitude")
-                    .HasPrecision(18, 6);
-            });
+        builder.Property(x => x.CompletedToursCount)
+            .IsRequired();
 
-            builder.Property(x => x.CancellationRate)
-                .HasPrecision(5, 2);
+        builder.Property(x => x.IsAvailableForBooking)
+            .IsRequired();
 
-            builder.OwnsOne(x => x.TransportInfo, transport =>
-            {
-                transport.Property(t => t.HasOwnVehicle).HasColumnName("HasOwnVehicle");
-                transport.Property(t => t.VehicleDetails).HasColumnName("VehicleDetails");
-                transport.Property(t => t.TransportType).HasColumnName("TransportType");
-            });
+        builder.Property(x => x.ResponseRate)
+            .HasPrecision(5, 2);
 
-            // Relationships
-            builder.HasMany(x => x.GuideCities)
-                .WithOne(x => x.TourGuide)
-                .HasForeignKey(x => x.GuideId)
-                .OnDelete(DeleteBehavior.Cascade);
+        builder.Property(x => x.CancellationRate)
+            .HasPrecision(5, 2);
+
+        builder.OwnsOne(x => x.LastLocation, geo =>
+        {
+            geo.Property(g => g.Latitude)
+                .HasColumnName("Latitude")
+                .HasPrecision(18, 6);
+            geo.Property(g => g.Longitude)
+                .HasColumnName("Longitude")
+                .HasPrecision(18, 6);
+        });
 
         builder.OwnsOne(x => x.TransportInfo, transport =>
         {
@@ -69,17 +64,6 @@ public class TourGuideConfiguration : IEntityTypeConfiguration<TourGuide>
             transport.Property(t => t.VehicleDetails).HasColumnName("VehicleDetails");
             transport.Property(t => t.TransportType).HasColumnName("TransportType");
         });
-
-        // Relationships
-        builder.HasMany(x => x.GuideCities)
-            .WithOne(x => x.TourGuide)
-            .HasForeignKey(x => x.GuideId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasMany(x => x.TourPackages)
-            .WithOne()
-            .HasForeignKey(x => x.GuideId)
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }
 

@@ -29,10 +29,6 @@ public class ClientContextProvider(IHttpContextAccessor accessor) : IClientConte
 
         var roles = GetClaimsValues(ClaimTypes.Role);
 
-        var ownerId = TryParseNullableGuid(GetClaimsValue("owner_id"));
-        var touristId = TryParseNullableGuid(GetClaimsValue("tourist_id"));
-        var tourGuideId = TryParseNullableGuid(GetClaimsValue("tour_guide_id"));
-
         return new ClientContext(
             userId,
             ipAddress,
@@ -41,17 +37,14 @@ public class ClientContextProvider(IHttpContextAccessor accessor) : IClientConte
             email,
             phoneNumber,
             avatarUrl,
-            roles,
-            ownerId,
-            touristId,
-            tourGuideId);
+            roles);
     }
 
     private IEnumerable<string> GetClaimsValues(string claimType)
     {
         return accessor.HttpContext?.User.Claims
             .Where(c => c.Type == claimType)
-            .Select(c => c.Value) ?? Enumerable.Empty<string>();
+            .Select(c => c.Value) ?? [];
     }
 
     private string GetClaimsValue(string claimType)

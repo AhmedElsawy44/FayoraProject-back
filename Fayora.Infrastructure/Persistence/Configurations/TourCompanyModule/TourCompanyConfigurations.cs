@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.TourCompanyModule;
+﻿using Fayora.Domain.Entities.TourGuideModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -13,7 +13,7 @@ namespace Fayora.Infrastructure.Persistence.Configurations.TourCompanyModule
         {
             builder.ToTable("TourCompanies");
 
-            builder.HasKey(x => x.Id);
+            builder.HasKey(x => x.UserId);
 
             builder.Property(x => x.UserId)
                 .IsRequired();
@@ -22,24 +22,28 @@ namespace Fayora.Infrastructure.Persistence.Configurations.TourCompanyModule
                 .IsRequired()
                 .HasMaxLength(200);
 
-            builder.Property(x => x.Description)
-                .IsRequired()
-                .HasMaxLength(2000);
-
-            builder.Property(x => x.CommercialRegisterNumber)
-                .IsRequired()
-                .HasMaxLength(100);
-
-            builder.Property(x => x.TaxRegistrationNumber)
-                .IsRequired()
-                .HasMaxLength(100);
 
             builder.Property(x => x.CurrencyCode)
                 .IsRequired()
                 .HasMaxLength(3);
 
-            builder.Property(x => x.LogoUrl)
-                .HasMaxLength(500);
+            builder.Property(x => x.AverageRating)
+                .IsRequired();
+
+            builder.Property(x => x.ReviewCount)
+                .IsRequired();
+
+            builder.Property(x => x.CompletedToursCount)
+                .IsRequired();
+
+            builder.Property(x => x.IsAvailableForBooking)
+                .IsRequired();
+
+            builder.Property(x => x.ResponseRate)
+                .HasPrecision(5, 2);
+
+            builder.Property(x => x.CancellationRate)
+                .HasPrecision(5, 2);
 
             builder.Property(x => x.Status)
                 .IsRequired();

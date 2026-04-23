@@ -3,8 +3,6 @@ using Fayora.Application.Features.TourGuideModule.Commands.ActivateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Commands.DeactivateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.DeleteGuidePackage;
-using Fayora.Application.Features.TourGuideModule.Queries.GetGuidePackageById;
-using Fayora.Application.Features.TourGuideModule.Queries.GetTourGuideById;
 using Fayora.Contracts.TourGuideModule.CreateTourGuide;
 using Fayora.Contracts.TourGuideModule.GetGuidePackageById;
 using Fayora.Contracts.TourGuideModule.GetTourGuideById;
@@ -49,9 +47,9 @@ public class TourGuideController(ISender sender, IMapper mapper) : ApiController
         }
 
         var command = new CreateTourGuideCommand(
+            deviceId,
             request.BirthDate,
             gender,
-            deviceId,
             request.ProfilePictureUrl,
             request.Description,
             pricingUnit,
@@ -94,18 +92,18 @@ public class TourGuideController(ISender sender, IMapper mapper) : ApiController
         );
     }
 
-    [HttpGet("tour-guide-package/{PackageId:guid}")]
-    public async Task<IActionResult> GetPackageById(Guid PackageId, CancellationToken cancellationToken)
-    {
-        var query = new GetGuidePackageByIdQuery(PackageId);
+    //[HttpGet("tour-guide-package/{PackageId:guid}")]
+    //public async Task<IActionResult> GetPackageById(Guid PackageId, CancellationToken cancellationToken)
+    //{
+    //    var query = new GetGuidePackageByIdQuery(PackageId);
 
-        var result = await sender.Send(query, cancellationToken);
+    //    var result = await sender.Send(query, cancellationToken);
 
-        return result.Match(
-            value => Ok(mapper.Map<GetGuidePackageByIdResponse>(value)),
-            Problem
-        );
-    }
+    //    return result.Match(
+    //        value => Ok(mapper.Map<GetGuidePackageByIdResponse>(value)),
+    //        Problem
+    //    );
+    //}
 
     [HttpDelete("tour-guide-package/{PackageId:guid}")]
     public async Task<IActionResult> DeletePackage(Guid PackageId, CancellationToken cancellationToken)
@@ -120,16 +118,16 @@ public class TourGuideController(ISender sender, IMapper mapper) : ApiController
         );
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetTourGuideById(Guid id, CancellationToken cancellationToken)
-    {
-        var query = new GetTourGuideByIdQuery(id);
+    //[HttpGet("{id:guid}")]
+    //public async Task<IActionResult> GetTourGuideById(Guid id, CancellationToken cancellationToken)
+    //{
+    //    var query = new GetTourGuideByIdQuery(id);
 
-        var result = await sender.Send(query, cancellationToken);
+    //    var result = await sender.Send(query, cancellationToken);
 
-        return result.Match(
-            value => Ok(mapper.Map<GetTourGuideByIdResponse>(value)),
-            Problem
-        );
-    }
+    //    return result.Match(
+    //        value => Ok(mapper.Map<GetTourGuideByIdResponse>(value)),
+    //        Problem
+    //    );
+    //}
 }

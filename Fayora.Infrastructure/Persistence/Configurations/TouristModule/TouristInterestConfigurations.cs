@@ -21,11 +21,6 @@ public class TouristInterestConfiguration : IEntityTypeConfiguration<TouristInte
         builder.HasIndex(ti => new { ti.TouristId, ti.InterestId })
             .IsUnique();
 
-        builder.HasOne<TouristProfile>()
-            .WithMany(p => p.Interests)
-            .HasForeignKey(ti => ti.TouristId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.HasOne<MasterInterest>()
             .WithMany()
             .HasForeignKey(ti => ti.InterestId)

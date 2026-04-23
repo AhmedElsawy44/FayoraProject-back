@@ -1,10 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
-using Fayora.Application.Common.Interfaces.Services.AuthModule;
-using Fayora.Application.Features.AuthModule.Common;
-using Fayora.Domain.Common.Results;
-using Fayora.Domain.Entities.IdentityModule;
-using MediatR;
-using Fayora.Application.Abstractions.Messaging;
+﻿using Fayora.Application.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
@@ -41,7 +35,7 @@ public class GetUserCommandHandler(
             user.BirthDate,
             user.Description,
             user.PreferredLanguage,
-            user.UserLanguageProficiency ?? new List<UserLanguageProficiency>()
+            user.UserLanguageProficiencies?.ToList() ?? []
         );
     }
 }

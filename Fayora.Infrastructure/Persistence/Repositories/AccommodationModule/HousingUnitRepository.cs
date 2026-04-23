@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.AccommodationModule;
+﻿using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Domain.Entities.AccommodationModule;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,7 +32,6 @@ public class HousingUnitRepository(ApplicationDbContext context) : IHousingUnitR
 
             if (options.IncludeImages)
             {
-                query = query.Include(u => u.Images);
             }
         }
 

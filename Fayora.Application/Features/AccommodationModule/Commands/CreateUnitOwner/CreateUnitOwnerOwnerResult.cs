@@ -1,7 +1,9 @@
 ﻿namespace Fayora.Application.Features.AccommodationModule.Commands.CreateUnitOwner;
 
-public record CreateUnitOwnerOwnerResult(
+public record CreateUnitOwnerOwnerResult
+(
     Guid UserId,
-    string Token,
+    string AccessToken,
     string RefreshToken,
-    int ExpiresIn);
+    int ExpiresIn
+);
