@@ -14,7 +14,7 @@ public abstract class GuideAccountBase
     public decimal CancellationRate { get; protected set; }
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
 
-    private readonly List<Guid> _tourPackageIds = [];
+    public readonly List<Guid> _tourPackageIds = [];
     public IReadOnlyCollection<Guid> TourPackageIds => _tourPackageIds.AsReadOnly();
 
     protected GuideAccountBase()

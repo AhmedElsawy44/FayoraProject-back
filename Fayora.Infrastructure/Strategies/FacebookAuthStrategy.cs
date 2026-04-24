@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Fayora.Infrastructure.Services.AuthModule;
+namespace Fayora.Infrastructure.Strategies;
 
 public class FacebookAuthStrategy(
 HttpClient httpClient,

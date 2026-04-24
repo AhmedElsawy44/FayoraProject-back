@@ -4,7 +4,7 @@ using Fayora.Infrastructure.Settings;
 using Google.Apis.Auth;
 using Microsoft.Extensions.Options;
 
-namespace Fayora.Infrastructure.Services.AuthModule;
+namespace Fayora.Infrastructure.Strategies;
 
 public class GoogleAuthStrategy(
     IOptions<GoogleSettings> settings) : ISocialAuthStrategy

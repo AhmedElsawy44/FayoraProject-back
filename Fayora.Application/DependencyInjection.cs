@@ -1,4 +1,5 @@
 ﻿using Fayora.Application.Common.Behaviors;
+using Fayora.Infrastructure.Services.AuthModule;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -27,6 +28,8 @@ public static class DependencyInjection
         {
             cfg.AddMaps(typeof(DependencyInjection).Assembly);
         });
+
+        services.AddScoped<UploadStrategyFactory>();
 
         return services;
     }

@@ -7,7 +7,7 @@ using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 using Twilio.Types;
 
-namespace Fayora.Infrastructure.Services.AuthModule;
+namespace Fayora.Infrastructure.Strategies;
 
 public class SmsSenderStrategy(IOptions<TwilioSettings> options, ILogger<SmsSenderStrategy> logger) : IMessageSenderStrategy
 {

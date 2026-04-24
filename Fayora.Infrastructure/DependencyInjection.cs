@@ -15,6 +15,7 @@ using Fayora.Infrastructure.Services.Authentication;
 using Fayora.Infrastructure.Services.AuthModule;
 using Fayora.Infrastructure.Services.SharedModule;
 using Fayora.Infrastructure.Settings;
+using Fayora.Infrastructure.Strategies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -79,16 +80,17 @@ public static class DependencyInjection
         services.AddSingleton<IMessageGenerator, MessageGenerator>();
         services.AddScoped<IUserDeviceManager, UserDeviceManager>();
         services.AddScoped<IAuthTokenGenerator, AuthTokenGenerator>();
+        services.AddScoped<IStorageService, CloudinaryStorageService>();
 
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.Configure<TwilioSettings>(configuration.GetSection("TwilioSettings"));
         services.Configure<GoogleSettings>(configuration.GetSection("GoogleSettings"));
         services.Configure<FacebookSettings>(configuration.GetSection("FacebookSettings"));
+        services.AddScoped<IUploadStrategy, ProfileImageUploadStrategy>();
+        services.AddScoped<IUploadStrategy, HousingUnitUploadStrategy>();
+        services.Configure<CloudinarySettings>(configuration.GetSection(CloudinarySettings.SectionName));
 
         services.AddScoped<IMessageService, MessageService>();
-
-        services.AddSingleton<IMessageSenderStrategy, SmsSenderStrategy>();
-        services.AddSingleton<IMessageSenderStrategy, WhatsAppSenderStrategy>();
         services.AddSingleton<IEmailService, EmailService>();
 
         services.AddSingleton<ISocialAuthService, SocialAuthService>();

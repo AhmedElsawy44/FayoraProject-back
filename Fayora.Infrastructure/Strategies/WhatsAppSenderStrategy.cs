@@ -7,7 +7,7 @@ using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 using Twilio.Types;
 
-namespace Fayora.Infrastructure.Services.AuthModule;
+namespace Fayora.Infrastructure.Strategies;
 
 public class WhatsAppSenderStrategy(IOptions<TwilioSettings> options, ILogger<WhatsAppSenderStrategy> logger) : IMessageSenderStrategy
 {
