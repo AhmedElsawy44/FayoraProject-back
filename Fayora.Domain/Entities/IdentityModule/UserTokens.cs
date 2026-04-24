@@ -24,7 +24,7 @@ public class UserTokens : BaseEntity<int>
             HashedToken = hashedToken,
             DeviceId = deviceId,
             IpAddress = ipAddress,
-            ExpiresAt = DateTime.UtcNow.AddDays(RefreshTokenExpiryDays),
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(RefreshTokenExpiryDays),
             TokenType = TokenType.RefreshToken
         };
     }

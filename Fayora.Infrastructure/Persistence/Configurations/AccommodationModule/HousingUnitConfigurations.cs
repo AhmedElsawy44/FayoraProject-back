@@ -65,11 +65,18 @@ public class HousingUnitConfiguration : IEntityTypeConfiguration<HousingUnit>
             .HasField("_amenities")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.Property(h => h.Amenities)
+               .HasColumnName("Amenities")
+               .HasConversion<long>()
+               .IsRequired();
+
         builder.Property<List<Guid>>("_imageIds")
                .HasColumnName("ImageIds")
                .HasColumnType("nvarchar(max)")
                .HasConversion(
                    ids => JsonSerializer.Serialize(ids, JsonSerializerOptions.Default),
                    json => JsonSerializer.Deserialize<List<Guid>>(json, JsonSerializerOptions.Default)!);
+
+
     }
 }

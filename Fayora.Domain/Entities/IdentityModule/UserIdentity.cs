@@ -3,7 +3,7 @@ using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Domain.Entities.IdentityModule;
 
-public class UserIdentity : BaseEntity<int>
+public class UserIdentity
 {
     public Guid UserId { get; init; }
     public IdentityProvider Provider { get; init; }

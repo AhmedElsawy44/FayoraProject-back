@@ -11,7 +11,7 @@ public class UserIdentityConfigurations : IEntityTypeConfiguration<UserIdentity>
     {
         builder.ToTable("UserIdentities");
 
-        builder.HasKey(u => u.Id);
+        builder.HasKey(x => new { x.Provider, x.ProviderKey });
 
         builder.Property(u => u.UserId)
             .IsRequired();
@@ -36,8 +36,6 @@ public class UserIdentityConfigurations : IEntityTypeConfiguration<UserIdentity>
 
         builder.Property(u => u.LinkedAt)
             .IsRequired();
-
-        builder.HasIndex(u => u.Email);
 
         builder.HasIndex(u => new { u.Provider, u.ProviderKey })
             .IsUnique();

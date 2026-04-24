@@ -1,11 +1,8 @@
 ﻿using Fayora.Domain.Entities.TourGuideModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Fayora.Infrastructure.Persistence.Configurations.TourCompanyModule
+namespace Fayora.Infrastructure.Persistence.Configurations.TourGuideModule
 {
     public class TourCompanyConfiguration : IEntityTypeConfiguration<TourCompany>
     {

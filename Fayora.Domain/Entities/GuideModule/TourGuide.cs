@@ -1,6 +1,5 @@
 ﻿using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.GuideModule;
-using Fayora.Domain.Entities.TourGuideModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 

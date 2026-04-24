@@ -18,10 +18,12 @@ public sealed class Email : ValueObject
         if (string.IsNullOrWhiteSpace(email))
             return UserErrors.InvalidEmail;
 
-        if (!EmailRegex.IsMatch(email))
+        var normalized = email.Trim().ToLowerInvariant();
+
+        if (!EmailRegex.IsMatch(normalized))
             return UserErrors.InvalidEmail;
 
-        return new Email(email);
+        return new Email(normalized);
     }
 
     protected override IEnumerable<object> GetEqualityComponents()

@@ -27,8 +27,7 @@ internal class UserConfigurations : IEntityTypeConfiguration<User>
             .HasColumnType("DATE");
 
         builder.Property(u => u.Gender)
-            .HasConversion<string>()
-            .HasMaxLength(10);
+            .HasConversion<int>();
 
         builder.Property(u => u.Status)
             .HasConversion<int>()

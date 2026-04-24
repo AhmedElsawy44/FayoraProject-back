@@ -1,4 +1,6 @@
-﻿namespace Fayora.Domain.Common.ValueObjects;
+﻿using Fayora.Domain.ValueObjects;
+
+namespace Fayora.Domain.Common.ValueObjects;
 
 public abstract class ValueObject : IEquatable<ValueObject>
 {

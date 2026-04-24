@@ -27,6 +27,7 @@ public class HousingUnit : BaseEntity<Guid>
 
     public decimal PricePerNight { get; private set; }
     public decimal CommissionRate { get; private set; }
+    public Amenities Amenities { get; private set; } = default!;
 
     public AccommodationStatus Status { get; private set; }
     public decimal Rating { get; private set; }
@@ -37,9 +38,6 @@ public class HousingUnit : BaseEntity<Guid>
 
     private readonly List<Guid> _imageIds = [];
     public IReadOnlyCollection<Guid> ImageIds => _imageIds.AsReadOnly();
-
-    private readonly List<int> _amenities = [];
-    public IReadOnlyCollection<int> Amenities => _amenities.AsReadOnly();
 
     public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
 

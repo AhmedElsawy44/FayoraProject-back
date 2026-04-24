@@ -21,8 +21,8 @@ partial class UserDeviceConfigurations : IEntityTypeConfiguration<UserDevice>
             .HasMaxLength(512);
 
         builder.Property(d => d.DeviceLanguage)
-            .IsRequired()
-            .HasMaxLength(100);
+            .HasConversion<int>()
+            .IsRequired();
 
         builder.Property(d => d.LastUsedAt)
             .IsRequired();

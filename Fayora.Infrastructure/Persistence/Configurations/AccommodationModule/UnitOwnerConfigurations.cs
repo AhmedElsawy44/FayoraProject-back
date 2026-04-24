@@ -19,24 +19,14 @@ public class UnitOwnerConfiguration : IEntityTypeConfiguration<UnitOwner>
                .IsRequired();
 
         builder.Property(o => o.OwnerType)
-               .HasConversion<string>()
-               .HasMaxLength(50)
-               .IsRequired();
+               .HasConversion<int>();
 
         builder.Property(o => o.VerificationStatus)
-               .HasConversion<string>()
-               .HasMaxLength(50)
+               .HasConversion<int>()
                .IsRequired();
-
-        builder.Property(o => o.NationalIdUrl)
-               .IsRequired()
-               .HasMaxLength(2048);
 
         builder.Property(o => o.CommercialName)
                .HasColumnType("nvarchar(200)");
-
-        builder.Property(o => o.TaxRegistrationNumber)
-               .HasMaxLength(50);
 
         builder.HasIndex(o => o.UserId).IsUnique();
         builder.HasIndex(o => o.VerificationStatus);

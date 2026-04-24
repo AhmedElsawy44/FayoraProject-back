@@ -21,7 +21,7 @@ public class VerificationCodeConfigurations : IEntityTypeConfiguration<Verificat
             .HasMaxLength(512);
 
         builder.Property(v => v.Purpose)
-            .HasConversion<string>()
+            .HasConversion<int>()
             .IsRequired();
 
         builder.Property(v => v.ExpiresAt)

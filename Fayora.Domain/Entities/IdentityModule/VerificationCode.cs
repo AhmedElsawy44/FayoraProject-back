@@ -18,8 +18,6 @@ public class VerificationCode : BaseEntity<int>
     public int AttemptCount { get; private set; } = 0;
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
     public bool IsValid => !RevokedAt.HasValue && DateTimeOffset.UtcNow < ExpiresAt && AttemptCount < MaxAllowedAttempts;
-    public bool IsEmailType => Target.Contains('@');
-    public bool IsSmsType => !IsEmailType && System.Text.RegularExpressions.Regex.IsMatch(Target, @"^\+?[0-9]{10,15}$");
 
     public Result<Success> Use(string plainCode, ICodeHasher codeHasher)
     {
