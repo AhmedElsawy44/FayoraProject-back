@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Domain.Enums.SharedModule;
+﻿namespace Fayora.Domain.Enums.SharedModule;
 
 [Flags]
 public enum TourType

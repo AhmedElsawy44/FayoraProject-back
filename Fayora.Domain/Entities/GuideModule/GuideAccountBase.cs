@@ -1,4 +1,3 @@
-using Fayora.Domain.Common.Entity;
 using Fayora.Domain.Common.Results;
 
 namespace Fayora.Domain.Entities.GuideModule;

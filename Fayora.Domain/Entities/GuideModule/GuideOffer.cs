@@ -1,7 +1,8 @@
 ﻿using Fayora.Domain.Common.Entity;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.TourGuideModule;
 
-namespace Fayora.Domain.Entities.TourGuide
+namespace Fayora.Domain.Entities.GuideModule
 {
     public class GuideOffer : AuditableEntity<Guid>
     {

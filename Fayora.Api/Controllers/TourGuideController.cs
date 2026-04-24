@@ -4,8 +4,6 @@ using Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Commands.DeactivateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.DeleteGuidePackage;
 using Fayora.Contracts.TourGuideModule.CreateTourGuide;
-using Fayora.Contracts.TourGuideModule.GetGuidePackageById;
-using Fayora.Contracts.TourGuideModule.GetTourGuideById;
 using Fayora.Domain.Enums.IdentityModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using MediatR;

@@ -24,15 +24,6 @@ public class HousingUnitRepository(ApplicationDbContext context) : IHousingUnitR
             {
                 query = query.AsNoTracking();
             }
-
-            if (options.IncludeAmenities)
-            {
-                query = query.Include(u => u.Amenities);
-            }
-
-            if (options.IncludeImages)
-            {
-            }
         }
 
         return await query.FirstOrDefaultAsync(u => u.Id == unitId, cancellationToken);

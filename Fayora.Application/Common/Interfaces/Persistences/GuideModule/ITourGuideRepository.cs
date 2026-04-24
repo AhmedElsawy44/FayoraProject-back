@@ -1,6 +1,6 @@
-﻿using Fayora.Domain.Entities.TourGuide;
+﻿using Fayora.Domain.Entities.GuideModule;
 
-namespace Fayora.Application.Common.Interfaces.Persistences.TourGuideModule;
+namespace Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 
 public interface ITourGuideRepository
 {
@@ -10,8 +10,6 @@ public interface ITourGuideRepository
     public Task<bool> TourGuideExistAsync(Guid id, CancellationToken cancellationToken);
 
     public record GuideQueryOptions(
-        bool ReadOnly = true,
-        bool IncludeCities = false,
-        bool IncludeTourPackageIds = false
+        bool ReadOnly = true
     );
 }

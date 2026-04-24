@@ -1,4 +1,4 @@
-using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
 using FluentValidation;
 using MediatR;

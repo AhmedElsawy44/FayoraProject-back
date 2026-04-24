@@ -1,10 +1,8 @@
 ﻿using Fayora.Domain.Common.Results;
-using Fayora.Domain.Entities.GuideModule;
-using Fayora.Domain.Entities.TourCompanyModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 
-namespace Fayora.Domain.Entities.TourGuideModule;
+namespace Fayora.Domain.Entities.GuideModule;
 
 public class TourCompany : GuideAccountBase
 {
@@ -13,9 +11,6 @@ public class TourCompany : GuideAccountBase
     public bool IsSuperCompany { get; private set; }
     public FileUrl LicenseDocumentUrl { get; private set; } = null!;
     public LicenseClass LicenseClass { get; private set; } = LicenseClass.A;
-
-    private readonly List<CompanyTourPackage> _packages = [];
-    public IReadOnlyCollection<CompanyTourPackage> Packages => _packages.AsReadOnly();
 
     private TourCompany(
         Guid userId,

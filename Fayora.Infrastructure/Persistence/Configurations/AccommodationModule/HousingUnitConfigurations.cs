@@ -62,10 +62,6 @@ public class HousingUnitConfiguration : IEntityTypeConfiguration<HousingUnit>
                .HasMaxLength(50);
 
         builder.Property(h => h.Amenities)
-            .HasField("_amenities")
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
-
-        builder.Property(h => h.Amenities)
                .HasColumnName("Amenities")
                .HasConversion<long>()
                .IsRequired();

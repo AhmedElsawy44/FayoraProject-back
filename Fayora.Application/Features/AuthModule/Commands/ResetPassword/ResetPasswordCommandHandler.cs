@@ -1,4 +1,4 @@
-using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
@@ -8,7 +8,7 @@ using Fayora.Domain.Enums.IdentityModule;
 using MediatR;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
-namespace Fayora.Application.Features.AuthModule.Commands.ResetPasswordEmail;
+namespace Fayora.Application.Features.AuthModule.Commands.ResetPassword;
 
 public class ResetPasswordCommandHandler(
     IUserRepository userRepository,

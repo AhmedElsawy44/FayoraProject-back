@@ -1,10 +1,10 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
-using Fayora.Application.Common.Interfaces.Persistences.TourGuideModule;
+﻿using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
 using MediatR;
-using static Fayora.Application.Common.Interfaces.Persistences.TourGuideModule.IPackageRepository;
+using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.IPackageRepository;
 
 namespace Fayora.Application.Features.TourGuideModule.Commands.DeactivateGuidePackage;
 

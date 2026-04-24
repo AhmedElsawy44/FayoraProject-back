@@ -1,5 +1,5 @@
 ﻿using Fayora.Domain.Common.Results;
-using Fayora.Domain.Common.ValueObjects;
+using Fayora.Domain.Common.ValueObject;
 
 namespace Fayora.Domain.ValueObjects;
 
@@ -10,8 +10,8 @@ public class GeoPoint : ValueObject
 
     public static Result<GeoPoint> Create(decimal latitude, decimal longitude)
     {
-        if(latitude < 0 || longitude < 0)
-            {
+        if (latitude < 0 || longitude < 0)
+        {
             return Error.Validation("Latitude and Longitude must be non-negative.");
         }
         return new GeoPoint

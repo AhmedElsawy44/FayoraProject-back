@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace Fayora.Application.Abstractions.Messaging;
+namespace Fayora.Application.Common.Abstractions.Messaging;
 
 public interface ICommandHandler<in TCommand> : IRequestHandler<TCommand>
     where TCommand : ICommand

@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace Fayora.Application.Abstractions.Messaging;
+namespace Fayora.Application.Common.Abstractions.Messaging;
 
 public interface IQuery<out TResponse> : IRequest<TResponse>
 {

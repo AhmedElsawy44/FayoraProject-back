@@ -1,7 +1,7 @@
 ﻿using Fayora.Domain.Enums.IdentityModule;
 using FluentValidation;
 
-namespace Fayora.Application.Features.AuthModule.Commands.ResetPasswordEmail;
+namespace Fayora.Application.Features.AuthModule.Commands.ResetPassword;
 
 public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordCommand>
 {

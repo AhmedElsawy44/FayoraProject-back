@@ -1,11 +1,11 @@
-﻿using Fayora.Application.Abstractions.Messaging;
+﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
-using Fayora.Application.Common.Interfaces.Persistences.TourGuideModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Entities.TourGuideModule;
+using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Enums.IdentityModule;
 using Fayora.Domain.ValueObjects;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
@@ -65,7 +65,7 @@ public class CreateTourCompanyCommandHandler(
 
         var company = companyResult.Value;
 
-        await tourCompanyRepository.AddTourCompanyAsync(company, cancellationToken);
+        tourCompanyRepository.AddTourCompany(company);
 
         var token = await authTokenGenerator.GenerateTokensAsync(
             user,

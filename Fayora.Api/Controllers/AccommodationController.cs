@@ -1,11 +1,9 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnit;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitOwner;
-using Fayora.Application.Features.AccommodationModule.Queries.GetAllMasterAmenities;
 using Fayora.Contracts.AccommodationModule.Requests;
 using Fayora.Contracts.AccommodationModule.Responses;
 using Fayora.Domain.Enums.AccommodationModule;
-using Fayora.Domain.ValueObjects;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +11,7 @@ namespace Fayora.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AccommodationController(ISender sender, IMapper mapper) : ControllerBase
+public class AccommodationController(ISender sender, IMapper mapper) : ApiController
 {
     [HttpPost("owner-profile")]
     public async Task<IActionResult> CreateUnitOwnerProfileAsync(
@@ -44,12 +42,22 @@ public class AccommodationController(ISender sender, IMapper mapper) : Controlle
     [FromBody] CreateUnitRequest request,
     CancellationToken cancellationToken)
     {
+        var amenities = new HashSet<Amenities>();
+
+        foreach (var amenity in request.Amenities)
+        {
+            var (amenityOk, amenityValue) = EnumParser.TryParseEnum<Amenities>(amenity);
+            if (amenityOk)
+            {
+                amenities.Add(amenityValue);
+            }
+        }
         var command = new CreateUnitCommand(
             request.Title,
             request.Description,
             request.LocationId,
             request.AddressDetails,
-            request.Latitude, 
+            request.Latitude,
             request.Longitude,
             Enum.Parse<HousingType>(request.Type, true),
             request.PricePerNight,
@@ -63,7 +71,7 @@ public class AccommodationController(ISender sender, IMapper mapper) : Controlle
             request.MainImageUrl,
             request.VerificationRequestId,
             request.ImageUrls,
-            request.AmenityIds
+            amenities
         );
 
         var result = await sender.Send(command, cancellationToken);
@@ -103,14 +111,4 @@ public class AccommodationController(ISender sender, IMapper mapper) : Controlle
     //        errors => Problem()
     //    );
     //}
-
-    [HttpGet("master-amenities")]
-    public async Task<IActionResult> GetAllMasterAmenities(CancellationToken cancellationToken)
-    {
-        var query = new GetAllMasterAmenitiesQuery();
-
-        var result = await sender.Send(query, cancellationToken);
-
-        return Ok(mapper.Map<GetAllMasterAmenitiesResponse>(result));
-    }
 }

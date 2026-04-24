@@ -1,9 +1,10 @@
-﻿using Fayora.Application.Abstractions.Messaging;
+﻿using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.AccommodationModule;
+using Fayora.Domain.Enums.AccommodationModule;
 using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Application.Features.AccommodationModule.Commands.CreateUnit;
@@ -11,10 +12,11 @@ namespace Fayora.Application.Features.AccommodationModule.Commands.CreateUnit;
 public class CreateUnitCommandHandler(
     IClientContextProvider clientContextProvider,
     IHousingUnitRepository housingUnitRepository,
+    IHousingUnitImageRepository housingUnitImageRepository,
     IUnitOfWork unitOfWork)
     : ICommandHandler<CreateUnitCommand, Result<Success>>
 {
-    public async Task<Result<Success>> Handle(CreateUnitCommand  request, CancellationToken cancellationToken)
+    public async Task<Result<Success>> Handle(CreateUnitCommand request, CancellationToken cancellationToken)
     {
         var ownerId = clientContextProvider.GetContext().UserId;
 
@@ -28,7 +30,6 @@ public class CreateUnitCommandHandler(
         var failedImage = imageResults.FirstOrDefault(r => r.IsError);
         if (failedImage is not null) return failedImage.Errors;
 
-        var images = imageResults.Select(r => r.Value).ToList();
 
         var housingUnitResult = HousingUnit.Create(
             ownerId,
@@ -51,9 +52,21 @@ public class CreateUnitCommandHandler(
         if (housingUnitResult.IsError) return housingUnitResult.Errors;
         var housingUnit = housingUnitResult.Value;
 
-        housingUnit.AddAmenities(request.AmenityIds);
 
-        housingUnit.AddImages(images.Select(image => new HousingUnitImage(housingUnit.Id, image).Id));
+        Amenities combinedAmenities = Amenities.None;
+        if (request.Amenities != null)
+        {
+            foreach (var amenity in request.Amenities)
+            {
+                combinedAmenities |= amenity;
+            }
+            housingUnit.AddAmenities(combinedAmenities);
+        }
+        var unitImages = imageResults.Select(r => new HousingUnitImage(housingUnit.Id, r.Value)).ToList();
+
+        housingUnit.AddImages(unitImages.Select(image => image.Id));
+
+        housingUnitImageRepository.AddImages(unitImages);
 
         housingUnitRepository.AddUnit(housingUnit);
 

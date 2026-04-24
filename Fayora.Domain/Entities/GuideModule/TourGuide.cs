@@ -1,9 +1,8 @@
 ﻿using Fayora.Domain.Common.Results;
-using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 
-namespace Fayora.Domain.Entities.TourGuide;
+namespace Fayora.Domain.Entities.GuideModule;
 
 public class TourGuide : GuideAccountBase
 {
@@ -60,13 +59,6 @@ public class TourGuide : GuideAccountBase
     {
         LastLocation = lastLocation;
         LastLocationUpdate = DateTimeOffset.UtcNow;
-    }
-
-
-
-    public void SetTransportInfo(bool hasOwnVehicle, string? vehicleDetails, string? transportType)
-    {
-        TransportInfo = new TransportInfo(hasOwnVehicle, vehicleDetails, transportType);
     }
 
     public Result<Success> SetAvailability(bool isAvailable)

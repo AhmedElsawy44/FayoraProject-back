@@ -3,7 +3,7 @@ using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 
-namespace Fayora.Domain.Entities.TourGuide
+namespace Fayora.Domain.Entities.GuideModule
 {
     // tourist request guide for his tour
     public class GuideRequest : AuditableEntity<Guid>

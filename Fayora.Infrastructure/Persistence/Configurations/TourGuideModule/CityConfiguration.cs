@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.Shared;
+﻿using Fayora.Domain.Entities.SharedModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

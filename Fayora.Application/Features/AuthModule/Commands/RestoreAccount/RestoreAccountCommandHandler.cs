@@ -1,7 +1,7 @@
-using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
-using Fayora.Application.Features.AuthModule.Commands.RestoreAccountWithEmail;
+using Fayora.Application.Features.AuthModule.Commands.RestoreAccount;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;

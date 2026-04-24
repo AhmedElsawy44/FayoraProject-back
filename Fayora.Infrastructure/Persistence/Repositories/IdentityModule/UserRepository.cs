@@ -90,7 +90,7 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         {
             AccountStatus.Verified => query.Where(u => u.IsEmailVerified || u.IsPhoneVerified),
             AccountStatus.NotVerified => query.Where(u => !u.IsEmailVerified && !u.IsPhoneVerified),
-            _ => query  
+            _ => query
         };
 
         if (options.ShouldFilterByUserStatus)

@@ -1,5 +1,5 @@
-﻿using Fayora.Domain.Entities.IdentityModule;
-using Fayora.Domain.Enums.IdentityModule;
+﻿using Fayora.Domain.Enums.IdentityModule;
+using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Application.Features.AuthModule.Queries.GetUser;
 

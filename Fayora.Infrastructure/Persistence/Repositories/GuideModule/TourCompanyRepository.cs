@@ -1,13 +1,14 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.TourGuideModule;
-using Fayora.Domain.Entities.TourGuideModule;
-using Fayora.Infrastructure.Persistence.Repositories;
+﻿using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
+using Fayora.Domain.Entities.GuideModule;
 using Microsoft.EntityFrameworkCore;
+
+namespace Fayora.Infrastructure.Persistence.Repositories.TourGuideModule;
 
 public class TourCompanyRepository(ApplicationDbContext context) : ITourCompanyRepository
 {
-    public async Task AddTourCompanyAsync(TourCompany tourCompany, CancellationToken cancellationToken = default)
+    public void AddTourCompany(TourCompany tourCompany)
     {
-        await context.TourCompanies.AddAsync(tourCompany, cancellationToken);
+        context.TourCompanies.Add(tourCompany);
     }
 
     public async Task<TourCompany?> GetTourCompanyByIdAsync(
@@ -19,9 +20,6 @@ public class TourCompanyRepository(ApplicationDbContext context) : ITourCompanyR
 
         if (options.ReadOnly)
             query = query.AsNoTracking();
-
-        if (options.IncludeTourPackageIds && !options.ReadOnly)
-            query = query.Include("Packages");
 
         return await query.FirstOrDefaultAsync(x => x.UserId == id, cancellationToken);
     }

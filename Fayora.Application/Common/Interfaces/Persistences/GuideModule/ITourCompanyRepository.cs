@@ -1,13 +1,11 @@
-﻿using Fayora.Domain.Entities.TourGuideModule;
-using static Fayora.Application.Common.Interfaces.Persistences.TourGuideModule.ITourGuideRepository;
+﻿using Fayora.Domain.Entities.GuideModule;
+using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.ITourGuideRepository;
 
-namespace Fayora.Application.Common.Interfaces.Persistences.TourGuideModule;
+namespace Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 
 public interface ITourCompanyRepository
 {
-    Task AddTourCompanyAsync(TourCompany tourCompany, CancellationToken cancellationToken = default);
+    void AddTourCompany(TourCompany tourCompany);
     Task<TourCompany?> GetTourCompanyByIdAsync(Guid id, GuideQueryOptions options, CancellationToken cancellationToken = default);
-    Task<TourCompany?> GetTourCompanyByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
-
     Task<bool> TourCompanyExistAsync(Guid userId, CancellationToken cancellationToken = default);
 }

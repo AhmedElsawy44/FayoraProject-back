@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Abstractions.Messaging;
+﻿using Fayora.Application.Common.Abstractions.Messaging;
 
 namespace Fayora.Application.Features.TouristModule.Queries.GetInterests;
 

@@ -1,9 +1,8 @@
-﻿using Fayora.Application.Abstractions.Messaging;
+﻿using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AccommodationModule.Common;
-using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.AccommodationModule;
 using Fayora.Domain.Enums.AccommodationModule;
@@ -31,7 +30,7 @@ public class CreateUnitOwnerCommandHandler(
         if (user.Roles.HasFlag(Role.UnitOwner)) return AccommodationErrors.OwnerProfileAlreadyExists;
 
 
-        if(await unitOwnerRepository.UnitOwnerExistAsync(userId, cancellationToken))
+        if (await unitOwnerRepository.UnitOwnerExistAsync(userId, cancellationToken))
             return AccommodationErrors.OwnerProfileAlreadyExists;
 
         user.AddRole(Role.UnitOwner);
@@ -40,7 +39,7 @@ public class CreateUnitOwnerCommandHandler(
 
         if (request.OwnerType is UnitOwnerType.Commercial)
         {
-            unitOwner = UnitOwner.CreateCommercialOwner(userId,  request.CommercialName);
+            unitOwner = UnitOwner.CreateCommercialOwner(userId, request.CommercialName);
         }
         else
         {

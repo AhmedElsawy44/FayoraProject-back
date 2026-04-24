@@ -3,6 +3,7 @@
 [Flags]
 public enum Amenities
 {
+    None = 0,
     Wifi = 1,
     AirConditioning = 2,
     Heating = 4,

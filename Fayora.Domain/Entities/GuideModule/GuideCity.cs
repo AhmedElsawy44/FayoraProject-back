@@ -1,6 +1,6 @@
-﻿using Fayora.Domain.Entities.Shared;
+﻿using Fayora.Domain.Entities.SharedModule;
 
-namespace Fayora.Domain.Entities.TourGuide;
+namespace Fayora.Domain.Entities.GuideModule;
 
 public class GuideCity
 {

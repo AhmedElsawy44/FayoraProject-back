@@ -1,12 +1,11 @@
-﻿using Fayora.Application.Abstractions.Messaging;
+﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
-using Fayora.Application.Common.Interfaces.Persistences.TourGuideModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Entities.IdentityModule;
-using Fayora.Domain.Entities.TourGuide;
+using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Enums.IdentityModule;
 using Fayora.Domain.ValueObjects;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
@@ -45,7 +44,7 @@ public class CreateTourGuideCommandHandler(
 
         if (user.Roles.HasFlag(Role.TourGuide)) return TourGuideErrors.TourGuideIsAlreadyExist;
 
-        if(await tourGuideRepository.TourGuideExistAsync(userId, cancellationToken)) return TourGuideErrors.TourGuideIsAlreadyExist;
+        if (await tourGuideRepository.TourGuideExistAsync(userId, cancellationToken)) return TourGuideErrors.TourGuideIsAlreadyExist;
 
         user.AddRole(Role.TourGuide);
 

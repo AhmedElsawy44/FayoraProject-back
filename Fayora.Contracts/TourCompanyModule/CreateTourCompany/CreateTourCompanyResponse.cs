@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Contracts.TourCompanyModule.CreateTourCompany
+﻿namespace Fayora.Contracts.TourCompanyModule.CreateTourCompany
 {
     public record CreateTourCompanyResponse(
         Guid CompanyId,

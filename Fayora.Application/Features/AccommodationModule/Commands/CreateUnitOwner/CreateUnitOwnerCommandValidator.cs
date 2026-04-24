@@ -1,5 +1,4 @@
-﻿using Fayora.Domain.Enums.AccommodationModule;
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace Fayora.Application.Features.AccommodationModule.Commands.CreateUnitOwner;
 

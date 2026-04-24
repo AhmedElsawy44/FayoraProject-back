@@ -1,8 +1,8 @@
-﻿using Fayora.Domain.Entities.TourGuideModule;
+﻿using Fayora.Domain.Entities.GuideModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-public class GuideTourPackageImageConfiguration : IEntityTypeConfiguration<PackageImage>
+public class PackageImageConfiguration : IEntityTypeConfiguration<PackageImage>
 {
     public void Configure(EntityTypeBuilder<PackageImage> builder)
     {

@@ -1,16 +1,17 @@
-﻿using Fayora.Application.Abstractions.Messaging;
+﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
-using Fayora.Application.Common.Interfaces.Persistences.TourGuideModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Entities.TourGuideModule;
+using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Application.Features.TourGuideModule.Commands.CreateGuidePackage;
 
 public class CreateGuidePackageCommandHandler(
     IPackageRepository packageRepository,
+    IPackageImageRepository packageImageRepository,
     IUnitOfWork unitOfWork,
     IClientContextProvider clientContextProvider
     ) : ICommandHandler<CreateGuidePackageCommand, Result<CreateGuidePackageResult>>
@@ -40,9 +41,9 @@ public class CreateGuidePackageCommandHandler(
         {
             foreach (var url in request.ImageURLs)
             {
-                var image = FileUrl.Create(url);
-                if (image.IsError) return image.Errors;
-                imageUrlResults.Add(image.Value);
+                var imageResult = FileUrl.Create(url);
+                if (imageResult.IsError) return imageResult.Errors;
+                imageUrlResults.Add(imageResult.Value);
             }
         }
 
@@ -69,12 +70,15 @@ public class CreateGuidePackageCommandHandler(
         if (request.IncludedIds?.Any() == true) package.AddIncludedItems(request.IncludedIds);
         if (request.ExcludedIds?.Any() == true) package.AddExcludedItems(request.ExcludedIds);
 
-        foreach (var imageUrlResult in imageUrlResults)
+        if (imageUrlResults.Any())
         {
-            package.AddImage(imageUrlResult);
+            var packageImages = imageUrlResults.Select(imgUrl => new PackageImage(package.Id, imgUrl)).ToList();
+            package.AddImages(packageImages.Select(img => img.Id));
+            packageImageRepository.AddPackageImages(packageImages);
         }
 
-        packageRepository.AddPackage(package, cancellationToken);
+        packageRepository.AddPackage(package);
+
         await unitOfWork.CommitChangesAsync(cancellationToken);
 
         return new CreateGuidePackageResult(package.Id);

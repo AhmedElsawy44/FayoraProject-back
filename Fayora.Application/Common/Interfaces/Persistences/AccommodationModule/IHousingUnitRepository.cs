@@ -8,8 +8,6 @@ public interface IHousingUnitRepository
     Task<HousingUnit?> GetUnitByIdAsync(Guid unitId, UnitQueryOptions? options = null, CancellationToken cancellationToken = default);
 
     public record UnitQueryOptions(
-        bool IncludeAmenities = false,
-        bool IncludeImages = false,
         bool IsReadOnly = true
     );
 }

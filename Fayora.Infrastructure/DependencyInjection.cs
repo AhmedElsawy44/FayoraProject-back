@@ -1,12 +1,13 @@
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
+using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
-using Fayora.Application.Common.Interfaces.Persistences.TourGuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.TouristModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Interfaces.Services.SharedModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories;
 using Fayora.Infrastructure.Persistence.Repositories.AccommodationModule;
+using Fayora.Infrastructure.Persistence.Repositories.GuideModule;
 using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories.TourGuideModule;
 using Fayora.Infrastructure.Persistence.Repositories.TouristModule;
@@ -47,19 +48,21 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IVerificationCodeRepository, VerificationCodeRepository>();
         services.AddScoped<IUserIdentityRepository, UserIdentityRepository>();
-        services.AddScoped<IVerificationRepository, VerificationRepository>();
-        services.AddScoped<IHousingUnitRepository, HousingUnitRepository>();
-        services.AddScoped<IUnitOwnerRepository, UnitOwnerRepository>();
         services.AddScoped<IMasterInterestRepository, MasterInterestRepository>();
         services.AddScoped<ITouristRepository, TouristRepository>();
-        services.AddScoped<IMasterAmenityRepository, MasterAmenityRepository>();
+
+
+        // Accommodation Module
+        services.AddScoped<IHousingUnitRepository, HousingUnitRepository>();
+        services.AddScoped<IUnitOwnerRepository, UnitOwnerRepository>();
+        services.AddScoped<IHousingUnitImageRepository, HousingUnitImageRepository>();
+        services.AddScoped<IHousingUnitImageRepository, HousingUnitImageRepository>();
 
         // Tour Guide Module
         services.AddScoped<ITourGuideRepository, TourGuideRepository>();
-        services.AddScoped<IPackageRepository, TourGuidePackageRepository>();
-
-        // Tour Company Module
+        services.AddScoped<IPackageRepository, PackageRepository>();
         services.AddScoped<ITourCompanyRepository, TourCompanyRepository>();
+        services.AddScoped<IPackageImageRepository, PackageImageRepository>();
 
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Contracts.TourCompanyModule.GetAllCompanyPackages
+﻿namespace Fayora.Contracts.TourCompanyModule.GetAllCompanyPackages
 {
     public record GetCompanyPackagesResponse(
         Guid PackageId,

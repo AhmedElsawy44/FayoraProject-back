@@ -1,7 +1,4 @@
 ﻿using Fayora.Contracts.TourCompanyModule.CreateCompanyPackage;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Fayora.Contracts.TourCompanyModule.UpdateCompanyPackage
 {

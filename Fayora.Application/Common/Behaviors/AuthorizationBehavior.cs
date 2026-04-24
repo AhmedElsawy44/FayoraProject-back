@@ -1,4 +1,4 @@
-using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Authorization;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Domain.Common.Results;

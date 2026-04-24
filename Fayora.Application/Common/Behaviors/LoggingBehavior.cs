@@ -1,4 +1,4 @@
-using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;

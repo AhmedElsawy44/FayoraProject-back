@@ -19,5 +19,5 @@ public record CreateUnitRequest(
     string MainImageUrl,
     Guid VerificationRequestId,
     HashSet<string> ImageUrls,
-    HashSet<int> AmenityIds
+    HashSet<string> Amenities
 );

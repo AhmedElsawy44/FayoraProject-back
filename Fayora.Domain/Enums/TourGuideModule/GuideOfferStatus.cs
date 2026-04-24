@@ -1,4 +1,4 @@
-﻿namespace Fayora.Domain.Entities.TourGuide
+﻿namespace Fayora.Domain.Enums.TourGuideModule
 {
     public enum GuideOfferStatus
     {

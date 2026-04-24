@@ -1,4 +1,4 @@
-﻿namespace Fayora.Contracts.AuthModule.AppleLogin;
+﻿namespace Fayora.Contracts.AuthModule.SocialLogin;
 
 public record SocialLoginResponse
 (

@@ -1,6 +1,6 @@
 ﻿using Fayora.Domain.ValueObjects;
 
-namespace Fayora.Domain.Entities.TourGuideModule;
+namespace Fayora.Domain.Entities.GuideModule;
 
 public class PackageImage
 {

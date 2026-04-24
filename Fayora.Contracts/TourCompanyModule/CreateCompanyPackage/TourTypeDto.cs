@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Contracts.TourCompanyModule.CreateCompanyPackage
+﻿namespace Fayora.Contracts.TourCompanyModule.CreateCompanyPackage
 {
     [Flags]
     public enum TourTypeDto

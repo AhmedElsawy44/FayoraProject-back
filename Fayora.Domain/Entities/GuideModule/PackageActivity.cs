@@ -1,4 +1,4 @@
-﻿namespace Fayora.Domain.Entities.TourGuideModule;
+﻿namespace Fayora.Domain.Entities.GuideModule;
 
 public class PackageActivity : BaseEntity<Guid>
 {

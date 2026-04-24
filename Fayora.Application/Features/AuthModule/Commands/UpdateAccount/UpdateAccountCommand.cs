@@ -1,4 +1,4 @@
-using Fayora.Application.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.IdentityModule;
 namespace Fayora.Application.Features.AuthModule.Commands.UpdateAccount;

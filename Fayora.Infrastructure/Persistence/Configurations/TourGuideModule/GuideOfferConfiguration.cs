@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.TourGuide;
+﻿using Fayora.Domain.Entities.GuideModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

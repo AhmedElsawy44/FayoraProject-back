@@ -1,11 +1,7 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateTourCompany;
 using Fayora.Application.Features.TourGuideModule.Commands.UpdateCompanyPackage;
-using Fayora.Contracts.TourCompanyModule.CreateCompanyPackage;
 using Fayora.Contracts.TourCompanyModule.CreateTourCompany;
-using Fayora.Contracts.TourCompanyModule.GetAllCompanyPackages;
-using Fayora.Contracts.TourCompanyModule.GetAllPackages;
-using Fayora.Contracts.TourCompanyModule.GetTourCompanyById;
 using Fayora.Contracts.TourCompanyModule.UpdateCompanyPackage;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
@@ -27,7 +23,7 @@ namespace Fayora.Api.Controllers
         {
             var (licenseClassOk, licenseClass) = EnumParser.TryParseEnum<LicenseClass>(request.LicenseClass);
             if (!licenseClassOk)
-                return BadRequest("Invalid License Class"); 
+                return BadRequest("Invalid License Class");
 
             var command = new CreateTourCompanyCommand(
                 deviceId,

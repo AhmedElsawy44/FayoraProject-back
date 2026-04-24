@@ -1,9 +1,8 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 using Fayora.Contracts.TourGuideModule.CreateTourGuide;
-using Fayora.Contracts.TourGuideModule.GetGuidePackageById;
 using Fayora.Contracts.TourGuideModule.GetTourGuideById;
-using Fayora.Domain.Entities.Shared;
+using Fayora.Domain.Entities.SharedModule;
 
 namespace Fayora.Application.Common.Mapper;
 

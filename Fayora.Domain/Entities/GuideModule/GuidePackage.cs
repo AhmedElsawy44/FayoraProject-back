@@ -4,7 +4,7 @@ using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 
-namespace Fayora.Domain.Entities.TourGuideModule;
+namespace Fayora.Domain.Entities.GuideModule;
 
 public class GuidePackage : AuditableEntity<Guid>
 {
@@ -102,10 +102,14 @@ public class GuidePackage : AuditableEntity<Guid>
 
     public void AddIncludedItem(int id) => _includedItemIds.Add(id);
     public void AddExcludedItem(int id) => _excludedItemIds.Add(id);
-    public void AddImage(FileUrl fileUrl)
+    public void AddImage(Guid imageId)
     {
-        var image = new PackageImage(Id, fileUrl);
-        _imageIds.Add(image.Id);
+        _imageIds.Add(imageId);
+    }
+
+    public void AddImages(IEnumerable<Guid> imageIds)
+    {
+        foreach (var id in imageIds) AddImage(id);
     }
 
     public Result<Success> Activate()

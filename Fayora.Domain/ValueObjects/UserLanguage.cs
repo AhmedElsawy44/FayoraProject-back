@@ -1,7 +1,7 @@
-﻿using Fayora.Domain.Common.ValueObjects;
+﻿using Fayora.Domain.Common.ValueObject;
 using Fayora.Domain.Enums.IdentityModule;
 
-namespace Fayora.Domain.Entities.IdentityModule;
+namespace Fayora.Domain.ValueObjects;
 
 public class UserLanguageProficiency : ValueObject
 {

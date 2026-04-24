@@ -1,6 +1,6 @@
 ﻿using Fayora.Domain.ValueObjects;
 
-namespace Fayora.Domain.Entities.Shared;
+namespace Fayora.Domain.Entities.SharedModule;
 
 public class City
 {

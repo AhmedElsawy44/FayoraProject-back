@@ -1,5 +1,5 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.TourGuideModule;
-using Fayora.Domain.Entities.TourGuide;
+﻿using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
+using Fayora.Domain.Entities.GuideModule;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fayora.Infrastructure.Persistence.Repositories.TourGuideModule;

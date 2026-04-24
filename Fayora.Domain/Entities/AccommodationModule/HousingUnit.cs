@@ -174,26 +174,21 @@ public class HousingUnit : BaseEntity<Guid>
 
     public void AddImages(IEnumerable<Guid> ids) => _imageIds.AddRange(ids);
 
-    public void RemoveImage(Guid imageId)
+    public void RemoveImage(Guid imageId) => _imageIds.Remove(imageId);
+
+    public void AddAmenity(Amenities amenity)
     {
-        _imageIds.Remove(imageId);
+        Amenities |= amenity;
     }
 
-    public void AddAmenity(int amenityId)
+    public void AddAmenities(Amenities amenities)
     {
-        if (!_amenities.Any(a => a == amenityId))
-            _amenities.Add(amenityId);
+        Amenities |= amenities;
     }
 
-    public void AddAmenities(IEnumerable<int> amenityIds)
+    public void RemoveAmenity(Amenities amenity)
     {
-        if (_amenities.All(a => !amenityIds.Contains(a)))
-            _amenities.AddRange(amenityIds);
-    }
-
-    public void RemoveAmenity(int amenityId)
-    {
-        _amenities.Remove(amenityId);
+        Amenities &= ~amenity;
     }
 
     private HousingUnit() { }

@@ -1,5 +1,5 @@
 ﻿using Fayora.Domain.Common.Results;
-using Fayora.Domain.Common.ValueObjects;
+using Fayora.Domain.Common.ValueObject;
 using Fayora.Domain.Errors;
 using System.Text.RegularExpressions;
 
