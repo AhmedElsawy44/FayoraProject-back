@@ -28,9 +28,6 @@ public class TourGuideConfiguration : IEntityTypeConfiguration<TourGuide>
             .IsRequired()
             .HasMaxLength(3);
 
-        builder.Property(x => x.AverageRating)
-            .IsRequired();
-
         builder.Property(x => x.ReviewCount)
             .IsRequired();
 
@@ -39,12 +36,6 @@ public class TourGuideConfiguration : IEntityTypeConfiguration<TourGuide>
 
         builder.Property(x => x.IsAvailableForBooking)
             .IsRequired();
-
-        builder.Property(x => x.ResponseRate)
-            .HasPrecision(5, 2);
-
-        builder.Property(x => x.CancellationRate)
-            .HasPrecision(5, 2);
 
         builder.OwnsOne(x => x.LastLocation, geo =>
         {

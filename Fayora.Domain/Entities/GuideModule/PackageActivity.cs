@@ -1,29 +1,30 @@
-﻿namespace Fayora.Domain.Entities.GuideModule;
+﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.ValueObjects;
+
+namespace Fayora.Domain.Entities.GuideModule;
 
 public class PackageActivity : BaseEntity<Guid>
 {
     public Guid PackageId { get; private set; }
-    public Guid PlaceId { get; private set; }
-    public string Title { get; private set; } = null!;
-    public string? Description { get; private set; }
-    public DateTime ActivityDate { get; private set; }
-    public int DurationHours { get; private set; }
+    public GeoPoint Place { get; private set; }
+    public string Description { get; private set; }
+    public DateTimeOffset ActivityTime { get; private set; }
+    public bool IsOptional { get; private set; }
 
-    public PackageActivity(
-        Guid packageId,
-        Guid placeId,
-        string title,
-        string? description,
-        DateTime activityDate,
-        int durationHours)
+    public static Result<PackageActivity> Create(Guid packageId, decimal latitude, decimal longitude, string? description, DateTimeOffset activityTime, bool isOptional)
     {
-        Id = Guid.NewGuid();
-        PackageId = packageId;
-        PlaceId = placeId;
-        Title = title;
-        Description = description;
-        ActivityDate = activityDate;
-        DurationHours = durationHours;
+        var place = GeoPoint.Create(latitude, longitude);
+        if (place.IsError) return place.Errors;
+
+        return new PackageActivity
+        {
+            Id = Guid.NewGuid(),
+            PackageId = packageId,
+            Place = place.Value,
+            Description = description,
+            ActivityTime = activityTime,
+            IsOptional = isOptional
+        };
     }
 
     private PackageActivity() { }

@@ -78,6 +78,7 @@ namespace Fayora.Infrastructure.Migrations
                     ArrivalNote = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TransportType = table.Column<int>(type: "int", nullable: false),
                     DeletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    ActivityIds = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ExcludedItemIds = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ImageIds = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IncludedItemIds = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -162,11 +163,11 @@ namespace Fayora.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PackageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PlaceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ActivityDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DurationHours = table.Column<int>(type: "int", nullable: false)
+                    Latitude = table.Column<decimal>(type: "decimal(18,10)", precision: 18, scale: 10, nullable: false),
+                    Longitude = table.Column<decimal>(type: "decimal(18,10)", precision: 18, scale: 10, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    ActivityTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    IsOptional = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -251,8 +252,8 @@ namespace Fayora.Infrastructure.Migrations
                     ReviewCount = table.Column<int>(type: "int", nullable: false),
                     CompletedToursCount = table.Column<int>(type: "int", nullable: false),
                     IsAvailableForBooking = table.Column<bool>(type: "bit", nullable: false),
-                    ResponseRate = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
-                    CancellationRate = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
+                    ResponseRate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CancellationRate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     TourPackageIds = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },

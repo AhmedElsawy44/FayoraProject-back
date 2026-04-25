@@ -47,6 +47,7 @@ public class CreateGuidePackageCommandHandler(
             }
         }
 
+
         var packageResult = GuidePackage.Create(
             tourGuideId,
             request.Title,
@@ -64,8 +65,19 @@ public class CreateGuidePackageCommandHandler(
             request.GuestRequirements
         );
 
+
         if (packageResult.IsError) return packageResult.Errors;
         var package = packageResult.Value;
+
+        var actualActivities = new List<Guid>();
+        foreach (var actReq in request.Activities)
+        {
+            var activityResult = PackageActivity.Create(package.Id, actReq.Latitude, actReq.Longitude, actReq.Description, actReq.ActivityTime, actReq.IsOptional);
+            if (activityResult.IsError) return activityResult.Errors;
+            actualActivities.Add(activityResult.Value.Id);
+        }
+
+        package.AddActivities(actualActivities);
 
         if (request.IncludedIds?.Any() == true) package.AddIncludedItems(request.IncludedIds);
         if (request.ExcludedIds?.Any() == true) package.AddExcludedItems(request.ExcludedIds);

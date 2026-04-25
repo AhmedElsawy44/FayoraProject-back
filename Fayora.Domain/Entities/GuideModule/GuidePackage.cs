@@ -38,6 +38,9 @@ public class GuidePackage : AuditableEntity<Guid>
     public IReadOnlyCollection<Guid> ImageIds => _imageIds.AsReadOnly();
     public IReadOnlyCollection<Guid> ImageURLs => _imageIds.ToList().AsReadOnly();
 
+    private readonly List<Guid> _activityIds = [];
+    public IReadOnlyCollection<Guid> ActivityIds => _activityIds.AsReadOnly();
+
     private GuidePackage() { }
 
     private GuidePackage(
@@ -173,6 +176,11 @@ public class GuidePackage : AuditableEntity<Guid>
     {
         MeetingPoint = newMeetingPoint;
         Updated();
+    }
+
+    public void AddActivities(IEnumerable<Guid> activityIds)
+    {
+        foreach (var id in activityIds) _activityIds.Add(id);
     }
 
     public void Delete() => DeletedAt = DateTimeOffset.UtcNow;

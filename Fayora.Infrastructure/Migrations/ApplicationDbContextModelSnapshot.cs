@@ -304,6 +304,11 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<int>("Views")
                         .HasColumnType("int");
 
+                    b.Property<string>("_activityIds")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ActivityIds");
+
                     b.Property<string>("_excludedItemIds")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
@@ -384,28 +389,22 @@ namespace Fayora.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("ActivityDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("ActivityTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
-                    b.Property<int>("DurationHours")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsOptional")
+                        .HasColumnType("bit");
 
                     b.Property<Guid>("PackageId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("PlaceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
-                    b.ToTable("PackageActivities");
+                    b.ToTable("PackageActivities", (string)null);
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageImage", b =>
@@ -493,8 +492,7 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("CancellationRate")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("CityIds")
                         .IsRequired()
@@ -532,8 +530,7 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("ResponseRate")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("ReviewCount")
                         .HasColumnType("int");
@@ -1347,6 +1344,35 @@ namespace Fayora.Infrastructure.Migrations
                         });
 
                     b.Navigation("MeetingPoint")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageActivity", b =>
+                {
+                    b.OwnsOne("Fayora.Domain.ValueObjects.GeoPoint", "Place", b1 =>
+                        {
+                            b1.Property<Guid>("PackageActivityId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Latitude")
+                                .HasPrecision(18, 10)
+                                .HasColumnType("decimal(18,10)")
+                                .HasColumnName("Latitude");
+
+                            b1.Property<decimal>("Longitude")
+                                .HasPrecision(18, 10)
+                                .HasColumnType("decimal(18,10)")
+                                .HasColumnName("Longitude");
+
+                            b1.HasKey("PackageActivityId");
+
+                            b1.ToTable("PackageActivities");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PackageActivityId");
+                        });
+
+                    b.Navigation("Place")
                         .IsRequired();
                 });
 
