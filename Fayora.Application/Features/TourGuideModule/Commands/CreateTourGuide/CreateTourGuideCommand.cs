@@ -1,27 +1,10 @@
 ﻿using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Enums.IdentityModule;
-using Fayora.Domain.Enums.TourGuideModule;
 
 namespace Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 
 public record CreateTourGuideCommand
 (
     string DeviceId,
-    DateOnly? BirthDate,
-    Gender? Gender,
-    string ProfilePictureUrl,
-    string Description,
-    PricingUnit PricingUnit,
-    decimal BaseRate,
-    int YearsOfExperience,
-    string NationalityCode,
-    List<Guid> CityIds,
-    Language? PreferredLanguage,
-    List<UserLanguageProficiencyDto> TourGuideLanguages,
-    string? TimeZone
+    string ProfessionalLicenseUrl
 ) : ICommand<Result<CreateTourGuideResult>>;
-
-public record UserLanguageProficiencyDto(
-    Language Language,
-    decimal ProficiencyLevel);

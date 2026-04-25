@@ -5,10 +5,10 @@ namespace Fayora.Domain.ValueObjects;
 
 public class GeoPoint : ValueObject
 {
-    public decimal Latitude { get; private set; }
-    public decimal Longitude { get; private set; }
+    public decimal? Latitude { get; private set; }
+    public decimal? Longitude { get; private set; }
 
-    public static Result<GeoPoint> Create(decimal latitude, decimal longitude)
+    public static Result<GeoPoint> Create(decimal? latitude, decimal? longitude)
     {
         if (latitude < 0 || longitude < 0)
         {

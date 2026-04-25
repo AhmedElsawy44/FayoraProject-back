@@ -14,10 +14,6 @@ public class CreateTourCompanyCommandValidator : AbstractValidator<CreateTourCom
             .NotEmpty().WithMessage("Company name is required.")
             .MaximumLength(200).WithMessage("Company name cannot exceed 200 characters.");
 
-        RuleFor(x => x.Description)
-            .NotEmpty().WithMessage("Description is required.")
-            .MaximumLength(2000).WithMessage("Description cannot exceed 2000 characters.");
-
         RuleFor(x => x.ProfilePictureUrl)
             .NotEmpty().WithMessage("Main image URL is required.")
             .Must(BeValidFileUrl).WithMessage("Main image URL must be a valid absolute URL that starts with http or https.");

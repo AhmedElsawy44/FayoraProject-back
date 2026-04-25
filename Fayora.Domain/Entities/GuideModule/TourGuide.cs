@@ -6,52 +6,30 @@ namespace Fayora.Domain.Entities.GuideModule;
 
 public class TourGuide : GuideAccountBase
 {
-    public decimal BaseRate { get; private set; } //$180/day 
+    public decimal? BaseRate { get; private set; } //$180/day 
     public PricingUnit? PricingUnit { get; private set; }
-    public int YearsOfExperience { get; private set; }
+    public int? YearsOfExperience { get; private set; }
     public string? LicenseNumber { get; private set; } = null;
     public DateOnly? LicenseExpiryDate { get; private set; }
     public GuideStatus Status { get; private set; }
     public bool IsSuperGuide { get; private set; }
-    public GeoPoint LastLocation { get; private set; } = default!;
+    public GeoPoint? LastLocation { get; private set; } = default!;
     public DateTimeOffset? LastLocationUpdate { get; private set; }
     public TransportInfo? TransportInfo { get; private set; }
+    public FileUrl? ProfessionalLicenseUrl { get; private set; }
 
 
     private readonly List<Guid> _cityIds = [];
     public IReadOnlyCollection<Guid> CityIds => _cityIds.AsReadOnly();
 
-    private TourGuide(
-        Guid userId,
-        PricingUnit pricingUnit,
-        decimal baseRate,
-        int yearsOfExperience,
-        string currencyCode = "EGP")
-        : base(userId, currencyCode)
+    public TourGuide(Guid userId, FileUrl professionalLicenseUrl) : base(userId)
     {
-        PricingUnit = pricingUnit;
-        BaseRate = baseRate;
-        YearsOfExperience = yearsOfExperience;
-        AverageRating = 0f;
-        Status = GuideStatus.Pending;
-        IsAvailableForBooking = false;
-        CompletedToursCount = 0;
-        IsSuperGuide = false;
-        CancellationRate = 0;
+        ProfessionalLicenseUrl = professionalLicenseUrl;
     }
 
 
     private TourGuide()
     {
-    }
-
-
-    public static Result<TourGuide> Create(Guid userId, PricingUnit pricingUnit, decimal baseRate, int yearsOfExperience, string currencyCode = "EGP")
-    {
-        if (baseRate <= 0)
-            return Error.Validation("TourGuide.InvalidBaseRate", "Base rate must be greater than zero.");
-
-        return new TourGuide(userId, pricingUnit, baseRate, yearsOfExperience, currencyCode);
     }
 
 
@@ -70,7 +48,7 @@ public class TourGuide : GuideAccountBase
     }
 
 
-    public void UpdateRating(float newRating)
+    public void UpdateRating(decimal newRating)
     {
         AverageRating = (AverageRating * CompletedToursCount + newRating) / (CompletedToursCount + 1);
 
@@ -125,7 +103,7 @@ public class TourGuide : GuideAccountBase
             _cityIds.Remove(cityId);
     }
 
-    public void AddReview(float newRating)
+    public void AddReview(decimal newRating)
     {
         AverageRating = ((AverageRating * ReviewCount) + newRating) / (ReviewCount + 1);
         ReviewCount++;
