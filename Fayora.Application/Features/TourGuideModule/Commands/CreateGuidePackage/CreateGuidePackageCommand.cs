@@ -1,4 +1,5 @@
 ﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Contracts.TourGuideModule.CreateGuidePackage;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
@@ -24,5 +25,6 @@ public record CreateGuidePackageCommand
     string? VideoURL,
     List<string> ImageURLs,
     string? CancellationPolicy,
-    string? GuestRequirements
+    string? GuestRequirements,
+    List<ActivityDto> Activities
 ) : ICommand<Result<CreateGuidePackageResult>>;

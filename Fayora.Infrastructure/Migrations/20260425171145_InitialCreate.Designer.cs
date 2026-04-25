@@ -4,6 +4,7 @@ using Fayora.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260425171145_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -391,33 +394,20 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.Property<DateTimeOffset>("ActivityTime")
                         .HasColumnType("datetimeoffset");
-                    b.Property<DateTime>("ActivityDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsOptional")
                         .HasColumnType("bit");
-                    b.Property<int>("DurationHours")
-                        .HasColumnType("int");
 
                     b.Property<Guid>("PackageId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("PlaceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.ToTable("PackageActivities", (string)null);
-                    b.ToTable("PackageActivities");
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageImage", b =>
@@ -442,8 +432,6 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.Property<float>("AverageRating")
                         .HasColumnType("real");
-                    b.Property<decimal>("AverageRating")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("CancellationRate")
                         .HasPrecision(5, 2)
@@ -474,8 +462,8 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<int>("LicenseClass")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("ResponseRate")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<float>("ResponseRate")
+                        .HasColumnType("real");
 
                     b.Property<int>("ReviewCount")
                         .HasColumnType("int");
@@ -499,16 +487,15 @@ namespace Fayora.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("AverageRating")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<float>("AverageRating")
+                        .HasColumnType("real");
 
                     b.Property<decimal>("BaseRate")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("CancellationRate")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("CityIds")
                         .IsRequired()
@@ -545,9 +532,8 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<int>("PricingUnit")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("ResponseRate")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
+                    b.Property<float>("ResponseRate")
+                        .HasColumnType("real");
 
                     b.Property<int>("ReviewCount")
                         .HasColumnType("int");

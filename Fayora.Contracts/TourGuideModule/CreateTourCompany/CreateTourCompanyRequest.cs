@@ -1,4 +1,4 @@
-﻿namespace Fayora.Contracts.TourCompanyModule.CreateTourCompany;
+﻿namespace Fayora.Contracts.TourGuideModule.CreateTourCompany;
 
 public record CreateTourCompanyRequest
 (
