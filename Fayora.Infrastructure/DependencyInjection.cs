@@ -85,13 +85,20 @@ public static class DependencyInjection
         services.AddScoped<IAuthTokenGenerator, AuthTokenGenerator>();
         services.AddScoped<IStorageService, CloudinaryStorageService>();
 
-        services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
-        services.Configure<TwilioSettings>(configuration.GetSection("TwilioSettings"));
-        services.Configure<GoogleSettings>(configuration.GetSection("GoogleSettings"));
-        services.Configure<FacebookSettings>(configuration.GetSection("FacebookSettings"));
+        services.Configure<EmailSettings>(configuration.GetSection(EmailSettings.SectionName));
+        services.Configure<TwilioSettings>(configuration.GetSection(TwilioSettings.SectionName));
+        services.Configure<GoogleSettings>(configuration.GetSection(GoogleSettings.SectionName));
+        services.Configure<FacebookSettings>(configuration.GetSection(FacebookSettings.SectionName));
+        services.Configure<CloudinarySettings>(configuration.GetSection(CloudinarySettings.SectionName));
+
+
+        services.AddMemoryCache();
+        services.AddSingleton<IDailyUploadTracker, MemoryDailyUploadTracker>();
+
         services.AddScoped<IUploadStrategy, ProfileImageUploadStrategy>();
         services.AddScoped<IUploadStrategy, HousingUnitUploadStrategy>();
-        services.Configure<CloudinarySettings>(configuration.GetSection(CloudinarySettings.SectionName));
+        services.AddScoped<IUploadStrategy, PackageImageUploadStrategy>();
+        services.AddScoped<IUploadStrategy, VerificationUploadStrategy>();
 
         services.AddScoped<IMessageService, MessageService>();
         services.AddSingleton<IEmailService, EmailService>();

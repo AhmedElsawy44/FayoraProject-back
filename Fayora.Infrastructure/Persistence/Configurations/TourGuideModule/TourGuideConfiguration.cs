@@ -41,8 +41,8 @@ public class TourGuideConfiguration : IEntityTypeConfiguration<TourGuide>
             .IsRequired();
 
         builder.Property(x => x.ResponseRate)
-            .HasPrecision(5, 2);
-
+            .HasColumnType("decimal(5,2)");
+        //
         builder.Property(x => x.CancellationRate)
             .HasPrecision(5, 2);
 

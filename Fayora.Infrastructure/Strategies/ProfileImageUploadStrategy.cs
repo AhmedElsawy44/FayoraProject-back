@@ -6,22 +6,24 @@ using Microsoft.AspNetCore.Http;
 
 namespace Fayora.Infrastructure.Strategies;
 
-public class ProfileImageUploadStrategy(IStorageService storageService) : BaseUploadStrategy(storageService)
+public class ProfileImageUploadStrategy(IStorageService storageService, IDailyUploadTracker dailyUploadTracker, IClientContextProvider clientContextProvider)
+    : BaseUploadStrategy(dailyUploadTracker, clientContextProvider)
 {
     public override UploadContext Context => UploadContext.Profile;
 
     protected override UploadLimits Limits => new(
-        MaxFileCount: 1,
+        MaxFileCountPerRequest: 1,
         MaxFileSizeInBytes: 2 * 1024 * 1024,
-        AllowedExtensions: [".jpg", ".jpeg", ".png"]
+        AllowedExtensions: [".jpg", ".jpeg", ".png"],
+        MaxFilesPerDay: 5
     );
 
     protected override async Task<Result<List<string>>> PerformUploadAsync(List<IFormFile> files, CancellationToken cancellationToken)
     {
         var url = await storageService.SaveFileAsync(files.First(), "profiles", cancellationToken);
         var fileUrlResult = FileUrl.Create(url);
-
         if (fileUrlResult.IsError) return fileUrlResult.Errors;
+
         return new List<string> { fileUrlResult.Value.Value };
     }
 }
