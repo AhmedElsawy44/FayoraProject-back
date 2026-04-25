@@ -58,7 +58,7 @@ public class TourCompany : GuideAccountBase
         return Result.Success;
     }
 
-    public void UpdateRating(float newRating)
+    public void UpdateRating(decimal newRating)
     {
         AverageRating = (AverageRating * ReviewCount + newRating) / (ReviewCount + 1);
         ReviewCount++;

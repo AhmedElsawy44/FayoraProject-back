@@ -6,11 +6,11 @@ public abstract class GuideAccountBase
 {
     public Guid UserId { get; protected set; }
     public string CurrencyCode { get; protected set; } = string.Empty;
-    public float AverageRating { get; protected set; }
+    public decimal AverageRating { get; protected set; }
     public int ReviewCount { get; protected set; }
     public int CompletedToursCount { get; protected set; }
     public bool IsAvailableForBooking { get; protected set; }
-    public float ResponseRate { get; protected set; }
+    public decimal ResponseRate { get; protected set; }
     public decimal CancellationRate { get; protected set; }
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
 
