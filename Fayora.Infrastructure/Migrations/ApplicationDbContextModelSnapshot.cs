@@ -395,16 +395,27 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsOptional")
                         .HasColumnType("bit");
+>>>>>>>>> Temporary merge branch 2
 
                     b.Property<Guid>("PackageId")
                         .HasColumnType("uniqueidentifier");
 
+<<<<<<<<< Temporary merge branch 1
+                    b.Property<Guid>("PlaceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("PackageActivities", (string)null);
+>>>>>>>>> Temporary merge branch 2
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageImage", b =>
@@ -427,6 +438,7 @@ namespace Fayora.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+<<<<<<<<< Temporary merge branch 1
                     b.Property<decimal>("AverageRating")
                         .HasColumnType("decimal(18,2)");
 
@@ -492,7 +504,12 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("CancellationRate")
+<<<<<<<<< Temporary merge branch 1
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+=========
                         .HasColumnType("decimal(18,2)");
+>>>>>>>>> Temporary merge branch 2
 
                     b.Property<string>("CityIds")
                         .IsRequired()
@@ -530,7 +547,12 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("ResponseRate")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+=========
+                    b.Property<float>("ResponseRate")
+                        .HasColumnType("real");
+>>>>>>>>> Temporary merge branch 2
 
                     b.Property<int>("ReviewCount")
                         .HasColumnType("int");
