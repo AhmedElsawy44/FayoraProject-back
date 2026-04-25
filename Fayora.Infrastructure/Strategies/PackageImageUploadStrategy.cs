@@ -6,15 +6,19 @@ using Microsoft.AspNetCore.Http;
 
 namespace Fayora.Infrastructure.Strategies;
 
-public class HousingUnitUploadStrategy(IStorageService storageService, IDailyUploadTracker dailyUploadTracker, IClientContextProvider clientContextProvider) 
-    : BaseUploadStrategy(dailyUploadTracker, clientContextProvider)
+public class PackageImageUploadStrategy(
+IStorageService storageService,
+IDailyUploadTracker dailyTracker,
+IClientContextProvider clientContextProvider)
+: BaseUploadStrategy(dailyTracker, clientContextProvider)
 {
-    public override UploadContext Context => UploadContext.HousingUnit;
+    public override UploadContext Context => UploadContext.Package;
+
     protected override UploadLimits Limits => new(
-        MaxFileCountPerRequest: 15,
+        MaxFileCountPerRequest: 10,
         MaxFileSizeInBytes: 5 * 1024 * 1024,
         AllowedExtensions: [".jpg", ".jpeg", ".png", ".webp"],
-        MaxFilesPerDay: 100
+        MaxFilesPerDay: 40
     );
 
     protected override async Task<Result<List<string>>> PerformUploadAsync(List<IFormFile> files, CancellationToken cancellationToken)
@@ -22,8 +26,13 @@ public class HousingUnitUploadStrategy(IStorageService storageService, IDailyUpl
         var urls = new List<FileUrl>();
         foreach (var file in files)
         {
-            var url = await storageService.SaveFileAsync(file, "housing-units", cancellationToken);
-            urls.Add(FileUrl.Create(url).Value);
+            var url = await storageService.SaveFileAsync(file, "packages", cancellationToken);
+
+            var fileUrlResult = FileUrl.Create(url);
+            if (fileUrlResult.IsSuccess)
+            {
+                urls.Add(fileUrlResult.Value);
+            }
         }
         return urls.Select(v => v.Value).ToList();
     }

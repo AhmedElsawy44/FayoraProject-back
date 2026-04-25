@@ -1,6 +1,7 @@
 ﻿namespace Fayora.Application.Common.Models;
 
 public record UploadLimits(
-    int MaxFileCount,
+    int MaxFileCountPerRequest,
     long MaxFileSizeInBytes,
-    string[] AllowedExtensions);
+    string[] AllowedExtensions,
+    int MaxFilesPerDay);

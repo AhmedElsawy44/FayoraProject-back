@@ -1,6 +1,5 @@
 ﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.AuthModule.Commands.UploadFiles;
-using Fayora.Contracts.AuthModule.UploadFile;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,14 +10,15 @@ public class FileController(ISender sender) : ApiController
 {
     [HttpPost("upload")]
     public async Task<IActionResult> UploadFiles(
-        [FromForm] UploadFileRequest request,
+        [FromForm] List<IFormFile> files,
+        [FromForm] string context,
         CancellationToken cancellationToken)
     {
-        var (contextOk, context) = EnumParser.TryParseEnum<UploadContext>(request.Context);
+        var (contextOk, contextResult) = EnumParser.TryParseEnum<UploadContext>(context);
 
         if (!contextOk) return BadRequest("Invalid context value.");
 
-        var command = new UploadFilesCommand(request.Files, context);
+        var command = new UploadFilesCommand(files, contextResult);
 
         var result = await sender.Send(command, cancellationToken);
 

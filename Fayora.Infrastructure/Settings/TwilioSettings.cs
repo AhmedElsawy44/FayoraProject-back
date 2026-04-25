@@ -2,8 +2,7 @@
 
 public class TwilioSettings
 {
-    public const string SectionName = "TwilioSettings";
-
+    public static string SectionName => "TwilioSettings";
     public string AccountSid { get; set; } = string.Empty;
     public string AuthToken { get; set; } = string.Empty;
     public string FromSmsNumber { get; set; } = string.Empty;
