@@ -22,18 +22,8 @@ public class CreateTourGuideCommandHandler(
 
     public async Task<Result<CreateTourGuideResult>> Handle(CreateTourGuideCommand request, CancellationToken cancellationToken)
     {
-        var parsedUserLanguages = new List<UserLanguageProficiency>();
-
-        if (request.TourGuideLanguages is not null && request.TourGuideLanguages.Count != 0)
-        {
-            foreach (var langDto in request.TourGuideLanguages)
-            {
-                parsedUserLanguages.Add(new UserLanguageProficiency(langDto.Language, langDto.ProficiencyLevel));
-            }
-        }
-
-        var imageUrl = FileUrl.Create(request.ProfilePictureUrl);
-        if (imageUrl.IsError) return imageUrl.Errors;
+        var professionalLicenseUrl = FileUrl.Create(request.ProfessionalLicenseUrl);
+        if (professionalLicenseUrl.IsError) return professionalLicenseUrl.Errors;
 
         var userId = clientContextProvider.GetContext().UserId;
 
@@ -42,33 +32,15 @@ public class CreateTourGuideCommandHandler(
         if (user is null) return AuthErrors.UserNotFound;
 
 
-        if (user.Roles.HasFlag(Role.TourGuide)) return TourGuideErrors.TourGuideIsAlreadyExist;
+        if (user.Roles is not null) return TourGuideErrors.CannotBeTourGuide;
 
         if (await tourGuideRepository.TourGuideExistAsync(userId, cancellationToken)) return TourGuideErrors.TourGuideIsAlreadyExist;
 
         user.AddRole(Role.TourGuide);
 
-        user.UpdateProfile(
-            user.FirstName,
-            user.LastName,
-            request.BirthDate,
-            request.Gender,
-            imageUrl.Value,
-            request.Description,
-            request.NationalityCode,
-            request.PreferredLanguage,
-            parsedUserLanguages,
-            request.TimeZone);
+        var tourGuide = new TourGuide(userId, professionalLicenseUrl.Value);
 
-        var tourGuide = TourGuide.Create(
-            user.Id,
-            request.PricingUnit,
-            request.BaseRate,
-            request.YearsOfExperience);
-
-        if (tourGuide.IsError) return tourGuide.Errors;
-
-        tourGuideRepository.AddTourGuide(tourGuide.Value);
+        tourGuideRepository.AddTourGuide(tourGuide);
 
 
         var token = await authTokenGenerator.GenerateTokensAsync(
@@ -80,10 +52,10 @@ public class CreateTourGuideCommandHandler(
 
         return new CreateTourGuideResult
         (
-            tourGuide.Value.UserId,
+            tourGuide.UserId,
             user.FirstName,
             user.LastName,
-            tourGuide.Value.Status.ToString(),
+            tourGuide.Status.ToString(),
             token.AccessToken,
             token.RefreshToken,
             token.ExpiresIn

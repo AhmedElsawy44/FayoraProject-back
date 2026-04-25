@@ -48,7 +48,7 @@ public class User : AuditableEntity<Guid>
 
     private readonly List<VerificationCode> _verificationCodes = [];
     public IReadOnlyCollection<VerificationCode> VerificationCodes => _verificationCodes.AsReadOnly();
-    public Role Roles { get; private set; }
+    public Role? Roles { get; private set; }
     public Language SpokenLanguages =>
     _userLanguageProficiencies.Count != 0
         ? _userLanguageProficiencies
@@ -477,7 +477,12 @@ public class User : AuditableEntity<Guid>
 
     public void AddRole(Role role)
     {
-        if (!Roles.HasFlag(role))
+        if (Roles is null)
+        {
+            Roles = role;
+            Updated();
+        }
+        else if (!Roles?.HasFlag(role) ?? false)
         {
             Roles |= role;
             Updated();

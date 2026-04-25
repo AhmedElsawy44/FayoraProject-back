@@ -25,9 +25,7 @@ public class CreateUnitOwnerCommandHandler(
 
         var options = new UserQueryOptions { IsReadOnly = false };
         var user = await userRepository.GetUserByIdAsync(userId, options, cancellationToken);
-        if (user is null) return AccommodationErrors.UserNotFound;
-
-        if (user.Roles.HasFlag(Role.UnitOwner)) return AccommodationErrors.OwnerProfileAlreadyExists;
+        if (user is null) return AccommodationErrors.UserNotFound; 
 
 
         if (await unitOwnerRepository.UnitOwnerExistAsync(userId, cancellationToken))

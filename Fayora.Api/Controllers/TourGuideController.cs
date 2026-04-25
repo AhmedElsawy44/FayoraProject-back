@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.TourGuideModule.Commands.ActivateGuidePackage;
+using Fayora.Application.Features.TourGuideModule.Commands.CreateTourCompany;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Commands.DeactivateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.DeleteGuidePackage;
+using Fayora.Contracts.TourGuideModule.CreateTourCompany;
 using Fayora.Contracts.TourGuideModule.CreateTourGuide;
-using Fayora.Domain.Enums.IdentityModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -19,45 +20,10 @@ public class TourGuideController(ISender sender, IMapper mapper) : ApiController
         [FromHeader(Name = "X-Device-Id")] string deviceId,
         [FromBody] CreateTourGuideRequest request)
     {
-        var (pricingUnitOk, pricingUnit) = EnumParser.TryParseEnum<PricingUnit>(request.PricingUnit);
-        if (!pricingUnitOk)
-            return BadRequest("Invalid Pricing Unit");
-
-        var (languageOk, preferredLanguage) = EnumParser.TryParseEnum<Language>(request.PreferredLanguage);
-        if (!languageOk)
-            return BadRequest("Invalid Preferred Language");
-
-        var (genderOk, gender) = EnumParser.TryParseEnum<Gender>(request.Gender);
-        if (!genderOk)
-            return BadRequest("Invalid Gender");
-
-        var tourGuideLanguages = new List<UserLanguageProficiencyDto>();
-        if (request.TourGuideLanguages is not null && request.TourGuideLanguages.Count != 0)
-        {
-            foreach (var dto in request.TourGuideLanguages)
-            {
-                var (langOk, language) = EnumParser.TryParseEnum<Language>(dto.Language);
-                if (!langOk)
-                    return BadRequest("Invalid Tour Guide Language");
-
-                tourGuideLanguages.Add(new UserLanguageProficiencyDto(language, dto.ProficiencyLevel));
-            }
-        }
 
         var command = new CreateTourGuideCommand(
             deviceId,
-            request.BirthDate,
-            gender,
-            request.ProfilePictureUrl,
-            request.Description,
-            pricingUnit,
-            request.BaseRate,
-            request.YearsOfExperience,
-            request.NationalityCode,
-            request.CityIds,
-            preferredLanguage,
-            tourGuideLanguages,
-            request.TimeZone
+            request.ProfessionalLicense
         );
 
         var result = await sender.Send(command);
@@ -67,6 +33,32 @@ public class TourGuideController(ISender sender, IMapper mapper) : ApiController
             Problem
         );
     }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateTourCompany(
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
+        [FromBody] CreateTourCompanyRequest request,
+        CancellationToken ct)
+    {
+        var (licenseClassOk, licenseClass) = EnumParser.TryParseEnum<LicenseClass>(request.LicenseClass);
+        if (!licenseClassOk)
+            return BadRequest("Invalid License Class");
+
+        var command = new CreateTourCompanyCommand(
+            deviceId,
+            request.CompanyName,
+            request.ProfilePictureUrl,
+            request.LicenseDocumentUrl,
+            licenseClass
+            );
+
+        var result = await sender.Send(command, ct);
+
+        return result.Match(
+            onValue: value => Ok(mapper.Map<CreateTourCompanyResponse>(value)),
+            onError: Problem);
+    }
+
 
     [HttpPatch("tour-guide-package/{PackageId:guid}/activate")]
     public async Task<IActionResult> ActivatePackage(Guid PackageId, CancellationToken cancellationToken)
