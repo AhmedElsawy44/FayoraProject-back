@@ -51,6 +51,9 @@ public static class DependencyInjection
         services.AddScoped<IUserIdentityRepository, UserIdentityRepository>();
         services.AddScoped<IMasterInterestRepository, MasterInterestRepository>();
         services.AddScoped<ITouristRepository, TouristRepository>();
+        services.AddScoped<IMessageSenderStrategy, WhatsAppSenderStrategy>();
+        services.AddScoped<IMessageSenderStrategy, SmsSenderStrategy>();
+
 
 
         // Accommodation Module

@@ -1,11 +1,7 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateTourCompany;
-using Fayora.Application.Features.TourGuideModule.Commands.UpdateCompanyPackage;
-using Fayora.Contracts.TourCompanyModule.CreateTourCompany;
-using Fayora.Contracts.TourCompanyModule.UpdateCompanyPackage;
-using Fayora.Domain.Enums.SharedModule;
+using Fayora.Contracts.TourGuideModule.CreateTourCompany;
 using Fayora.Domain.Enums.TourGuideModule;
-using Fayora.Domain.ValueObjects;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -90,42 +86,5 @@ namespace Fayora.Api.Controllers
         //        onValue: value => Ok(mapper.Map<GetAllPackagesResponse>(value)),
         //        onError: Problem);
         //}
-
-
-
-
-
-
-        [HttpPut("packages/{id:guid}")]
-        public async Task<IActionResult> UpdateCompanyPackage(
-             Guid id,
-             [FromBody] UpdateCompanyPackageRequest request,
-             CancellationToken ct)
-        {
-            var command = new UpdateCompanyPackageCommand(
-                PackageId: id,
-                Title: request.Title,
-                Description: request.Description,
-                TourTypes: mapper.Map<TourType>(request.TourTypes),
-                DurationHours: request.DurationHours,
-                StartDate: request.StartDate,
-                EndDate: request.EndDate,
-                DepartureLocation: GeoPoint.Create(request.DepartureLat, request.DepartureLng).Value,
-                MaxCapacity: request.MaxCapacity,
-                AdultPrice: request.AdultPrice,
-                ChildPrice: request.ChildPrice,
-                CancellationPolicy: request.CancellationPolicy,
-                MainImageUrl: request.MainImageUrl,
-                MainVideoUrl: request.MainVideoUrl,
-                GuestRequirements: request.GuestRequirements,
-                IncludedItems: request.IncludedItems,
-                ExcludedItems: request.ExcludedItems);
-
-            var result = await sender.Send(command, ct);
-
-            return result.Match(
-                onValue: _ => NoContent(),
-                onError: Problem);
-        }
     }
 }

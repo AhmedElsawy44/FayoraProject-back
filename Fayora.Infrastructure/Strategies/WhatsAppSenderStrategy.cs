@@ -23,7 +23,7 @@ public class WhatsAppSenderStrategy(IOptions<TwilioSettings> options, ILogger<Wh
 
             var messageResource = await MessageResource.CreateAsync(
                 body: message,
-                from: new PhoneNumber($"whatsapp:{_settings.FromSmsNumber}"),
+                from: new PhoneNumber($"whatsapp:{_settings.FromWhatsAppNumber}"),
                 to: new PhoneNumber($"whatsapp:{to}")
             );
 
