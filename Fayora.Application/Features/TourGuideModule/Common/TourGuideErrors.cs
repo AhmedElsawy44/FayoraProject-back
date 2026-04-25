@@ -63,4 +63,9 @@ public static class TourGuideErrors
             "TourGuide.Unauthorized",
             "User is not authorized to perform this action."
     );
+
+    public static readonly Error CannotBeTourGuide = Error.Validation(
+        "TourGuide.CannotBeTourGuide",
+        "User cannot be a tour guide because they already have a role assigned."
+    );
 }

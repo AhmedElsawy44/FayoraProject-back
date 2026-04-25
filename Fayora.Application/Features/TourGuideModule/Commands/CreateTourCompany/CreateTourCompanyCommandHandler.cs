@@ -36,9 +36,6 @@ public class CreateTourCompanyCommandHandler(
         if (user is null)
             return AuthErrors.UserNotFound;
 
-        if (user.Roles.HasFlag(Role.TourCompany)) return TourCompanyErrors.TourCompanyIsAlreadyExist;
-
-
         if (await tourCompanyRepository.TourCompanyExistAsync(userId, cancellationToken)) return TourCompanyErrors.TourCompanyIsAlreadyExist;
 
         user.AddRole(Role.TourCompany);
@@ -49,7 +46,7 @@ public class CreateTourCompanyCommandHandler(
             null,
             null,
             image.Value,
-            command.Description,
+            null,
             null,
             null,
             [],

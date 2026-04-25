@@ -395,27 +395,16 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsOptional")
                         .HasColumnType("bit");
->>>>>>>>> Temporary merge branch 2
 
                     b.Property<Guid>("PackageId")
                         .HasColumnType("uniqueidentifier");
 
-<<<<<<<<< Temporary merge branch 1
-                    b.Property<Guid>("PlaceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.ToTable("PackageActivities", (string)null);
->>>>>>>>> Temporary merge branch 2
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageImage", b =>
@@ -438,7 +427,6 @@ namespace Fayora.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-<<<<<<<<< Temporary merge branch 1
                     b.Property<decimal>("AverageRating")
                         .HasColumnType("decimal(18,2)");
 
@@ -499,17 +487,12 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<decimal>("AverageRating")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("BaseRate")
+                    b.Property<decimal?>("BaseRate")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("CancellationRate")
-<<<<<<<<< Temporary merge branch 1
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
-=========
                         .HasColumnType("decimal(18,2)");
->>>>>>>>> Temporary merge branch 2
 
                     b.Property<string>("CityIds")
                         .IsRequired()
@@ -531,7 +514,9 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsSuperGuide")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTimeOffset?>("LastLocationUpdate")
                         .HasColumnType("datetimeoffset");
@@ -543,16 +528,15 @@ namespace Fayora.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("PricingUnit")
+                    b.Property<int?>("PricingUnit")
                         .HasColumnType("int");
 
+                    b.Property<string>("ProfessionalLicenseUrl")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ProfessionalLicenseUrl");
+
                     b.Property<decimal>("ResponseRate")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
-=========
-                    b.Property<float>("ResponseRate")
-                        .HasColumnType("real");
->>>>>>>>> Temporary merge branch 2
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("ReviewCount")
                         .HasColumnType("int");
@@ -568,7 +552,7 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<int?>("TransportInfo")
                         .HasColumnType("int");
 
-                    b.Property<int>("YearsOfExperience")
+                    b.Property<int?>("YearsOfExperience")
                         .HasColumnType("int");
 
                     b.HasKey("UserId");
@@ -659,7 +643,7 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("NVARCHAR(2048)")
                         .HasColumnName("ProfileImageUrl");
 
-                    b.Property<int>("Roles")
+                    b.Property<int?>("Roles")
                         .HasColumnType("int");
 
                     b.Property<string>("SimCountryIsoCode")
@@ -1314,12 +1298,12 @@ namespace Fayora.Infrastructure.Migrations
                             b1.Property<Guid>("GuidePackageId")
                                 .HasColumnType("uniqueidentifier");
 
-                            b1.Property<decimal>("Latitude")
+                            b1.Property<decimal?>("Latitude")
                                 .HasPrecision(18, 6)
                                 .HasColumnType("decimal(18,6)")
                                 .HasColumnName("MeetingPointLatitude");
 
-                            b1.Property<decimal>("Longitude")
+                            b1.Property<decimal?>("Longitude")
                                 .HasPrecision(18, 6)
                                 .HasColumnType("decimal(18,6)")
                                 .HasColumnName("MeetingPointLongitude");
@@ -1347,12 +1331,12 @@ namespace Fayora.Infrastructure.Migrations
                             b1.Property<Guid>("GuideRequestId")
                                 .HasColumnType("uniqueidentifier");
 
-                            b1.Property<decimal>("Latitude")
+                            b1.Property<decimal?>("Latitude")
                                 .HasPrecision(18, 6)
                                 .HasColumnType("decimal(18,6)")
                                 .HasColumnName("MeetingPointLatitude");
 
-                            b1.Property<decimal>("Longitude")
+                            b1.Property<decimal?>("Longitude")
                                 .HasPrecision(18, 6)
                                 .HasColumnType("decimal(18,6)")
                                 .HasColumnName("MeetingPointLongitude");
@@ -1454,12 +1438,12 @@ namespace Fayora.Infrastructure.Migrations
                             b1.Property<Guid>("TourGuideUserId")
                                 .HasColumnType("uniqueidentifier");
 
-                            b1.Property<decimal>("Latitude")
+                            b1.Property<decimal?>("Latitude")
                                 .HasPrecision(18, 6)
                                 .HasColumnType("decimal(18,6)")
                                 .HasColumnName("Latitude");
 
-                            b1.Property<decimal>("Longitude")
+                            b1.Property<decimal?>("Longitude")
                                 .HasPrecision(18, 6)
                                 .HasColumnType("decimal(18,6)")
                                 .HasColumnName("Longitude");
@@ -1472,8 +1456,7 @@ namespace Fayora.Infrastructure.Migrations
                                 .HasForeignKey("TourGuideUserId");
                         });
 
-                    b.Navigation("LastLocation")
-                        .IsRequired();
+                    b.Navigation("LastLocation");
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.UserDevice", b =>
