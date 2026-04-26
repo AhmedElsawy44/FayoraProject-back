@@ -11,16 +11,15 @@ public class TourGuide : GuideAccountBase
     public int? YearsOfExperience { get; private set; }
     public string? LicenseNumber { get; private set; } = null;
     public DateOnly? LicenseExpiryDate { get; private set; }
-    public GuideStatus Status { get; private set; }
+    public ItemStatus Status { get; private set; }
     public bool IsSuperGuide { get; private set; }
     public GeoPoint? LastLocation { get; private set; } = default!;
     public DateTimeOffset? LastLocationUpdate { get; private set; }
     public TransportInfo? TransportInfo { get; private set; }
     public FileUrl? ProfessionalLicenseUrl { get; private set; }
 
-
-    private readonly List<Guid> _cityIds = [];
-    public IReadOnlyCollection<Guid> CityIds => _cityIds.AsReadOnly();
+    private readonly List<GuideCity> _guideCities = [];
+    public IReadOnlyCollection<GuideCity> GuideCities => _guideCities.AsReadOnly();
 
     public TourGuide(Guid userId, FileUrl professionalLicenseUrl) : base(userId)
     {
@@ -41,7 +40,7 @@ public class TourGuide : GuideAccountBase
 
     public Result<Success> SetAvailability(bool isAvailable)
     {
-        if (Status != GuideStatus.Active)
+        if (Status != ItemStatus.Active)
             return Error.Validation("TourGuide.NotActive", "Guide must be active to change availability.");
         IsAvailableForBooking = isAvailable;
         return Result.Success;
@@ -56,12 +55,12 @@ public class TourGuide : GuideAccountBase
     }
 
 
-    public Result<Success> UpdateStatus(GuideStatus newStatus)
+    public Result<Success> UpdateStatus(ItemStatus newStatus)
     {
-        if (newStatus == GuideStatus.Pending)
+        if (newStatus == ItemStatus.Pending)
             return Error.Validation("TourGuide.InvalidStatus", "Cannot set status back to Pending.");
         Status = newStatus;
-        IsAvailableForBooking = newStatus == GuideStatus.Active;
+        IsAvailableForBooking = newStatus == ItemStatus.Active;
         return Result.Success;
     }
 
@@ -88,21 +87,6 @@ public class TourGuide : GuideAccountBase
 
     public bool IsLicenseValid() => LicenseExpiryDate >= DateOnly.FromDateTime(DateTime.UtcNow);
 
-
-    public Result<Success> AddCity(Guid cityId)
-    {
-        if (_cityIds.Contains(cityId))
-            return Error.Conflict("TourGuide.CityAlreadyAdded", "City already added.");
-        _cityIds.Add(cityId);
-        return Result.Success;
-    }
-
-    public void RemoveCity(Guid cityId)
-    {
-        if (_cityIds.Contains(cityId))
-            _cityIds.Remove(cityId);
-    }
-
     public void AddReview(decimal newRating)
     {
         AverageRating = ((AverageRating * ReviewCount) + newRating) / (ReviewCount + 1);
@@ -116,7 +100,34 @@ public class TourGuide : GuideAccountBase
 
     public void Verify()
     {
-        Status = GuideStatus.Active;
+        Status = ItemStatus.Active;
         IsAvailableForBooking = true;
+    }
+
+    public Result<Success> Update(
+        int yearsOfExperience,
+        PricingUnit pricingUnit,
+        decimal baseRate)
+    {
+        if (yearsOfExperience < 0)
+            return Error.Validation("TourGuide.InvalidExperience", "Years of experience cannot be negative.");
+        if (baseRate <= 0)
+            return Error.Validation("TourGuide.InvalidBaseRate", "Base rate must be greater than zero.");
+        YearsOfExperience = yearsOfExperience;
+        PricingUnit = pricingUnit;
+        BaseRate = baseRate;
+        return Result.Success;
+    }
+
+    public void UpdateCities(IEnumerable<GuideCity> newCities)
+    {
+        var newCityIds = newCities.Select(c => c.CityId).ToList();
+
+        _guideCities.RemoveAll(existingCity => !newCityIds.Contains(existingCity.CityId));
+
+        var existingCityIds = _guideCities.Select(c => c.CityId).ToList();
+        var citiesToAdd = newCities.Where(c => !existingCityIds.Contains(c.CityId));
+
+        _guideCities.AddRange(citiesToAdd);
     }
 }

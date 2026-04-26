@@ -24,6 +24,7 @@ public class GuidePackage : AuditableEntity<Guid>
     public FileUrl? MainVideoUrl { get; private set; }
     public string? GuestRequirements { get; private set; }
     public CancellationPolicy CancellationPolicy { get; private set; }
+    public ItemStatus PackageStatus { get; private set; }
 
     private readonly List<int> _includedItemIds = [];
     public IReadOnlyCollection<int> IncludedItemIds => _includedItemIds.AsReadOnly();
@@ -82,6 +83,7 @@ public class GuidePackage : AuditableEntity<Guid>
         BookingsCount = 0;
 
         CancellationPolicy = cancellationPolicy;
+        PackageStatus = ItemStatus.Pending;
     }
 
     public static Result<GuidePackage> Create(

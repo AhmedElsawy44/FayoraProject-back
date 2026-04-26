@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260426112229_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260426082752_AddCancellationPolicy")]
+    partial class AddCancellationPolicy
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -477,9 +477,6 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("TourPackageIds");
 
-                    b.Property<int>("Views")
-                        .HasColumnType("int");
-
                     b.HasKey("UserId");
 
                     b.ToTable("TourCompanies", (string)null);
@@ -557,9 +554,6 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnName("TourPackageIds");
 
                     b.Property<int?>("TransportInfo")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Views")
                         .HasColumnType("int");
 
                     b.Property<int?>("YearsOfExperience")

@@ -2,13 +2,11 @@
 
 namespace Fayora.Domain.Entities.GuideModule;
 
-public class GuideCity
+public class GuideCity : BaseEntity<Guid>
 {
     public Guid GuideId { get; init; }
     public int CityId { get; init; }
-
-    public TourGuide TourGuide { get; private set; } = null!;
-    public City City { get; private set; } = null!;
+    public City City { get; init; } = default!;
 
     public GuideCity(Guid guideId, int cityId)
     {

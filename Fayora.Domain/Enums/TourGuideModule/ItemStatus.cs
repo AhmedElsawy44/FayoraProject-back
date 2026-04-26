@@ -1,6 +1,6 @@
 ﻿namespace Fayora.Domain.Enums.TourGuideModule;
 
-public enum GuideStatus
+public enum ItemStatus
 {
     Pending,
     Active,

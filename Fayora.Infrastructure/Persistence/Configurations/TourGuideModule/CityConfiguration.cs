@@ -10,7 +10,10 @@ public class CityConfiguration : IEntityTypeConfiguration<City>
     {
         builder.ToTable("Cities");
 
-        builder.HasKey(x => x.CityId);
+        builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.Id)
+            .ValueGeneratedOnAdd();
 
         builder.Property(x => x.Name)
             .IsRequired()
