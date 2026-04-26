@@ -20,9 +20,10 @@ public class GuidePackage : AuditableEntity<Guid>
     public decimal ChildPrice { get; private set; }
     public bool IsActive { get; private set; }
     public int Views { get; private set; }
-    public FileUrl? MainImageUrl { get; private set; }
+    public FileUrl MainImageUrl { get; private set; }
     public FileUrl? MainVideoUrl { get; private set; }
     public string? GuestRequirements { get; private set; }
+    public CancellationPolicy CancellationPolicy { get; private set; }
 
     private readonly List<int> _includedItemIds = [];
     public IReadOnlyCollection<int> IncludedItemIds => _includedItemIds.AsReadOnly();
@@ -55,9 +56,10 @@ public class GuidePackage : AuditableEntity<Guid>
         decimal adultPrice,
         decimal childPrice,
         string? arrivalNote,
-        FileUrl? mainImageUrl,
+        FileUrl mainImageUrl,
         FileUrl? mainVideoUrl,
-        string? guestRequirements)
+        string? guestRequirements,
+        CancellationPolicy cancellationPolicy)
     {
         Id = Guid.NewGuid();
         UserId = guideId;
@@ -78,6 +80,8 @@ public class GuidePackage : AuditableEntity<Guid>
         IsActive = false;
         Views = 0;
         BookingsCount = 0;
+
+        CancellationPolicy = cancellationPolicy;
     }
 
     public static Result<GuidePackage> Create(
@@ -85,8 +89,8 @@ public class GuidePackage : AuditableEntity<Guid>
         TourType tourTypes, int durationHours,
         GeoPoint meetingPoint, TransportType transportType,
         int maxCapacity, decimal adultPrice, decimal childPrice,
-        string? arrivalNote = null, FileUrl? mainImageUrl = null,
-        FileUrl? mainVideoUrl = null, string? guestRequirements = null)
+        string? arrivalNote, FileUrl mainImageUrl,
+        FileUrl? mainVideoUrl = null, string? guestRequirements = null, CancellationPolicy cancellationPolicy = CancellationPolicy.NonRefundable)
     {
         if (adultPrice <= 0)
             return Error.Validation("Package.InvalidPrice", "Adult price must be positive.");
@@ -100,7 +104,7 @@ public class GuidePackage : AuditableEntity<Guid>
         return new GuidePackage(guideId, title, description, tourTypes,
             durationHours, meetingPoint, transportType, maxCapacity,
             adultPrice, childPrice, arrivalNote, mainImageUrl,
-            mainVideoUrl, guestRequirements);
+            mainVideoUrl, guestRequirements, cancellationPolicy);
     }
 
     public void AddIncludedItem(int id) => _includedItemIds.Add(id);

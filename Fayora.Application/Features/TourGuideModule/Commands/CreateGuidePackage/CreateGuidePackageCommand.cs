@@ -15,7 +15,7 @@ public record CreateGuidePackageCommand
     decimal Longitude,
     decimal Latitude,
     TransportType TransportType,
-    string ArrivalNote,
+    string? ArrivalNote,
     decimal AdultPrice,
     decimal ChildPrice,
     int MaxCapacity,
@@ -24,7 +24,7 @@ public record CreateGuidePackageCommand
     string MainImageUrl,
     string? VideoURL,
     List<string> ImageURLs,
-    string? CancellationPolicy,
     string? GuestRequirements,
+    CancellationPolicy CancellationPolicy,
     List<ActivityDto> Activities
 ) : ICommand<Result<CreateGuidePackageResult>>;

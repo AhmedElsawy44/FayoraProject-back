@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.TourGuideModule.Commands.ActivateGuidePackage;
+using Fayora.Application.Features.TourGuideModule.Commands.CreateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateTourCompany;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Commands.DeactivateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.DeleteGuidePackage;
+using Fayora.Contracts.TourGuideModule.CreateGuidePackage;
 using Fayora.Contracts.TourGuideModule.CreateTourCompany;
 using Fayora.Contracts.TourGuideModule.CreateTourGuide;
+using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -34,7 +37,7 @@ public class TourGuideController(ISender sender, IMapper mapper) : ApiController
         );
     }
 
-    [HttpPost]
+    [HttpPost("tour-company/create")]
     public async Task<IActionResult> CreateTourCompany(
         [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
         [FromBody] CreateTourCompanyRequest request,
@@ -59,8 +62,53 @@ public class TourGuideController(ISender sender, IMapper mapper) : ApiController
             onError: Problem);
     }
 
+    [HttpPost("package/create")]
+    public async Task<IActionResult> CreateGuidePackage(
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
+        [FromBody] CreateGuidePackageRequest request,
+        CancellationToken ct)
+    {
+        var (tourTypeOk, tourType) = EnumParser.TryParseEnum<TourType>(request.TourType);
+        if (!tourTypeOk)
+            return BadRequest("Invalid Tour Type");
 
-    [HttpPatch("tour-guide-package/{PackageId:guid}/activate")]
+        var (transportTypeOk, transportType) = EnumParser.TryParseEnum<TransportType>(request.TransportType);
+        if (!transportTypeOk)
+            return BadRequest("Invalid Transport Type");
+
+        var (cancellationPolicyOk, cancellationPolicy) = EnumParser.TryParseEnum<CancellationPolicy>(request.CancellationPolicy);
+        if (!cancellationPolicyOk)
+            return BadRequest("Invalid Cancellation Policy");
+
+        var command = new CreateGuidePackageCommand(
+            request.Title,
+            request.Description,
+            tourType,
+            request.DurationHours,
+            request.Longitude,
+            request.Latitude,
+            transportType,
+            request.ArrivalNote,
+            request.AdultPrice,
+            request.ChildPrice,
+            request.MaxCapacity,
+            request.IncludedIds,
+            request.ExcludedIds,
+            request.MainImageUrl,
+            request.VideoURL,
+            request.ImageURLs,
+            request.GuestRequirements,
+            cancellationPolicy,
+            request.Activities
+            );
+
+        var result = await sender.Send(command, ct);
+
+        return result.Match(Ok, Problem);
+    }
+
+
+    [HttpPatch("package/{PackageId:guid}/activate")]
     public async Task<IActionResult> ActivatePackage(Guid PackageId, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new ActivateGuidePackageCommand(PackageId), cancellationToken);
@@ -71,7 +119,7 @@ public class TourGuideController(ISender sender, IMapper mapper) : ApiController
         );
     }
 
-    [HttpPatch("tour-guide-package/{PackageId:guid}/deactivate")]
+    [HttpPatch("package/{PackageId:guid}/deactivate")]
     public async Task<IActionResult> DeactivatePackage(Guid PackageId, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new DeactivateGuidePackageCommand(PackageId), cancellationToken);
@@ -81,19 +129,6 @@ public class TourGuideController(ISender sender, IMapper mapper) : ApiController
             errors => Problem(errors)
         );
     }
-
-    //[HttpGet("tour-guide-package/{PackageId:guid}")]
-    //public async Task<IActionResult> GetPackageById(Guid PackageId, CancellationToken cancellationToken)
-    //{
-    //    var query = new GetGuidePackageByIdQuery(PackageId);
-
-    //    var result = await sender.Send(query, cancellationToken);
-
-    //    return result.Match(
-    //        value => Ok(mapper.Map<GetGuidePackageByIdResponse>(value)),
-    //        Problem
-    //    );
-    //}
 
     [HttpDelete("tour-guide-package/{PackageId:guid}")]
     public async Task<IActionResult> DeletePackage(Guid PackageId, CancellationToken cancellationToken)
@@ -107,17 +142,4 @@ public class TourGuideController(ISender sender, IMapper mapper) : ApiController
             Problem
         );
     }
-
-    //[HttpGet("{id:guid}")]
-    //public async Task<IActionResult> GetTourGuideById(Guid id, CancellationToken cancellationToken)
-    //{
-    //    var query = new GetTourGuideByIdQuery(id);
-
-    //    var result = await sender.Send(query, cancellationToken);
-
-    //    return result.Match(
-    //        value => Ok(mapper.Map<GetTourGuideByIdResponse>(value)),
-    //        Problem
-    //    );
-    //}
 }

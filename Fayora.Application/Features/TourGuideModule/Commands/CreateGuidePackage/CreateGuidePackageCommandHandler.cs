@@ -62,7 +62,8 @@ public class CreateGuidePackageCommandHandler(
             request.ArrivalNote,
             mainImageUrlResult.Value,
             mainVideoUrl,
-            request.GuestRequirements
+            request.GuestRequirements,
+            request.CancellationPolicy
         );
 
 
