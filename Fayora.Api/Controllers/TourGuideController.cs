@@ -5,9 +5,11 @@ using Fayora.Application.Features.TourGuideModule.Commands.CreateTourCompany;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Commands.DeactivateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.DeleteGuidePackage;
+using Fayora.Application.Features.TourGuideModule.Commands.UpdateTourGuide;
 using Fayora.Contracts.TourGuideModule.CreateGuidePackage;
 using Fayora.Contracts.TourGuideModule.CreateTourCompany;
 using Fayora.Contracts.TourGuideModule.CreateTourGuide;
+using Fayora.Contracts.TourGuideModule.UpdateTourGuide;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using MediatR;
@@ -16,7 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fayora.Api.Controllers;
 
 [Route("api/[controller]")]
-public class TourGuideController(ISender sender, IMapper mapper) : ApiController
+public class GuideController(ISender sender, IMapper mapper) : ApiController
 {
     [HttpPost("tour-guide/create")]
     public async Task<IActionResult> CreateTourGuide(
@@ -35,6 +37,27 @@ public class TourGuideController(ISender sender, IMapper mapper) : ApiController
             value => Ok(mapper.Map<CreateTourGuideResponse>(value)),
             Problem
         );
+    }
+
+    [HttpPost("tour-guide/update")]
+    public async Task<IActionResult> UpdateTourGuide(
+        [FromBody] UpdateTourGuideRequest request,
+        CancellationToken ct)
+    {
+        var (pricingUnitOk, pricingUnit) = EnumParser.TryParseEnum<PricingUnit>(request.PricingUnit);
+        if (!pricingUnitOk)
+            return BadRequest("Invalid Pricing Unit");
+
+        var command = new UpdateTourGuideCommand(
+            request.YearsOfExperience,
+            pricingUnit,
+            request.BaseRate,
+            request.CoveredCities
+        );
+
+        var result = await sender.Send(command, ct);
+
+        return result.Match(value => Ok(value), Problem);
     }
 
     [HttpPost("tour-company/create")]
@@ -130,7 +153,7 @@ public class TourGuideController(ISender sender, IMapper mapper) : ApiController
         );
     }
 
-    [HttpDelete("tour-guide-package/{PackageId:guid}")]
+    [HttpDelete("package/{PackageId:guid}")]
     public async Task<IActionResult> DeletePackage(Guid PackageId, CancellationToken cancellationToken)
     {
         var command = new DeleteGuidePackageCommand(PackageId);

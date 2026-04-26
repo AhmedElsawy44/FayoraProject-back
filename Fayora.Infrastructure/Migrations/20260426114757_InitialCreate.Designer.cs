@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260426112229_InitialCreate")]
+    [Migration("20260426114757_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -188,14 +188,12 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<int>("CityId")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("TourGuideUserId")
+                    b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("GuideId", "CityId");
 
                     b.HasIndex("CityId");
-
-                    b.HasIndex("TourGuideUserId");
 
                     b.ToTable("GuideCities", (string)null);
                 });
@@ -287,6 +285,9 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<int>("MaxCapacity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PackageStatus")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
@@ -501,11 +502,6 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<decimal>("CancellationRate")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("CityIds")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("CityIds");
-
                     b.Property<int>("CompletedToursCount")
                         .HasColumnType("int");
 
@@ -550,11 +546,6 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
-
-                    b.Property<string>("TourPackageIds")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("TourPackageIds");
 
                     b.Property<int?>("TransportInfo")
                         .HasColumnType("int");
@@ -866,11 +857,11 @@ namespace Fayora.Infrastructure.Migrations
 
             modelBuilder.Entity("Fayora.Domain.Entities.SharedModule.City", b =>
                 {
-                    b.Property<int>("CityId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CityId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CountryCode")
                         .IsRequired()
@@ -882,7 +873,7 @@ namespace Fayora.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.HasKey("CityId");
+                    b.HasKey("Id");
 
                     b.ToTable("Cities", (string)null);
                 });
@@ -1239,15 +1230,13 @@ namespace Fayora.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Fayora.Domain.Entities.GuideModule.TourGuide", "TourGuide")
-                        .WithMany()
-                        .HasForeignKey("TourGuideUserId")
+                    b.HasOne("Fayora.Domain.Entities.GuideModule.TourGuide", null)
+                        .WithMany("GuideCities")
+                        .HasForeignKey("GuideId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("City");
-
-                    b.Navigation("TourGuide");
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.GuideOffer", b =>
@@ -1561,6 +1550,11 @@ namespace Fayora.Infrastructure.Migrations
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.GuideRequest", b =>
                 {
                     b.Navigation("GuideOffers");
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.TourGuide", b =>
+                {
+                    b.Navigation("GuideCities");
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.IdentityModule.User", b =>

@@ -17,7 +17,7 @@ namespace Fayora.Infrastructure.Migrations
                 name: "Cities",
                 columns: table => new
                 {
-                    CityId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     CountryCode = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
@@ -26,7 +26,7 @@ namespace Fayora.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Cities", x => x.CityId);
+                    table.PrimaryKey("PK_Cities", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -74,6 +74,7 @@ namespace Fayora.Infrastructure.Migrations
                     MainVideoUrl = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
                     GuestRequirements = table.Column<string>(type: "nvarchar(1000)", nullable: true),
                     CancellationPolicy = table.Column<int>(type: "int", nullable: false),
+                    PackageStatus = table.Column<int>(type: "int", nullable: false),
                     MeetingPointLatitude = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: true),
                     MeetingPointLongitude = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: true),
                     ArrivalNote = table.Column<string>(type: "nvarchar(1000)", nullable: true),
@@ -249,7 +250,6 @@ namespace Fayora.Infrastructure.Migrations
                     LastLocationUpdate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     TransportInfo = table.Column<int>(type: "int", nullable: true),
                     ProfessionalLicenseUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CityIds = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CurrencyCode = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
                     AverageRating = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ReviewCount = table.Column<int>(type: "int", nullable: false),
@@ -258,8 +258,7 @@ namespace Fayora.Infrastructure.Migrations
                     Views = table.Column<int>(type: "int", nullable: false),
                     ResponseRate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CancellationRate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    TourPackageIds = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -454,7 +453,7 @@ namespace Fayora.Infrastructure.Migrations
                 {
                     GuideId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CityId = table.Column<int>(type: "int", nullable: false),
-                    TourGuideUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -463,11 +462,11 @@ namespace Fayora.Infrastructure.Migrations
                         name: "FK_GuideCities_Cities_CityId",
                         column: x => x.CityId,
                         principalTable: "Cities",
-                        principalColumn: "CityId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_GuideCities_TourGuides_TourGuideUserId",
-                        column: x => x.TourGuideUserId,
+                        name: "FK_GuideCities_TourGuides_GuideId",
+                        column: x => x.GuideId,
                         principalTable: "TourGuides",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
@@ -561,11 +560,6 @@ namespace Fayora.Infrastructure.Migrations
                 name: "IX_GuideCities_CityId",
                 table: "GuideCities",
                 column: "CityId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GuideCities_TourGuideUserId",
-                table: "GuideCities",
-                column: "TourGuideUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GuideOffers_RequestId",

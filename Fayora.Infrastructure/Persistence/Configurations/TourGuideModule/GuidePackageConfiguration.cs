@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Text.Json;
 
-public class GuideTourPackageConfiguration : IEntityTypeConfiguration<GuidePackage>
+public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
 {
     public void Configure(EntityTypeBuilder<GuidePackage> builder)
     {
@@ -19,6 +19,7 @@ public class GuideTourPackageConfiguration : IEntityTypeConfiguration<GuidePacka
         builder.Property(x => x.ChildPrice).HasPrecision(18, 2);
         builder.Property(x => x.CancellationPolicy).HasConversion<int>();
         builder.Property(x => x.TransportType).HasConversion<int>();
+        builder.Property(x => x.PackageStatus).HasConversion<int>();
         builder.Property(x => x.GuestRequirements)
             .HasColumnType("nvarchar(1000)");
         builder.Property(x => x.ArrivalNote)

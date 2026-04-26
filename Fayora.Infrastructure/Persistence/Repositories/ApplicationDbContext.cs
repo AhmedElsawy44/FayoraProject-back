@@ -35,7 +35,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     // Guide Module
     public DbSet<TourGuide> TourGuides { get; set; }
     public DbSet<GuidePackage> GuideTourPackages { get; set; }
-    public DbSet<City> Cities { get; set; }
     public DbSet<GuideCity> GuideCities { get; set; }
     public DbSet<GuideRequest> GuideRequests { get; set; }
     public DbSet<GuideOffer> GuideOffers { get; set; }
@@ -43,6 +42,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<PackageActivity> PackageActivities { get; set; }
     public DbSet<PackageImage> PackageImages { get; set; }
 
+
+    // Shared Module
+    public DbSet<City> Cities { get; set; }
 
     public async Task CommitChangesAsync(CancellationToken cancellationToken = default)
     {
