@@ -1,5 +1,5 @@
+using Fayora.Application.Common.Abstractions.Validations;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
-using Fayora.Application.Common.Interfaces.Validations;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Results;
 using MediatR;

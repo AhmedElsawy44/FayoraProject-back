@@ -1,4 +1,4 @@
-﻿namespace Fayora.Application.Common.Interfaces.Validations;
+﻿namespace Fayora.Application.Common.Abstractions.Validations;
 
 public interface ICheckBannedRequest
 {

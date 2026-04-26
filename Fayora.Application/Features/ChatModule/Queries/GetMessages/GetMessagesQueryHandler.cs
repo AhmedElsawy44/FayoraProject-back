@@ -1,5 +1,5 @@
 ﻿using Fayora.Application.Common.Abstractions.Messaging;
-using Fayora.Application.Common.Interfaces.Presistances.ChatModule;
+using Fayora.Application.Common.Interfaces.Persistences.ChatModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 
 namespace Fayora.Application.Features.ChatModule.Queries.GetMessages;

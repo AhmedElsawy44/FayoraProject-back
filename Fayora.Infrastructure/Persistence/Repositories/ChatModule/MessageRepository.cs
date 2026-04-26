@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.ChatModule;
+﻿using Fayora.Application.Common.Interfaces.Persistences.ChatModule;
 using Fayora.Domain.Entities.ChatModule;
 using Microsoft.EntityFrameworkCore;
 

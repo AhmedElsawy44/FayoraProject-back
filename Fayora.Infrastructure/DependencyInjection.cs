@@ -1,12 +1,14 @@
+using Fayora.Application.Common.Abstractions.Caching;
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
+using Fayora.Application.Common.Interfaces.Persistences.ChatModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Common.Interfaces.Persistences.TouristModule;
-using Fayora.Application.Common.Interfaces.Presistances.ChatModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Interfaces.Services.SharedModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
+using Fayora.Infrastructure.Persistence.Caching;
 using Fayora.Infrastructure.Persistence.Repositories;
 using Fayora.Infrastructure.Persistence.Repositories.AccommodationModule;
 using Fayora.Infrastructure.Persistence.Repositories.ChatModule;
@@ -25,7 +27,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using StackExchange.Redis;
 using System.Text;
+
 
 namespace Fayora.Infrastructure;
 
@@ -45,6 +49,17 @@ public static class DependencyInjection
 
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
+
+        var redisConnectionString = configuration.GetConnectionString("Redis");
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = redisConnectionString;
+        });
+
+        services.AddSingleton<IConnectionMultiplexer>(
+            ConnectionMultiplexer.Connect(redisConnectionString!)
+        );
+
 
         // Identity Module
         services.AddScoped<IDeviceRepository, DeviceRepository>();
@@ -81,6 +96,7 @@ public static class DependencyInjection
         services.AddScoped<IMessageRepository, MessageRepository>();
 
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
+        services.AddScoped<ICacheService, CacheService>();
 
 
         return services;

@@ -1,8 +1,8 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.ChatModule;
+﻿using Fayora.Application.Common.Interfaces.Persistences.ChatModule;
 using Fayora.Domain.Entities.ChatModule;
 using Fayora.Domain.Enums.ChatModule;
 using Microsoft.EntityFrameworkCore;
-using static Fayora.Application.Common.Interfaces.Presistances.ChatModule.IChatRepository;
+using static Fayora.Application.Common.Interfaces.Persistences.ChatModule.IChatRepository;
 
 namespace Fayora.Infrastructure.Persistence.Repositories.ChatModule;
 

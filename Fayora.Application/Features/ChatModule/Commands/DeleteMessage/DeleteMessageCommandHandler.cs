@@ -1,6 +1,6 @@
 ﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.ChatModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
-using Fayora.Application.Common.Interfaces.Presistances.ChatModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.ChatModule.Common;
 using Fayora.Domain.Common.Results;

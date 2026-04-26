@@ -1,7 +1,7 @@
 ﻿using Fayora.Domain.Entities.ChatModule;
 using Fayora.Domain.Enums.ChatModule;
 
-namespace Fayora.Application.Common.Interfaces.Presistances.ChatModule;
+namespace Fayora.Application.Common.Interfaces.Persistences.ChatModule;
 
 public interface IChatRepository
 {

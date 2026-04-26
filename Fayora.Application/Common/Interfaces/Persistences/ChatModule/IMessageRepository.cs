@@ -1,6 +1,6 @@
 ﻿using Fayora.Domain.Entities.ChatModule;
 
-namespace Fayora.Application.Common.Interfaces.Presistances.ChatModule;
+namespace Fayora.Application.Common.Interfaces.Persistences.ChatModule;
 
 public interface IMessageRepository
 {
