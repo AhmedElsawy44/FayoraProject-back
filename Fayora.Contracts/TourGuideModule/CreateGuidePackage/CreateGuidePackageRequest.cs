@@ -9,7 +9,7 @@ public record CreateGuidePackageRequest
     decimal Longitude,
     decimal Latitude,
     string TransportType,
-    string ArrivalNote,
+    string? ArrivalNote,
     decimal AdultPrice,
     decimal ChildPrice,
     int MaxCapacity,
@@ -18,7 +18,7 @@ public record CreateGuidePackageRequest
     string MainImageUrl,
     string? VideoURL,
     List<string> ImageURLs,
-    string? CancellationPolicy,
+    string CancellationPolicy,
     string? GuestRequirements,
     List<ActivityDto> Activities
 );

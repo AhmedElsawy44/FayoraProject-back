@@ -43,12 +43,12 @@ public class CreateTourCompanyCommandHandler(
         user.UpdateProfile(
             user.FirstName,
             user.LastName,
-            null,
-            null,
+            user.BirthDate,
+            user.Gender,
             image.Value,
-            null,
-            null,
-            null,
+            user.Description,
+            user.NationalityCode,
+            user.PreferredLanguage,
             [],
             user.TimeZone
             );

@@ -10,6 +10,7 @@ public abstract class GuideAccountBase
     public int ReviewCount { get; protected set; }
     public int CompletedToursCount { get; protected set; }
     public bool IsAvailableForBooking { get; protected set; }
+    public int Views { get; private set; }
     public decimal ResponseRate { get; protected set; }
     public decimal CancellationRate { get; protected set; }
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
@@ -38,4 +39,7 @@ public abstract class GuideAccountBase
         "TourGuide.PackageNotFound",
         "The package you are trying to delete was not found in this guide's list.");
     }
+
+    public void IncrementViews() => Views++;
+
 }

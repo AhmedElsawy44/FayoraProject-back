@@ -1,14 +1,18 @@
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Common.Interfaces.Persistences.TouristModule;
+using Fayora.Application.Common.Interfaces.Presistances.ChatModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Interfaces.Services.SharedModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories;
 using Fayora.Infrastructure.Persistence.Repositories.AccommodationModule;
+using Fayora.Infrastructure.Persistence.Repositories.ChatModule;
 using Fayora.Infrastructure.Persistence.Repositories.GuideModule;
 using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
+using Fayora.Infrastructure.Persistence.Repositories.SharedModule;
 using Fayora.Infrastructure.Persistence.Repositories.TourGuideModule;
 using Fayora.Infrastructure.Persistence.Repositories.TouristModule;
 using Fayora.Infrastructure.Services.Authentication;
@@ -43,17 +47,19 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
 
-        // Auth Module
+        // Identity Module
         services.AddScoped<IDeviceRepository, DeviceRepository>();
         services.AddScoped<IUserTokenRepository, UserTokenRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IVerificationCodeRepository, VerificationCodeRepository>();
         services.AddScoped<IUserIdentityRepository, UserIdentityRepository>();
         services.AddScoped<IMasterInterestRepository, MasterInterestRepository>();
+
+
         services.AddScoped<ITouristRepository, TouristRepository>();
+        services.AddScoped<IUserInteractionRepository, UserInteractionRepository>();
         services.AddScoped<IMessageSenderStrategy, WhatsAppSenderStrategy>();
         services.AddScoped<IMessageSenderStrategy, SmsSenderStrategy>();
-
 
 
         // Accommodation Module
@@ -67,6 +73,13 @@ public static class DependencyInjection
         services.AddScoped<IPackageRepository, PackageRepository>();
         services.AddScoped<ITourCompanyRepository, TourCompanyRepository>();
         services.AddScoped<IPackageImageRepository, PackageImageRepository>();
+
+        // Shared Module
+        services.AddScoped<ICityRepository, CityRepository>();
+
+        // Chat Module
+        services.AddScoped<IChatRepository, ChatRepository>();
+        services.AddScoped<IMessageRepository, MessageRepository>();
 
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
 

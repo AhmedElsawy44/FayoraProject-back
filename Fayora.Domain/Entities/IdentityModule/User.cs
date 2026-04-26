@@ -67,6 +67,7 @@ public class User : AuditableEntity<Guid>
     public bool IsDeleted => Status == UserStatus.Deleted && DeletedAt.HasValue;
     public bool IsBanned => Status == UserStatus.Banned;
     public bool HasPassword => !string.IsNullOrEmpty(_passwordHash);
+    public string FullName => $"{FirstName} {LastName}".Trim();
 
     public static Result<User> CreateWithEmail(
         string firstName,

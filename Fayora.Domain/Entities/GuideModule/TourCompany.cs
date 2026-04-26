@@ -7,7 +7,7 @@ namespace Fayora.Domain.Entities.GuideModule;
 public class TourCompany : GuideAccountBase
 {
     public string CompanyName { get; private set; } = null!;
-    public GuideStatus Status { get; private set; }
+    public ItemStatus Status { get; private set; }
     public bool IsSuperCompany { get; private set; }
     public FileUrl LicenseDocumentUrl { get; private set; } = null!;
     public LicenseClass LicenseClass { get; private set; } = LicenseClass.A;
@@ -19,7 +19,7 @@ public class TourCompany : GuideAccountBase
         : base(userId, currencyCode)
     {
         CompanyName = companyName;
-        Status = GuideStatus.Pending;
+        Status = ItemStatus.Pending;
         IsAvailableForBooking = false;
         IsSuperCompany = false;
     }
@@ -47,13 +47,13 @@ public class TourCompany : GuideAccountBase
         return Result.Success;
     }
 
-    public Result<Success> UpdateStatus(GuideStatus newStatus)
+    public Result<Success> UpdateStatus(ItemStatus newStatus)
     {
-        if (newStatus == GuideStatus.Pending)
+        if (newStatus == ItemStatus.Pending)
             return Error.Validation("TourCompany.InvalidStatus", "Cannot set status back to Pending.");
 
         Status = newStatus;
-        IsAvailableForBooking = newStatus == GuideStatus.Active;
+        IsAvailableForBooking = newStatus == ItemStatus.Active;
 
         return Result.Success;
     }

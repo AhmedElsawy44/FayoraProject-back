@@ -4,7 +4,7 @@ public record ClientContext(
     Guid UserId,
     string IpAddress,
     string DeviceId,
-    string Name,
+    string UserName,
     string Email,
     string PhoneNumber,
     string AvatarUrl,
