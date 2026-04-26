@@ -1,9 +1,7 @@
 ﻿using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Text.Json;
 
 namespace Fayora.Infrastructure.Persistence.Configurations.TourGuideModule;
 
@@ -80,26 +78,12 @@ public class TourGuideConfiguration : IEntityTypeConfiguration<TourGuide>
             .HasConversion<int>()
             .IsRequired(false);
 
-        builder.Property(x => x.CityIds)
-            .HasField("_cityIds")
-            .HasColumnName("CityIds")
-            .HasConversion(
-                v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null!),
-                v => JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions)null!) ?? new List<Guid>())
-            .Metadata.SetValueComparer(CreateGuidListComparer());
+        builder.HasMany(x => x.GuideCities)
+            .WithOne()
+            .HasForeignKey(c => c.GuideId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Property(x => x.TourPackageIds)
-            .HasField("_tourPackageIds")
-            .HasColumnName("TourPackageIds")
-            .HasConversion(
-                v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null!),
-                v => JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions)null!) ?? new List<Guid>())
-            .Metadata.SetValueComparer(CreateGuidListComparer());
+        builder.Metadata.FindNavigation(nameof(TourGuide.GuideCities))
+            ?.SetPropertyAccessMode(PropertyAccessMode.Field);
     }
-
-    private ValueComparer<IReadOnlyCollection<Guid>> CreateGuidListComparer() =>
-        new(
-            (c1, c2) => c1!.SequenceEqual(c2!),
-            c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-            c => c.ToList());
 }

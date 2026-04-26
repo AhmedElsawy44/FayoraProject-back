@@ -68,4 +68,9 @@ public static class TourGuideErrors
         "TourGuide.CannotBeTourGuide",
         "User cannot be a tour guide because they already have a role assigned."
     );
+
+    public static readonly Error CitiesNotExist = Error.Validation(
+        "TourGuide.CitiesNotExist",
+        "One or more of the specified cities do not exist."
+    );
 }
