@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fayora.Api.Controllers;
 
 [Route("api/[controller]")]
-public class TourGuideController(ISender sender, IMapper mapper) : ApiController
+public class GuideController(ISender sender, IMapper mapper) : ApiController
 {
     [HttpPost("tour-guide/create")]
     public async Task<IActionResult> CreateTourGuide(
@@ -153,7 +153,7 @@ public class TourGuideController(ISender sender, IMapper mapper) : ApiController
         );
     }
 
-    [HttpDelete("tour-guide-package/{PackageId:guid}")]
+    [HttpDelete("package/{PackageId:guid}")]
     public async Task<IActionResult> DeletePackage(Guid PackageId, CancellationToken cancellationToken)
     {
         var command = new DeleteGuidePackageCommand(PackageId);
