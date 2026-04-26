@@ -1,23 +1,20 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
-using Fayora.Application.Common.Factories;
-using Fayora.Domain.Common.Results;
+﻿using FluentValidation;
 
 namespace Fayora.Application.Features.AuthModule.Commands.UploadFiles;
 
-public class UploadFilesCommandHandler(UploadStrategyFactory strategyFactory)
-    : ICommandHandler<UploadFilesCommand, Result<List<string>>>
+public class UploadFilesCommandValidator : AbstractValidator<UploadFilesCommand>
 {
-    public async Task<Result<List<string>>> Handle(UploadFilesCommand request, CancellationToken cancellationToken)
+    public UploadFilesCommandValidator()
     {
-        if (request.Files == null || !request.Files.Any())
-        {
-            return Error.Validation("Files.Empty", "No files were provided for upload.");
-        }
+        RuleFor(x => x.Context)
+            .IsInEnum().WithMessage("Invalid upload context.");
 
-        var strategy = strategyFactory.GetStrategy(request.Context);
+        RuleFor(x => x.Files)
+            .Must(files => files.Count > 0).WithMessage("You must upload at least one file.")
+            .Must(files => files.Count <= 10).WithMessage("You cannot upload more than 10 files at once.");
 
-        var result = await strategy.UploadFilesAsync(request.Files, cancellationToken);
-
-        return result;
+        RuleForEach(x => x.Files)
+            .NotNull().WithMessage("File cannot be null.")
+            .Must(file => file.Length > 0).WithMessage("File cannot be empty.");
     }
 }

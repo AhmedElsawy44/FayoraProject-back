@@ -121,7 +121,7 @@ public static class DependencyInjection
 
 
         services.AddMemoryCache();
-        services.AddSingleton<IDailyUploadTracker, MemoryDailyUploadTracker>();
+        services.AddSingleton<IDailyUploadTracker, RadisDailyUploadTracker>();
 
         services.AddScoped<IUploadStrategy, ProfileImageUploadStrategy>();
         services.AddScoped<IUploadStrategy, HousingUnitUploadStrategy>();

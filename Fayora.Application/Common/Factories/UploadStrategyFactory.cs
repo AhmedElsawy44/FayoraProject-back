@@ -8,9 +8,6 @@ public class UploadStrategyFactory(IEnumerable<IUploadStrategy> strategies)
     {
         var strategy = strategies.FirstOrDefault(s => s.Context == context);
 
-        if (strategy == null)
-            throw new InvalidOperationException($"No upload strategy found for context: {context}");
-
-        return strategy;
+        return strategy ?? throw new InvalidOperationException($"No upload strategy found for context: {context}");
     }
 }

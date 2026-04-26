@@ -7,12 +7,12 @@ namespace Fayora.Infrastructure.Persistence.Caching;
 
 public class CacheService(IDistributedCache cache, IConnectionMultiplexer redisConnection) : ICacheService
 {
-    public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default) where T : class
+    public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
         string? cachedData = await cache.GetStringAsync(key, cancellationToken);
         if (cachedData is null)
         {
-            return null;
+            return default;
         }
 
         return JsonSerializer.Deserialize<T>(cachedData);
@@ -38,7 +38,7 @@ public class CacheService(IDistributedCache cache, IConnectionMultiplexer redisC
         }
     }
 
-    public async Task SetAsync<T>(string key, T value, TimeSpan? absoluteExpirationRelativeToNow = null, CancellationToken cancellationToken = default) where T : class
+    public async Task SetAsync<T>(string key, T value, TimeSpan? absoluteExpirationRelativeToNow = null, CancellationToken cancellationToken = default)
     {
         var options = new DistributedCacheEntryOptions();
 
