@@ -1,16 +1,16 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.ChatModule;
+﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Presistances.ChatModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.ChatModule.Common;
 using Fayora.Domain.Common.Results;
-using MediatR;
 
 namespace Fayora.Application.Features.ChatModule.Commands.MarkChatAsRead;
 
 public class MarkChatAsReadCommandHandler(
     IChatRepository chatRepository,
-    IMessageRepository messageRepository, // 👈 حقننا الـ Message Repo
+    IMessageRepository messageRepository,
     IClientContextProvider clientContextProvider
-    ) : IRequestHandler<MarkChatAsReadCommand, Result<MarkChatAsReadResult>>
+    ) : ICommandHandler<MarkChatAsReadCommand, Result<MarkChatAsReadResult>>
 {
     public async Task<Result<MarkChatAsReadResult>> Handle(MarkChatAsReadCommand request, CancellationToken cancellationToken)
     {

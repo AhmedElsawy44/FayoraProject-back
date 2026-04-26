@@ -10,7 +10,7 @@ public class ChatMappingProfile : Profile
 {
     public ChatMappingProfile()
     {
-        CreateMap<ChatDto, Chat>();
+        CreateMap<ChatDto, ChatDto>();
         CreateMap<GetChatsResult, GetChatsResponse>();
 
         CreateMap<Domain.Entities.ChatModule.Message, Contracts.ChatModule.GetMessages.Message>()

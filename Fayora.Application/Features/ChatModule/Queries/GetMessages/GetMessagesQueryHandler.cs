@@ -1,6 +1,6 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.ChatModule;
+﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Presistances.ChatModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
-using MediatR;
 
 namespace Fayora.Application.Features.ChatModule.Queries.GetMessages;
 
@@ -8,7 +8,7 @@ public class GetMessagesQueryHandler(
     IChatRepository chatRepository,
     IMessageRepository messageRepository,
     IClientContextProvider clientContextProvider
-) : IRequestHandler<GetMessagesQuery, GetMessagesResult>
+) : IQueryHandler<GetMessagesQuery, GetMessagesResult>
 {
     public async Task<GetMessagesResult> Handle(GetMessagesQuery request, CancellationToken cancellationToken)
     {

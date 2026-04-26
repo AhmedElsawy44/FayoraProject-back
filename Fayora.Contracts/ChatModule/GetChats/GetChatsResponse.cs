@@ -1,10 +1,10 @@
 ﻿namespace Fayora.Contracts.ChatModule.GetChats;
 
 public record GetChatsResponse(
-    IEnumerable<Chat> Chats
+    IEnumerable<ChatDto> Chats
 );
 
-public record Chat(
+public record ChatDto(
     Guid ChatId,
     Guid OtherUserId,
     string? OtherUserName,

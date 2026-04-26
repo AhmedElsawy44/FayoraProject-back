@@ -1,9 +1,9 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Presistances.ChatModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.ChatModule.Common;
 using Fayora.Domain.Common.Results;
-using MediatR;
 
 namespace Fayora.Application.Features.ChatModule.Commands.UpdateMessage;
 
@@ -11,7 +11,7 @@ public class UpdateMessageCommandHandler(
     IMessageRepository messageRepository,
     IChatRepository chatRepository,
     IUnitOfWork unitOfWork,
-    IClientContextProvider clientContextProvider) : IRequestHandler<UpdateMessageCommand, Result<UpdateMessageResult>>
+    IClientContextProvider clientContextProvider) : ICommandHandler<UpdateMessageCommand, Result<UpdateMessageResult>>
 {
     public async Task<Result<UpdateMessageResult>> Handle(UpdateMessageCommand request, CancellationToken cancellationToken)
     {

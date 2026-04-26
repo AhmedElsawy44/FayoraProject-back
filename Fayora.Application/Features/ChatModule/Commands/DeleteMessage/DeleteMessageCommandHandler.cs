@@ -1,9 +1,9 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Presistances.ChatModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.ChatModule.Common;
 using Fayora.Domain.Common.Results;
-using MediatR;
 
 namespace Fayora.Application.Features.ChatModule.Commands.DeleteMessage;
 
@@ -12,7 +12,7 @@ public class DeleteMessageCommandHandler(
     IChatRepository chatRepository,
     IUnitOfWork unitOfWork,
     IClientContextProvider clientContextProvider
-    ) : IRequestHandler<DeleteMessageCommand, Result<DeleteMessageResult>>
+    ) : ICommandHandler<DeleteMessageCommand, Result<DeleteMessageResult>>
 {
     public async Task<Result<DeleteMessageResult>> Handle(DeleteMessageCommand request, CancellationToken cancellationToken)
     {

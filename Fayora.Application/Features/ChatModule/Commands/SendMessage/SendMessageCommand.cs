@@ -1,6 +1,6 @@
-﻿using Fayora.Application.Common.Authorization;
+﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Authorization;
 using Fayora.Domain.Common.Results;
-using MediatR;
 
 namespace Fayora.Application.Features.ChatModule.Commands.SendMessage;
 
@@ -12,4 +12,4 @@ public record SendMessageCommand(
     string ScopeType,
     Guid ScopeId,
     Guid? ChatId = null
-) : IRequest<Result<SendMessageResult>>;
+) : ICommand<Result<SendMessageResult>>;

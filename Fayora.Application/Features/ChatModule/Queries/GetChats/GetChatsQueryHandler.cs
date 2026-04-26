@@ -1,7 +1,7 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Presistances.ChatModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
-using MediatR;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.ChatModule.Queries.GetChats;
@@ -10,7 +10,7 @@ public class GetChatsQueryHandler(
     IChatRepository chatRepository,
     IUserRepository userRepository,
     IClientContextProvider clientContextProvider
-    ) : IRequestHandler<GetChatsQuery, GetChatsResult>
+    ) : IQueryHandler<GetChatsQuery, GetChatsResult>
 {
     public async Task<GetChatsResult> Handle(GetChatsQuery request, CancellationToken cancellationToken)
     {
