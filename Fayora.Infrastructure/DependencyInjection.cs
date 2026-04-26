@@ -96,7 +96,7 @@ public static class DependencyInjection
         services.AddScoped<IMessageRepository, MessageRepository>();
 
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
-        services.AddScoped<ICacheService, CacheService>();
+        services.AddSingleton<ICacheService, CacheService>();
 
 
         return services;
