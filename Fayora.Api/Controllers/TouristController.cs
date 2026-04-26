@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.TouristModule.Commands.CreateTouristProfile;
+using Fayora.Application.Features.TouristModule.Commands.TrackUserInteraction;
 using Fayora.Application.Features.TouristModule.Queries.GetInterests;
 using Fayora.Contracts.TouristModule;
+using Fayora.Domain.Entities.TouristModule;
 using Fayora.Domain.Enums.TouristModule;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -58,4 +60,23 @@ public class TouristController(ISender sender, IMapper mapper) : ApiController
             Problem
         );
     }
+
+    [HttpPost("track")]
+    public async Task<IActionResult> Track(
+        [FromBody] TrackUserInteractionRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new TrackUserInteractionCommand(
+            request.EntityId,
+            (EntityType)request.EntityType,     
+            (InteractionType)request.InteractionType 
+        );
+
+        var result = await sender.Send(command, cancellationToken);
+        return result.Match(
+             _ => NoContent(),
+           errors => Problem(errors)
+ );
+    }
+
 }
