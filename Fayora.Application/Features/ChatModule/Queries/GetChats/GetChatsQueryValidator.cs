@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using System;
 
 namespace Fayora.Application.Features.ChatModule.Queries.GetChats;
 

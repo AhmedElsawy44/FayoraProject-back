@@ -1,5 +1,5 @@
-﻿using FluentValidation;
-using Fayora.Domain.Enums.ChatModule;
+﻿using Fayora.Domain.Enums.ChatModule;
+using FluentValidation;
 
 namespace Fayora.Application.Features.ChatModule.Commands.SendMessage;
 

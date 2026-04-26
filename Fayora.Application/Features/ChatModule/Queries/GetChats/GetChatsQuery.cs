@@ -1,5 +1,4 @@
-﻿using Fayora.Domain.Common.Results;
-using MediatR;
+﻿using MediatR;
 
 namespace Fayora.Application.Features.ChatModule.Queries.GetChats;
 

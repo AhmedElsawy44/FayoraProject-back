@@ -44,7 +44,7 @@ public class Program
 
         app.UseHttpsRedirection();
 
-        app.UseAuthentication(); 
+        app.UseAuthentication();
 
         app.UseAuthorization();
 

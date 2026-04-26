@@ -1,6 +1,4 @@
-﻿using static Fayora.Application.Common.Interfaces.Presistances.ChatModule.IChatRepository;
-
-namespace Fayora.Application.Features.ChatModule.Queries.GetChats;
+﻿namespace Fayora.Application.Features.ChatModule.Queries.GetChats;
 
 public record GetChatsResult(IEnumerable<ChatDto> Chats);
 

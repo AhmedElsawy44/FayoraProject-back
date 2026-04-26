@@ -4,14 +4,13 @@ using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Common.Interfaces.Persistences.TouristModule;
 using Fayora.Application.Common.Interfaces.Presistances.ChatModule;
-using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Interfaces.Services.SharedModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories;
 using Fayora.Infrastructure.Persistence.Repositories.AccommodationModule;
-using Fayora.Infrastructure.Persistence.Repositories.GuideModule;
 using Fayora.Infrastructure.Persistence.Repositories.ChatModule;
+using Fayora.Infrastructure.Persistence.Repositories.GuideModule;
 using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories.SharedModule;
 using Fayora.Infrastructure.Persistence.Repositories.TourGuideModule;
@@ -48,7 +47,7 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
 
-        // Identity Module Repositories
+        // Identity Module
         services.AddScoped<IDeviceRepository, DeviceRepository>();
         services.AddScoped<IUserTokenRepository, UserTokenRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
@@ -61,7 +60,6 @@ public static class DependencyInjection
         services.AddScoped<IUserInteractionRepository, UserInteractionRepository>();
         services.AddScoped<IMessageSenderStrategy, WhatsAppSenderStrategy>();
         services.AddScoped<IMessageSenderStrategy, SmsSenderStrategy>();
-
 
 
         // Accommodation Module
@@ -79,10 +77,7 @@ public static class DependencyInjection
         // Shared Module
         services.AddScoped<ICityRepository, CityRepository>();
 
-        services.AddScoped<IVerificationRepository, VerificationRepository>();
-        services.AddScoped<IRoleRepository, RoleRepository>();
-
-        // Chat Module Repositories
+        // Chat Module
         services.AddScoped<IChatRepository, ChatRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
 

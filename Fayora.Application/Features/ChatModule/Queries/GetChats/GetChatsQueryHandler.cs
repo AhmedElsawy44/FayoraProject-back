@@ -1,8 +1,8 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.ChatModule;
-using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+﻿using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Presistances.ChatModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using MediatR;
-using static Fayora.Application.Common.Interfaces.Presistances.IdentityModule.IUserRepository;
+using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.ChatModule.Queries.GetChats;
 
@@ -38,7 +38,7 @@ public class GetChatsQueryHandler(
                 chat.ChatId,
                 chat.OtherUserId,
                 otherUser?.FullName ?? "Unknown User",
-                otherUser?.ProfileImageUrl,
+                otherUser?.ProfileImageUrl?.Value,
                 chat.LastMessageContent,
                 chat.LastMessageTime,
                 chat.UnreadCount

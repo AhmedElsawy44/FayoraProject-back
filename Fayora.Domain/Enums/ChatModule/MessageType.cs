@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Domain.Enums.ChatModule;
+﻿namespace Fayora.Domain.Enums.ChatModule;
 
 public enum MessageType
 {

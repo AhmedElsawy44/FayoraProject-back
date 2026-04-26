@@ -1,12 +1,11 @@
-﻿using Fayora.Application.Common.Interfaces.Presistances.ChatModule;
-using Fayora.Application.Common.Interfaces.Presistances.IdentityModule;
+﻿using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Presistances.ChatModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.ChatModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.ChatModule;
 using Fayora.Domain.Enums.ChatModule;
 using MediatR;
-using static Fayora.Application.Common.Interfaces.Presistances.ChatModule.IChatRepository;
 
 namespace Fayora.Application.Features.ChatModule.Commands.SendMessage;
 
@@ -25,7 +24,7 @@ public class SendMessageCommandHandler(
 
         var senderId = context.UserId;
         var name = context.UserName;
-        var avatarUrl = context.UserAvatarUrl;
+        var avatarUrl = context.AvatarUrl;
 
         Chat? chat = null;
 

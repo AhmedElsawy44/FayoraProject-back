@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Fayora.Infrastructure.Strategies;
 
-public class HousingUnitUploadStrategy(IStorageService storageService, IDailyUploadTracker dailyUploadTracker, IClientContextProvider clientContextProvider) 
+public class HousingUnitUploadStrategy(IStorageService storageService, IDailyUploadTracker dailyUploadTracker, IClientContextProvider clientContextProvider)
     : BaseUploadStrategy(dailyUploadTracker, clientContextProvider)
 {
     public override UploadContext Context => UploadContext.HousingUnit;

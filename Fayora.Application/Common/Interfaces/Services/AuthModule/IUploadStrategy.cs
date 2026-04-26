@@ -1,5 +1,4 @@
 ﻿using Fayora.Domain.Common.Results;
-using Fayora.Domain.ValueObjects;
 using Microsoft.AspNetCore.Http;
 
 namespace Fayora.Application.Common.Interfaces.Services.AuthModule;

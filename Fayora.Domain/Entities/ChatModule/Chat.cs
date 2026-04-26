@@ -43,7 +43,7 @@ public class Chat : AuditableEntity<Guid>
     {
         foreach (var message in _messages)
         {
-                message.MarkAsRead();
+            message.MarkAsRead();
         }
         Updated();
     }

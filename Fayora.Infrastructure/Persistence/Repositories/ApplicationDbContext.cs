@@ -1,8 +1,8 @@
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Entities.AccommodationModule;
-using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Entities.ChatModule;
+using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.Entities.SharedModule;
 using Fayora.Domain.Entities.TouristModule;
