@@ -1,5 +1,5 @@
 ﻿using Fayora.Application.Common.Behaviors;
-using Fayora.Infrastructure.Services.AuthModule;
+using Fayora.Application.Common.Factories;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 

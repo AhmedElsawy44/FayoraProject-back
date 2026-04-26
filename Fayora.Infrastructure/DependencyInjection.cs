@@ -13,7 +13,6 @@ using Fayora.Infrastructure.Persistence.Repositories.ChatModule;
 using Fayora.Infrastructure.Persistence.Repositories.GuideModule;
 using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories.SharedModule;
-using Fayora.Infrastructure.Persistence.Repositories.TourGuideModule;
 using Fayora.Infrastructure.Persistence.Repositories.TouristModule;
 using Fayora.Infrastructure.Services.Authentication;
 using Fayora.Infrastructure.Services.AuthModule;

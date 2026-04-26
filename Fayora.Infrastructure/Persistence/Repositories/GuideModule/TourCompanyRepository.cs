@@ -2,7 +2,7 @@
 using Fayora.Domain.Entities.GuideModule;
 using Microsoft.EntityFrameworkCore;
 
-namespace Fayora.Infrastructure.Persistence.Repositories.TourGuideModule;
+namespace Fayora.Infrastructure.Persistence.Repositories.GuideModule;
 
 public class TourCompanyRepository(ApplicationDbContext context) : ITourCompanyRepository
 {

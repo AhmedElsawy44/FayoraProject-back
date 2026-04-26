@@ -1,6 +1,6 @@
 ﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Factories;
 using Fayora.Domain.Common.Results;
-using Fayora.Infrastructure.Services.AuthModule;
 
 namespace Fayora.Application.Features.AuthModule.Commands.UploadFiles;
 

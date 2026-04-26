@@ -1,6 +1,6 @@
 ﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
 
-namespace Fayora.Infrastructure.Services.AuthModule;
+namespace Fayora.Application.Common.Factories;
 
 public class UploadStrategyFactory(IEnumerable<IUploadStrategy> strategies)
 {
