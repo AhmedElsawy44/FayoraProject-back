@@ -1,37 +1,36 @@
-﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
-using Fayora.Domain.Common.Events.TouristModule;
+﻿using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Persistences.TouristModule;
+using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Entities.TouristModule;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Fayora.Application.Features.TouristModule.Commands.TrackUserInteraction
+namespace Fayora.Application.Features.TouristModule.Commands.TrackUserInteraction;
+
+public class TrackUserInteractionCommandHandler
+    (
+       IUserInteractionRepository userInteractionRepository,
+        IClientContextProvider clientContextProvider,
+        IUnitOfWork unitOfWork
+    )
+    : IRequestHandler<TrackUserInteractionCommand, Result<Success>>
 {
-    public class TrackUserInteractionCommandHandler
-        (
-            IMediator mediator,
-            IClientContextProvider clientContextProvider
-        )
-        : IRequestHandler<TrackUserInteractionCommand, Result<Success>>
+    public async Task<Result<Success>> Handle(
+        TrackUserInteractionCommand request,
+        CancellationToken cancellationToken)
     {
-        public async Task<Result<Success>> Handle(
-            TrackUserInteractionCommand request,
-            CancellationToken cancellationToken)
-        {
-            var context = clientContextProvider.GetContext();
+        var userId = clientContextProvider.GetContext().UserId;
 
-           if (context.UserId == Guid.Empty)
-              return Error.Unauthorized("UserId is required to track user interaction.");
+        var interaction = new UserInteraction(
+            userId,
+            request.EntityId,
+            request.EntityType,
+            request.InteractionType
+        );
 
-            await mediator.Publish(new UserInteractionEvent(
-                context.UserId,
-                request.EntityId,
-                request.EntityType,
-                request.InteractionType
-            ), cancellationToken);
+        userInteractionRepository.AddInteraction(interaction);
+        await unitOfWork.CommitChangesAsync(cancellationToken);
 
-            return Result.Success;
-        }
+        return Result.Success;
     }
 }

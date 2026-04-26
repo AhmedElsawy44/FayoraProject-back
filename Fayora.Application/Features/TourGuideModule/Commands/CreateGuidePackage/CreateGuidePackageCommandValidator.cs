@@ -39,7 +39,8 @@ public class CreateGuidePackageCommandValidator : AbstractValidator<CreateGuideP
             .GreaterThan(0).WithMessage("Max capacity must be greater than zero.");
 
         RuleFor(x => x.ArrivalNote)
-            .NotEmpty().WithMessage("Arrival note is required.");
+            .MaximumLength(1000).WithMessage("Arrival note cannot exceed 1000 characters.")
+            .When(x => !string.IsNullOrWhiteSpace(x.ArrivalNote));
 
         RuleFor(x => x.MainImageUrl)
             .NotEmpty().WithMessage("Main image URL is required.")
@@ -57,6 +58,23 @@ public class CreateGuidePackageCommandValidator : AbstractValidator<CreateGuideP
 
         RuleForEach(x => x.ExcludedIds)
             .GreaterThan(0).WithMessage("Excluded item IDs must be greater than zero.");
+
+        RuleFor(x => x.CancellationPolicy)
+            .IsInEnum().WithMessage("Invalid cancellation policy.");
+
+        RuleForEach(x => x.Activities)
+            .ChildRules(activity =>
+            {
+                activity.RuleFor(a => a.Latitude)
+                    .GreaterThanOrEqualTo(0).WithMessage("Activity latitude must be non-negative.");
+                activity.RuleFor(a => a.Longitude)
+                    .GreaterThanOrEqualTo(0).WithMessage("Activity longitude must be non-negative.");
+                activity.RuleFor(a => a.Description)
+                    .NotEmpty().WithMessage("Activity description is required.")
+                    .MaximumLength(1000).WithMessage("Activity description cannot exceed 1000 characters.");
+                activity.RuleFor(a => a.ActivityTime)
+                    .GreaterThan(DateTimeOffset.UtcNow).WithMessage("Activity time must be in the future.");
+            });
     }
 
     private static bool BeValidFileUrl(string? url)

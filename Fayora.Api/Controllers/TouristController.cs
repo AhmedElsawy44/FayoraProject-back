@@ -3,7 +3,6 @@ using Fayora.Application.Features.TouristModule.Commands.CreateTouristProfile;
 using Fayora.Application.Features.TouristModule.Commands.TrackUserInteraction;
 using Fayora.Application.Features.TouristModule.Queries.GetInterests;
 using Fayora.Contracts.TouristModule;
-using Fayora.Domain.Entities.TouristModule;
 using Fayora.Domain.Enums.TouristModule;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

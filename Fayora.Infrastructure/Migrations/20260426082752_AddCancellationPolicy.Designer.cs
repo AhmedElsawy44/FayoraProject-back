@@ -12,8 +12,13 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
+<<<<<<<< HEAD:Fayora.Infrastructure/Migrations/20260426000002_InitialCreate.Designer.cs
     [Migration("20260426000002_InitialCreate")]
     partial class InitialCreate
+========
+    [Migration("20260426082752_AddCancellationPolicy")]
+    partial class AddCancellationPolicy
+>>>>>>>> 44ed1235d4a5bce2b0da3beefcc5f57d43be13b8:Fayora.Infrastructure/Migrations/20260426082752_AddCancellationPolicy.Designer.cs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -255,9 +260,12 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("ArrivalNote")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<int>("BookingsCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CancellationPolicy")
                         .HasColumnType("int");
 
                     b.Property<decimal>("ChildPrice")
@@ -272,14 +280,13 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
                     b.Property<int>("DurationHours")
                         .HasColumnType("int");
 
                     b.Property<string>("GuestRequirements")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -289,8 +296,7 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int>("TourTypes")
                         .HasColumnType("int");
@@ -1124,6 +1130,7 @@ namespace Fayora.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.TouristModule.UserInteraction", b =>
+<<<<<<<< HEAD:Fayora.Infrastructure/Migrations/20260426000002_InitialCreate.Designer.cs
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1152,35 +1159,33 @@ namespace Fayora.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.TouristModule.Wishlist", b =>
+========
+>>>>>>>> 44ed1235d4a5bce2b0da3beefcc5f57d43be13b8:Fayora.Infrastructure/Migrations/20260426082752_AddCancellationPolicy.Designer.cs
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTimeOffset>("CreateAt")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.Property<Guid>("ItemId")
+                    b.Property<Guid>("EntityId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ItemType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("EntityType")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("TouristId")
+                    b.Property<int>("InteractionType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TouristId", "ItemType")
-                        .HasDatabaseName("IX_Wishlists_Tourist_ItemType");
+                    b.HasIndex("UserId");
 
-                    b.HasIndex("TouristId", "ItemType", "ItemId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Wishlists_UniqueTouristItem");
-
-                    b.ToTable("Wishlists", (string)null);
+                    b.ToTable("UserInteractions");
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.AccommodationModule.HousingUnit", b =>
@@ -1347,7 +1352,8 @@ namespace Fayora.Infrastructure.Migrations
                                 .HasForeignKey("GuidePackageId");
                         });
 
-                    b.Navigation("MainImageUrl");
+                    b.Navigation("MainImageUrl")
+                        .IsRequired();
 
                     b.Navigation("MainVideoUrl");
 

@@ -11,10 +11,18 @@ public class GuideTourPackageConfiguration : IEntityTypeConfiguration<GuidePacka
         builder.ToTable("GuideTourPackages");
         builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.Title).IsRequired().HasMaxLength(200);
-        builder.Property(x => x.Description).HasMaxLength(2000);
+        builder.Property(x => x.Title).IsRequired()
+            .HasColumnType("nvarchar(255)");
+        builder.Property(x => x.Description)
+            .HasColumnType("nvarchar(2000)");
         builder.Property(x => x.AdultPrice).IsRequired().HasPrecision(18, 2);
         builder.Property(x => x.ChildPrice).HasPrecision(18, 2);
+        builder.Property(x => x.CancellationPolicy).HasConversion<int>();
+        builder.Property(x => x.TransportType).HasConversion<int>();
+        builder.Property(x => x.GuestRequirements)
+            .HasColumnType("nvarchar(1000)");
+        builder.Property(x => x.ArrivalNote)
+            .HasColumnType("nvarchar(1000)");
 
         builder.OwnsOne(x => x.MainImageUrl, nav =>
         {
