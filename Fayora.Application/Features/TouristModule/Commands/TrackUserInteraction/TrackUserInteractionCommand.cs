@@ -1,4 +1,5 @@
-﻿using Fayora.Domain.Common.Results;
+﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.TouristModule;
 using MediatR;
 
@@ -8,4 +9,4 @@ public record TrackUserInteractionCommand(
     Guid EntityId,
     EntityType EntityType,
     InteractionType InteractionType
-) : IRequest<Result<Success>>;
+) : ICommand<Result<Success>>;

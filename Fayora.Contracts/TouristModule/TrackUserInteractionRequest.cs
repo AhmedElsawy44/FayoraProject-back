@@ -9,8 +9,7 @@ public record TrackUserInteractionRequest(
 public enum InteractionTypeDto
 {
     View = 1,
-    Click = 2,
-    Favorite = 3,
+    Favorite = 2
 }
 
 public enum EntityTypeDto

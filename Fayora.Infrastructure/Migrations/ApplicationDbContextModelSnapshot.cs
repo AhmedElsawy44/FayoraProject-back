@@ -4,7 +4,6 @@ using Fayora.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -12,16 +11,9 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-<<<<<<<< HEAD:Fayora.Infrastructure/Migrations/20260426000002_InitialCreate.Designer.cs
-    [Migration("20260426000002_InitialCreate")]
-    partial class InitialCreate
-========
-    [Migration("20260426082752_AddCancellationPolicy")]
-    partial class AddCancellationPolicy
->>>>>>>> 44ed1235d4a5bce2b0da3beefcc5f57d43be13b8:Fayora.Infrastructure/Migrations/20260426082752_AddCancellationPolicy.Designer.cs
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -482,6 +474,9 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("TourPackageIds");
 
+                    b.Property<int>("Views")
+                        .HasColumnType("int");
+
                     b.HasKey("UserId");
 
                     b.ToTable("TourCompanies", (string)null);
@@ -559,6 +554,9 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnName("TourPackageIds");
 
                     b.Property<int?>("TransportInfo")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Views")
                         .HasColumnType("int");
 
                     b.Property<int?>("YearsOfExperience")
@@ -1130,37 +1128,6 @@ namespace Fayora.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.TouristModule.UserInteraction", b =>
-<<<<<<<< HEAD:Fayora.Infrastructure/Migrations/20260426000002_InitialCreate.Designer.cs
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("EntityId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("EntityType")
-                        .HasColumnType("int");
-
-                    b.Property<int>("InteractionType")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserInteractions");
-                });
-
-            modelBuilder.Entity("Fayora.Domain.Entities.TouristModule.Wishlist", b =>
-========
->>>>>>>> 44ed1235d4a5bce2b0da3beefcc5f57d43be13b8:Fayora.Infrastructure/Migrations/20260426082752_AddCancellationPolicy.Designer.cs
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
