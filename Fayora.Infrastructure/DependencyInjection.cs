@@ -50,7 +50,10 @@ public static class DependencyInjection
         services.AddScoped<IVerificationCodeRepository, VerificationCodeRepository>();
         services.AddScoped<IUserIdentityRepository, UserIdentityRepository>();
         services.AddScoped<IMasterInterestRepository, MasterInterestRepository>();
+
+
         services.AddScoped<ITouristRepository, TouristRepository>();
+        services.AddScoped<IUserInteractionRepository, UserInteractionRepository>();
         services.AddScoped<IMessageSenderStrategy, WhatsAppSenderStrategy>();
         services.AddScoped<IMessageSenderStrategy, SmsSenderStrategy>();
 

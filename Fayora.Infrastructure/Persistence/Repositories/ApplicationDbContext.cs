@@ -23,6 +23,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     // Tourist Module
     public DbSet<TouristProfile> Tourists { get; set; }
     public DbSet<MasterInterest> MasterInterests { get; set; }
+    public DbSet<UserInteraction> UserInteractions { get; set; }
 
 
     // Accommodation Module
