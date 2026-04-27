@@ -81,7 +81,7 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
         var result = await sender.Send(command, ct);
 
         return result.Match(
-            onValue: value => Ok(mapper.Map< >(value)),
+            onValue: value => Ok(mapper.Map<CreateTourCompanyResponse>(value)),
             onError: Problem);
     }
 
