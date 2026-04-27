@@ -1,9 +1,11 @@
 ﻿namespace Fayora.Contracts.TourGuideModule.CreateTourCompany;
 
-public record CreateTourCompanyResponse(
-    Guid CompanyId,
+public record CreateTourCompanyResponse
+(
     Guid UserId,
     string CompanyName,
     string Status,
-    string Message,
-    DateTimeOffset CreatedAt);
+    string AccessToken,
+    string RefreshToken,
+    int ExpiresIn
+);
