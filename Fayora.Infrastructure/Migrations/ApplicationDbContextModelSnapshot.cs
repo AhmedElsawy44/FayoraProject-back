@@ -324,6 +324,9 @@ namespace Fayora.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AdminNotes")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal>("AdultPrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -364,6 +367,9 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("PackageStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
@@ -508,6 +514,9 @@ namespace Fayora.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AdminNotes")
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<decimal>("AverageRating")
                         .HasColumnType("decimal(18,2)");
 
@@ -567,6 +576,9 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<Guid>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AdminNotes")
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<decimal>("AverageRating")
                         .HasColumnType("decimal(18,2)");

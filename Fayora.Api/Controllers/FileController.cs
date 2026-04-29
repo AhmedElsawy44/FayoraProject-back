@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
+﻿using Fayora.Application.Common.Strategies;
 using Fayora.Application.Features.AuthModule.Commands.UploadFiles;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

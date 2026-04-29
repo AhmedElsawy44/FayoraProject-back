@@ -1,5 +1,6 @@
 ﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Models;
+using Fayora.Application.Common.Strategies;
 using Fayora.Domain.Common.Results;
 using Microsoft.AspNetCore.Http;
 

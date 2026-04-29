@@ -97,6 +97,8 @@ namespace Fayora.Infrastructure.Migrations
                     ArrivalNote = table.Column<string>(type: "nvarchar(1000)", nullable: true),
                     TransportType = table.Column<int>(type: "int", nullable: false),
                     DeletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    AdminNotes = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ActivityIds = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ExcludedItemIds = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ImageIds = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -230,7 +232,6 @@ namespace Fayora.Infrastructure.Migrations
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CompanyName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
                     IsSuperCompany = table.Column<bool>(type: "bit", nullable: false),
                     LicenseDocumentUrl = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
                     LicenseClass = table.Column<int>(type: "int", nullable: false),
@@ -243,6 +244,8 @@ namespace Fayora.Infrastructure.Migrations
                     ResponseRate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CancellationRate = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    AdminNotes = table.Column<string>(type: "nvarchar(500)", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     TourPackageIds = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -260,7 +263,6 @@ namespace Fayora.Infrastructure.Migrations
                     YearsOfExperience = table.Column<int>(type: "int", nullable: true),
                     LicenseNumber = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     LicenseExpiryDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false),
                     IsSuperGuide = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     Latitude = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: true),
                     Longitude = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: true),
@@ -275,7 +277,9 @@ namespace Fayora.Infrastructure.Migrations
                     Views = table.Column<int>(type: "int", nullable: false),
                     ResponseRate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CancellationRate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    AdminNotes = table.Column<string>(type: "nvarchar(500)", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

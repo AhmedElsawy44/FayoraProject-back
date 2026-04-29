@@ -1,4 +1,5 @@
 using Fayora.Application.Common.Abstractions.Caching;
+using Fayora.Application.Common.Factories;
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Persistences.ChatModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
@@ -7,6 +8,7 @@ using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Common.Interfaces.Persistences.TouristModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Interfaces.Services.SharedModule;
+using Fayora.Application.Common.Strategies;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Infrastructure.Persistence.Caching;
 using Fayora.Infrastructure.Persistence.Repositories;
@@ -16,6 +18,7 @@ using Fayora.Infrastructure.Persistence.Repositories.GuideModule;
 using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories.SharedModule;
 using Fayora.Infrastructure.Persistence.Repositories.TouristModule;
+using Fayora.Infrastructure.Services.AdminModule;
 using Fayora.Infrastructure.Services.Authentication;
 using Fayora.Infrastructure.Services.AuthModule;
 using Fayora.Infrastructure.Services.SharedModule;
@@ -136,6 +139,11 @@ public static class DependencyInjection
         services.AddSingleton<ISocialAuthStrategy, GoogleAuthStrategy>();
         services.AddSingleton<ISocialAuthStrategy, MockAppleAuthService>();
 
+        services.AddScoped<IVerificationStrategy, TourGuideVerificationStrategy>();
+        services.AddScoped<IVerificationStrategy, TourCompanyVerificationStrategy>();
+        services.AddScoped<IVerificationStrategy, GuidePackageVerificationStrategy>();
+
+        services.AddScoped<IVerificationFactory, VerificationFactory>();
 
         services.AddScoped<IFileStorageService, LocalFileService>();
 

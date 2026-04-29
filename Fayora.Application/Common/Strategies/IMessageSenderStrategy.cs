@@ -1,6 +1,6 @@
 ﻿using Fayora.Domain.Enums.IdentityModule;
 
-namespace Fayora.Application.Common.Interfaces.Services.AuthModule;
+namespace Fayora.Application.Common.Strategies;
 
 public interface IMessageSenderStrategy
 {
