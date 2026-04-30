@@ -8,6 +8,7 @@ using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Common.Interfaces.Persistences.TouristModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Common.Interfaces.Services.BookingModule;
 using Fayora.Application.Common.Interfaces.Services.SharedModule;
 using Fayora.Application.Common.Strategies;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
@@ -23,6 +24,7 @@ using Fayora.Infrastructure.Persistence.Repositories.TouristModule;
 using Fayora.Infrastructure.Services.AdminModule;
 using Fayora.Infrastructure.Services.Authentication;
 using Fayora.Infrastructure.Services.AuthModule;
+using Fayora.Infrastructure.Services.BookingModule;
 using Fayora.Infrastructure.Services.SharedModule;
 using Fayora.Infrastructure.Settings;
 using Fayora.Infrastructure.Strategies;
@@ -123,6 +125,7 @@ public static class DependencyInjection
         services.Configure<GoogleSettings>(configuration.GetSection(GoogleSettings.SectionName));
         services.Configure<FacebookSettings>(configuration.GetSection(FacebookSettings.SectionName));
         services.Configure<CloudinarySettings>(configuration.GetSection(CloudinarySettings.SectionName));
+        services.Configure<PaymobSettings>(configuration.GetSection(PaymobSettings.SectionName));
 
 
         services.AddMemoryCache();
@@ -150,6 +153,8 @@ public static class DependencyInjection
         services.AddScoped<IFileStorageService, LocalFileService>();
 
         services.AddScoped<IInventoryModerationService, InventoryModerationService>();
+
+        services.AddHttpClient<IPaymentService, PaymobPaymentService>();
 
         return services;
     }
