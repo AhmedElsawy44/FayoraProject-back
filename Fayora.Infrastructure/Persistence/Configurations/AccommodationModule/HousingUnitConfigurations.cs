@@ -57,9 +57,12 @@ public class HousingUnitConfiguration : IEntityTypeConfiguration<HousingUnit>
                .HasConversion<string>()
                .HasMaxLength(50);
 
-        builder.Property(h => h.Status)
-               .HasConversion<string>()
-               .HasMaxLength(50);
+        builder.Property(x => x.AdminNotes)
+            .HasColumnType("nvarchar(500)");
+
+        builder.Property(x => x.Status)
+            .HasConversion<int>()
+            .IsRequired();
 
         builder.Property(h => h.Amenities)
                .HasColumnName("Amenities")

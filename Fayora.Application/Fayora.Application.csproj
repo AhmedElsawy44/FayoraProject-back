@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <Folder Include="Features\Admin\Common\" />
-    <Folder Include="Features\Admin\Queries\" />
   </ItemGroup>
 
 </Project>

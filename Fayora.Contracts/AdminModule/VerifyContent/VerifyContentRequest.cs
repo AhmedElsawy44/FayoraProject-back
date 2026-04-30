@@ -1,4 +1,4 @@
-﻿namespace Fayora.Contracts.AdminModule.ApproveVerification;
+﻿namespace Fayora.Contracts.AdminModule.VerifyContent;
 
 public record VerifyContentRequest(
     ItemType ItemType,

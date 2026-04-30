@@ -1,7 +1,6 @@
 using Fayora.Domain.Common.Interfaces.Admin;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.TourGuideModule;
-using System.Net.NetworkInformation;
 
 namespace Fayora.Domain.Entities.GuideModule;
 

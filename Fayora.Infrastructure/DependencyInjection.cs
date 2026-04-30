@@ -1,6 +1,7 @@
 using Fayora.Application.Common.Abstractions.Caching;
 using Fayora.Application.Common.Factories;
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
+using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
 using Fayora.Application.Common.Interfaces.Persistences.ChatModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
@@ -13,6 +14,7 @@ using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Infrastructure.Persistence.Caching;
 using Fayora.Infrastructure.Persistence.Repositories;
 using Fayora.Infrastructure.Persistence.Repositories.AccommodationModule;
+using Fayora.Infrastructure.Persistence.Repositories.AdminModule;
 using Fayora.Infrastructure.Persistence.Repositories.ChatModule;
 using Fayora.Infrastructure.Persistence.Repositories.GuideModule;
 using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
@@ -146,6 +148,8 @@ public static class DependencyInjection
         services.AddScoped<IVerificationFactory, VerificationFactory>();
 
         services.AddScoped<IFileStorageService, LocalFileService>();
+
+        services.AddScoped<IInventoryModerationService, InventoryModerationService>();
 
         return services;
     }
