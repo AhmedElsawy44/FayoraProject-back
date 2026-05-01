@@ -10,10 +10,9 @@ public class CalendarBlock : BaseEntity<Guid>
     public DateTime EndDate { get; init; }
     public BlockReason BlockReason { get; private set; }
     public Guid? BookingId { get; init; }
-    public int ReservedSeats { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
 
-    public CalendarBlock(Guid serviceId, ServiceType serviceType, DateTime startDate, DateTime endDate, BlockReason blockReason, Guid? bookingId = null, int reservedSeats = 1)
+    public CalendarBlock(Guid serviceId, ServiceType serviceType, DateTime startDate, DateTime endDate, BlockReason blockReason, Guid? bookingId = null)
     {
         ServiceId = serviceId;
         ServiceType = serviceType;
@@ -21,7 +20,6 @@ public class CalendarBlock : BaseEntity<Guid>
         EndDate = endDate;
         BlockReason = blockReason;
         BookingId = bookingId;
-        ReservedSeats = reservedSeats;
     }
 
     private CalendarBlock() { }

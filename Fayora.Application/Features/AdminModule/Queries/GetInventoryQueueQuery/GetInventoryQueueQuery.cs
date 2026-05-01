@@ -1,7 +1,7 @@
 ﻿using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
 
-namespace Fayora.Application.Features.Admin.Queries.GetInventoryQueueQuery;
+namespace Fayora.Application.Features.AdminModule.Queries.GetInventoryQueueQuery;
 
 public record GetInventoryQueueQuery(
     TypeFilter? TypeFilter,

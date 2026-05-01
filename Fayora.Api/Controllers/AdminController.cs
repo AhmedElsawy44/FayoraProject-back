@@ -1,6 +1,6 @@
 ﻿using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
 using Fayora.Application.Features.Admin.Commands.VerifyContent;
-using Fayora.Application.Features.Admin.Queries.GetInventoryQueueQuery;
+using Fayora.Application.Features.AdminModule.Queries.GetInventoryQueueQuery;
 using Fayora.Contracts.AdminModule.VerifyContent;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

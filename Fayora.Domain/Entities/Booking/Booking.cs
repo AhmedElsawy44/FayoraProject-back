@@ -12,8 +12,8 @@ public class Booking : BaseEntity<Guid>
     public ServiceType ServiceType { get; init; }
     public decimal BasePrice { get; init; }
     public decimal ServiceFee { get; init; }
-    public decimal TotalPrice { get; init; }
     public decimal PayoutAmount { get; init; }
+    public decimal TotalPrice { get; init; }
     public CancellationPolicy AppliedCancelPolicy { get; init; }
     public BookingStatus BookingStatus { get; private set; }
     public PaymentTransactionStatus PaymentStatus { get; private set; }
@@ -54,6 +54,7 @@ public class Booking : BaseEntity<Guid>
             return Error.Validation("Booking is already paid.");
 
         PaymentStatus = PaymentTransactionStatus.Success;
+        BookingStatus = BookingStatus.Completed;
         return Result.Success;
     }
 

@@ -72,8 +72,6 @@ public class CreateGuidePackageCommandValidator : AbstractValidator<CreateGuideP
                 activity.RuleFor(a => a.Description)
                     .NotEmpty().WithMessage("Activity description is required.")
                     .MaximumLength(1000).WithMessage("Activity description cannot exceed 1000 characters.");
-                activity.RuleFor(a => a.ActivityTime)
-                    .GreaterThan(DateTimeOffset.UtcNow).WithMessage("Activity time must be in the future.");
             });
     }
 

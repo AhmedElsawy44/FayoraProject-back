@@ -3,5 +3,4 @@
 public enum BlockReason
 {
     Booked = 1,
-
 }
