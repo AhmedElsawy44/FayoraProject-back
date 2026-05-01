@@ -44,6 +44,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<TourCompany> TourCompanies { get; set; }
     public DbSet<PackageActivity> PackageActivities { get; set; }
     public DbSet<PackageImage> PackageImages { get; set; }
+    public DbSet<PackageOccurrence> PackageOccurrences { get; set; }
 
 
     // Shared Module

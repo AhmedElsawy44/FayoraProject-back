@@ -33,6 +33,9 @@ namespace Fayora.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<string>("AdminNotes")
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<long>("Amenities")
                         .HasColumnType("bigint")
                         .HasColumnName("Amenities");
@@ -83,10 +86,8 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<int>("ReviewCount")
                         .HasColumnType("int");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -366,6 +367,9 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<int>("MaxCapacity")
                         .HasColumnType("int");
 
+                    b.Property<int>("NumOfDays")
+                        .HasColumnType("int");
+
                     b.Property<int>("PackageStatus")
                         .HasColumnType("int");
 
@@ -476,8 +480,8 @@ namespace Fayora.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTimeOffset>("ActivityTime")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<TimeOnly>("ActivityTime")
+                        .HasColumnType("time");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
@@ -506,6 +510,34 @@ namespace Fayora.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PackageImages", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageOccurrence", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AvailableSeats")
+                        .IsConcurrencyToken()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("PackageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PackageId", "Date")
+                        .IsUnique();
+
+                    b.ToTable("PackageOccurrences");
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.TourCompany", b =>
@@ -1497,6 +1529,15 @@ namespace Fayora.Infrastructure.Migrations
                         });
 
                     b.Navigation("ImageUrl")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageOccurrence", b =>
+                {
+                    b.HasOne("Fayora.Domain.Entities.GuideModule.GuidePackage", null)
+                        .WithMany()
+                        .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

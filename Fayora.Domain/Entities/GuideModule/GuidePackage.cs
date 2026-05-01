@@ -14,6 +14,7 @@ public class GuidePackage : AuditableEntity<Guid>, IVerifiable
     public string Description { get; private set; } = null!;
     public TourType TourTypes { get; private set; }
     public int DurationHours { get; private set; }
+    public int NumOfDays {  get; private set; }
     public int MaxCapacity { get; private set; }
     public int BookingsCount { get; private set; }
     public int AvailableSpots => MaxCapacity - BookingsCount;

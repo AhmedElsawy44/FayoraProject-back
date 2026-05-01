@@ -94,6 +94,7 @@ public static class DependencyInjection
         services.AddScoped<IPackageRepository, PackageRepository>();
         services.AddScoped<ITourCompanyRepository, TourCompanyRepository>();
         services.AddScoped<IPackageImageRepository, PackageImageRepository>();
+        services.AddScoped<IPackageOccurrenceRepository, PackageOccurrenceRepository>();
 
         // Shared Module
         services.AddScoped<ICityRepository, CityRepository>();

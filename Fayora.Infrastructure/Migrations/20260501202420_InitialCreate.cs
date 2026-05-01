@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -80,6 +81,7 @@ namespace Fayora.Infrastructure.Migrations
                     Description = table.Column<string>(type: "nvarchar(2000)", nullable: false),
                     TourTypes = table.Column<int>(type: "int", nullable: false),
                     DurationHours = table.Column<int>(type: "int", nullable: false),
+                    NumOfDays = table.Column<int>(type: "int", nullable: false),
                     MaxCapacity = table.Column<int>(type: "int", nullable: false),
                     BookingsCount = table.Column<int>(type: "int", nullable: false),
                     AdultPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
@@ -146,12 +148,13 @@ namespace Fayora.Infrastructure.Migrations
                     PricePerNight = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CommissionRate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Amenities = table.Column<long>(type: "bigint", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     Rating = table.Column<decimal>(type: "decimal(3,2)", nullable: false),
                     ReviewCount = table.Column<int>(type: "int", nullable: false),
                     Views = table.Column<int>(type: "int", nullable: false),
                     MainImageUrl = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    AdminNotes = table.Column<string>(type: "nvarchar(500)", nullable: true),
                     ImageIds = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -186,7 +189,7 @@ namespace Fayora.Infrastructure.Migrations
                     Latitude = table.Column<decimal>(type: "decimal(18,10)", precision: 18, scale: 10, nullable: false),
                     Longitude = table.Column<decimal>(type: "decimal(18,10)", precision: 18, scale: 10, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    ActivityTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    ActivityTime = table.Column<TimeOnly>(type: "time", nullable: false),
                     IsOptional = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -276,13 +279,9 @@ namespace Fayora.Infrastructure.Migrations
                     Views = table.Column<int>(type: "int", nullable: false),
                     ResponseRate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CancellationRate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-<<<<<<<< HEAD:Fayora.Infrastructure/Migrations/20260426114757_InitialCreate.cs
-                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
-========
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     AdminNotes = table.Column<string>(type: "nvarchar(500)", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false)
->>>>>>>> e013fd95e5ad2274679bd2ff8ea1cee38347f5e5:Fayora.Infrastructure/Migrations/20260429221319_InitialCreate.cs
                 },
                 constraints: table =>
                 {
@@ -478,6 +477,27 @@ namespace Fayora.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PackageOccurrences",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PackageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AvailableSeats = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PackageOccurrences", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PackageOccurrences_GuideTourPackages_PackageId",
+                        column: x => x.PackageId,
+                        principalTable: "GuideTourPackages",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TouristInterests",
                 columns: table => new
                 {
@@ -653,6 +673,12 @@ namespace Fayora.Infrastructure.Migrations
                 columns: new[] { "ChatId", "CreatedAt" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_PackageOccurrences_PackageId_Date",
+                table: "PackageOccurrences",
+                columns: new[] { "PackageId", "Date" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SubscriptionTiers_PlanCode",
                 table: "SubscriptionTiers",
                 column: "PlanCode",
@@ -775,9 +801,6 @@ namespace Fayora.Infrastructure.Migrations
                 name: "GuideOffers");
 
             migrationBuilder.DropTable(
-                name: "GuideTourPackages");
-
-            migrationBuilder.DropTable(
                 name: "HousingUnitImages");
 
             migrationBuilder.DropTable(
@@ -791,6 +814,9 @@ namespace Fayora.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "PackageImages");
+
+            migrationBuilder.DropTable(
+                name: "PackageOccurrences");
 
             migrationBuilder.DropTable(
                 name: "SubscriptionTiers");
@@ -836,6 +862,9 @@ namespace Fayora.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Chats");
+
+            migrationBuilder.DropTable(
+                name: "GuideTourPackages");
 
             migrationBuilder.DropTable(
                 name: "MasterInterests");
