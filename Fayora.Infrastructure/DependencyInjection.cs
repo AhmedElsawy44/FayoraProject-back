@@ -1,20 +1,30 @@
+using Fayora.Application.Common.Abstractions.Caching;
+using Fayora.Application.Common.Factories;
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
+using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
+using Fayora.Application.Common.Interfaces.Persistences.ChatModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Common.Interfaces.Persistences.TouristModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Common.Interfaces.Services.BookingModule;
 using Fayora.Application.Common.Interfaces.Services.SharedModule;
+using Fayora.Application.Common.Strategies;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
+using Fayora.Infrastructure.Persistence.Caching;
 using Fayora.Infrastructure.Persistence.Repositories;
 using Fayora.Infrastructure.Persistence.Repositories.AccommodationModule;
+using Fayora.Infrastructure.Persistence.Repositories.AdminModule;
+using Fayora.Infrastructure.Persistence.Repositories.ChatModule;
 using Fayora.Infrastructure.Persistence.Repositories.GuideModule;
 using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories.SharedModule;
-using Fayora.Infrastructure.Persistence.Repositories.TourGuideModule;
 using Fayora.Infrastructure.Persistence.Repositories.TouristModule;
+using Fayora.Infrastructure.Services.AdminModule;
 using Fayora.Infrastructure.Services.Authentication;
 using Fayora.Infrastructure.Services.AuthModule;
+using Fayora.Infrastructure.Services.BookingModule;
 using Fayora.Infrastructure.Services.SharedModule;
 using Fayora.Infrastructure.Settings;
 using Fayora.Infrastructure.Strategies;
@@ -24,7 +34,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using StackExchange.Redis;
 using System.Text;
+
 
 namespace Fayora.Infrastructure;
 
@@ -45,7 +57,18 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
 
-        // Auth Module
+        var redisConnectionString = configuration.GetConnectionString("Redis");
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = redisConnectionString;
+        });
+
+        services.AddSingleton<IConnectionMultiplexer>(
+            ConnectionMultiplexer.Connect(redisConnectionString!)
+        );
+
+
+        // Identity Module
         services.AddScoped<IDeviceRepository, DeviceRepository>();
         services.AddScoped<IUserTokenRepository, UserTokenRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
@@ -58,7 +81,6 @@ public static class DependencyInjection
         services.AddScoped<IUserInteractionRepository, UserInteractionRepository>();
         services.AddScoped<IMessageSenderStrategy, WhatsAppSenderStrategy>();
         services.AddScoped<IMessageSenderStrategy, SmsSenderStrategy>();
-
 
 
         // Accommodation Module
@@ -76,7 +98,12 @@ public static class DependencyInjection
         // Shared Module
         services.AddScoped<ICityRepository, CityRepository>();
 
+        // Chat Module
+        services.AddScoped<IChatRepository, ChatRepository>();
+        services.AddScoped<IMessageRepository, MessageRepository>();
+
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
+        services.AddSingleton<ICacheService, CacheService>();
 
 
         return services;
@@ -98,10 +125,11 @@ public static class DependencyInjection
         services.Configure<GoogleSettings>(configuration.GetSection(GoogleSettings.SectionName));
         services.Configure<FacebookSettings>(configuration.GetSection(FacebookSettings.SectionName));
         services.Configure<CloudinarySettings>(configuration.GetSection(CloudinarySettings.SectionName));
+        services.Configure<PaymobSettings>(configuration.GetSection(PaymobSettings.SectionName));
 
 
         services.AddMemoryCache();
-        services.AddSingleton<IDailyUploadTracker, MemoryDailyUploadTracker>();
+        services.AddSingleton<IDailyUploadTracker, RadisDailyUploadTracker>();
 
         services.AddScoped<IUploadStrategy, ProfileImageUploadStrategy>();
         services.AddScoped<IUploadStrategy, HousingUnitUploadStrategy>();
@@ -116,8 +144,17 @@ public static class DependencyInjection
         services.AddSingleton<ISocialAuthStrategy, GoogleAuthStrategy>();
         services.AddSingleton<ISocialAuthStrategy, MockAppleAuthService>();
 
+        services.AddScoped<IVerificationStrategy, TourGuideVerificationStrategy>();
+        services.AddScoped<IVerificationStrategy, TourCompanyVerificationStrategy>();
+        services.AddScoped<IVerificationStrategy, GuidePackageVerificationStrategy>();
+
+        services.AddScoped<IVerificationFactory, VerificationFactory>();
 
         services.AddScoped<IFileStorageService, LocalFileService>();
+
+        services.AddScoped<IInventoryModerationService, InventoryModerationService>();
+
+        services.AddHttpClient<IPaymentService, PaymobPaymentService>();
 
         return services;
     }

@@ -29,7 +29,7 @@ public class TrackUserInteractionCommandHandler
         if (context.UserId == Guid.Empty)
             return Error.Unauthorized("UserId is required to track user interaction.");
 
-        
+
         var interaction = new UserInteraction(
             context.UserId,
             request.EntityId,
@@ -39,7 +39,7 @@ public class TrackUserInteractionCommandHandler
         userInteractionRepository.AddInteraction(interaction);
         await unitOfWork.CommitChangesAsync(cancellationToken);
 
-        
+
         if (request.InteractionType == InteractionType.View)
         {
             await mediator.Publish(new EntityViewedEvent(

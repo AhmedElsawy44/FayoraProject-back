@@ -1,8 +1,7 @@
 ﻿using Fayora.Domain.Common.Results;
-using Fayora.Domain.ValueObjects;
 using Microsoft.AspNetCore.Http;
 
-namespace Fayora.Application.Common.Interfaces.Services.AuthModule;
+namespace Fayora.Application.Common.Strategies;
 
 
 public interface IUploadStrategy

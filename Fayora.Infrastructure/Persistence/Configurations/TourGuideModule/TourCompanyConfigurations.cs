@@ -53,6 +53,13 @@ public class TourCompanyConfiguration : IEntityTypeConfiguration<TourCompany>
                .HasMaxLength(2048)
                .IsRequired(false);
         });
+
+        builder.Property(x => x.AdminNotes)
+            .HasColumnType("nvarchar(500)");
+
+        builder.Property(x => x.Status)
+            .HasConversion<int>()
+            .IsRequired();
     }
 
     private ValueComparer<IReadOnlyCollection<Guid>> CreateGuidListComparer() =>

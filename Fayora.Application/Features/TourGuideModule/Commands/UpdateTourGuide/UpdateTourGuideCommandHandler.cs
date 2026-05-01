@@ -19,7 +19,7 @@ public class UpdateTourGuideCommandHandler(
 {
     public async Task<Result<Guid>> Handle(UpdateTourGuideCommand request, CancellationToken cancellationToken)
     {
-        if(await cityRepository.CitiesExistsAsync(request.CoveredCities, cancellationToken) is false)
+        if (await cityRepository.CitiesExistsAsync(request.CoveredCities, cancellationToken) is false)
         {
             return TourGuideErrors.CitiesNotExist;
         }

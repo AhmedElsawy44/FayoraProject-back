@@ -12,6 +12,7 @@ public interface IUserRepository
     Task<User?> GetUserByPhoneAsync(string phoneNumber, UserQueryOptions? options = null, CancellationToken cancellationToken = default);
     Task<bool> IsEmailExistsAsync(string email, CancellationToken cancellationToken = default);
     Task<bool> IsPhoneNumberExistsAsync(string phoneNumber, CancellationToken cancellationToken = default);
+    Task<List<User>> GetUsersByIdsAsync(List<Guid> ids, UserQueryOptions? options = null, CancellationToken cancellationToken = default);
 
     public enum AccountStatus
     {

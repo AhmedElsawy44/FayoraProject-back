@@ -1,6 +1,7 @@
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Entities.AccommodationModule;
+using Fayora.Domain.Entities.ChatModule;
 using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.Entities.SharedModule;
@@ -19,6 +20,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<UserTokens> UserTokens { get; set; }
     public DbSet<UserDevice> UserDevices { get; set; }
     public DbSet<VerificationCode> VerificationCodes { get; set; }
+    public DbSet<Chat> Chats { get; set; }
+    public DbSet<Message> Messages { get; set; }
 
     // Tourist Module
     public DbSet<TouristProfile> Tourists { get; set; }

@@ -67,8 +67,8 @@ public class TouristController(ISender sender, IMapper mapper) : ApiController
     {
         var command = new TrackUserInteractionCommand(
             request.EntityId,
-            (EntityType)request.EntityType,     
-            (InteractionType)request.InteractionType 
+            (EntityType)request.EntityType,
+            (InteractionType)request.InteractionType
         );
 
         var result = await sender.Send(command, cancellationToken);

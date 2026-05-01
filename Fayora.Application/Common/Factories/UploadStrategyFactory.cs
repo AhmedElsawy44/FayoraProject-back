@@ -1,6 +1,6 @@
-﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
+﻿using Fayora.Application.Common.Strategies;
 
-namespace Fayora.Infrastructure.Services.AuthModule;
+namespace Fayora.Application.Common.Factories;
 
 public class UploadStrategyFactory(IEnumerable<IUploadStrategy> strategies)
 {
@@ -8,9 +8,6 @@ public class UploadStrategyFactory(IEnumerable<IUploadStrategy> strategies)
     {
         var strategy = strategies.FirstOrDefault(s => s.Context == context);
 
-        if (strategy == null)
-            throw new InvalidOperationException($"No upload strategy found for context: {context}");
-
-        return strategy;
+        return strategy ?? throw new InvalidOperationException($"No upload strategy found for context: {context}");
     }
 }

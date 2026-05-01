@@ -1,10 +1,12 @@
-﻿using Fayora.Domain.Common.Results;
+﻿using Fayora.Domain.Common.Interfaces.Admin;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.AccommodationModule;
+using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Domain.Entities.AccommodationModule;
 
-public class HousingUnit : BaseEntity<Guid>
+public class HousingUnit : BaseEntity<Guid>, IVerifiable
 {
     public Guid OwnerId { get; init; }
 
@@ -29,7 +31,7 @@ public class HousingUnit : BaseEntity<Guid>
     public decimal CommissionRate { get; private set; }
     public Amenities Amenities { get; private set; } = default!;
 
-    public AccommodationStatus Status { get; private set; }
+    public ItemStatus Status { get; private set; }
     public decimal Rating { get; private set; }
     public int ReviewCount { get; private set; }
     public int Views { get; private set; }
@@ -40,6 +42,8 @@ public class HousingUnit : BaseEntity<Guid>
     public IReadOnlyCollection<Guid> ImageIds => _imageIds.AsReadOnly();
 
     public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
+
+    public string? AdminNotes { get; private set; }
 
     private HousingUnit(
         Guid ownerId,
@@ -76,7 +80,7 @@ public class HousingUnit : BaseEntity<Guid>
         CheckOutTime = checkOutTime;
         MainImageUrl = mainImageUrl;
 
-        Status = AccommodationStatus.Pending;
+        Status = ItemStatus.Pending;
         Rating = 0m;
         ReviewCount = 0;
         Views = 0;
@@ -152,16 +156,14 @@ public class HousingUnit : BaseEntity<Guid>
             mainImageUrl);
     }
 
-    public void Approve(decimal commissionRate)
+    public Result<Success> Approve()
     {
-        if (commissionRate < 0)
-            throw new ArgumentException("Commission rate cannot be negative.", nameof(commissionRate));
+        if (Status != ItemStatus.Pending)
+            return Error.Validation("HousingUnit.Status", "Only pending housing units can be approved.");
 
-        CommissionRate = commissionRate;
-        Status = AccommodationStatus.Active;
+        Status = ItemStatus.Active;
+        return Result.Success;
     }
-    public void Reject() => Status = AccommodationStatus.Rejected;
-    public void Deactivate() => Status = AccommodationStatus.Inactive;
 
     public void UpdatePrice(decimal newPrice)
     {
@@ -189,6 +191,16 @@ public class HousingUnit : BaseEntity<Guid>
     public void RemoveAmenity(Amenities amenity)
     {
         Amenities &= ~amenity;
+    }
+
+    public Result<Success> Reject(string adminNotes)
+    {
+        if (Status != ItemStatus.Pending)
+            return Error.Validation("HousingUnit.Status", "Only pending housing units can be rejected.");
+
+        Status = ItemStatus.Rejected;
+        AdminNotes = adminNotes;
+        return Result.Success;
     }
 
     private HousingUnit() { }

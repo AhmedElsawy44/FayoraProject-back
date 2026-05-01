@@ -1,4 +1,5 @@
 ﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Common.Strategies;
 using Fayora.Domain.Enums.IdentityModule;
 using System.IdentityModel.Tokens.Jwt;
 

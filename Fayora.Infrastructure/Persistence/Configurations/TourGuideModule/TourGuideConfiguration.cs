@@ -39,6 +39,13 @@ public class TourGuideConfiguration : IEntityTypeConfiguration<TourGuide>
             .IsRequired()
             .HasDefaultValue(false);
 
+        builder.Property(x => x.AdminNotes)
+            .HasColumnType("nvarchar(500)");
+
+        builder.Property(x => x.Status)
+            .HasConversion<int>()
+            .IsRequired();
+
         builder.Property(x => x.LastLocationUpdate)
             .IsRequired(false);
 

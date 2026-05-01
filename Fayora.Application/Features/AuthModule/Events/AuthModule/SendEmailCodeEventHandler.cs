@@ -5,7 +5,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using static Fayora.Application.Common.Interfaces.Services.AuthModule.IMessageGenerator;
 
-namespace Fayora.Application.Features.AuthModule.Events;
+namespace Fayora.Application.Features.AuthModule.Events.AuthModule;
 
 public class SendEmailCodeEventHandler(
     IEmailService emailService,

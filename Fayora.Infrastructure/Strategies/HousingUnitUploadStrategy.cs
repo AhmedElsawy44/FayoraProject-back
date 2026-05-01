@@ -1,12 +1,13 @@
 ﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Models;
+using Fayora.Application.Common.Strategies;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.ValueObjects;
 using Microsoft.AspNetCore.Http;
 
 namespace Fayora.Infrastructure.Strategies;
 
-public class HousingUnitUploadStrategy(IStorageService storageService, IDailyUploadTracker dailyUploadTracker, IClientContextProvider clientContextProvider) 
+public class HousingUnitUploadStrategy(IStorageService storageService, IDailyUploadTracker dailyUploadTracker, IClientContextProvider clientContextProvider)
     : BaseUploadStrategy(dailyUploadTracker, clientContextProvider)
 {
     public override UploadContext Context => UploadContext.HousingUnit;

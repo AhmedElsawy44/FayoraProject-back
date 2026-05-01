@@ -3,7 +3,7 @@ using Fayora.Domain.Common.Events.IdentityModule;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Fayora.Application.Features.AuthModule.Events;
+namespace Fayora.Application.Features.AuthModule.Events.AuthModule;
 
 public class DeleteMediaEventHandler(
     IFileStorageService fileStorageService,

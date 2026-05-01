@@ -1,17 +1,17 @@
-﻿using Fayora.Domain.Common.Results;
+﻿using Fayora.Domain.Common.Interfaces.Admin;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Domain.Entities.GuideModule;
 
-public class TourGuide : GuideAccountBase
+public class TourGuide : GuideAccountBase, IVerifiable
 {
     public decimal? BaseRate { get; private set; } //$180/day 
     public PricingUnit? PricingUnit { get; private set; }
     public int? YearsOfExperience { get; private set; }
     public string? LicenseNumber { get; private set; } = null;
     public DateOnly? LicenseExpiryDate { get; private set; }
-    public ItemStatus Status { get; private set; }
     public bool IsSuperGuide { get; private set; }
     public GeoPoint? LastLocation { get; private set; } = default!;
     public DateTimeOffset? LastLocationUpdate { get; private set; }
@@ -20,6 +20,7 @@ public class TourGuide : GuideAccountBase
 
     private readonly List<GuideCity> _guideCities = [];
     public IReadOnlyCollection<GuideCity> GuideCities => _guideCities.AsReadOnly();
+
 
     public TourGuide(Guid userId, FileUrl professionalLicenseUrl) : base(userId)
     {
@@ -55,16 +56,6 @@ public class TourGuide : GuideAccountBase
     }
 
 
-    public Result<Success> UpdateStatus(ItemStatus newStatus)
-    {
-        if (newStatus == ItemStatus.Pending)
-            return Error.Validation("TourGuide.InvalidStatus", "Cannot set status back to Pending.");
-        Status = newStatus;
-        IsAvailableForBooking = newStatus == ItemStatus.Active;
-        return Result.Success;
-    }
-
-
     public void UpdateCancellationRate(int totalBookings, int cancelledBookings)
     {
         if (totalBookings == 0)
@@ -96,12 +87,6 @@ public class TourGuide : GuideAccountBase
     public void MarkTourCompleted()
     {
         CompletedToursCount++;
-    }
-
-    public void Verify()
-    {
-        Status = ItemStatus.Active;
-        IsAvailableForBooking = true;
     }
 
     public Result<Success> Update(

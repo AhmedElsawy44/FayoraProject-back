@@ -1,5 +1,5 @@
 ﻿using Fayora.Application.Common.Behaviors;
-using Fayora.Infrastructure.Services.AuthModule;
+using Fayora.Application.Common.Factories;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,6 +19,8 @@ public static class DependencyInjection
             options.AddOpenBehavior(typeof(AuthorizationBehavior<,>));
             options.AddOpenBehavior(typeof(BannedCheckBehavior<,>));
             options.AddOpenBehavior(typeof(PerformanceBehavior<,>));
+            options.AddOpenBehavior(typeof(CacheInvalidationBehavior<,>));
+            options.AddOpenBehavior(typeof(CachingBehavior<,>));
 
         });
 

@@ -1,6 +1,7 @@
-﻿using Fayora.Domain.Enums.IdentityModule;
+﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Domain.Enums.IdentityModule;
 
-namespace Fayora.Application.Common.Interfaces.Services.AuthModule;
+namespace Fayora.Application.Common.Strategies;
 
 public interface ISocialAuthStrategy
 {

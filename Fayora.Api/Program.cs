@@ -1,4 +1,5 @@
 using Fayora.Api.Externals;
+using Fayora.Api.Hubs;
 using Fayora.Application;
 using Fayora.Infrastructure;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -43,11 +44,13 @@ public class Program
 
         app.UseHttpsRedirection();
 
-        app.UseAuthentication(); 
+        app.UseAuthentication();
 
         app.UseAuthorization();
 
         app.MapControllers();
+
+        app.MapHub<ChatHub>("/chatHub");
 
         await app.RunAsync();
     }

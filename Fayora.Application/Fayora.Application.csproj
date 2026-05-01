@@ -19,4 +19,9 @@
     <ProjectReference Include="..\Fayora.Domain\Fayora.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\AdminModule\Common\" />
+    <Folder Include="Features\BookingModule\Commands\" />
+  </ItemGroup>
+
 </Project>

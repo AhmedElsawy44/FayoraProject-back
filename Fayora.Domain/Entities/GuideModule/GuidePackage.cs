@@ -1,4 +1,5 @@
 ﻿using Fayora.Domain.Common.Entity;
+using Fayora.Domain.Common.Interfaces.Admin;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
@@ -6,7 +7,7 @@ using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Domain.Entities.GuideModule;
 
-public class GuidePackage : AuditableEntity<Guid>
+public class GuidePackage : AuditableEntity<Guid>, IVerifiable
 {
     public Guid UserId { get; private set; }
     public string Title { get; private set; } = null!;
@@ -20,7 +21,7 @@ public class GuidePackage : AuditableEntity<Guid>
     public decimal ChildPrice { get; private set; }
     public bool IsActive { get; private set; }
     public int Views { get; private set; }
-    public FileUrl MainImageUrl { get; private set; }
+    public FileUrl MainImageUrl { get; private set; } = default!;
     public FileUrl? MainVideoUrl { get; private set; }
     public string? GuestRequirements { get; private set; }
     public CancellationPolicy CancellationPolicy { get; private set; }
@@ -42,6 +43,10 @@ public class GuidePackage : AuditableEntity<Guid>
 
     private readonly List<Guid> _activityIds = [];
     public IReadOnlyCollection<Guid> ActivityIds => _activityIds.AsReadOnly();
+
+    public ItemStatus Status { get; private set; }
+
+    public string? AdminNotes { get; private set; }
 
     private GuidePackage() { }
 
@@ -190,4 +195,22 @@ public class GuidePackage : AuditableEntity<Guid>
     }
 
     public void Delete() => DeletedAt = DateTimeOffset.UtcNow;
+
+    public Result<Success> Approve()
+    {
+        if (Status is ItemStatus.Active)
+            return Error.Validation("TourGuide.AlreadyActive", "Guide is already active.");
+
+        Status = ItemStatus.Active;
+        return Result.Success;
+    }
+
+    public Result<Success> Reject(string adminNotes)
+    {
+        if (Status is ItemStatus.Rejected)
+            return Error.Validation("TourGuide.AlreadyRejected", "Guide is already rejected.");
+        Status = ItemStatus.Rejected;
+        AdminNotes = adminNotes;
+        return Result.Success;
+    }
 }

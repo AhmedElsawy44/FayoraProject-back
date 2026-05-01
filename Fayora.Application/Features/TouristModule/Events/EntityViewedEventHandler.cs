@@ -4,9 +4,6 @@ using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Domain.Common.Events.TouristModule;
 using Fayora.Domain.Enums.TouristModule;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Fayora.Application.Features.TouristModule.Events
 {
