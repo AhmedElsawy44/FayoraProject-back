@@ -55,11 +55,12 @@ public class CreatePackageBookingCommandHandler(
             totalPrice.Value,
             0m,
             totalPrice.Value,
+            requiredSpots,
             package.CancellationPolicy,
             request.BookingDate.ToDateTime(TimeOnly.MinValue),
             request.BookingDate.ToDateTime(TimeOnly.MinValue).AddHours(package.DurationHours));
-
         if (booking.IsError) return booking.Errors;
+
 
         var paymentResult = await paymentService.GeneratePaymentUrlAsync(new PaymentRequest(
             booking.Value.Id,

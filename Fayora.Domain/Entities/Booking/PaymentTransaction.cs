@@ -24,9 +24,9 @@ public class PaymentTransaction
 
     private PaymentTransaction() { }
 
-    public void MarkAsSuccess(string gatewayTransactionId)
+    public void MarkAsPaid(string gatewayTransactionId)
     {
-        Status = PaymentTransactionStatus.Success;
+        Status = PaymentTransactionStatus.Paid;
         GatewayTransactionId = gatewayTransactionId;
         ErrorMessage = null;
     }
@@ -41,7 +41,7 @@ public class PaymentTransaction
 
     public Result<Success> MarkAsRefunded()
     {
-        if (Status != PaymentTransactionStatus.Success)
+        if (Status != PaymentTransactionStatus.Paid)
         {
             return Error.Validation("Only successful transactions can be refunded.");
         }

@@ -50,6 +50,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     // Booking Module
     public DbSet<Booking> Bookings { get; set; }
+    public DbSet<PaymentTransaction> PaymentTransactions { get; set; }
 
 
     // Shared Module

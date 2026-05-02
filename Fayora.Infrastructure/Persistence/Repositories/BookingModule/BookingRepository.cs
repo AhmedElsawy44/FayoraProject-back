@@ -9,4 +9,9 @@ public class BookingRepository(ApplicationDbContext context) : IBookingRepositor
     {
         context.Bookings.Add(booking);
     }
+
+    public Task<Booking?> GetBookingByIdAsync(Guid bookingId, CancellationToken cancellationToken = default)
+    {
+        return context.Bookings.FindAsync(new object[] { bookingId }, cancellationToken).AsTask();
+    }
 }

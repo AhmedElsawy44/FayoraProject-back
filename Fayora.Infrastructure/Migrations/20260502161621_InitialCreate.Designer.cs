@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260502083910_InitialCreate")]
+    [Migration("20260502161621_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -208,6 +208,9 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<decimal>("PayoutAmount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("SeatsCount")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("ServiceFee")
                         .HasColumnType("decimal(18,2)");
 
@@ -248,6 +251,46 @@ namespace Fayora.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Bookings", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.Booking.PaymentTransaction", b =>
+                {
+                    b.Property<Guid>("BookingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("GatewayOrderId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("GatewayTransactionId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("BookingId");
+
+                    b.HasIndex("GatewayOrderId")
+                        .IsUnique();
+
+                    b.HasIndex("PaymentMethod");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("PaymentTransactions", (string)null);
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.ChatModule.Chat", b =>

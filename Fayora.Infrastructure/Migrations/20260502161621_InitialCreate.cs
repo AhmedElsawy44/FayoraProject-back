@@ -26,6 +26,7 @@ namespace Fayora.Infrastructure.Migrations
                     ServiceFee = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     PayoutAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    SeatsCount = table.Column<int>(type: "int", nullable: false),
                     AppliedCancelPolicy = table.Column<int>(type: "int", nullable: false),
                     BookingStatus = table.Column<int>(type: "int", nullable: false),
                     PaymentStatus = table.Column<int>(type: "int", nullable: false),
@@ -232,6 +233,23 @@ namespace Fayora.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PackageImages", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PaymentTransactions",
+                columns: table => new
+                {
+                    BookingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    GatewayOrderId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PaymentMethod = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    GatewayTransactionId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    ErrorMessage = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PaymentTransactions", x => x.BookingId);
                 });
 
             migrationBuilder.CreateTable(
@@ -743,6 +761,22 @@ namespace Fayora.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_PaymentTransactions_GatewayOrderId",
+                table: "PaymentTransactions",
+                column: "GatewayOrderId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PaymentTransactions_PaymentMethod",
+                table: "PaymentTransactions",
+                column: "PaymentMethod");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PaymentTransactions_Status",
+                table: "PaymentTransactions",
+                column: "Status");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SubscriptionTiers_PlanCode",
                 table: "SubscriptionTiers",
                 column: "PlanCode",
@@ -884,6 +918,9 @@ namespace Fayora.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "PackageOccurrences");
+
+            migrationBuilder.DropTable(
+                name: "PaymentTransactions");
 
             migrationBuilder.DropTable(
                 name: "SubscriptionTiers");

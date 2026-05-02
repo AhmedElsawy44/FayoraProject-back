@@ -5,4 +5,5 @@ namespace Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 public interface IBookingRepository
 {
     void AddBooking(Booking booking);
+    Task<Booking?> GetBookingByIdAsync(Guid bookingId, CancellationToken cancellationToken = default);
 }

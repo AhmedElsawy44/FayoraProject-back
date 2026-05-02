@@ -1,4 +1,5 @@
-﻿using Fayora.Domain.Common.Results;
+﻿using Fayora.Domain.Common.Events.BookingModule;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.BookingModule;
 using Fayora.Domain.Enums.SharedModule;
 
@@ -14,6 +15,7 @@ public class Booking : BaseEntity<Guid>
     public decimal ServiceFee { get; init; }
     public decimal PayoutAmount { get; init; }
     public decimal TotalPrice { get; init; }
+    public int SeatsCount { get; init; }
     public CancellationPolicy AppliedCancelPolicy { get; init; }
     public BookingStatus BookingStatus { get; private set; }
     public PaymentTransactionStatus PaymentStatus { get; private set; }
@@ -24,7 +26,8 @@ public class Booking : BaseEntity<Guid>
     public static Result<Booking> Create(
         Guid userId, Guid providerId, ServiceType type, Guid serviceId,
         decimal basePrice, decimal serviceFee, decimal payoutAmount,
-        CancellationPolicy policy, DateTime startDate, DateTime endDate)
+        int seatsCount, CancellationPolicy policy, DateTime startDate,
+        DateTime endDate)
     {
         if (endDate <= startDate)
             return Error.Validation();
@@ -40,6 +43,7 @@ public class Booking : BaseEntity<Guid>
             ServiceFee = serviceFee,
             TotalPrice = basePrice + serviceFee,
             PayoutAmount = payoutAmount,
+            SeatsCount = seatsCount,
             AppliedCancelPolicy = policy,
             BookingStatus = BookingStatus.Pending,
             PaymentStatus = PaymentTransactionStatus.Pending,
@@ -50,10 +54,10 @@ public class Booking : BaseEntity<Guid>
 
     public Result<Success> MarkAsPaid()
     {
-        if (PaymentStatus == PaymentTransactionStatus.Success)
+        if (PaymentStatus == PaymentTransactionStatus.Paid)
             return Error.Validation("Booking is already paid.");
 
-        PaymentStatus = PaymentTransactionStatus.Success;
+        PaymentStatus = PaymentTransactionStatus.Paid;
         BookingStatus = BookingStatus.Completed;
         return Result.Success;
     }
@@ -64,6 +68,8 @@ public class Booking : BaseEntity<Guid>
             return Error.Validation("Cannot cancel a completed booking.");
 
         BookingStatus = BookingStatus.Cancelled;
+
+        RaiseDomainEvent(new BookingCanceledEvent(Id));
 
         return Result.Success;
     }
