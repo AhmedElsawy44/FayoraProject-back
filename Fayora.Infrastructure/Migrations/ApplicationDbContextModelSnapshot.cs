@@ -522,8 +522,8 @@ namespace Fayora.Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
 
                     b.Property<Guid>("PackageId")
                         .HasColumnType("uniqueidentifier");

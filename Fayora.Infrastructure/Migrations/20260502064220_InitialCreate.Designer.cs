@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260501202420_InitialCreate")]
+    [Migration("20260502064220_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -525,8 +525,8 @@ namespace Fayora.Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
 
                     b.Property<Guid>("PackageId")
                         .HasColumnType("uniqueidentifier");

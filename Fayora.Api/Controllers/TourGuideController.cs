@@ -177,9 +177,7 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
     {
         var command = new CreatePackageOccurrencesCommand(
             packageId,
-            request.Occurrences
-                   .Select(x => new OccurrenceItemDto(x.Date, x.AvailableSeats))
-                   .ToList()
+            [.. request.Occurrences.Select(x => new OccurrenceItemDto(x.Date, x.AvailableSeats))]
         );
 
         var result = await sender.Send(command, cancellationToken);

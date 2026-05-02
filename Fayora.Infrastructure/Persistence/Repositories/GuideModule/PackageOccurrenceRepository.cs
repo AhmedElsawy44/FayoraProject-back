@@ -17,7 +17,7 @@ namespace Fayora.Infrastructure.Persistence.Repositories.GuideModule
             await context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<bool> HasOverlappingOccurrenceAsync(Guid packageId, List<DateTime> dates, CancellationToken cancellationToken)
+        public async Task<bool> HasOverlappingOccurrenceAsync(Guid packageId, List<DateOnly> dates, CancellationToken cancellationToken)
         {
             return await context.PackageOccurrences
                 .AnyAsync(x => x.PackageId == packageId

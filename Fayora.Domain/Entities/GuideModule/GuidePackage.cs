@@ -14,10 +14,8 @@ public class GuidePackage : AuditableEntity<Guid>, IVerifiable
     public string Description { get; private set; } = null!;
     public TourType TourTypes { get; private set; }
     public int DurationHours { get; private set; }
-    public int NumOfDays {  get; private set; }
+    public int NumOfDays { get; private set; }
     public int MaxCapacity { get; private set; }
-    public int BookingsCount { get; private set; }
-    public int AvailableSpots => MaxCapacity - BookingsCount;
     public decimal AdultPrice { get; private set; }
     public decimal ChildPrice { get; private set; }
     public bool IsActive { get; private set; }
@@ -86,7 +84,6 @@ public class GuidePackage : AuditableEntity<Guid>, IVerifiable
 
         IsActive = false;
         Views = 0;
-        BookingsCount = 0;
 
         CancellationPolicy = cancellationPolicy;
         PackageStatus = ItemStatus.Pending;
@@ -147,15 +144,6 @@ public class GuidePackage : AuditableEntity<Guid>, IVerifiable
     }
 
     public void IncrementViews() => Views++;
-
-    public Result<Success> IncrementBookingsCount()
-    {
-        if (BookingsCount >= MaxCapacity)
-            return Error.Conflict("Package.FullyBooked", "Package is fully booked.");
-        BookingsCount++;
-        Updated();
-        return Result.Success;
-    }
 
     public void UpdateDetails(
         string title,
