@@ -17,6 +17,13 @@ namespace Fayora.Infrastructure.Persistence.Repositories.GuideModule
             await context.SaveChangesAsync(cancellationToken);
         }
 
+        public Task<PackageOccurrence?> GetOccurrenceByPackageIdAndDate(Guid packageId, DateOnly date, CancellationToken cancellationToken)
+        {
+            return context.PackageOccurrences
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.PackageId == packageId && x.Date == date, cancellationToken);
+        }
+
         public async Task<bool> HasOverlappingOccurrenceAsync(Guid packageId, List<DateOnly> dates, CancellationToken cancellationToken)
         {
             return await context.PackageOccurrences

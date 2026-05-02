@@ -13,8 +13,8 @@ public record PaymentRequest(
     decimal AmountInEgp,
     string CustomerFirstName,
     string CustomerLastName,
-    string CustomerEmail,
-    string CustomerPhoneNumber,
+    string? CustomerEmail,
+    string? CustomerPhoneNumber,
     PaymentMethodType MethodType
 );
 

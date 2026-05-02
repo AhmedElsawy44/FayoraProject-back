@@ -10,7 +10,7 @@ public class PackageOccurrence : BaseEntity<Guid>
     public int AvailableSeats { get; private set; }
     public OccurrenceStatus Status { get; private set; }
 
-    internal PackageOccurrence(Guid packageId, DateOnly date, int availableSeats)
+    public PackageOccurrence(Guid packageId, DateOnly date, int availableSeats)
     {
         Id = Guid.NewGuid();
         PackageId = packageId;

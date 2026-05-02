@@ -2,6 +2,7 @@ using Fayora.Application.Common.Abstractions.Caching;
 using Fayora.Application.Common.Factories;
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
+using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Common.Interfaces.Persistences.ChatModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
@@ -16,6 +17,7 @@ using Fayora.Infrastructure.Persistence.Caching;
 using Fayora.Infrastructure.Persistence.Repositories;
 using Fayora.Infrastructure.Persistence.Repositories.AccommodationModule;
 using Fayora.Infrastructure.Persistence.Repositories.AdminModule;
+using Fayora.Infrastructure.Persistence.Repositories.BookingModule;
 using Fayora.Infrastructure.Persistence.Repositories.ChatModule;
 using Fayora.Infrastructure.Persistence.Repositories.GuideModule;
 using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
@@ -102,6 +104,9 @@ public static class DependencyInjection
         // Chat Module
         services.AddScoped<IChatRepository, ChatRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
+
+        // Booking Module
+        services.AddScoped<IBookingRepository, BookingRepository>();
 
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
         services.AddSingleton<ICacheService, CacheService>();

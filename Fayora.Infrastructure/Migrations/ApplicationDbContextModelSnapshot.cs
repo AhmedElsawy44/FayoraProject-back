@@ -178,6 +178,75 @@ namespace Fayora.Infrastructure.Migrations
                     b.ToTable("UnitOwners", (string)null);
                 });
 
+            modelBuilder.Entity("Fayora.Domain.Entities.Booking.Booking", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AppliedCancelPolicy")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("BasePrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("BookingStatus")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("PayoutAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("ServiceFee")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ServiceProviderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ServiceType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingStatus");
+
+                    b.HasIndex("EndDate");
+
+                    b.HasIndex("PaymentStatus");
+
+                    b.HasIndex("ServiceId");
+
+                    b.HasIndex("ServiceProviderId");
+
+                    b.HasIndex("ServiceType");
+
+                    b.HasIndex("StartDate");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Bookings", (string)null);
+                });
+
             modelBuilder.Entity("Fayora.Domain.Entities.ChatModule.Chat", b =>
                 {
                     b.Property<Guid>("Id")
@@ -334,9 +403,6 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.Property<string>("ArrivalNote")
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<int>("BookingsCount")
-                        .HasColumnType("int");
 
                     b.Property<int>("CancellationPolicy")
                         .HasColumnType("int");

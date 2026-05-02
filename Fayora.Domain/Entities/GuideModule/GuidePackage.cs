@@ -202,4 +202,14 @@ public class GuidePackage : AuditableEntity<Guid>, IVerifiable
         AdminNotes = adminNotes;
         return Result.Success;
     }
+
+    public Result<decimal> CalculateBooking(int numAdults, int numChildren)
+    {
+        if (numAdults < 0 || numChildren < 0)
+            return Error.Validation("Package.InvalidBooking", "Number of adults and children cannot be negative.");
+        if(numAdults + numChildren > MaxCapacity)
+            return Error.Validation("Package.OverCapacity", "Total number of guests exceeds package capacity.");
+        var total = (AdultPrice * numAdults) + (ChildPrice * numChildren);
+        return total;
+    }
 }

@@ -14,6 +14,31 @@ namespace Fayora.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Bookings",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ServiceProviderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ServiceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ServiceType = table.Column<int>(type: "int", nullable: false),
+                    BasePrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ServiceFee = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PayoutAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    AppliedCancelPolicy = table.Column<int>(type: "int", nullable: false),
+                    BookingStatus = table.Column<int>(type: "int", nullable: false),
+                    PaymentStatus = table.Column<int>(type: "int", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Bookings", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Chats",
                 columns: table => new
                 {
@@ -83,7 +108,6 @@ namespace Fayora.Infrastructure.Migrations
                     DurationHours = table.Column<int>(type: "int", nullable: false),
                     NumOfDays = table.Column<int>(type: "int", nullable: false),
                     MaxCapacity = table.Column<int>(type: "int", nullable: false),
-                    BookingsCount = table.Column<int>(type: "int", nullable: false),
                     AdultPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     ChildPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -627,6 +651,46 @@ namespace Fayora.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Bookings_BookingStatus",
+                table: "Bookings",
+                column: "BookingStatus");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Bookings_EndDate",
+                table: "Bookings",
+                column: "EndDate");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Bookings_PaymentStatus",
+                table: "Bookings",
+                column: "PaymentStatus");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Bookings_ServiceId",
+                table: "Bookings",
+                column: "ServiceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Bookings_ServiceProviderId",
+                table: "Bookings",
+                column: "ServiceProviderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Bookings_ServiceType",
+                table: "Bookings",
+                column: "ServiceType");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Bookings_StartDate",
+                table: "Bookings",
+                column: "StartDate");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Bookings_UserId",
+                table: "Bookings",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Chats_Participants_Scope",
                 table: "Chats",
                 columns: new[] { "FirstUserId", "SecondUserId", "ScopeType", "ScopeId" });
@@ -794,6 +858,9 @@ namespace Fayora.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Bookings");
+
             migrationBuilder.DropTable(
                 name: "GuideCities");
 

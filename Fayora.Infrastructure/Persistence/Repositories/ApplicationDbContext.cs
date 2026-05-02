@@ -1,6 +1,7 @@
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Entities.AccommodationModule;
+using Fayora.Domain.Entities.Booking;
 using Fayora.Domain.Entities.ChatModule;
 using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Entities.IdentityModule;
@@ -45,6 +46,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<PackageActivity> PackageActivities { get; set; }
     public DbSet<PackageImage> PackageImages { get; set; }
     public DbSet<PackageOccurrence> PackageOccurrences { get; set; }
+
+
+    // Booking Module
+    public DbSet<Booking> Bookings { get; set; }
 
 
     // Shared Module
