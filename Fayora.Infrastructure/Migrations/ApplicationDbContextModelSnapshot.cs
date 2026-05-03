@@ -46,6 +46,9 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<int>("BedRooms")
                         .HasColumnType("int");
 
+                    b.Property<int>("CancellationPolicy")
+                        .HasColumnType("int");
+
                     b.Property<TimeSpan>("CheckInTime")
                         .HasColumnType("time");
 

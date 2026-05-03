@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260502161621_InitialCreate")]
+    [Migration("20260503164420_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -47,6 +47,9 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("BedRooms")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CancellationPolicy")
                         .HasColumnType("int");
 
                     b.Property<TimeSpan>("CheckInTime")

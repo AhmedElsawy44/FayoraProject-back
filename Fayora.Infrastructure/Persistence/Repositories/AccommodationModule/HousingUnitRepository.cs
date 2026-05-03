@@ -1,5 +1,7 @@
 ﻿using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Domain.Entities.AccommodationModule;
+using Fayora.Domain.Enums.AccommodationModule;
+using Fayora.Domain.Enums.TourGuideModule;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fayora.Infrastructure.Persistence.Repositories.AccommodationModule;
@@ -27,5 +29,16 @@ public class HousingUnitRepository(ApplicationDbContext context) : IHousingUnitR
         }
 
         return await query.FirstOrDefaultAsync(u => u.Id == unitId, cancellationToken);
+    }
+
+    public async Task<List<HousingUnit>> GetUnitsByTypeAsync(
+        HousingType type,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.HousingUnits
+            .AsNoTracking()
+            .Where(u => u.Type == type && u.Status == ItemStatus.Active)
+            .OrderByDescending(u => u.Rating)
+            .ToListAsync(cancellationToken);
     }
 }

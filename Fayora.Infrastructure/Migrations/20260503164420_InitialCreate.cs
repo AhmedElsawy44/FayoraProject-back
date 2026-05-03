@@ -173,6 +173,7 @@ namespace Fayora.Infrastructure.Migrations
                     PricePerNight = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CommissionRate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Amenities = table.Column<long>(type: "bigint", nullable: false),
+                    CancellationPolicy = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     Rating = table.Column<decimal>(type: "decimal(3,2)", nullable: false),
                     ReviewCount = table.Column<int>(type: "int", nullable: false),

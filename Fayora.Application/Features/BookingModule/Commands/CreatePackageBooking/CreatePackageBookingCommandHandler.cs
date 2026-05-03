@@ -62,6 +62,10 @@ public class CreatePackageBookingCommandHandler(
         if (booking.IsError) return booking.Errors;
 
 
+        bookingRepository.AddBooking(booking.Value);
+
+        await unitOfWork.CommitChangesAsync(cancellationToken);
+
         var paymentResult = await paymentService.GeneratePaymentUrlAsync(new PaymentRequest(
             booking.Value.Id,
             totalPrice.Value,
@@ -72,9 +76,9 @@ public class CreatePackageBookingCommandHandler(
             request.PaymentMethodType));
         if (paymentResult.IsError) return paymentResult.Errors;
 
-        bookingRepository.AddBooking(booking.Value);
+        //bookingRepository.AddBooking(booking.Value);
 
-        await unitOfWork.CommitChangesAsync(cancellationToken);
+        //await unitOfWork.CommitChangesAsync(cancellationToken);
 
         return paymentResult.Value.PaymentUrl;
     }
