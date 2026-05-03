@@ -34,6 +34,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<HousingUnit> HousingUnits { get; set; }
     public DbSet<UnitOwner> UnitOwners { get; set; }
     public DbSet<HousingUnitImage> HousingUnitImages { get; set; }
+    public DbSet<CalendarBlock> CalendarBlocks { get; set; }
 
 
     // Guide Module
@@ -46,6 +47,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<PackageActivity> PackageActivities { get; set; }
     public DbSet<PackageImage> PackageImages { get; set; }
     public DbSet<PackageOccurrence> PackageOccurrences { get; set; }
+    public DbSet<GuideWeeklySchedule> GuideWeeklySchedules { get; set; }
 
 
     // Booking Module

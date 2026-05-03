@@ -43,4 +43,9 @@ public static class AccommodationErrors
         "RoleNotFound",
         "The specified role was not found."
     );
+
+    public static Error UnitAlreadyBlockedOrBooked = Error.Conflict(
+        "UnitAlreadyBlockedOrBooked",
+        "The housing unit is already blocked or booked for the specified dates."
+    );
 }
