@@ -47,6 +47,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<PackageActivity> PackageActivities { get; set; }
     public DbSet<PackageImage> PackageImages { get; set; }
     public DbSet<PackageOccurrence> PackageOccurrences { get; set; }
+    public DbSet<GuideWeeklySchedule> GuideWeeklySchedules { get; set; }
 
 
     // Booking Module
