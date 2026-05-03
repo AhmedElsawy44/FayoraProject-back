@@ -38,7 +38,7 @@ public class HousingUnitRepository(ApplicationDbContext context) : IHousingUnitR
         return await context.HousingUnits
             .AsNoTracking()
             .Where(u => u.Type == type && u.Status == ItemStatus.Active)
-            .OrderByDescending(u => u.Rating)
+            .OrderBy(u => Guid.NewGuid())
             .ToListAsync(cancellationToken);
     }
 }
