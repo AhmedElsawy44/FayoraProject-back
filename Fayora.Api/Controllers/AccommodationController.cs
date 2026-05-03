@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnit;
+using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitCalendarBlock;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitOwner;
 using Fayora.Contracts.AccommodationModule.Requests;
 using Fayora.Contracts.AccommodationModule.Responses;
 using Fayora.Domain.Enums.AccommodationModule;
+using Fayora.Domain.Enums.BookingModule;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -81,6 +83,35 @@ public class AccommodationController(ISender sender, IMapper mapper) : ApiContro
             errors => Problem()
         );
     }
+
+    [HttpPost("{unitId:guid}/blocks")]
+    public async Task<IActionResult> CreateCalendarBlock(
+        [FromRoute] Guid unitId,
+        [FromBody] CreateCalendarBlockRequest request,
+        CancellationToken cancellationToken)
+    {
+        var (blockOk, blockReason) = EnumParser.TryParseEnum<BlockReason>(request.BlockReason);
+
+        if (!blockOk)
+        {
+            return BadRequest("Invalid Block Reason.");
+        }
+
+        var command = new CreateUnitCalendarBlockCommand(
+            unitId,
+            request.StartDate,
+            request.EndDate,
+            blockReason
+        );
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            _ => (IActionResult)NoContent(),
+            errors => Problem()
+        );
+    }
+
 
     //[HttpGet("housing-units/{id:guid}")]
     //public async Task<IActionResult> GetUnitById(

@@ -90,6 +90,7 @@ public static class DependencyInjection
         services.AddScoped<IUnitOwnerRepository, UnitOwnerRepository>();
         services.AddScoped<IHousingUnitImageRepository, HousingUnitImageRepository>();
         services.AddScoped<IHousingUnitImageRepository, HousingUnitImageRepository>();
+        services.AddScoped<ICalendarBlockRepository, CalendarBlockRepository>();
 
         // Tour Guide Module
         services.AddScoped<ITourGuideRepository, TourGuideRepository>();
