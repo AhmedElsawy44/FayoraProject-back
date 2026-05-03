@@ -59,7 +59,7 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateAccommodation
             // calculate the total price
             int nights = (request.EndDate.DayNumber - request.StartDate.DayNumber);
             decimal totalPrice = unit.PricePerNight * nights;
-            decimal serviceFee = totalPrice * unit.CommissionRate;
+            decimal serviceFee = totalPrice * unit.CommissionRate; // a 20% service fee (20% عمولة الشركه)
             decimal payoutAmount = totalPrice - serviceFee;
 
             // create the booking 
