@@ -40,6 +40,24 @@ namespace Fayora.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CalendarBlocks",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ServiceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ServiceType = table.Column<int>(type: "int", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    BlockReason = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
+                    BookingId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CalendarBlocks", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Chats",
                 columns: table => new
                 {
@@ -135,6 +153,22 @@ namespace Fayora.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_GuideTourPackages", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GuideWeeklySchedules",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    GuideId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DayOfWeek = table.Column<int>(type: "int", nullable: false),
+                    StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GuideWeeklySchedules", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -710,6 +744,36 @@ namespace Fayora.Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CalendarBlocks_BlockReason",
+                table: "CalendarBlocks",
+                column: "BlockReason");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CalendarBlocks_EndDate",
+                table: "CalendarBlocks",
+                column: "EndDate");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CalendarBlocks_ServiceId",
+                table: "CalendarBlocks",
+                column: "ServiceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CalendarBlocks_ServiceId_StartDate_EndDate",
+                table: "CalendarBlocks",
+                columns: new[] { "ServiceId", "StartDate", "EndDate" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CalendarBlocks_ServiceType",
+                table: "CalendarBlocks",
+                column: "ServiceType");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CalendarBlocks_StartDate",
+                table: "CalendarBlocks",
+                column: "StartDate");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Chats_Participants_Scope",
                 table: "Chats",
                 columns: new[] { "FirstUserId", "SecondUserId", "ScopeType", "ScopeId" });
@@ -723,6 +787,22 @@ namespace Fayora.Infrastructure.Migrations
                 name: "IX_GuideOffers_RequestId",
                 table: "GuideOffers",
                 column: "RequestId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GuideWeeklySchedules_DayOfWeek",
+                table: "GuideWeeklySchedules",
+                column: "DayOfWeek");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GuideWeeklySchedules_GuideId",
+                table: "GuideWeeklySchedules",
+                column: "GuideId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GuideWeeklySchedules_GuideId_DayOfWeek",
+                table: "GuideWeeklySchedules",
+                columns: new[] { "GuideId", "DayOfWeek" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_HousingUnits_LocationId",
@@ -897,10 +977,16 @@ namespace Fayora.Infrastructure.Migrations
                 name: "Bookings");
 
             migrationBuilder.DropTable(
+                name: "CalendarBlocks");
+
+            migrationBuilder.DropTable(
                 name: "GuideCities");
 
             migrationBuilder.DropTable(
                 name: "GuideOffers");
+
+            migrationBuilder.DropTable(
+                name: "GuideWeeklySchedules");
 
             migrationBuilder.DropTable(
                 name: "HousingUnitImages");

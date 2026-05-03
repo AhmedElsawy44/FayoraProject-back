@@ -1,8 +1,10 @@
 ﻿using Fayora.Application.Common.Interfaces.Services.BookingModule;
+using Fayora.Application.Features.BookingModule.Commands.CreateAccommodationBooking;
 using Fayora.Application.Features.BookingModule.Commands.CreatePackageBooking;
 using Fayora.Application.Features.BookingModule.Commands.ProcessPaymentWebhook;
 using Fayora.Application.Features.BookingModule.Common;
 using Fayora.Contracts.BookingModule.CreatePackageBooking;
+using Fayora.Contracts.BookingModule.CreateUnitBooking;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,6 +38,31 @@ public class BookingController(ISender sender) : ApiController
 
         var result = await sender.Send(command, cancellationToken);
 
+        return result.Match(Ok, Problem);
+    }
+
+
+    [HttpPost("{unitId:guid}/book")]
+    public async Task<IActionResult> BookUnitAsync(
+    [FromRoute] Guid unitId,
+    [FromBody] CreateAccommodationBookingRequest request,
+    CancellationToken cancellationToken)
+    {
+        var (paymentMethodOk, paymentMethod) = EnumParser.TryParseEnum<PaymentMethodType>(request.PaymentMethodType);
+
+        if (!paymentMethodOk)
+            return BadRequest($"Invalid payment method type: {request.PaymentMethodType}");
+
+        var command = new CreateAccommodationBookingCommand(
+            unitId,
+            request.StartDate,
+            request.EndDate,
+            request.Adults,
+            request.Children,
+            paymentMethod
+        );
+
+        var result = await sender.Send(command, cancellationToken);
         return result.Match(Ok, Problem);
     }
 
