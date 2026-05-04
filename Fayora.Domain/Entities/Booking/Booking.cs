@@ -21,6 +21,8 @@ public class Booking : BaseEntity<Guid>
     public PaymentTransactionStatus PaymentStatus { get; private set; }
     public DateTime StartDate { get; init; }
     public DateTime EndDate { get; init; }
+    public bool IsScanned { get; private set; }
+    public DateTimeOffset? ScannedAt { get; private set; }
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
 
     public static Result<Booking> Create(
@@ -59,6 +61,16 @@ public class Booking : BaseEntity<Guid>
 
         PaymentStatus = PaymentTransactionStatus.Paid;
         BookingStatus = BookingStatus.Completed;
+        return Result.Success;
+    }
+
+    public Result<Success> MarkAsScanned()
+    {
+        if (IsScanned)
+            return Error.Conflict("QR code already used.");
+
+        IsScanned = true;
+        ScannedAt = DateTimeOffset.UtcNow;
         return Result.Success;
     }
 

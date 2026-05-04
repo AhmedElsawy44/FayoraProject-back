@@ -2,11 +2,14 @@
 using Fayora.Application.Features.BookingModule.Commands.CreateAccommodationBooking;
 using Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking;
 using Fayora.Application.Features.BookingModule.Commands.CreatePackageBooking;
+using Fayora.Application.Features.BookingModule.Commands.GenerateBookingQr;
 using Fayora.Application.Features.BookingModule.Commands.ProcessPaymentWebhook;
+using Fayora.Application.Features.BookingModule.Commands.ScanBookingQr;
 using Fayora.Application.Features.BookingModule.Common;
 using Fayora.Contracts.BookingModule.CreateGuideBooking;
 using Fayora.Contracts.BookingModule.CreatePackageBooking;
 using Fayora.Contracts.BookingModule.CreateUnitBooking;
+using Fayora.Contracts.BookingModule.ScanBookingQr;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -116,5 +119,26 @@ public class BookingController(ISender sender) : ApiController
         }
 
         return Ok();
+    }
+
+
+    [HttpGet("{bookingId:guid}/generateQr")]
+    public async Task<IActionResult> GenerateQr(
+    Guid bookingId,
+    CancellationToken cancellationToken)
+    {
+        var command = new GenerateBookingQrCommand(bookingId);
+        var result = await sender.Send(command, cancellationToken);
+        return result.Match(Ok, Problem);
+    }
+
+    [HttpPost("scanQr")]
+    public async Task<IActionResult> ScanQr(
+        [FromBody] ScanBookingQrRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new ScanBookingQrCommand(request.Token);
+        var result = await sender.Send(command, cancellationToken);
+        return result.Match(Ok, Problem);
     }
 }

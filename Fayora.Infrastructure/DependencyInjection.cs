@@ -110,6 +110,7 @@ public static class DependencyInjection
         // Booking Module
         services.AddScoped<IBookingRepository, BookingRepository>();
         services.AddScoped<IPaymentTransactionRepository, PaymentTransactionRepository>();
+        services.AddScoped<IQrTokenService, QrTokenService>();
 
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
         services.AddSingleton<ICacheService, CacheService>();

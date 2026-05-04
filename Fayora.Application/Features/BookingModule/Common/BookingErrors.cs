@@ -28,4 +28,29 @@ public static class BookingErrors
         code: "Booking.PaymentTransactionNotFound",
         description: "The payment transaction associated with the payment webhook was not found."
     );
+
+    public static readonly Error InvalidQrToken = Error.Validation(
+    "Booking.InvalidQrToken",
+    "The QR token is invalid or expired."
+);
+
+    public static readonly Error UnauthorizedScan = Error.Unauthorized(
+        "Booking.UnauthorizedScan",
+        "You are not authorized to scan this QR code."
+    );
+
+    public static readonly Error BookingNotPaid = Error.Validation(
+        "Booking.NotPaid",
+        "Booking must be paid before generating QR code."
+    );
+
+    public static readonly Error Unauthorized = Error.Unauthorized(
+        "Booking.Unauthorized",
+        "You are not authorized to access this booking."
+    );
+
+    public static readonly Error BookingCancelled = Error.Validation(
+    "Booking.Cancelled",
+    "This booking has been cancelled."
+);
 }
