@@ -1,4 +1,6 @@
-﻿using Fayora.Infrastructure.Persistence.Repositories;
+﻿using Fayora.Infrastructure.Jobs;
+using Fayora.Infrastructure.Persistence.Repositories;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fayora.Api.Externals;
@@ -15,6 +17,19 @@ public static class WebApplicationExtensions
         {
             await dbContext.Database.MigrateAsync();
         }
+
+        return app;
+    }
+
+    public static WebApplication UseBackgroundJobs(this WebApplication app)
+    {
+        app.UseHangfireDashboard("/hangfire"); //dashboard for monitoring jobs to show pending, succeeded, failed jobs etc.
+
+        app.Services.GetRequiredService<IRecurringJobManager>()
+            .AddOrUpdate<ExpiredBookingsJob>(
+                "expire-pending-bookings",
+                job => job.ExecuteAsync(CancellationToken.None),
+                "*/5 * * * *");
 
         return app;
     }

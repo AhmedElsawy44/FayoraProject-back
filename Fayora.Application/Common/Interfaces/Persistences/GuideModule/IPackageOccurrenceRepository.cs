@@ -5,4 +5,6 @@ namespace Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 public interface IPackageOccurrenceRepository
 {
     Task<PackageOccurrence?> GetOccurrenceByPackageIdAndDate(Guid packageId, DateOnly date, CancellationToken cancellationToken);
+
+    Task ReleaseSeatsAsync(Guid packageId, DateOnly date, int count, CancellationToken cancellationToken);
 }

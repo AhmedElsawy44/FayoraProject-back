@@ -46,4 +46,15 @@ public class BookingRepository(ApplicationDbContext context) : IBookingRepositor
                         && x.BookingStatus != BookingStatus.Cancelled,
                       cancellationToken);
     }
+
+    public async Task<List<Booking>> GetExpiredPendingBookingsAsync(CancellationToken cancellationToken)
+    {
+        var expiryTime = DateTimeOffset.UtcNow.AddMinutes(-30);
+
+        return await context.Bookings
+            .Where(x => x.PaymentStatus == PaymentTransactionStatus.Pending
+                     && x.BookingStatus == BookingStatus.Pending
+                     && x.CreatedAt <= expiryTime)
+            .ToListAsync(cancellationToken);
+    }
 }

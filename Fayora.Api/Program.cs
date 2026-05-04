@@ -27,6 +27,9 @@ public class Program
         // Auto-migrate
         await app.MigrateDatabaseAsync();
 
+        //use background jobs (ex: Hangfire)
+        app.UseBackgroundJobs();
+
         app.AddInfrastructureMiddleware();
 
         if (app.Environment.IsDevelopment())

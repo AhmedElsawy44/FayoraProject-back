@@ -30,6 +30,7 @@ using Fayora.Infrastructure.Services.BookingModule;
 using Fayora.Infrastructure.Services.SharedModule;
 using Fayora.Infrastructure.Settings;
 using Fayora.Infrastructure.Strategies;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -49,7 +50,8 @@ public static class DependencyInjection
         return services
             .AddAuthentication(configuration)
             .AddPersistence(configuration)
-            .AddService(configuration);
+            .AddService(configuration)
+            .AddBackgroundJobs(configuration);
     }
 
     public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
@@ -166,6 +168,7 @@ public static class DependencyInjection
 
         services.AddHttpClient<IPaymentService, PaymobPaymentService>();
 
+
         return services;
     }
 
@@ -191,7 +194,18 @@ public static class DependencyInjection
                     Encoding.UTF8.GetBytes(jwtSettings.Secret)),
             });
 
+        return services;
+    }
 
+    public static IServiceCollection AddBackgroundJobs(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddHangfire(config => config
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSqlServerStorage(configuration.GetConnectionString("DefaultConnection")));
+
+        services.AddHangfireServer();
 
         return services;
     }

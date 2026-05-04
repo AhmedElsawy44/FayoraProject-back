@@ -29,4 +29,18 @@ public class PackageOccurrenceRepository(ApplicationDbContext context)
                         && x.Status != OccurrenceStatus.Cancelled,
                       cancellationToken);
     }
+
+    public async Task ReleaseSeatsAsync(
+        Guid packageId,
+        DateOnly date,
+        int count,
+        CancellationToken cancellationToken)
+    {
+        var occurrence = await context.PackageOccurrences
+            .FirstOrDefaultAsync(x => x.PackageId == packageId
+                                 && x.Date == date,
+                                 cancellationToken);
+
+        occurrence?.ReleaseSeats(count);
+    }
 }
