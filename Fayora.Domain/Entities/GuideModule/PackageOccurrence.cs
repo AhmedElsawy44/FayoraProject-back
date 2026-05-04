@@ -48,4 +48,12 @@ public class PackageOccurrence : BaseEntity<Guid>
     {
         Status = OccurrenceStatus.Cancelled;
     }
+
+    public void Update(DateOnly newDate, int newAvailableSeats)
+    {
+        Date = newDate;
+        AvailableSeats = newAvailableSeats;
+        if (Status == OccurrenceStatus.Cancelled)
+            Status = OccurrenceStatus.Available;
+    }
 }

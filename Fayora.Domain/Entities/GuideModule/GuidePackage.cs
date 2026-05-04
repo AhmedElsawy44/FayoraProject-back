@@ -3,6 +3,7 @@ using Fayora.Domain.Common.Interfaces.Admin;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
+using Fayora.Domain.Errors;
 using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Domain.Entities.GuideModule;
@@ -35,6 +36,9 @@ public class GuidePackage : AuditableEntity<Guid>, IVerifiable
     public string? ArrivalNote { get; private set; }
     public TransportType TransportType { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
+    public ItemStatus Status { get; private set; }
+
+    public string? AdminNotes { get; private set; }
 
     private readonly List<Guid> _imageIds = [];
     public IReadOnlyCollection<Guid> ImageIds => _imageIds.AsReadOnly();
@@ -42,10 +46,9 @@ public class GuidePackage : AuditableEntity<Guid>, IVerifiable
 
     private readonly List<Guid> _activityIds = [];
     public IReadOnlyCollection<Guid> ActivityIds => _activityIds.AsReadOnly();
+    private readonly List<PackageOccurrence> _occurrences = new();
+    public IReadOnlyCollection<PackageOccurrence> Occurrences => _occurrences.AsReadOnly();
 
-    public ItemStatus Status { get; private set; }
-
-    public string? AdminNotes { get; private set; }
 
     private GuidePackage() { }
 
@@ -207,9 +210,81 @@ public class GuidePackage : AuditableEntity<Guid>, IVerifiable
     {
         if (numAdults < 0 || numChildren < 0)
             return Error.Validation("Package.InvalidBooking", "Number of adults and children cannot be negative.");
-        if(numAdults + numChildren > MaxCapacity)
+        if (numAdults + numChildren > MaxCapacity)
             return Error.Validation("Package.OverCapacity", "Total number of guests exceeds package capacity.");
         var total = (AdultPrice * numAdults) + (ChildPrice * numChildren);
         return total;
+    }
+
+    public Result<Success> AddOccurrences(IEnumerable<(DateOnly Date, int AvailableSeats)> newOccurrences)
+    {
+        var requestedDates = newOccurrences.Select(x => x.Date).ToList();
+
+        var hasDuplicatesInRequest = requestedDates.GroupBy(x => x).Any(g => g.Count() > 1);
+        if (hasDuplicatesInRequest)
+            return GuideErrors.DuplicateDatesInRequest;
+
+        var hasOverlapWithExisting = _occurrences.Any(existing => requestedDates.Contains(existing.Date));
+        if (hasOverlapWithExisting)
+            return GuideErrors.PackageOccurrenceOverlap;
+
+        foreach (var item in newOccurrences)
+        {
+            _occurrences.Add(new PackageOccurrence(this.Id, item.Date, item.AvailableSeats));
+        }
+
+        return Result.Success;
+    }
+
+    public Result<Success> RemoveOccurrence(Guid occurrenceId)
+    {
+        var occurrence = _occurrences.FirstOrDefault(o => o.Id == occurrenceId);
+
+        if (occurrence is null)
+            return GuideErrors.OccurrenceNotFound;
+
+
+        _occurrences.Remove(occurrence);
+        return Result.Success;
+    }
+
+    public Result<Success> SyncOccurrences(IEnumerable<(Guid? Id, DateOnly Date, int AvailableSeats)> requestedOccurrences)
+    {
+        var requestedList = requestedOccurrences.ToList();
+
+        if (requestedList.GroupBy(x => x.Date).Any(g => g.Count() > 1))
+            return GuideErrors.DuplicateDatesInRequest;
+
+        var incomingIds = requestedList.Where(x => x.Id.HasValue).Select(x => x.Id.Value).ToList();
+
+        var occurrencesToRemove = _occurrences.Where(o => !incomingIds.Contains(o.Id)).ToList();
+        foreach (var toRemove in occurrencesToRemove)
+        {
+            _occurrences.Remove(toRemove);
+        }
+
+        foreach (var request in requestedList)
+        {
+            if (request.Id.HasValue)
+            {
+                var existingOccurrence = _occurrences.FirstOrDefault(o => o.Id == request.Id.Value);
+                if (existingOccurrence != null)
+                {
+                    if (existingOccurrence.Date != request.Date && _occurrences.Any(o => o.Id != existingOccurrence.Id && o.Date == request.Date))
+                        return GuideErrors.PackageOccurrenceOverlap;
+
+                    existingOccurrence.Update(request.Date, request.AvailableSeats);
+                }
+            }
+            else
+            {
+                if (_occurrences.Any(o => o.Date == request.Date))
+                    return GuideErrors.PackageOccurrenceOverlap;
+
+                _occurrences.Add(new PackageOccurrence(this.Id, request.Date, request.AvailableSeats));
+            }
+        }
+
+        return Result.Success;
     }
 }

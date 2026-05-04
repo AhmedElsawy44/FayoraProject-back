@@ -1,14 +1,16 @@
 ﻿using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Entities.GuideModule;
 
 namespace Fayora.Application.Features.TourGuideModule.Commands.CreatePackageOccurrences;
 
 public class CreatePackageOccurrencesCommandHandler(
-    IPackageOccurrenceRepository repository,
-    IClientContextProvider clientContextProvider
+    IPackageRepository packageRepository,
+    IClientContextProvider clientContextProvider,
+    IUnitOfWork unitOfWork
 ) : ICommandHandler<CreatePackageOccurrencesCommand, Result<Success>>
 {
     public async Task<Result<Success>> Handle(
@@ -17,25 +19,22 @@ public class CreatePackageOccurrencesCommandHandler(
     {
         var currentUserId = clientContextProvider.GetContext().UserId;
 
-        var packageExists = await repository.PackageExistsForUserAsync(
-             request.PackageId, currentUserId, cancellationToken);
+        var package = await packageRepository.GetPackageByIdAsync(
+            request.PackageId, new IPackageRepository.PackageQueryOptions { ReadOnly = false, IncludeOccurrences = true }, cancellationToken);
 
-        if (!packageExists)
-            return Error.NotFound("Package not found.");
+        if (package is null || package.UserId != currentUserId)
+            return TourGuideErrors.PackageNotFound;
 
-        var dates = request.Occurrences.Select(x => x.Date).ToList();
-
-        var hasOverlap = await repository.HasOverlappingOccurrenceAsync(
-            request.PackageId, dates, cancellationToken);
-
-        if (hasOverlap)
-            return Error.Conflict("One or more dates already have an occurrence.");
-
-        var occurrences = request.Occurrences
-            .Select(x => new PackageOccurrence(request.PackageId, x.Date, x.AvailableSeats))
+        var occurrencesToAdd = request.Occurrences
+            .Select(x => (x.Date, x.AvailableSeats))
             .ToList();
 
-        await repository.AddRangeAsync(occurrences, cancellationToken);
+        var result = package.AddOccurrences(occurrencesToAdd);
+
+        if (result.IsError)
+            return result.Errors;
+
+        await unitOfWork.CommitChangesAsync(cancellationToken);
 
         return Result.Success;
     }

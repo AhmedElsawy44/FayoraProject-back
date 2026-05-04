@@ -72,11 +72,25 @@ public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
             .Metadata.SetValueComparer(CreateGuidListComparer());
 
         builder.Property(x => x.TourTypes).HasConversion<int>();
+
+        builder.HasMany(p => p.Occurrences)
+               .WithOne()
+               .HasForeignKey(o => o.PackageId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Metadata.FindNavigation(nameof(GuidePackage.Occurrences))
+       ?.SetPropertyAccessMode(PropertyAccessMode.Field);
     }
 
-    private ValueComparer<List<int>> CreateIntListComparer() =>
-        new ValueComparer<List<int>>((c1, c2) => c1!.SequenceEqual(c2!), c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())), c => c.ToList());
+    private ValueComparer<List<int>> CreateIntListComparer()
+    {
+        ValueComparer<List<int>> valueComparer = new((c1, c2) => c1!.SequenceEqual(c2!), c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())), c => c.ToList());
+        return valueComparer;
+    }
 
-    private ValueComparer<List<Guid>> CreateGuidListComparer() =>
-        new ValueComparer<List<Guid>>((c1, c2) => c1!.SequenceEqual(c2!), c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())), c => c.ToList());
+    private ValueComparer<List<Guid>> CreateGuidListComparer()
+    {
+        ValueComparer<List<Guid>> valueComparer = new((c1, c2) => c1!.SequenceEqual(c2!), c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())), c => c.ToList());
+        return valueComparer;
+    }
 }
