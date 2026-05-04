@@ -23,7 +23,12 @@ public static class WebApplicationExtensions
 
     public static WebApplication UseBackgroundJobs(this WebApplication app)
     {
-        app.UseHangfireDashboard("/hangfire"); //dashboard for monitoring jobs to show pending, succeeded, failed jobs etc.
+
+        app.UseHangfireDashboard("/hangfire", new DashboardOptions
+        {
+            Authorization = [new HangfireAuthorizationFilter()]
+        });
+
 
         app.Services.GetRequiredService<IRecurringJobManager>()
             .AddOrUpdate<ExpiredBookingsJob>(
