@@ -1,5 +1,6 @@
 ﻿using Fayora.Domain.Common.Interfaces.Admin;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 
@@ -17,6 +18,7 @@ public class TourGuide : GuideAccountBase, IVerifiable
     public DateTimeOffset? LastLocationUpdate { get; private set; }
     public TransportInfo? TransportInfo { get; private set; }
     public FileUrl? ProfessionalLicenseUrl { get; private set; }
+    public CancellationPolicy CancellationPolicy { get; private set; }
 
     private readonly List<GuideCity> _guideCities = [];
     public IReadOnlyCollection<GuideCity> GuideCities => _guideCities.AsReadOnly();

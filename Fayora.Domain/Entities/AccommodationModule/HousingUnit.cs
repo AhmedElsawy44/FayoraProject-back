@@ -1,6 +1,7 @@
 ﻿using Fayora.Domain.Common.Interfaces.Admin;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.AccommodationModule;
+using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 
@@ -30,7 +31,7 @@ public class HousingUnit : BaseEntity<Guid>, IVerifiable
     public decimal PricePerNight { get; private set; }
     public decimal CommissionRate { get; private set; }
     public Amenities Amenities { get; private set; } = default!;
-
+    public CancellationPolicy CancellationPolicy { get; private set; }
     public ItemStatus Status { get; private set; }
     public decimal Rating { get; private set; }
     public int ReviewCount { get; private set; }

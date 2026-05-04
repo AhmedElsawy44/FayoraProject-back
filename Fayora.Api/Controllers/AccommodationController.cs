@@ -2,6 +2,7 @@
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnit;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitCalendarBlock;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitOwner;
+using Fayora.Application.Features.AccommodationModule.Queries.GetUnitsByType;
 using Fayora.Contracts.AccommodationModule.Requests;
 using Fayora.Contracts.AccommodationModule.Responses;
 using Fayora.Domain.Enums.AccommodationModule;
@@ -138,8 +139,28 @@ public class AccommodationController(ISender sender, IMapper mapper) : ApiContro
     //    var result = await sender.Send(command, cancellationToken);
 
     //    return result.Match(
-    //        _ => NoContent(), // 204 No Content لأن مفيش داتا هترجع للموبايل
+    //        _ => NoContent(), // 
     //        errors => Problem()
     //    );
     //}
+
+
+
+    [HttpGet("housing-units-ByType")]
+    public async Task<IActionResult> GetUnitsByTypeAsync(
+    [FromQuery] string type,
+    CancellationToken cancellationToken)
+    {
+        if (!Enum.TryParse<HousingType>(type, true, out var housingType))
+            return BadRequest("Invalid housing type. Valid values are: Apartment, Villa, Hotel.");
+
+        var query = new GetUnitsByTypeQuery(housingType);
+
+        var result = await sender.Send(query, cancellationToken);
+
+        return result.Match(
+            value => Ok(value),
+            errors => Problem()
+        );
+    }
 }

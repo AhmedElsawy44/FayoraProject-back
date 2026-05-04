@@ -1,4 +1,5 @@
 ﻿using Fayora.Domain.Entities.Booking;
+using Fayora.Domain.Enums.BookingModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -24,7 +25,7 @@ internal sealed class CalendarBlockConfigurations : IEntityTypeConfiguration<Cal
 
         builder.Property(x => x.BlockReason)
             .HasConversion<int>()
-            .HasDefaultValue(1);
+            .HasDefaultValue(BlockReason.Booked);
 
         builder.Property(x => x.StartDate)
             .IsRequired();

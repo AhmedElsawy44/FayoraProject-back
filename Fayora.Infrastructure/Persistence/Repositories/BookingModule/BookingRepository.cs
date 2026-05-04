@@ -28,4 +28,22 @@ public class BookingRepository(ApplicationDbContext context) : IBookingRepositor
                      && endDateTime > b.StartDate,
                 cancellationToken);
     }
+
+    // For guide booking
+    public async Task<bool> HasGuideBookingOnDateAsync(
+    Guid guideId,
+    DateOnly date,
+    CancellationToken cancellationToken)
+    {
+        var startDateTime = date.ToDateTime(TimeOnly.MinValue);
+        var endDateTime = date.ToDateTime(TimeOnly.MaxValue);
+
+        return await context.Bookings
+            .AnyAsync(x => x.ServiceProviderId == guideId
+                        && x.ServiceType == ServiceType.TourGuide
+                        && x.StartDate < endDateTime
+                        && x.EndDate > startDateTime
+                        && x.BookingStatus != BookingStatus.Cancelled,
+                      cancellationToken);
+    }
 }

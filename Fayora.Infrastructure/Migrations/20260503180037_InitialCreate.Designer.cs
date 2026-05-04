@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260502161621_InitialCreate")]
+    [Migration("20260503180037_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -47,6 +47,9 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("BedRooms")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CancellationPolicy")
                         .HasColumnType("int");
 
                     b.Property<TimeSpan>("CheckInTime")
@@ -251,6 +254,52 @@ namespace Fayora.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Bookings", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.Booking.CalendarBlock", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("BlockReason")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
+                    b.Property<Guid?>("BookingId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ServiceType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlockReason");
+
+                    b.HasIndex("EndDate");
+
+                    b.HasIndex("ServiceId");
+
+                    b.HasIndex("ServiceType");
+
+                    b.HasIndex("StartDate");
+
+                    b.HasIndex("ServiceId", "StartDate", "EndDate");
+
+                    b.ToTable("CalendarBlocks", (string)null);
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.Booking.PaymentTransaction", b =>
@@ -584,6 +633,39 @@ namespace Fayora.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("GuideRequests", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.GuideWeeklySchedule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<Guid>("GuideId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DayOfWeek");
+
+                    b.HasIndex("GuideId");
+
+                    b.HasIndex("GuideId", "DayOfWeek")
+                        .IsUnique();
+
+                    b.ToTable("GuideWeeklySchedules", (string)null);
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageActivity", b =>
