@@ -1,5 +1,6 @@
 ﻿using Fayora.Application.Common.Abstractions.Caching;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Common.Strategies;
 
 namespace Fayora.Infrastructure.Services.AuthModule;
 

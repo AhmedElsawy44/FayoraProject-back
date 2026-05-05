@@ -1,26 +1,36 @@
 using Fayora.Application.Common.Abstractions.Caching;
+using Fayora.Application.Common.Factories;
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
+using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
+using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Common.Interfaces.Persistences.ChatModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Common.Interfaces.Persistences.TouristModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Common.Interfaces.Services.BookingModule;
 using Fayora.Application.Common.Interfaces.Services.SharedModule;
+using Fayora.Application.Common.Strategies;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Infrastructure.Persistence.Caching;
 using Fayora.Infrastructure.Persistence.Repositories;
 using Fayora.Infrastructure.Persistence.Repositories.AccommodationModule;
+using Fayora.Infrastructure.Persistence.Repositories.AdminModule;
+using Fayora.Infrastructure.Persistence.Repositories.BookingModule;
 using Fayora.Infrastructure.Persistence.Repositories.ChatModule;
 using Fayora.Infrastructure.Persistence.Repositories.GuideModule;
 using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories.SharedModule;
 using Fayora.Infrastructure.Persistence.Repositories.TouristModule;
+using Fayora.Infrastructure.Services.AdminModule;
 using Fayora.Infrastructure.Services.Authentication;
 using Fayora.Infrastructure.Services.AuthModule;
+using Fayora.Infrastructure.Services.BookingModule;
 using Fayora.Infrastructure.Services.SharedModule;
 using Fayora.Infrastructure.Settings;
 using Fayora.Infrastructure.Strategies;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -40,7 +50,8 @@ public static class DependencyInjection
         return services
             .AddAuthentication(configuration)
             .AddPersistence(configuration)
-            .AddService(configuration);
+            .AddService(configuration)
+            .AddBackgroundJobs(configuration);
     }
 
     public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
@@ -81,12 +92,15 @@ public static class DependencyInjection
         services.AddScoped<IUnitOwnerRepository, UnitOwnerRepository>();
         services.AddScoped<IHousingUnitImageRepository, HousingUnitImageRepository>();
         services.AddScoped<IHousingUnitImageRepository, HousingUnitImageRepository>();
+        services.AddScoped<ICalendarBlockRepository, CalendarBlockRepository>();
 
         // Tour Guide Module
         services.AddScoped<ITourGuideRepository, TourGuideRepository>();
         services.AddScoped<IPackageRepository, PackageRepository>();
         services.AddScoped<ITourCompanyRepository, TourCompanyRepository>();
         services.AddScoped<IPackageImageRepository, PackageImageRepository>();
+        services.AddScoped<IPackageOccurrenceRepository, PackageOccurrenceRepository>();
+        services.AddScoped<IGuideWeeklyScheduleRepository, GuideWeeklyScheduleRepository>();
 
         // Shared Module
         services.AddScoped<ICityRepository, CityRepository>();
@@ -94,6 +108,11 @@ public static class DependencyInjection
         // Chat Module
         services.AddScoped<IChatRepository, ChatRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
+
+        // Booking Module
+        services.AddScoped<IBookingRepository, BookingRepository>();
+        services.AddScoped<IPaymentTransactionRepository, PaymentTransactionRepository>();
+        services.AddScoped<IQrTokenService, QrTokenService>();
 
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
         services.AddSingleton<ICacheService, CacheService>();
@@ -118,6 +137,7 @@ public static class DependencyInjection
         services.Configure<GoogleSettings>(configuration.GetSection(GoogleSettings.SectionName));
         services.Configure<FacebookSettings>(configuration.GetSection(FacebookSettings.SectionName));
         services.Configure<CloudinarySettings>(configuration.GetSection(CloudinarySettings.SectionName));
+        services.Configure<PaymobSettings>(configuration.GetSection(PaymobSettings.SectionName));
 
 
         services.AddMemoryCache();
@@ -136,8 +156,18 @@ public static class DependencyInjection
         services.AddSingleton<ISocialAuthStrategy, GoogleAuthStrategy>();
         services.AddSingleton<ISocialAuthStrategy, MockAppleAuthService>();
 
+        services.AddScoped<IVerificationStrategy, TourGuideVerificationStrategy>();
+        services.AddScoped<IVerificationStrategy, TourCompanyVerificationStrategy>();
+        services.AddScoped<IVerificationStrategy, GuidePackageVerificationStrategy>();
+
+        services.AddScoped<IVerificationFactory, VerificationFactory>();
 
         services.AddScoped<IFileStorageService, LocalFileService>();
+
+        services.AddScoped<IInventoryModerationService, InventoryModerationService>();
+
+        services.AddHttpClient<IPaymentService, PaymobPaymentService>();
+
 
         return services;
     }
@@ -164,7 +194,18 @@ public static class DependencyInjection
                     Encoding.UTF8.GetBytes(jwtSettings.Secret)),
             });
 
+        return services;
+    }
 
+    public static IServiceCollection AddBackgroundJobs(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddHangfire(config => config
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSqlServerStorage(configuration.GetConnectionString("DefaultConnection")));
+
+        services.AddHangfireServer();
 
         return services;
     }

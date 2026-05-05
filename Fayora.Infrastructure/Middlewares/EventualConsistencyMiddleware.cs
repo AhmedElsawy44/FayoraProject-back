@@ -48,9 +48,8 @@ public class EventualConsistencyMiddleware(RequestDelegate next)
 
         try
         {
-            await _next(context); // شغل الـ request الأول
+            await _next(context);
 
-            // دلوقتي publish الـ events قبل ما الـ response يتبعت
             if (context.Items.TryGetValue("DomainEventsQueue", out var value) &&
                 value is Queue<IDomainEvent> domainEventsQueue)
             {
@@ -66,7 +65,7 @@ public class EventualConsistencyMiddleware(RequestDelegate next)
         {
             await transaction.RollbackAsync();
             Console.WriteLine(ex);
-            throw; // عشان الـ error handling يشتغل صح
+            throw;
         }
         finally
         {

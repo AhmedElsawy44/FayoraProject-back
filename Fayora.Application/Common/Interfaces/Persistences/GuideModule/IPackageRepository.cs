@@ -8,6 +8,7 @@ public interface IPackageRepository
     Task<GuidePackage?> GetPackageByIdAsync(Guid packageId, PackageQueryOptions options, CancellationToken cancellationToken);
 
     public record PackageQueryOptions(
-        bool ReadOnly = true
+        bool ReadOnly = true,
+        bool IncludeOccurrences = false
     );
 }

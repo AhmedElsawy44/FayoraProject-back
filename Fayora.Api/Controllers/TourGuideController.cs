@@ -1,14 +1,18 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.TourGuideModule.Commands.ActivateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateGuidePackage;
+using Fayora.Application.Features.TourGuideModule.Commands.CreateGuideWeeklySchedule;
+using Fayora.Application.Features.TourGuideModule.Commands.CreatePackageOccurrences;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateTourCompany;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Commands.DeactivateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.DeleteGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.UpdateTourGuide;
 using Fayora.Contracts.TourGuideModule.CreateGuidePackage;
+using Fayora.Contracts.TourGuideModule.CreatePackageOccurrences;
 using Fayora.Contracts.TourGuideModule.CreateTourCompany;
 using Fayora.Contracts.TourGuideModule.CreateTourGuide;
+using Fayora.Contracts.TourGuideModule.CreateWeeklySchedule;
 using Fayora.Contracts.TourGuideModule.UpdateTourGuide;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
@@ -164,5 +168,41 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             _ => NoContent(),
             Problem
         );
+    }
+
+
+    [HttpPost("{packageId:guid}/occurrences")]
+    public async Task<IActionResult> CreateOccurrences(
+    Guid packageId,
+    CreatePackageOccurrencesRequest request,
+    CancellationToken cancellationToken)
+    {
+        var command = new CreatePackageOccurrencesCommand(
+            packageId,
+            [.. request.Occurrences.Select(x => new OccurrenceItemDto(x.Date, x.AvailableSeats))]
+        );
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            _ => NoContent(),
+            errors => Problem(errors)
+            );
+    }
+
+    [HttpPost("schedules")]
+    public async Task<IActionResult> CreateWeeklySchedule(
+        [FromBody] CreateWeeklyScheduleRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new CreateGuideWeeklyScheduleCommand(
+            request.DayOfWeek,
+            request.StartTime,
+            request.EndTime
+        );
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return NoContent();
     }
 }

@@ -43,4 +43,19 @@ public static class AccommodationErrors
         "RoleNotFound",
         "The specified role was not found."
     );
+
+    public static Error UnitAlreadyBlockedOrBooked = Error.Conflict(
+        "UnitAlreadyBlockedOrBooked",
+        "The housing unit is already blocked or booked for the specified dates."
+    );
+
+    public static Error UnitNotAvailable = Error.Validation(
+       "UnitNotAvailable",
+       "The housing unit is not available for the specified dates."
+   );
+
+    public static Error ExceedsMaxGuests = Error.Validation(
+      "ExceedsMaxGuests",
+      "The number of guests exceeds the maximum allowed for this unit."
+   );
 }

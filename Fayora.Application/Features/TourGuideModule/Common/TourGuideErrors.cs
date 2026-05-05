@@ -73,4 +73,24 @@ public static class TourGuideErrors
         "TourGuide.CitiesNotExist",
         "One or more of the specified cities do not exist."
     );
+
+    public static readonly Error GuideNotAvailable = Error.Validation(
+    "TourGuide.GuideNotAvailable",
+    "The tour guide is not available for booking."
+);
+
+    public static readonly Error GuideNotAvailableOnThisDay = Error.Validation(
+        "TourGuide.GuideNotAvailableOnThisDay",
+        "The tour guide is not available on the specified day."
+    );
+
+    public static readonly Error GuideAlreadyBooked = Error.Conflict(
+        "TourGuide.GuideAlreadyBooked",
+        "The tour guide is already booked on the specified date."
+    );
+
+    public static readonly Error GuideRateNotSet = Error.Validation(
+        "TourGuide.GuideRateNotSet",
+        "The tour guide has not set their rate yet."
+    );
 }

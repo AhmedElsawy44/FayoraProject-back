@@ -1,0 +1,85 @@
+﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
+using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Common.Interfaces.Services.BookingModule;
+using Fayora.Application.Features.AuthModule.Common;
+using Fayora.Application.Features.BookingModule.Common;
+using Fayora.Application.Features.TourGuideModule.Common;
+using Fayora.Domain.Common.Results;
+using Fayora.Domain.Entities.Booking;
+using Fayora.Domain.Enums.BookingModule;
+using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.IPackageRepository;
+using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
+
+namespace Fayora.Application.Features.BookingModule.Commands.CreatePackageBooking;
+
+public class CreatePackageBookingCommandHandler(
+    IUserRepository userRepository,
+    IBookingRepository bookingRepository,
+    IPackageRepository packageRepository,
+    IPackageOccurrenceRepository packageOccurrenceRepository,
+    IClientContextProvider clientContextProvider,
+    IPaymentService paymentService,
+    IUnitOfWork unitOfWork)
+    : ICommandHandler<CreatePackageBookingCommand, Result<string>>
+{
+    public async Task<Result<string>> Handle(CreatePackageBookingCommand request, CancellationToken cancellationToken)
+    {
+        var userId = clientContextProvider.GetContext().UserId;
+
+        var user = await userRepository.GetUserByIdAsync(userId, new UserQueryOptions { IsReadOnly = true }, cancellationToken);
+        if (user is null) return AuthErrors.UserNotFound;
+
+        var package = await packageRepository.GetPackageByIdAsync(request.PackageId, new PackageQueryOptions { ReadOnly = true }, cancellationToken);
+        if (package is null) return TourGuideErrors.PackageNotFound;
+
+        var occurrence = await
+            packageOccurrenceRepository.GetOccurrenceByPackageIdAndDate(request.PackageId, request.BookingDate, cancellationToken);
+        if (occurrence is null) return BookingErrors.OccurrenceNotFound;
+
+        int requiredSpots = request.Adults + request.Children;
+        var reserveResult = occurrence.ReserveSeats(requiredSpots);
+        if (reserveResult.IsError) return reserveResult.Errors;
+
+        var totalPrice = package.CalculateBooking(request.Adults, request.Children);
+        if (totalPrice.IsError) return totalPrice.Errors;
+
+
+        var booking = Booking.Create(
+            userId,
+            package.UserId,
+            ServiceType.GuidePackage,
+            package.Id,
+            totalPrice.Value,
+            0m,
+            totalPrice.Value,
+            requiredSpots,
+            package.CancellationPolicy,
+            request.BookingDate.ToDateTime(TimeOnly.MinValue),
+            request.BookingDate.ToDateTime(TimeOnly.MinValue).AddHours(package.DurationHours));
+        if (booking.IsError) return booking.Errors;
+
+
+        bookingRepository.AddBooking(booking.Value);
+
+        await unitOfWork.CommitChangesAsync(cancellationToken);
+
+        var paymentResult = await paymentService.GeneratePaymentUrlAsync(new PaymentRequest(
+            booking.Value.Id,
+            totalPrice.Value,
+            user.FirstName,
+            user.LastName,
+            user.PrimaryEmail?.Value,
+            user.PhoneNumber?.Value,
+            request.PaymentMethodType));
+        if (paymentResult.IsError) return paymentResult.Errors;
+
+        //bookingRepository.AddBooking(booking.Value);
+
+        //await unitOfWork.CommitChangesAsync(cancellationToken);
+
+        return paymentResult.Value.PaymentUrl;
+    }
+}

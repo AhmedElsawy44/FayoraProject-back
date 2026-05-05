@@ -5,5 +5,6 @@ public enum ItemStatus
     Pending,
     Active,
     Suspended,
-    Banned
+    Banned,
+    Rejected
 }

@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnit;
+using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitCalendarBlock;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitOwner;
+using Fayora.Application.Features.AccommodationModule.Queries.GetUnitsByType;
 using Fayora.Contracts.AccommodationModule.Requests;
 using Fayora.Contracts.AccommodationModule.Responses;
 using Fayora.Domain.Enums.AccommodationModule;
+using Fayora.Domain.Enums.BookingModule;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -82,6 +85,35 @@ public class AccommodationController(ISender sender, IMapper mapper) : ApiContro
         );
     }
 
+    [HttpPost("{unitId:guid}/blocks")]
+    public async Task<IActionResult> CreateCalendarBlock(
+        [FromRoute] Guid unitId,
+        [FromBody] CreateCalendarBlockRequest request,
+        CancellationToken cancellationToken)
+    {
+        var (blockOk, blockReason) = EnumParser.TryParseEnum<BlockReason>(request.BlockReason);
+
+        if (!blockOk)
+        {
+            return BadRequest("Invalid Block Reason.");
+        }
+
+        var command = new CreateUnitCalendarBlockCommand(
+            unitId,
+            request.StartDate,
+            request.EndDate,
+            blockReason
+        );
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            _ => (IActionResult)NoContent(),
+            errors => Problem()
+        );
+    }
+
+
     //[HttpGet("housing-units/{id:guid}")]
     //public async Task<IActionResult> GetUnitById(
     //    [FromRoute] Guid id,
@@ -107,8 +139,28 @@ public class AccommodationController(ISender sender, IMapper mapper) : ApiContro
     //    var result = await sender.Send(command, cancellationToken);
 
     //    return result.Match(
-    //        _ => NoContent(), // 204 No Content لأن مفيش داتا هترجع للموبايل
+    //        _ => NoContent(), // 
     //        errors => Problem()
     //    );
     //}
+
+
+
+    [HttpGet("housing-units-ByType")]
+    public async Task<IActionResult> GetUnitsByTypeAsync(
+    [FromQuery] string type,
+    CancellationToken cancellationToken)
+    {
+        if (!Enum.TryParse<HousingType>(type, true, out var housingType))
+            return BadRequest("Invalid housing type. Valid values are: Apartment, Villa, Hotel.");
+
+        var query = new GetUnitsByTypeQuery(housingType);
+
+        var result = await sender.Send(query, cancellationToken);
+
+        return result.Match(
+            value => Ok(value),
+            errors => Problem()
+        );
+    }
 }

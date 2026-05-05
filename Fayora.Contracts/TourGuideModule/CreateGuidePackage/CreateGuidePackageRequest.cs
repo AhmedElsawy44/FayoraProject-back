@@ -23,4 +23,4 @@ public record CreateGuidePackageRequest
     List<ActivityDto> Activities
 );
 
-public record ActivityDto(decimal Latitude, decimal Longitude, string Description, DateTimeOffset ActivityTime, bool IsOptional);
+public record ActivityDto(decimal Latitude, decimal Longitude, string Description, TimeOnly ActivityTime, bool IsOptional);

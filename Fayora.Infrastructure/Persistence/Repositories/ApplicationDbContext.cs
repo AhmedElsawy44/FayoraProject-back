@@ -1,6 +1,7 @@
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Entities.AccommodationModule;
+using Fayora.Domain.Entities.Booking;
 using Fayora.Domain.Entities.ChatModule;
 using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Entities.IdentityModule;
@@ -33,6 +34,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<HousingUnit> HousingUnits { get; set; }
     public DbSet<UnitOwner> UnitOwners { get; set; }
     public DbSet<HousingUnitImage> HousingUnitImages { get; set; }
+    public DbSet<CalendarBlock> CalendarBlocks { get; set; }
 
 
     // Guide Module
@@ -44,6 +46,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<TourCompany> TourCompanies { get; set; }
     public DbSet<PackageActivity> PackageActivities { get; set; }
     public DbSet<PackageImage> PackageImages { get; set; }
+    public DbSet<PackageOccurrence> PackageOccurrences { get; set; }
+    public DbSet<GuideWeeklySchedule> GuideWeeklySchedules { get; set; }
+
+
+    // Booking Module
+    public DbSet<Booking> Bookings { get; set; }
+    public DbSet<PaymentTransaction> PaymentTransactions { get; set; }
 
 
     // Shared Module
