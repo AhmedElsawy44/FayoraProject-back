@@ -9,6 +9,7 @@ namespace Fayora.Api;
 
 public class Program
 {
+    //test a new repo in github  
     public static async Task Main(string[] args)
     {
         JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
