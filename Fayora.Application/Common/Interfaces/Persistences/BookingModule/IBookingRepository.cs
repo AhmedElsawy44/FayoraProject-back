@@ -17,4 +17,10 @@ public interface IBookingRepository
     DateOnly date,
     CancellationToken cancellationToken);
 
+    Task<List<Booking>> GetPagedBookingsByUserIdAsync(
+        Guid userId,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+
 }
