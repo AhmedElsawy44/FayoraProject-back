@@ -202,11 +202,17 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsScanned")
+                        .HasColumnType("bit");
+
                     b.Property<int>("PaymentStatus")
                         .HasColumnType("int");
 
                     b.Property<decimal>("PayoutAmount")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTimeOffset?>("ScannedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("SeatsCount")
                         .HasColumnType("int");
