@@ -19,6 +19,7 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateAccommodation
         IUserRepository userRepository,
         IHousingUnitRepository housingUnitRepository,
         IBookingRepository bookingRepository,
+        IPaymentTransactionRepository paymentTransactionRepository,
         ICalendarBlockRepository calendarBlockRepository,
         IClientContextProvider clientContextProvider,
         IPaymentService paymentService,
@@ -102,13 +103,21 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateAccommodation
                 request.PaymentMethodType));
             if (paymentResult.IsError)
             {
-                // Compensation - امسح اللي اتحفظ
-                //bookingRepository.RemoveBooking(booking.Value);
-                //calendarBlockRepository.RemoveCalendarBlock(calendarBlock);
-                //await unitOfWork.CommitChangesAsync(cancellationToken);
+                // Compensation - Remove the booking and calendar block if payment URL generation fails to avoid having orphaned bookings without payment
+                bookingRepository.RemoveBooking(booking.Value);
+                calendarBlockRepository.RemoveCalendarBlock(calendarBlock);
+                await unitOfWork.CommitChangesAsync(cancellationToken);
 
                 return paymentResult.Errors;
             }
+
+
+            paymentTransactionRepository.AddPaymentTransaction(new PaymentTransaction(
+                 booking.Value.Id,
+                 paymentResult.Value.GatewayOrderId,
+                 totalPrice,
+                 request.PaymentMethodType));
+            await unitOfWork.CommitChangesAsync(cancellationToken);
 
 
             return paymentResult.Value.PaymentUrl;

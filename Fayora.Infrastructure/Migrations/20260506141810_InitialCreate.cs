@@ -32,6 +32,8 @@ namespace Fayora.Infrastructure.Migrations
                     PaymentStatus = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsScanned = table.Column<bool>(type: "bit", nullable: false),
+                    ScannedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
                 },
                 constraints: table =>
@@ -348,6 +350,7 @@ namespace Fayora.Infrastructure.Migrations
                     LastLocationUpdate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     TransportInfo = table.Column<int>(type: "int", nullable: true),
                     ProfessionalLicenseUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CancellationPolicy = table.Column<int>(type: "int", nullable: false),
                     CurrencyCode = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
                     AverageRating = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ReviewCount = table.Column<int>(type: "int", nullable: false),

@@ -24,6 +24,7 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking
         ITourGuideRepository tourGuideRepository,
         IGuideWeeklyScheduleRepository scheduleRepository,
         IBookingRepository bookingRepository,
+        IPaymentTransactionRepository paymentTransactionRepository,
         ICalendarBlockRepository calendarBlockRepository,
         IClientContextProvider clientContextProvider,
         IPaymentService paymentService,
@@ -121,7 +122,25 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking
                 user.PrimaryEmail?.Value,
                 user.PhoneNumber?.Value,
                 request.PaymentMethodType));
-            if (paymentResult.IsError) return paymentResult.Errors;
+            if (paymentResult.IsError)
+            {
+                bookingRepository.RemoveBooking(booking.Value);
+                calendarBlockRepository.RemoveCalendarBlock(calendarBlock);
+                await unitOfWork.CommitChangesAsync(cancellationToken);
+
+                return paymentResult.Errors;
+            }
+
+
+
+            paymentTransactionRepository.AddPaymentTransaction(new PaymentTransaction(
+                booking.Value.Id,
+                paymentResult.Value.GatewayOrderId,
+                totalPrice,
+                request.PaymentMethodType));
+            await unitOfWork.CommitChangesAsync(cancellationToken);
+
+
 
             return paymentResult.Value.PaymentUrl;
         }

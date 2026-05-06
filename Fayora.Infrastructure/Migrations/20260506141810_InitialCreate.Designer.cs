@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260503180037_InitialCreate")]
+    [Migration("20260506141810_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -205,11 +205,17 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsScanned")
+                        .HasColumnType("bit");
+
                     b.Property<int>("PaymentStatus")
                         .HasColumnType("int");
 
                     b.Property<decimal>("PayoutAmount")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTimeOffset?>("ScannedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("SeatsCount")
                         .HasColumnType("int");
@@ -812,6 +818,9 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<decimal?>("BaseRate")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("CancellationPolicy")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("CancellationRate")
                         .HasColumnType("decimal(18,2)");
@@ -1729,7 +1738,7 @@ namespace Fayora.Infrastructure.Migrations
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageOccurrence", b =>
                 {
                     b.HasOne("Fayora.Domain.Entities.GuideModule.GuidePackage", null)
-                        .WithMany()
+                        .WithMany("Occurrences")
                         .HasForeignKey("PackageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1882,6 +1891,11 @@ namespace Fayora.Infrastructure.Migrations
             modelBuilder.Entity("Fayora.Domain.Entities.ChatModule.Chat", b =>
                 {
                     b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.GuidePackage", b =>
+                {
+                    b.Navigation("Occurrences");
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.GuideRequest", b =>

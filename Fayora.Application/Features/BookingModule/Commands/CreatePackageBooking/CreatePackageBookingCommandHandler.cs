@@ -20,6 +20,7 @@ public class CreatePackageBookingCommandHandler(
     IBookingRepository bookingRepository,
     IPackageRepository packageRepository,
     IPackageOccurrenceRepository packageOccurrenceRepository,
+    IPaymentTransactionRepository paymentTransactionRepository,
     IClientContextProvider clientContextProvider,
     IPaymentService paymentService,
     IUnitOfWork unitOfWork)
@@ -63,7 +64,6 @@ public class CreatePackageBookingCommandHandler(
 
 
         bookingRepository.AddBooking(booking.Value);
-
         await unitOfWork.CommitChangesAsync(cancellationToken);
 
         var paymentResult = await paymentService.GeneratePaymentUrlAsync(new PaymentRequest(
@@ -74,11 +74,23 @@ public class CreatePackageBookingCommandHandler(
             user.PrimaryEmail?.Value,
             user.PhoneNumber?.Value,
             request.PaymentMethodType));
-        if (paymentResult.IsError) return paymentResult.Errors;
+        if (paymentResult.IsError)
+        {
+            bookingRepository.RemoveBooking(booking.Value);
+            occurrence.ReleaseSeats(requiredSpots);
+            await unitOfWork.CommitChangesAsync(cancellationToken);
+            return paymentResult.Errors;
+        }
 
-        //bookingRepository.AddBooking(booking.Value);
 
-        //await unitOfWork.CommitChangesAsync(cancellationToken);
+        // save the payment transaction with gatewayOrderId and pending status, it will be updated later by the payment webhook
+        paymentTransactionRepository.AddPaymentTransaction(new PaymentTransaction(
+            booking.Value.Id,
+            paymentResult.Value.GatewayOrderId,
+            totalPrice.Value,
+            request.PaymentMethodType));
+        await unitOfWork.CommitChangesAsync(cancellationToken);
+
 
         return paymentResult.Value.PaymentUrl;
     }

@@ -2,4 +2,7 @@
 
 public enum PaymentMethodType
 {
+    OnlineCard,
+    MobileWallet
 }
+

@@ -57,4 +57,9 @@ public class BookingRepository(ApplicationDbContext context) : IBookingRepositor
                      && x.CreatedAt <= expiryTime)
             .ToListAsync(cancellationToken);
     }
+
+    public void RemoveBooking(Booking booking)
+    {
+        context.Bookings.Remove(booking);
+    }
 }
