@@ -21,7 +21,7 @@ public class PackageActivity : BaseEntity<Guid>
             Id = Guid.NewGuid(),
             PackageId = packageId,
             Place = place.Value,
-            Description = description,
+            Description = description = null!,
             ActivityTime = activityTime,
             IsOptional = isOptional
         };

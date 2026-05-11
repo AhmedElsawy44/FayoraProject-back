@@ -8,11 +8,13 @@ using Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Commands.DeactivateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.DeleteGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.UpdateTourGuide;
+using Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview;
 using Fayora.Contracts.TourGuideModule.CreateGuidePackage;
 using Fayora.Contracts.TourGuideModule.CreatePackageOccurrences;
 using Fayora.Contracts.TourGuideModule.CreateTourCompany;
 using Fayora.Contracts.TourGuideModule.CreateTourGuide;
 using Fayora.Contracts.TourGuideModule.CreateWeeklySchedule;
+using Fayora.Contracts.TourGuideModule.GetPackagePreview;
 using Fayora.Contracts.TourGuideModule.UpdateTourGuide;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
@@ -204,5 +206,17 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
         var result = await sender.Send(command, cancellationToken);
 
         return NoContent();
+    }
+
+    [HttpGet("packages/{packageId:guid}/preview")]
+    public async Task<IActionResult> GetPackagePreview(
+    [FromRoute] Guid packageId,
+    CancellationToken cancellationToken)
+    {
+        var query = new GetPackagePreviewQuery(packageId);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(mapper.Map<PackagePreviewResponse>(value)),
+            Problem);
     }
 }
