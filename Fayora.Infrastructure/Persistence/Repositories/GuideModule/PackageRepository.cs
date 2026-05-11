@@ -1,5 +1,6 @@
 ﻿using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Domain.Entities.GuideModule;
+using Fayora.Domain.Enums.TourGuideModule;
 using Microsoft.EntityFrameworkCore;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.IPackageRepository;
 
@@ -35,5 +36,17 @@ public class PackageRepository(ApplicationDbContext context) : IPackageRepositor
 
         return await query
             .FirstOrDefaultAsync(p => p.Id == packageId, cancellationToken);
+    }
+
+    public async Task<GuidePackage?> GetPackageWithOccurrencesAsync(
+        Guid packageId,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.GuideTourPackages
+            .AsNoTracking()
+            .Include(p => p.Occurrences.Where(o =>
+                o.Date >= DateOnly.FromDateTime(DateTime.UtcNow) &&
+                o.AvailableSeats > 0))
+            .FirstOrDefaultAsync(p => p.Id == packageId && p.Status == ItemStatus.Active, cancellationToken);
     }
 }

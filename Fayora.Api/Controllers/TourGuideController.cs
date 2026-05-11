@@ -8,12 +8,14 @@ using Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Commands.DeactivateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.DeleteGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.UpdateTourGuide;
+using Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview;
 using Fayora.Contracts.TourGuideModule.CreateGuidePackage;
 using Fayora.Contracts.TourGuideModule.CreatePackageOccurrences;
 using Fayora.Contracts.TourGuideModule.CreateTourCompany;
 using Fayora.Contracts.TourGuideModule.CreateTourGuide;
 using Fayora.Contracts.TourGuideModule.CreateWeeklySchedule;
+using Fayora.Contracts.TourGuideModule.GetPackageDetails;
 using Fayora.Contracts.TourGuideModule.GetPackagePreview;
 using Fayora.Contracts.TourGuideModule.UpdateTourGuide;
 using Fayora.Domain.Enums.SharedModule;
@@ -208,6 +210,8 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
         return NoContent();
     }
 
+    //for tour guides to view package beforw publishing it to tourists
+
     [HttpGet("packages/{packageId:guid}/preview")]
     public async Task<IActionResult> GetPackagePreview(
     [FromRoute] Guid packageId,
@@ -217,6 +221,20 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
         var result = await sender.Send(query, cancellationToken);
         return result.Match(
             value => Ok(mapper.Map<PackagePreviewResponse>(value)),
+            Problem);
+    }
+
+
+    //for tourists to view package details before booking
+    [HttpGet("packages/{packageId:guid}")]
+    public async Task<IActionResult> GetPackageDetails(
+    [FromRoute] Guid packageId,
+    CancellationToken cancellationToken)
+    {
+        var query = new GetPackageDetailsQuery(packageId);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(mapper.Map<PackageDetailsResponse>(value)),
             Problem);
     }
 }
