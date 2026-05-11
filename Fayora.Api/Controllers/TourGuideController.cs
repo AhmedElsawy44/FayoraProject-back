@@ -201,7 +201,7 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             request.EndTime
         );
 
-        var result = await sender.Send(command, cancellationToken);
+        await sender.Send(command, cancellationToken);
 
         return NoContent();
     }

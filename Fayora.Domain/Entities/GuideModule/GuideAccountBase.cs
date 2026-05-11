@@ -1,10 +1,9 @@
-using Fayora.Domain.Common.Interfaces.Admin;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.TourGuideModule;
 
 namespace Fayora.Domain.Entities.GuideModule;
 
-public abstract class GuideAccountBase : IVerifiable
+public abstract class GuideAccountBase
 {
     public Guid UserId { get; protected set; }
     public string CurrencyCode { get; protected set; } = string.Empty;

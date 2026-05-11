@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="Features\AdminModule\Common\" />
+    <Folder Include="Features\AdminModule\Queries\GetDetailedUnit\" />
   </ItemGroup>
 
 </Project>

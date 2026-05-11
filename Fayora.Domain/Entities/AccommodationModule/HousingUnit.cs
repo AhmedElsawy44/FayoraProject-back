@@ -1,5 +1,4 @@
-﻿using Fayora.Domain.Common.Interfaces.Admin;
-using Fayora.Domain.Common.Results;
+﻿using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.AccommodationModule;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
@@ -7,7 +6,7 @@ using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Domain.Entities.AccommodationModule;
 
-public class HousingUnit : BaseEntity<Guid>, IVerifiable
+public class HousingUnit : BaseEntity<Guid>
 {
     public Guid OwnerId { get; init; }
 
