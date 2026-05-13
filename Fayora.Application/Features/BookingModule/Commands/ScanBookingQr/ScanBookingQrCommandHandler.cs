@@ -9,9 +9,6 @@ using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Application.Features.BookingModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.BookingModule;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using static Fayora.Application.Common.Interfaces.Persistences.AccommodationModule.IHousingUnitRepository;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.IPackageRepository;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
@@ -69,7 +66,7 @@ namespace Fayora.Application.Features.BookingModule.Commands.ScanBookingQr
                 _ => "Unknown"
             };
 
-            
+
             if (booking.PaymentStatus != PaymentTransactionStatus.Paid)
                 return BookingErrors.BookingNotPaid;
 
@@ -89,7 +86,7 @@ namespace Fayora.Application.Features.BookingModule.Commands.ScanBookingQr
             return new ScanBookingQrResult(
                 true,
                 $"{user.FirstName} {user.LastName}",
-                serviceName, 
+                serviceName,
                 booking.ServiceType.ToString(),
                 booking.StartDate,
                 booking.SeatsCount,

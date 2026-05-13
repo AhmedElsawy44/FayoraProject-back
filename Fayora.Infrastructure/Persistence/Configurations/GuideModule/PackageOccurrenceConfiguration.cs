@@ -1,11 +1,8 @@
 ﻿using Fayora.Domain.Entities.GuideModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Fayora.Infrastructure.Persistence.Configurations.TourGuideModule;
+namespace Fayora.Infrastructure.Persistence.Configurations.GuideModule;
 
 public class PackageOccurrenceConfiguration : IEntityTypeConfiguration<PackageOccurrence>
 {

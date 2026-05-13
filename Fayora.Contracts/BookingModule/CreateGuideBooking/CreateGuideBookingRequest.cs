@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Contracts.BookingModule.CreateGuideBooking
+﻿namespace Fayora.Contracts.BookingModule.CreateGuideBooking
 {
     public record CreateGuideBookingRequest(
         DateOnly BookingDate,

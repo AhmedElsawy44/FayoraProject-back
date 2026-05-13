@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.Admin.Commands.VerifyContent
+namespace Fayora.Application.Features.AdminModule.Commands.VerifyContent
 {
     public class VerifyContentCommandValidator : AbstractValidator<VerifyContentCommand>
     {

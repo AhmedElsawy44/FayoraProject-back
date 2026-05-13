@@ -1,7 +1,7 @@
 ﻿using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
 
-namespace Fayora.Application.Features.Admin.Commands.VerifyContent;
+namespace Fayora.Application.Features.AdminModule.Commands.VerifyContent;
 
 public record VerifyContentCommand(
     Guid EntityId,

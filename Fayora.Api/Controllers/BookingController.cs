@@ -1,5 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Services.BookingModule;
-using Fayora.Application.Features.BookingModule.Commands.CreateAccommodationBooking;
+﻿using Fayora.Application.Features.BookingModule.Commands.CreateAccommodationBooking;
 using Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking;
 using Fayora.Application.Features.BookingModule.Commands.CreatePackageBooking;
 using Fayora.Application.Features.BookingModule.Commands.GenerateBookingQr;

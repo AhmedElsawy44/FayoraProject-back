@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Text.Json;
 
-namespace Fayora.Infrastructure.Persistence.Configurations.TourGuideModule;
+namespace Fayora.Infrastructure.Persistence.Configurations.GuideModule;
 
 public class TourCompanyConfiguration : IEntityTypeConfiguration<TourCompany>
 {

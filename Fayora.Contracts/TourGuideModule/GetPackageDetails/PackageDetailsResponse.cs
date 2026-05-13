@@ -1,7 +1,4 @@
 ﻿using Fayora.Contracts.TourGuideModule.GetPackagePreview;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Fayora.Contracts.TourGuideModule.GetPackageDetails
 {
@@ -13,16 +10,16 @@ namespace Fayora.Contracts.TourGuideModule.GetPackageDetails
         int DurationHours,
         string MainImageUrl,
         List<string> ImageUrls,
-        List<int> IncludedItemIds, 
-        List<int>? ExcludedItemIds, 
+        List<int> IncludedItemIds,
+        List<int>? ExcludedItemIds,
         List<PackageActivityDetailsResponse> Activities,
-        GeoPointResponse MeetingPoint, 
-        GuideInfoResponse GuideInfo, 
-        string CancellationPolicy, 
-        string TransportType, 
-        string? GuestRequirements, 
-        string? ArrivalNote, 
-        List<PackageOccurrenceResponse> Occurrences 
+        GeoPointResponse MeetingPoint,
+        GuideInfoResponse GuideInfo,
+        string CancellationPolicy,
+        string TransportType,
+        string? GuestRequirements,
+        string? ArrivalNote,
+        List<PackageOccurrenceResponse> Occurrences
     );
 
     public record PackageActivityDetailsResponse(
