@@ -1,4 +1,5 @@
 ﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.BookingModule;
 
 namespace Fayora.Application.Common.Interfaces.Services.BookingModule;
 
@@ -22,12 +23,6 @@ public record PaymentResponse(
     string PaymentUrl,
     string GatewayOrderId
 );
-
-public enum PaymentMethodType
-{
-    OnlineCard,
-    MobileWallet
-}
 
 public record WebhookResult(
     bool IsSuccess,

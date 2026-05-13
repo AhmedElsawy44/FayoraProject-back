@@ -17,7 +17,6 @@ public class PackageOccurrenceRepository(ApplicationDbContext context)
     public Task<PackageOccurrence?> GetOccurrenceByPackageIdAndDate(Guid packageId, DateOnly date, CancellationToken cancellationToken)
     {
         return context.PackageOccurrences
-            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.PackageId == packageId && x.Date == date, cancellationToken);
     }
 

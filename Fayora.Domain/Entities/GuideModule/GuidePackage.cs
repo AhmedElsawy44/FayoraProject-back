@@ -29,8 +29,8 @@ public class GuidePackage : AuditableEntity<Guid>
     private readonly List<int> _includedItemIds = [];
     public IReadOnlyCollection<int> IncludedItemIds => _includedItemIds.AsReadOnly();
 
-    private readonly List<int> _excludedItemIds = [];
-    public IReadOnlyCollection<int> ExcludedItemIds => _excludedItemIds.AsReadOnly();
+    private readonly List<int>? _excludedItemIds = [];
+    public IReadOnlyCollection<int> ExcludedItemIds => _excludedItemIds!.AsReadOnly();
     public GeoPoint MeetingPoint { get; private set; } = null!;
     public string? ArrivalNote { get; private set; }
     public TransportType TransportType { get; private set; }
@@ -45,7 +45,8 @@ public class GuidePackage : AuditableEntity<Guid>
 
     private readonly List<Guid> _activityIds = [];
     public IReadOnlyCollection<Guid> ActivityIds => _activityIds.AsReadOnly();
-    private readonly List<PackageOccurrence> _occurrences = new();
+
+    private readonly List<PackageOccurrence> _occurrences = [];
     public IReadOnlyCollection<PackageOccurrence> Occurrences => _occurrences.AsReadOnly();
 
 
@@ -115,7 +116,7 @@ public class GuidePackage : AuditableEntity<Guid>
     }
 
     public void AddIncludedItem(int id) => _includedItemIds.Add(id);
-    public void AddExcludedItem(int id) => _excludedItemIds.Add(id);
+    public void AddExcludedItem(int id) => _excludedItemIds!.Add(id);
     public void AddImage(Guid imageId)
     {
         _imageIds.Add(imageId);
@@ -171,7 +172,7 @@ public class GuidePackage : AuditableEntity<Guid>
 
     public void AddExcludedItems(IEnumerable<int> ids)
     {
-        foreach (var id in ids) _excludedItemIds.Add(id);
+        foreach (var id in ids) _excludedItemIds!.Add(id);
     }
 
     public void UpdateMeetingPoint(GeoPoint newMeetingPoint)

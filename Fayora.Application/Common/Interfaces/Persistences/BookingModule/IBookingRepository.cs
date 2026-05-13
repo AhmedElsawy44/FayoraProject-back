@@ -8,6 +8,8 @@ public interface IBookingRepository
     Task<Booking?> GetBookingByIdAsync(Guid bookingId, CancellationToken cancellationToken = default);
     Task<bool> HasOverlapAsync(Guid serviceId, DateTime startDateTime, DateTime endDateTime, CancellationToken cancellationToken = default);
 
+    void RemoveBooking(Booking booking);
+
     //for expired pending bookings
     Task<List<Booking>> GetExpiredPendingBookingsAsync(CancellationToken cancellationToken = default);
 

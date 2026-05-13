@@ -72,4 +72,9 @@ public class BookingRepository(ApplicationDbContext context) : IBookingRepositor
             .Take(pageSize)
             .ToListAsync(cancellationToken);
     }
+
+    public void RemoveBooking(Booking booking)
+    {
+        context.Bookings.Remove(booking);
+    }
 }

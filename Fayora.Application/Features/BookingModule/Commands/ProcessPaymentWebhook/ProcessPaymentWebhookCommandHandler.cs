@@ -1,8 +1,11 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
+﻿using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
+using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
+using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.BookingModule;
 using Fayora.Application.Features.BookingModule.Common;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.BookingModule;
 using MediatR;
 using System.Text.Json;
 
@@ -11,6 +14,8 @@ namespace Fayora.Application.Features.BookingModule.Commands.ProcessPaymentWebho
 public class ProcessPaymentWebhookCommandHandler(
     IPaymentService paymentService,
     IBookingRepository bookingRepository,
+    ICalendarBlockRepository calendarBlockRepository,
+    IPackageOccurrenceRepository packageOccurrenceRepository,
     IPaymentTransactionRepository paymentTransactionRepository,
     IUnitOfWork unitOfWork) : IRequestHandler<ProcessPaymentWebhookCommand, Result<Unit>>
 {
@@ -46,6 +51,22 @@ public class ProcessPaymentWebhookCommandHandler(
             var cancelResult = booking.Cancel("Payment Failed");
             if (cancelResult.IsError) return cancelResult.Errors;
             paymentTransaction.MarkAsFailed("Payment Failed", paymentInfo.GatewayOrderId);
+
+
+            // remove  CalendarBlock
+            await calendarBlockRepository.RemoveByBookingIdAsync(
+                booking.Id, cancellationToken);
+
+            // if it was package release seats
+            if (booking.ServiceType == ServiceType.GuidePackage)
+            {
+                await packageOccurrenceRepository.ReleaseSeatsAsync(
+                    booking.ServiceId,
+                    DateOnly.FromDateTime(booking.StartDate),
+                    booking.SeatsCount,
+                    cancellationToken);
+
+            }
 
         }
 

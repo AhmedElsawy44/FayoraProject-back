@@ -11,6 +11,7 @@ using Fayora.Contracts.BookingModule.CreateGuideBooking;
 using Fayora.Contracts.BookingModule.CreatePackageBooking;
 using Fayora.Contracts.BookingModule.CreateUnitBooking;
 using Fayora.Contracts.BookingModule.ScanBookingQr;
+using Fayora.Domain.Enums.BookingModule;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

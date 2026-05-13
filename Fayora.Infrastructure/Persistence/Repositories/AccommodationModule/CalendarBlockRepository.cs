@@ -17,4 +17,9 @@ public class CalendarBlockRepository(ApplicationDbContext context) : ICalendarBl
             .Where(x => x.BookingId == bookingId)
             .ExecuteDeleteAsync(cancellationToken);
     }
+
+    public void RemoveCalendarBlock(CalendarBlock calendarBlock)
+    {
+        context.CalendarBlocks.Remove(calendarBlock);
+    }
 }

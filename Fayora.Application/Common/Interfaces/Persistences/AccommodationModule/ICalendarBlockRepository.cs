@@ -7,4 +7,6 @@ public interface ICalendarBlockRepository
     void AddCalendarBlock(CalendarBlock block);
 
     Task RemoveByBookingIdAsync(Guid bookingId, CancellationToken cancellationToken);
+
+    void RemoveCalendarBlock(CalendarBlock calendarBlock);
 }
