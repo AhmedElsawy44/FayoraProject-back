@@ -247,6 +247,7 @@ namespace Fayora.Infrastructure.Migrations
                     Latitude = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Longitude = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Rating = table.Column<decimal>(type: "decimal(3,2)", precision: 3, scale: 2, nullable: false),
+                    Category = table.Column<int>(type: "int", nullable: false),
                     ReviewCount = table.Column<int>(type: "int", nullable: false),
                     MainImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
                 },

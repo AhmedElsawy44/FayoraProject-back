@@ -9,6 +9,19 @@ namespace Fayora.Contracts.AdminModule.CreateLocation
         string? Description,
         decimal Latitude,
         decimal Longitude,
+        LocationCategoryDto Category,
         string MainImageUrl,
        List<string> ImageUrls);
+
+
+
+    public enum LocationCategoryDto
+    {
+        UnescoWorldHeritage,
+        NaturalWonder,
+        CulturalHub,
+        Adventure,
+        Beach,
+        Historical
+    }
 }

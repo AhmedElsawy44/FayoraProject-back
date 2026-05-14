@@ -5,6 +5,7 @@ using Fayora.Application.Features.AdminModule.Queries.GetDetailedPackage;
 using Fayora.Application.Features.AdminModule.Queries.GetInventoryQueue;
 using Fayora.Contracts.AdminModule.CreateLocation;
 using Fayora.Contracts.AdminModule.VerifyContent;
+using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.ValueObjects;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -58,20 +59,19 @@ public class AdminController(ISender sender) : ApiController
         [FromBody] CreateLocationRequest request,
         CancellationToken cancellationToken)
     {
-        var mainImageResult = FileUrl.Create(request.MainImageUrl);
-        if (mainImageResult.IsError) return BadRequest();
-
         var command = new CreateLocationCommand(
             request.Name,
             request.Description,
             request.Latitude,
             request.Longitude,
+            (LocationCategory)request.Category,
             request.MainImageUrl,
             request.ImageUrls);
 
         var result = await sender.Send(command, cancellationToken);
+
         return result.Match(
-            value => Ok(value),
+            value => CreatedAtAction(nameof(CreateLocation), new { locationId = value }),
             Problem);
     }
 }

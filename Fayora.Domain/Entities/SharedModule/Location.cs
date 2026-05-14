@@ -1,4 +1,5 @@
 ﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Domain.Entities.SharedModule
@@ -9,18 +10,39 @@ namespace Fayora.Domain.Entities.SharedModule
         public string? Description { get; private set; }
         public GeoPoint Coordinates { get; private set; } = null!;
         public decimal Rating { get; private set; }
+        public LocationCategory Category { get; private set; }
         public int ReviewCount { get; private set; }
         public FileUrl MainImageUrl { get; private set; } = null!;
 
         private readonly List<Guid> _imageIds = [];
         public IReadOnlyCollection<Guid> ImageIds => _imageIds.AsReadOnly();
 
+        private Location() { }
+
+        private Location(
+            string name,
+            string? description,
+            GeoPoint coordinates,
+            FileUrl mainImageUrl,
+            LocationCategory category)
+        {
+            Name = name;
+            Description = description;
+            Coordinates = coordinates;
+            MainImageUrl = mainImageUrl;
+            Category = category;
+            Rating = 0;
+            ReviewCount = 0;
+        }
+
         public static Result<Location> Create(
             string name,
             string? description,
             decimal latitude,
             decimal longitude,
+            LocationCategory category,
             FileUrl mainImageUrl)
+            
         {
             if (string.IsNullOrWhiteSpace(name))
                 return Error.Validation("Location.Name", "Name is required.");
@@ -28,20 +50,10 @@ namespace Fayora.Domain.Entities.SharedModule
             var coordinates = GeoPoint.Create(latitude, longitude);
             if (coordinates.IsError) return coordinates.Errors;
 
-            return new Location
-            {
-                Name = name,
-                Description = description,
-                Coordinates = coordinates.Value,
-                MainImageUrl = mainImageUrl,
-                Rating = 0,
-                ReviewCount = 0
-            };
+            return new Location(name, description, coordinates.Value, mainImageUrl, category);
         }
 
         public void AddImage(Guid imageId) => _imageIds.Add(imageId);
         public void AddImages(IEnumerable<Guid> imageIds) => _imageIds.AddRange(imageIds);
-
-        private Location() { }
     }
 }
