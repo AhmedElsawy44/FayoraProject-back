@@ -44,7 +44,8 @@ IPasswordHasher passwordHasher) : ICommandHandler<LoginWithEmailCommand, Result<
         await unitOfWork.CommitChangesAsync(cancellationToken);
 
         return new LoginWithEmailResult(
-            user.Id, user.FirstName,
+            user.Id, 
+            user.FirstName,
             user.LastName,
             request.Email,
             user.ProfileImageUrl?.ToString(),

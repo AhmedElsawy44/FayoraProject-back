@@ -1,12 +1,11 @@
-﻿using Fayora.Domain.Common.Interfaces.Admin;
-using Fayora.Domain.Common.Results;
+﻿using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Domain.Entities.GuideModule;
 
-public class TourGuide : GuideAccountBase, IVerifiable
+public class TourGuide : GuideAccountBase
 {
     public decimal? BaseRate { get; private set; } //$180/day 
     public PricingUnit? PricingUnit { get; private set; }

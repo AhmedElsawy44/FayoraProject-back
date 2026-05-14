@@ -11,4 +11,6 @@ public interface IPackageRepository
         bool ReadOnly = true,
         bool IncludeOccurrences = false
     );
+
+    Task<List<GuidePackage>> GetListByIdsAsync(List<Guid> packageIds, CancellationToken cancellationToken);
 }

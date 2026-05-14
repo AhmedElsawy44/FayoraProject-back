@@ -1,5 +1,4 @@
 ﻿using Fayora.Domain.Common.Entity;
-using Fayora.Domain.Common.Interfaces.Admin;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
@@ -8,7 +7,7 @@ using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Domain.Entities.GuideModule;
 
-public class GuidePackage : AuditableEntity<Guid>, IVerifiable
+public class GuidePackage : AuditableEntity<Guid>
 {
     public Guid UserId { get; private set; }
     public string Title { get; private set; } = null!;

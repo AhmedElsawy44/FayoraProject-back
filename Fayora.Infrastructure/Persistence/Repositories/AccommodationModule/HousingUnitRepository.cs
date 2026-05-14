@@ -31,6 +31,21 @@ public class HousingUnitRepository(ApplicationDbContext context) : IHousingUnitR
         return await query.FirstOrDefaultAsync(u => u.Id == unitId, cancellationToken);
     }
 
+    public async Task<List<HousingUnit>> GetUnitsByIdsAsync(
+    IEnumerable<Guid> unitIds,
+    CancellationToken cancellationToken = default)
+    {
+        if (unitIds == null || !unitIds.Any())
+        {
+            return [];
+        }
+
+        return await context.HousingUnits
+            .AsNoTracking()
+            .Where(unit => unitIds.Contains(unit.Id))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<HousingUnit>> GetUnitsByTypeAsync(
         HousingType type,
         CancellationToken cancellationToken = default)
