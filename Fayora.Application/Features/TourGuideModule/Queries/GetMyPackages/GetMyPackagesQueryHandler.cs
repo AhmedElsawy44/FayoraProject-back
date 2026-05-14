@@ -1,11 +1,9 @@
 ﻿using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages.Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages;
 using Fayora.Domain.Common.Results;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages
 {
@@ -20,6 +18,7 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages
             CancellationToken cancellationToken)
         {
             var userId = clientContextProvider.GetContext().UserId;
+            if (userId == Guid.Empty) return TourGuideErrors.Unauthorized;
 
             var (items, totalCount) = await packageRepository.GetMyPackagesAsync(
                 userId,
