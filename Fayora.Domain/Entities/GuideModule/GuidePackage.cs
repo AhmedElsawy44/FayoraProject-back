@@ -8,7 +8,7 @@ using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Domain.Entities.GuideModule;
 
-public class GuidePackage : AuditableEntity<Guid>, IVerifiable
+public class GuidePackage : AuditableEntity<Guid>
 {
     public Guid UserId { get; private set; }
     public string Title { get; private set; } = null!;
@@ -36,7 +36,7 @@ public class GuidePackage : AuditableEntity<Guid>, IVerifiable
     public string? ArrivalNote { get; private set; }
     public TransportType TransportType { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
-    public ItemStatus Status { get; private set; }
+
 
     public string? AdminNotes { get; private set; }
 
@@ -191,18 +191,18 @@ public class GuidePackage : AuditableEntity<Guid>, IVerifiable
 
     public Result<Success> Approve()
     {
-        if (Status is ItemStatus.Active)
+        if (PackageStatus is ItemStatus.Active)
             return Error.Validation("TourGuide.AlreadyActive", "Guide is already active.");
 
-        Status = ItemStatus.Active;
+        PackageStatus = ItemStatus.Active;
         return Result.Success;
     }
 
     public Result<Success> Reject(string adminNotes)
     {
-        if (Status is ItemStatus.Rejected)
+        if (PackageStatus is ItemStatus.Rejected)
             return Error.Validation("TourGuide.AlreadyRejected", "Guide is already rejected.");
-        Status = ItemStatus.Rejected;
+        PackageStatus = ItemStatus.Rejected;
         AdminNotes = adminNotes;
         return Result.Success;
     }

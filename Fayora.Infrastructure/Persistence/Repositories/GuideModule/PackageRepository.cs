@@ -13,6 +13,8 @@ public class PackageRepository(ApplicationDbContext context) : IPackageRepositor
         context.GuideTourPackages.Add(package);
     }
 
+
+
     public async Task<List<PackageActivity>> GetActivitiesByPackageIdAsync(
         Guid packageId,
         CancellationToken cancellationToken = default)
@@ -22,6 +24,32 @@ public class PackageRepository(ApplicationDbContext context) : IPackageRepositor
             .Where(a => a.PackageId == packageId)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<(List<GuidePackage> Items, int TotalCount)> GetMyPackagesAsync(
+        Guid userId,
+        ItemStatus? status,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var query = context.GuideTourPackages
+            .AsNoTracking()
+            .Where(p => p.UserId == userId && p.DeletedAt == null);
+
+        if (status.HasValue)
+            query = query.Where(p => p.PackageStatus == status.Value);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .OrderByDescending(p => p.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
+    }
+
 
     public async Task<GuidePackage?> GetPackageByIdAsync(
         Guid packageId,
@@ -47,6 +75,6 @@ public class PackageRepository(ApplicationDbContext context) : IPackageRepositor
             .Include(p => p.Occurrences.Where(o =>
                 o.Date >= DateOnly.FromDateTime(DateTime.UtcNow) &&
                 o.AvailableSeats > 0))
-            .FirstOrDefaultAsync(p => p.Id == packageId && p.Status == ItemStatus.Active, cancellationToken);
+            .FirstOrDefaultAsync(p => p.Id == packageId && p.PackageStatus == ItemStatus.Active, cancellationToken);
     }
 }
