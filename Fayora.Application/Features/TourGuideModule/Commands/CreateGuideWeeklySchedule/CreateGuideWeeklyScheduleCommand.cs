@@ -1,5 +1,4 @@
 ﻿using Fayora.Application.Common.Abstractions.Messaging;
-using Fayora.Domain.Common.Results;
 using MediatR;
 
 namespace Fayora.Application.Features.TourGuideModule.Commands.CreateGuideWeeklySchedule;

@@ -15,6 +15,21 @@ public class PackageRepository(ApplicationDbContext context) : IPackageRepositor
 
 
 
+    public async Task<List<GuidePackage>> GetListByIdsAsync(
+    List<Guid> packageIds,
+    CancellationToken cancellationToken)
+    {
+        if (packageIds == null || packageIds.Count == 0)
+        {
+            return [];
+        }
+
+        return await context.GuideTourPackages
+            .AsNoTracking()
+            .Where(package => packageIds.Contains(package.Id))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<PackageActivity>> GetActivitiesByPackageIdAsync(
         Guid packageId,
         CancellationToken cancellationToken = default)

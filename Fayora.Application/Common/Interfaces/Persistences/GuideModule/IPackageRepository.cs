@@ -23,13 +23,15 @@ public interface IPackageRepository
 
 
     //for tourist's point of view
-   Task<GuidePackage?> GetPackageWithOccurrencesAsync(
-    Guid packageId,
-    CancellationToken cancellationToken = default);
+    Task<GuidePackage?> GetPackageWithOccurrencesAsync(
+     Guid packageId,
+     CancellationToken cancellationToken = default);
 
 
     public record PackageQueryOptions(
         bool ReadOnly = true,
         bool IncludeOccurrences = false
     );
+
+    Task<List<GuidePackage>> GetListByIdsAsync(List<Guid> packageIds, CancellationToken cancellationToken);
 }

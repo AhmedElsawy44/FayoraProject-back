@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Fayora.Infrastructure.Persistence.Configurations.TourGuideModule
+namespace Fayora.Infrastructure.Persistence.Configurations.GuideModule
 {
     public class GuideOfferConfiguration : IEntityTypeConfiguration<GuideOffer>
     {

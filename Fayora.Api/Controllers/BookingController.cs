@@ -1,8 +1,8 @@
-﻿using Fayora.Application.Common.Interfaces.Services.BookingModule;
-using Fayora.Application.Features.BookingModule.Commands.CreateAccommodationBooking;
+﻿using Fayora.Application.Features.BookingModule.Commands.CreateAccommodationBooking;
 using Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking;
 using Fayora.Application.Features.BookingModule.Commands.CreatePackageBooking;
 using Fayora.Application.Features.BookingModule.Commands.GenerateBookingQr;
+using Fayora.Application.Features.BookingModule.Commands.GetMyBookings;
 using Fayora.Application.Features.BookingModule.Commands.ProcessPaymentWebhook;
 using Fayora.Application.Features.BookingModule.Commands.ScanBookingQr;
 using Fayora.Application.Features.BookingModule.Common;
@@ -141,5 +141,18 @@ public class BookingController(ISender sender) : ApiController
         var command = new ScanBookingQrCommand(request.Token);
         var result = await sender.Send(command, cancellationToken);
         return result.Match(Ok, Problem);
+    }
+
+    [HttpGet("my-bookings")]
+    public async Task<IActionResult> GetMyBookings(
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetMyBookingsQuery(page, pageSize);
+
+        var result = await sender.Send(query, cancellationToken);
+
+        return Ok(result);
     }
 }

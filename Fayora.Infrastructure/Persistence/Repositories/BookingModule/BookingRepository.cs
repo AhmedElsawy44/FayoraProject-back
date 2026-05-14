@@ -58,6 +58,21 @@ public class BookingRepository(ApplicationDbContext context) : IBookingRepositor
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<Booking>> GetPagedBookingsByUserIdAsync(
+    Guid userId,
+    int pageNumber,
+    int pageSize,
+    CancellationToken cancellationToken = default)
+    {
+        return await context.Bookings
+            .AsNoTracking()
+            .Where(b => b.UserId == userId)
+            .OrderByDescending(b => b.StartDate)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+    }
+
     public void RemoveBooking(Booking booking)
     {
         context.Bookings.Remove(booking);

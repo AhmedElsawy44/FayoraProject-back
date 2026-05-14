@@ -3,7 +3,7 @@ using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Domain.Common.Results;
 using MediatR;
 
-namespace Fayora.Application.Features.Admin.Commands.VerifyContent;
+namespace Fayora.Application.Features.AdminModule.Commands.VerifyContent;
 
 public class VerifyContentCommandHandler(
     IVerificationFactory strategyFactory,

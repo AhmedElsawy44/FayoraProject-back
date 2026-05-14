@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Contracts.AccommodationModule.Responses
+﻿namespace Fayora.Contracts.AccommodationModule.Responses
 {
     public record GetAllUnitsByTypeResponse(
     string Title,

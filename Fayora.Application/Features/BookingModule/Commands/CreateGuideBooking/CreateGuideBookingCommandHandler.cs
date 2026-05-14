@@ -11,9 +11,6 @@ using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.Booking;
 using Fayora.Domain.Enums.BookingModule;
 using Fayora.Domain.Enums.TourGuideModule;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.ITourGuideRepository;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 

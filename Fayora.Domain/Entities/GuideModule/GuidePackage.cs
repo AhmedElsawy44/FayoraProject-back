@@ -1,5 +1,4 @@
 ﻿using Fayora.Domain.Common.Entity;
-using Fayora.Domain.Common.Interfaces.Admin;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;

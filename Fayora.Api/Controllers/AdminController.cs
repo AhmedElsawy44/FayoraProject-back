@@ -1,6 +1,7 @@
 ﻿using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
-using Fayora.Application.Features.Admin.Commands.VerifyContent;
-using Fayora.Application.Features.AdminModule.Queries.GetInventoryQueueQuery;
+using Fayora.Application.Features.AdminModule.Commands.VerifyContent;
+using Fayora.Application.Features.AdminModule.Queries.GetDetailedPackage;
+using Fayora.Application.Features.AdminModule.Queries.GetInventoryQueue;
 using Fayora.Contracts.AdminModule.VerifyContent;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -35,5 +36,15 @@ public class AdminController(ISender sender) : ApiController
         var result = await sender.Send(query, ct);
 
         return Ok(result);
+    }
+
+    [HttpGet("package-details")]
+    public async Task<IActionResult> GetPackageDetails([FromRoute] Guid PackageId)
+    {
+        var query = new GetDetailedPackageQuery(PackageId);
+
+        var result = await sender.Send(query);
+
+        return result.Match(Ok, Problem);
     }
 }

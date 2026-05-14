@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Fayora.Application.Features.AdminModule.Queries.GetInventoryQueueQuery;
+namespace Fayora.Application.Features.AdminModule.Queries.GetInventoryQueue;
 
 public class GetInventoryQueueQueryValidator : AbstractValidator<GetInventoryQueueQuery>
 {

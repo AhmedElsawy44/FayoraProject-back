@@ -5,9 +5,6 @@ using Fayora.Application.Common.Interfaces.Services.BookingModule;
 using Fayora.Application.Features.BookingModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.BookingModule;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Fayora.Application.Features.BookingModule.Commands.GenerateBookingQr
 {
@@ -28,11 +25,11 @@ namespace Fayora.Application.Features.BookingModule.Commands.GenerateBookingQr
 
             if (booking is null) return BookingErrors.BookingNotFound;
 
-            
+
             if (booking.UserId != userId)
                 return BookingErrors.Unauthorized;
 
-            
+
             if (booking.PaymentStatus != PaymentTransactionStatus.Paid)
                 return BookingErrors.BookingNotPaid;
 
@@ -44,7 +41,7 @@ namespace Fayora.Application.Features.BookingModule.Commands.GenerateBookingQr
                 booking.UserId,
                 booking.ServiceProviderId,
                 booking.ServiceId,
-                booking.EndDate 
+                booking.EndDate
             ));
 
             return new GenerateBookingQrResult(token);
