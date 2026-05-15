@@ -10,6 +10,7 @@ namespace Fayora.Application.Features.AdminModule.Commands.CreateLocation
     public record CreateLocationCommand(
         string Name,
         string? Description,
+        decimal Rating,
         decimal Latitude,
         decimal Longitude,
         LocationCategory Category,

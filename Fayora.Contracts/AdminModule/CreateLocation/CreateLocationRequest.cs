@@ -7,6 +7,7 @@ namespace Fayora.Contracts.AdminModule.CreateLocation
     public record CreateLocationRequest(
         string Name,
         string? Description,
+        decimal Rating,
         decimal Latitude,
         decimal Longitude,
         LocationCategoryDto Category,

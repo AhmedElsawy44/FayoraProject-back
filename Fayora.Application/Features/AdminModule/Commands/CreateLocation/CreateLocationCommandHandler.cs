@@ -23,6 +23,7 @@ public class CreateLocationCommandHandler(
         var locationResult = Location.Create(
             request.Name,
             request.Description,
+            request.Rating,
             request.Latitude,
             request.Longitude,
             request.Category,

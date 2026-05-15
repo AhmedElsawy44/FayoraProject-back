@@ -53,7 +53,6 @@ public class AdminController(ISender sender) : ApiController
     }
 
 
-
     [HttpPost("locations")]
     public async Task<IActionResult> CreateLocation(
         [FromBody] CreateLocationRequest request,
@@ -62,6 +61,7 @@ public class AdminController(ISender sender) : ApiController
         var command = new CreateLocationCommand(
             request.Name,
             request.Description,
+            request.Rating,
             request.Latitude,
             request.Longitude,
             (LocationCategory)request.Category,

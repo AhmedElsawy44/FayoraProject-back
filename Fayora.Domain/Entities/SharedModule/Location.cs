@@ -22,6 +22,7 @@ namespace Fayora.Domain.Entities.SharedModule
         private Location(
             string name,
             string? description,
+            decimal rating,
             GeoPoint coordinates,
             FileUrl mainImageUrl,
             LocationCategory category)
@@ -31,13 +32,14 @@ namespace Fayora.Domain.Entities.SharedModule
             Coordinates = coordinates;
             MainImageUrl = mainImageUrl;
             Category = category;
-            Rating = 0;
+            Rating =rating;
             ReviewCount = 0;
         }
 
         public static Result<Location> Create(
             string name,
             string? description,
+            decimal rating,
             decimal latitude,
             decimal longitude,
             LocationCategory category,
@@ -50,7 +52,7 @@ namespace Fayora.Domain.Entities.SharedModule
             var coordinates = GeoPoint.Create(latitude, longitude);
             if (coordinates.IsError) return coordinates.Errors;
 
-            return new Location(name, description, coordinates.Value, mainImageUrl, category);
+            return new Location(name, description,rating,  coordinates.Value, mainImageUrl, category);
         }
 
         public void AddImage(Guid imageId) => _imageIds.Add(imageId);

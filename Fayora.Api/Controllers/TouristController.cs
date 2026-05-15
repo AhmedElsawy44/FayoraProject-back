@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.TouristModule.Commands.CreateTouristProfile;
 using Fayora.Application.Features.TouristModule.Commands.TrackUserInteraction;
+using Fayora.Application.Features.TouristModule.Queries.GetAllLocations;
 using Fayora.Application.Features.TouristModule.Queries.GetInterests;
+using Fayora.Contracts.AdminModule.CreateLocation;
 using Fayora.Contracts.TouristModule;
+using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TouristModule;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -78,4 +81,32 @@ public class TouristController(ISender sender, IMapper mapper) : ApiController
  );
     }
 
+
+    [HttpGet("locations")]
+    public async Task<IActionResult> GetLocations(
+        [FromQuery] LocationCategoryDto? category,
+        [FromQuery] decimal? minRating,
+        [FromQuery] string? search,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        CancellationToken cancellationToken = default)
+    {
+        LocationCategory? domainCategory = null;
+        if (category.HasValue)
+            domainCategory = mapper.Map<LocationCategory>(category.Value);
+
+        var query = new GetAllLocationsQuery(
+            domainCategory,
+            minRating,
+            search,
+            page,
+            pageSize);
+
+        var result = await sender.Send(query, cancellationToken);
+
+        return result.Match(
+            value => Ok(mapper.Map<GetAllLocationsResponse>(value)),
+            Problem);
+    }
 }
+
