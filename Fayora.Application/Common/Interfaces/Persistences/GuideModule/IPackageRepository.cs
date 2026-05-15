@@ -34,4 +34,16 @@ public interface IPackageRepository
     );
 
     Task<List<GuidePackage>> GetListByIdsAsync(List<Guid> packageIds, CancellationToken cancellationToken);
+
+    Task<(List<GuidePackage> Items, int TotalCount)> GetActivePackagesAsync(
+    string? search,
+    int? locationId,
+    ItemStatus? tourType,
+    int? minDuration,
+    int? maxDuration,
+    decimal? minPrice,
+    decimal? maxPrice,
+    int page,
+    int pageSize,
+    CancellationToken cancellationToken = default);
 }

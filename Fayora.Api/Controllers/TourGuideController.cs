@@ -132,7 +132,8 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             request.ImageURLs,
             request.GuestRequirements,
             cancellationPolicy,
-            request.Activities
+            request.Activities,
+            request.LocationIds
             );
 
         var result = await sender.Send(command, ct);

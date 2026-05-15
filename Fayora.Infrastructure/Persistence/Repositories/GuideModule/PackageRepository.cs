@@ -13,8 +13,6 @@ public class PackageRepository(ApplicationDbContext context) : IPackageRepositor
         context.GuideTourPackages.Add(package);
     }
 
-
-
     public async Task<List<GuidePackage>> GetListByIdsAsync(
     List<Guid> packageIds,
     CancellationToken cancellationToken)
@@ -91,5 +89,53 @@ public class PackageRepository(ApplicationDbContext context) : IPackageRepositor
                 o.Date >= DateOnly.FromDateTime(DateTime.UtcNow) &&
                 o.AvailableSeats > 0))
             .FirstOrDefaultAsync(p => p.Id == packageId && p.PackageStatus == ItemStatus.Active, cancellationToken);
+    }
+
+    public async Task<(List<GuidePackage> Items, int TotalCount)> GetActivePackagesAsync(
+        string? search,
+        int? locationId,
+        ItemStatus? tourType,
+        int? minDuration,
+        int? maxDuration,
+        decimal? minPrice,
+        decimal? maxPrice,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var query = context.GuideTourPackages
+            .AsNoTracking()
+            .Where(p => p.PackageStatus == ItemStatus.Active && p.DeletedAt == null);
+
+        if (!string.IsNullOrWhiteSpace(search))                                              
+            query = query.Where(p =>
+            p.Title.Contains(search) || // Search by title, description, and location names
+            p.Description.Contains(search) ||
+            context.Locations.Any(l => p.LocationIds.Contains(l.Id) && l.Name.Contains(search)));
+
+        if (locationId.HasValue)
+            query = query.Where(p => p.LocationIds.Contains(locationId.Value));
+
+        if (minDuration.HasValue)
+            query = query.Where(p => p.DurationHours >= minDuration.Value);
+
+        if (maxDuration.HasValue)
+            query = query.Where(p => p.DurationHours <= maxDuration.Value);
+
+        if (minPrice.HasValue)
+            query = query.Where(p => p.AdultPrice >= minPrice.Value);
+
+        if (maxPrice.HasValue)
+            query = query.Where(p => p.AdultPrice <= maxPrice.Value);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .OrderByDescending(p => p.Views)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
     }
 }

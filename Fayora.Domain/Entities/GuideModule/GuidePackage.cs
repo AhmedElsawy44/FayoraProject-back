@@ -36,6 +36,8 @@ public class GuidePackage : AuditableEntity<Guid>
     public TransportType TransportType { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
 
+    private readonly List<int> _locationIds = [];
+    public IReadOnlyCollection<int> LocationIds => _locationIds.AsReadOnly();
 
     public string? AdminNotes { get; private set; }
 
@@ -164,6 +166,9 @@ public class GuidePackage : AuditableEntity<Guid>
         TourTypes = tourTypes;
         Updated();
     }
+
+    public void AddLocation(int locationId) => _locationIds.Add(locationId);
+    public void AddLocations(IEnumerable<int> locationIds) => _locationIds.AddRange(locationIds);
 
     public void AddIncludedItems(IEnumerable<int> ids)
     {

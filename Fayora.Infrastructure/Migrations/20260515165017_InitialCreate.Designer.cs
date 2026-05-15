@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260515010144_InitialCreate")]
+    [Migration("20260515165017_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

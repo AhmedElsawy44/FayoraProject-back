@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.TouristModule.Commands.CreateTouristProfile;
+using Fayora.Application.Features.TouristModule.Queries.GetAllActivePackages;
 using Fayora.Application.Features.TouristModule.Queries.GetAllLocations;
 using Fayora.Application.Features.TouristModule.Queries.GetInterests;
 using Fayora.Contracts.TouristModule;
@@ -21,5 +22,8 @@ public class TouristMapper : Profile
 
         CreateMap<GetAllLocationsResult, GetAllLocationsResponse>();
         CreateMap<LocationSummaryResult, LocationSummaryResponse>();
+
+        CreateMap<GetActivePackagesResult, ActivePackagesResponse>();
+        CreateMap<ActivePackageSummaryResult, ActivePackageSummaryResponse>();
     }
 }

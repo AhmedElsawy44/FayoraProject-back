@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.TouristModule.Commands.CreateTouristProfile;
 using Fayora.Application.Features.TouristModule.Commands.TrackUserInteraction;
+using Fayora.Application.Features.TouristModule.Queries.GetAllActivePackages;
 using Fayora.Application.Features.TouristModule.Queries.GetAllLocations;
 using Fayora.Application.Features.TouristModule.Queries.GetInterests;
 using Fayora.Contracts.AdminModule.CreateLocation;
@@ -106,6 +107,36 @@ public class TouristController(ISender sender, IMapper mapper) : ApiController
 
         return result.Match(
             value => Ok(mapper.Map<GetAllLocationsResponse>(value)),
+            Problem);
+    }
+
+    [HttpGet("ActivePackages")]
+    public async Task<IActionResult> GetActivePackages(
+    [FromQuery] string? search,
+    [FromQuery] int? locationId,
+    [FromQuery] string? tourType,
+    [FromQuery] int? minDuration,
+    [FromQuery] int? maxDuration,
+    [FromQuery] decimal? minPrice,
+    [FromQuery] decimal? maxPrice,
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 10,
+    CancellationToken cancellationToken = default)
+    {
+        var query = new GetActivePackagesQuery(
+            search,
+            locationId,
+            tourType,
+            minDuration,
+            maxDuration,
+            minPrice,
+            maxPrice,
+            page,
+            pageSize);
+
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(mapper.Map<ActivePackagesResponse>(value)),
             Problem);
     }
 }

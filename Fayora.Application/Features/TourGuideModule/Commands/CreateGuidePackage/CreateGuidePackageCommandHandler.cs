@@ -1,6 +1,7 @@
 ﻿using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
@@ -12,6 +13,7 @@ namespace Fayora.Application.Features.TourGuideModule.Commands.CreateGuidePackag
 public class CreateGuidePackageCommandHandler(
     IPackageRepository packageRepository,
     IPackageImageRepository packageImageRepository,
+     ILocationRepository locationRepository,
     IUnitOfWork unitOfWork,
     IClientContextProvider clientContextProvider
     ) : ICommandHandler<CreateGuidePackageCommand, Result<CreateGuidePackageResult>>
@@ -89,6 +91,18 @@ public class CreateGuidePackageCommandHandler(
             package.AddImages(packageImages.Select(img => img.Id));
             packageImageRepository.AddPackageImages(packageImages);
         }
+
+
+
+        foreach (var locationId in request.LocationIds)
+        {
+            var exists = await locationRepository.LocationExistsAsync(locationId, cancellationToken);
+            if (!exists)
+                return Error.Validation("Location.NotFound", $"Location {locationId} not found.");
+        }
+
+        package.AddLocations(request.LocationIds);
+
 
         packageRepository.AddPackage(package);
 

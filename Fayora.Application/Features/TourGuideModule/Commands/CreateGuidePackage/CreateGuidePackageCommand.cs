@@ -26,5 +26,6 @@ public record CreateGuidePackageCommand
     List<string> ImageURLs,
     string? GuestRequirements,
     CancellationPolicy CancellationPolicy,
-    List<ActivityDto> Activities
+    List<ActivityDto> Activities,
+    HashSet<int> LocationIds
 ) : ICommand<Result<CreateGuidePackageResult>>;
