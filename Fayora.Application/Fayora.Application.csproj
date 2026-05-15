@@ -7,6 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Features\AdminModule\Common\**" />
+    <Compile Remove="Features\AdminModule\NewFolder\**" />
+    <EmbeddedResource Remove="Features\AdminModule\Common\**" />
+    <EmbeddedResource Remove="Features\AdminModule\NewFolder\**" />
+    <None Remove="Features\AdminModule\Common\**" />
+    <None Remove="Features\AdminModule\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
@@ -20,7 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\AdminModule\Common\" />
     <Folder Include="Features\AdminModule\Queries\GetDetailedUnit\" />
   </ItemGroup>
 
