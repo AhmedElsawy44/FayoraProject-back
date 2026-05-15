@@ -1,5 +1,6 @@
 ﻿using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
 using Fayora.Application.Features.AdminModule.Commands.CreateLocation;
+using Fayora.Application.Features.AdminModule.Commands.DeleteLocation;
 using Fayora.Application.Features.AdminModule.Commands.VerifyContent;
 using Fayora.Application.Features.AdminModule.Queries.GetDetailedPackage;
 using Fayora.Application.Features.AdminModule.Queries.GetInventoryQueue;
@@ -72,6 +73,19 @@ public class AdminController(ISender sender) : ApiController
 
         return result.Match(
             value => CreatedAtAction(nameof(CreateLocation), new { locationId = value }),
+            Problem);
+    }
+
+    [HttpDelete("locations/{id}")]
+    public async Task<IActionResult> DeleteLocation(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        var command = new DeleteLocationCommand(id);
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            value => Ok(new { message = value }),
             Problem);
     }
 }
