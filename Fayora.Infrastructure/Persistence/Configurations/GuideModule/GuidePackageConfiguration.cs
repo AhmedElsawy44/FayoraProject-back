@@ -80,6 +80,16 @@ public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
 
         builder.Metadata.FindNavigation(nameof(GuidePackage.Occurrences))
        ?.SetPropertyAccessMode(PropertyAccessMode.Field);
+
+
+
+        builder.Property<List<int>>("_locationIds")
+              .HasColumnName("LocationIds")
+              .HasConversion(
+              v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+              v => JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions?)null) ?? new List<int>())
+             .Metadata.SetValueComparer(CreateIntListComparer());
+
     }
 
     private ValueComparer<List<int>> CreateIntListComparer()

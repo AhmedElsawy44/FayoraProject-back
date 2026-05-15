@@ -45,7 +45,8 @@ namespace Fayora.Infrastructure.Persistence.Repositories.SharedModule
         }
 
         public async Task<Location?> GetLocationByIdAsync(int id, CancellationToken cancellationToken = default)
-            => await context.Locations.AsNoTracking()
+            => await context.Locations
+                .AsNoTracking()
                 .FirstOrDefaultAsync(l => l.Id == id, cancellationToken);
 
         public async Task<bool> LocationExistsAsync(int id, CancellationToken cancellationToken = default)

@@ -1,9 +1,11 @@
 ﻿using Fayora.Domain.Entities.SharedModule;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 
 namespace Fayora.Infrastructure.Persistence.Configurations.Shared
 {
@@ -43,6 +45,16 @@ namespace Fayora.Infrastructure.Persistence.Configurations.Shared
 
             builder.Property(x => x.Rating)
                 .HasPrecision(3, 2);
+
+            builder.Property<List<Guid>>("_imageIds")
+                 .HasColumnName("ImageIds")
+                 .HasConversion(
+                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                 v => JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions?)null) ?? new List<Guid>())
+                 .Metadata.SetValueComparer(new ValueComparer<List<Guid>>(
+                 (c1, c2) => c1!.SequenceEqual(c2!),
+                 c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                 c => c.ToList()));
         }
     }
 }

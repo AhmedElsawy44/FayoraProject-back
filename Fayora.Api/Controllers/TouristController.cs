@@ -4,6 +4,7 @@ using Fayora.Application.Features.TouristModule.Commands.TrackUserInteraction;
 using Fayora.Application.Features.TouristModule.Queries.GetAllActivePackages;
 using Fayora.Application.Features.TouristModule.Queries.GetAllLocations;
 using Fayora.Application.Features.TouristModule.Queries.GetInterests;
+using Fayora.Application.Features.TouristModule.Queries.GetLocationDetails;
 using Fayora.Contracts.AdminModule.CreateLocation;
 using Fayora.Contracts.TouristModule;
 using Fayora.Domain.Enums.SharedModule;
@@ -137,6 +138,18 @@ public class TouristController(ISender sender, IMapper mapper) : ApiController
         var result = await sender.Send(query, cancellationToken);
         return result.Match(
             value => Ok(mapper.Map<ActivePackagesResponse>(value)),
+            Problem);
+    }
+
+    [HttpGet("{locationId:int}")]
+    public async Task<IActionResult> GetLocationDetails(
+    [FromRoute] int locationId,
+    CancellationToken cancellationToken)
+    {
+        var query = new GetLocationDetailsQuery(locationId);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(mapper.Map<LocationDetailsResponse>(value)),
             Problem);
     }
 }

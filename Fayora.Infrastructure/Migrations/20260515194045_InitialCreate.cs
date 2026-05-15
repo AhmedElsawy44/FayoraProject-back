@@ -148,6 +148,7 @@ namespace Fayora.Infrastructure.Migrations
                     ExcludedItemIds = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ImageIds = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IncludedItemIds = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LocationIds = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
@@ -249,7 +250,8 @@ namespace Fayora.Infrastructure.Migrations
                     Rating = table.Column<decimal>(type: "decimal(3,2)", precision: 3, scale: 2, nullable: false),
                     Category = table.Column<int>(type: "int", nullable: false),
                     ReviewCount = table.Column<int>(type: "int", nullable: false),
-                    MainImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                    MainImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    ImageIds = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {

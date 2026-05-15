@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260515165017_InitialCreate")]
+    [Migration("20260515194045_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -577,6 +577,11 @@ namespace Fayora.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("IncludedItemIds");
+
+                    b.Property<string>("_locationIds")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("LocationIds");
 
                     b.HasKey("Id");
 
@@ -1223,6 +1228,11 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.Property<int>("ReviewCount")
                         .HasColumnType("int");
+
+                    b.Property<string>("_imageIds")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ImageIds");
 
                     b.HasKey("Id");
 

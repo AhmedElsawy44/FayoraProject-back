@@ -91,30 +91,27 @@ public class PackageRepository(ApplicationDbContext context) : IPackageRepositor
             .FirstOrDefaultAsync(p => p.Id == packageId && p.PackageStatus == ItemStatus.Active, cancellationToken);
     }
 
+
     public async Task<(List<GuidePackage> Items, int TotalCount)> GetActivePackagesAsync(
-        string? search,
-        int? locationId,
-        ItemStatus? tourType,
-        int? minDuration,
-        int? maxDuration,
-        decimal? minPrice,
-        decimal? maxPrice,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken = default)
+    string? search,
+    int? locationId,
+    ItemStatus? tourType,
+    int? minDuration,
+    int? maxDuration,
+    decimal? minPrice,
+    decimal? maxPrice,
+    int page,
+    int pageSize,
+    CancellationToken cancellationToken = default)
     {
         var query = context.GuideTourPackages
             .AsNoTracking()
             .Where(p => p.PackageStatus == ItemStatus.Active && p.DeletedAt == null);
 
-        if (!string.IsNullOrWhiteSpace(search))                                              
+        if (!string.IsNullOrWhiteSpace(search))
             query = query.Where(p =>
-            p.Title.Contains(search) || // Search by title, description, and location names
-            p.Description.Contains(search) ||
-            context.Locations.Any(l => p.LocationIds.Contains(l.Id) && l.Name.Contains(search)));
-
-        if (locationId.HasValue)
-            query = query.Where(p => p.LocationIds.Contains(locationId.Value));
+                p.Title.Contains(search) ||
+                p.Description.Contains(search));
 
         if (minDuration.HasValue)
             query = query.Where(p => p.DurationHours >= minDuration.Value);
@@ -128,13 +125,30 @@ public class PackageRepository(ApplicationDbContext context) : IPackageRepositor
         if (maxPrice.HasValue)
             query = query.Where(p => p.AdultPrice <= maxPrice.Value);
 
-        var totalCount = await query.CountAsync(cancellationToken);
+        
+        var allPackages = await query.ToListAsync(cancellationToken);
 
-        var items = await query
+        
+        if (locationId.HasValue)
+            allPackages = allPackages
+                .Where(p => p.LocationIds.Contains(locationId.Value))
+                .ToList();
+
+       
+        if (!string.IsNullOrWhiteSpace(search))
+            allPackages = allPackages
+                .Where(p => p.LocationIds.Any(id =>
+                    context.Locations
+                        .Any(l => l.Id == id && l.Name.Contains(search))))
+                .ToList();
+
+        var totalCount = allPackages.Count;
+
+        var items = allPackages
             .OrderByDescending(p => p.Views)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync(cancellationToken);
+            .ToList();
 
         return (items, totalCount);
     }
