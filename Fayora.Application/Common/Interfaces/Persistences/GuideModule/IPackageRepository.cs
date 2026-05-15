@@ -1,4 +1,5 @@
 ﻿using Fayora.Domain.Entities.GuideModule;
+using Fayora.Domain.Enums.TourGuideModule;
 
 namespace Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 
@@ -6,6 +7,14 @@ public interface IPackageRepository
 {
     void AddPackage(GuidePackage package);
     Task<GuidePackage?> GetPackageByIdAsync(Guid packageId, PackageQueryOptions options, CancellationToken cancellationToken);
+
+    //get all packages of a tour guide or tour company with pagination and filter by status
+    Task<(List<GuidePackage> Items, int TotalCount)> GetMyPackagesAsync( 
+    Guid userId,
+    ItemStatus? status,
+    int page,
+    int pageSize,
+    CancellationToken cancellationToken = default);
 
     //for tour guide's point of view
     Task<List<PackageActivity>> GetActivitiesByPackageIdAsync(

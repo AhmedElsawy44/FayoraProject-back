@@ -8,6 +8,7 @@ using Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Commands.DeactivateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.DeleteGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.UpdateTourGuide;
+using Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview;
 using Fayora.Contracts.TourGuideModule.CreateGuidePackage;
@@ -15,6 +16,7 @@ using Fayora.Contracts.TourGuideModule.CreatePackageOccurrences;
 using Fayora.Contracts.TourGuideModule.CreateTourCompany;
 using Fayora.Contracts.TourGuideModule.CreateTourGuide;
 using Fayora.Contracts.TourGuideModule.CreateWeeklySchedule;
+using Fayora.Contracts.TourGuideModule.GetMyPackages;
 using Fayora.Contracts.TourGuideModule.GetPackageDetails;
 using Fayora.Contracts.TourGuideModule.GetPackagePreview;
 using Fayora.Contracts.TourGuideModule.UpdateTourGuide;
@@ -235,6 +237,31 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
         var result = await sender.Send(query, cancellationToken);
         return result.Match(
             value => Ok(mapper.Map<PackageDetailsResponse>(value)),
+            Problem);
+    }
+
+
+
+    [HttpGet("my-packages")]
+    public async Task<IActionResult> GetMyPackages(
+    [FromQuery] string? status,
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 10,
+    CancellationToken cancellationToken = default)
+    {
+        ItemStatus? parsedStatus = null;
+        if (!string.IsNullOrEmpty(status))
+        {
+            if (!Enum.TryParse<ItemStatus>(status, true, out var s))
+                return BadRequest("Invalid status value.");
+            parsedStatus = s;
+        }
+
+        var query = new GetMyPackagesQuery(parsedStatus, page, pageSize);
+        var result = await sender.Send(query, cancellationToken);
+
+        return result.Match(
+            value => Ok(mapper.Map<MyPackagesResponse>(value)),
             Problem);
     }
 }

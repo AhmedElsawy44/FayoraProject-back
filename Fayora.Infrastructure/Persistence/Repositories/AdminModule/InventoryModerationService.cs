@@ -24,7 +24,7 @@ public class InventoryModerationService(ApplicationDbContext context) : IInvento
 
         var trips = from t in context.GuideTourPackages
                     join u in context.Users on t.UserId equals u.Id
-                    where t.Status == ItemStatus.Pending
+                    where t.PackageStatus == ItemStatus.Pending
                     select new
                     {
                         t.Id,

@@ -57,6 +57,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     // Shared Module
     public DbSet<City> Cities { get; set; }
+    public DbSet<Location> Locations { get; set; }
+    public DbSet<LocationImage> LocationImages { get; set; }
 
     public async Task CommitChangesAsync(CancellationToken cancellationToken = default)
     {

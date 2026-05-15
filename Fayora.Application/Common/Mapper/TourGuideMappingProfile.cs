@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
+using Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages.Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview;
 using Fayora.Contracts.TourGuideModule.CreateTourGuide;
+using Fayora.Contracts.TourGuideModule.GetMyPackages;
 using Fayora.Contracts.TourGuideModule.GetPackageDetails;
 using Fayora.Contracts.TourGuideModule.GetPackagePreview;
 using Fayora.Contracts.TourGuideModule.GetTourGuideById;
@@ -33,6 +35,10 @@ public class TourGuideMappingProfile : Profile
         CreateMap<GeoPointDetailsResult, GeoPointResponse>();
         CreateMap<GuideInfoDetailsResult, GuideInfoResponse>();
         CreateMap<PackageOccurrenceResult, PackageOccurrenceResponse>();
+
+
+        CreateMap<GetMyPackagesResult, MyPackagesResponse>();
+        CreateMap<PackageSummaryResult, PackageSummaryResponse>();
 
     }
 }

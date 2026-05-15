@@ -104,6 +104,8 @@ public static class DependencyInjection
 
         // Shared Module
         services.AddScoped<ICityRepository, CityRepository>();
+        services.AddScoped<ILocationRepository, LocationRepository>();
+        services.AddScoped<ILocationImageRepository, LocationImageRepository>();
 
         // Chat Module
         services.AddScoped<IChatRepository, ChatRepository>();
