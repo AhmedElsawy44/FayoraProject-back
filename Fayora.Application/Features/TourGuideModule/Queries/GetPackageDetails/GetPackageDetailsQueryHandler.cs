@@ -66,6 +66,7 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
                 package.TransportType.ToString(),
                 package.GuestRequirements,
                 package.ArrivalNote,
+                package.LocationIds.ToList(),
                 package.Occurrences.Select(o => new PackageOccurrenceResult(
                     o.Id,
                     o.Date,

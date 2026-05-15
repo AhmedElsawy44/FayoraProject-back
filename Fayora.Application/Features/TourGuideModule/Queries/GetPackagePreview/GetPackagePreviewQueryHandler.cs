@@ -64,7 +64,9 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
                     user.ProfileImageUrl?.Value,
                     guide.AverageRating,
                     guide.ReviewCount,
-                    guide.CompletedToursCount));
+                    guide.CompletedToursCount),
+                package.LocationIds.ToList()); 
+
         }
     }
 }

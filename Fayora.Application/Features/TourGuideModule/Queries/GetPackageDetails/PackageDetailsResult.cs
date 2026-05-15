@@ -17,6 +17,7 @@
         string TransportType,
         string? GuestRequirements,
         string? ArrivalNote,
+        List<int> LocationIds,
         List<PackageOccurrenceResult> Occurrences
     );
 

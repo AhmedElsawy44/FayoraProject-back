@@ -19,6 +19,7 @@ namespace Fayora.Contracts.TourGuideModule.GetPackageDetails
         string TransportType,
         string? GuestRequirements,
         string? ArrivalNote,
+        List<int> LocationIds,
         List<PackageOccurrenceResponse> Occurrences
     );
 

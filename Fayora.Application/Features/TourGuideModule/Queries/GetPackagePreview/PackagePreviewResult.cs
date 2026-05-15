@@ -12,7 +12,8 @@
         List<int>? ExcludedItemIds,
         List<PackageActivityResult> Activities,
         GeoPointResult MeetingPoint,
-        GuideInfoResult GuideInfo
+        GuideInfoResult GuideInfo,
+        List<int> LocationIds
     );
 
     public record PackageActivityResult(
