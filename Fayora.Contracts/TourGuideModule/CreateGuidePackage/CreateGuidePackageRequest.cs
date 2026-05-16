@@ -20,7 +20,8 @@ public record CreateGuidePackageRequest
     List<string> ImageURLs,
     string CancellationPolicy,
     string? GuestRequirements,
-    List<ActivityDto> Activities
+    List<ActivityDto> Activities,
+    HashSet<int> LocationIds
 );
 
 public record ActivityDto(decimal Latitude, decimal Longitude, string Description, TimeOnly ActivityTime, bool IsOptional);

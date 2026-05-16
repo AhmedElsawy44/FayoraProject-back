@@ -11,6 +11,7 @@
         List<int> IncludedItemIds,
         List<int>? ExcludedItemIds,
         List<PackageActivityResponse> Activities,
+        List<int> LocationIds,
         GeoPointResponse MeetingPoint,
         GuideInfoResponse GuideInfo
     );

@@ -1,8 +1,13 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.TouristModule.Commands.CreateTouristProfile;
 using Fayora.Application.Features.TouristModule.Commands.TrackUserInteraction;
+using Fayora.Application.Features.TouristModule.Queries.GetAllActivePackages;
+using Fayora.Application.Features.TouristModule.Queries.GetAllLocations;
 using Fayora.Application.Features.TouristModule.Queries.GetInterests;
+using Fayora.Application.Features.TouristModule.Queries.GetLocationDetails;
+using Fayora.Contracts.AdminModule.CreateLocation;
 using Fayora.Contracts.TouristModule;
+using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TouristModule;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -78,4 +83,74 @@ public class TouristController(ISender sender, IMapper mapper) : ApiController
  );
     }
 
+
+    [HttpGet("locations")]
+    public async Task<IActionResult> GetLocations(
+        [FromQuery] LocationCategoryDto? category,
+        [FromQuery] decimal? minRating,
+        [FromQuery] string? search,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        CancellationToken cancellationToken = default)
+    {
+        LocationCategory? domainCategory = null;
+        if (category.HasValue)
+            domainCategory = mapper.Map<LocationCategory>(category.Value);
+
+        var query = new GetAllLocationsQuery(
+            domainCategory,
+            minRating,
+            search,
+            page,
+            pageSize);
+
+        var result = await sender.Send(query, cancellationToken);
+
+        return result.Match(
+            value => Ok(mapper.Map<GetAllLocationsResponse>(value)),
+            Problem);
+    }
+
+    [HttpGet("ActivePackages")]
+    public async Task<IActionResult> GetActivePackages(
+    [FromQuery] string? search,
+    [FromQuery] int? locationId,
+    [FromQuery] string? tourType,
+    [FromQuery] int? minDuration,
+    [FromQuery] int? maxDuration,
+    [FromQuery] decimal? minPrice,
+    [FromQuery] decimal? maxPrice,
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 10,
+    CancellationToken cancellationToken = default)
+    {
+        var query = new GetActivePackagesQuery(
+            search,
+            locationId,
+            tourType,
+            minDuration,
+            maxDuration,
+            minPrice,
+            maxPrice,
+            page,
+            pageSize);
+
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(mapper.Map<ActivePackagesResponse>(value)),
+            Problem);
+    }
+
+    [HttpGet("{locationId:int}")]
+    public async Task<IActionResult> GetLocationDetails(
+    [FromRoute] int locationId,
+    CancellationToken cancellationToken)
+    {
+        var query = new GetLocationDetailsQuery(locationId);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(mapper.Map<LocationDetailsResponse>(value)),
+            Problem);
+    }
 }
+

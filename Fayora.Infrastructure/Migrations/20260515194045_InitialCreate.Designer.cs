@@ -12,7 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
+<<<<<<<< HEAD:Fayora.Infrastructure/Migrations/20260515194045_InitialCreate.Designer.cs
+    [Migration("20260515194045_InitialCreate")]
+========
     [Migration("20260514201606_InitialCreate")]
+>>>>>>>> 8127ca55e55b74b376a7afcc55243fcf6693b24c:Fayora.Infrastructure/Migrations/20260514201606_InitialCreate.Designer.cs
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -577,6 +581,11 @@ namespace Fayora.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("IncludedItemIds");
+
+                    b.Property<string>("_locationIds")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("LocationIds");
 
                     b.HasKey("Id");
 
@@ -1205,6 +1214,9 @@ namespace Fayora.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("Category")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -1220,6 +1232,11 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.Property<int>("ReviewCount")
                         .HasColumnType("int");
+
+                    b.Property<string>("_imageIds")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ImageIds");
 
                     b.HasKey("Id");
 

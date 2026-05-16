@@ -575,6 +575,11 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("IncludedItemIds");
 
+                    b.Property<string>("_locationIds")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("LocationIds");
+
                     b.HasKey("Id");
 
                     b.ToTable("GuideTourPackages", (string)null);
@@ -1202,6 +1207,9 @@ namespace Fayora.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("Category")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -1217,6 +1225,11 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.Property<int>("ReviewCount")
                         .HasColumnType("int");
+
+                    b.Property<string>("_imageIds")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ImageIds");
 
                     b.HasKey("Id");
 
