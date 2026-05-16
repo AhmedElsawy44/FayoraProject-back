@@ -1,8 +1,5 @@
 ﻿using Fayora.Domain.Entities.SharedModule;
 using Fayora.Domain.Enums.SharedModule;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Fayora.Application.Common.Interfaces.Persistences.SharedModule
 {

@@ -1,5 +1,4 @@
 ﻿using Fayora.Application.Common.Abstractions.Messaging;
-using Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages.Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.TourGuideModule;
 

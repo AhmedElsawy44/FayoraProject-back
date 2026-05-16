@@ -1,4 +1,4 @@
-﻿namespace Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages.Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages
+﻿namespace Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages
 {
     public record GetMyPackagesResult(
         List<PackageSummaryResult> Items,

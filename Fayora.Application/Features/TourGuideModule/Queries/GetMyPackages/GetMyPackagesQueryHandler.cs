@@ -2,7 +2,6 @@
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.TourGuideModule.Common;
-using Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages.Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages;
 using Fayora.Domain.Common.Results;
 
 namespace Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages

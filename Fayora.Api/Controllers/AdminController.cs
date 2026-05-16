@@ -12,7 +12,6 @@ using Fayora.Application.Features.AdminModule.Queries.GetTravelAgenciesStats;
 using Fayora.Contracts.AdminModule.CreateLocation;
 using Fayora.Contracts.AdminModule.VerifyContent;
 using Fayora.Domain.Enums.SharedModule;
-using Fayora.Domain.ValueObjects;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

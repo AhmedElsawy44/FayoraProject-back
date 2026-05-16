@@ -1,5 +1,4 @@
-﻿using Fayora.Application.Features.AdminModule.Queries.GetTourGuidesStat;
-using Fayora.Domain.Entities.GuideModule;
+﻿using Fayora.Domain.Entities.GuideModule;
 
 namespace Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 

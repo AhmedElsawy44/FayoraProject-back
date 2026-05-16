@@ -1,7 +1,6 @@
 ﻿using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
-using MediatR;
 
 namespace Fayora.Application.Features.TouristModule.Queries.GetAllLocations
 {

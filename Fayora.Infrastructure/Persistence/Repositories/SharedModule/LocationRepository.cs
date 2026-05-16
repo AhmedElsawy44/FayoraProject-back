@@ -2,10 +2,6 @@
 using Fayora.Domain.Entities.SharedModule;
 using Fayora.Domain.Enums.SharedModule;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using static Fayora.Infrastructure.Persistence.Repositories.SharedModule.LocationRepository;
 
 namespace Fayora.Infrastructure.Persistence.Repositories.SharedModule
 {

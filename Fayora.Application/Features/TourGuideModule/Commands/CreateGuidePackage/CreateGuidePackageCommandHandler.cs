@@ -6,7 +6,6 @@ using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.GuideModule;
-using Fayora.Domain.Entities.SharedModule;
 using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Application.Features.TourGuideModule.Commands.CreateGuidePackage;

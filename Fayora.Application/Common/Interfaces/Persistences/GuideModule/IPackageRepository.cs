@@ -9,7 +9,7 @@ public interface IPackageRepository
     Task<GuidePackage?> GetPackageByIdAsync(Guid packageId, PackageQueryOptions options, CancellationToken cancellationToken);
 
     //get all packages of a tour guide or tour company with pagination and filter by status
-    Task<(List<GuidePackage> Items, int TotalCount)> GetMyPackagesAsync( 
+    Task<(List<GuidePackage> Items, int TotalCount)> GetMyPackagesAsync(
     Guid userId,
     ItemStatus? status,
     int page,

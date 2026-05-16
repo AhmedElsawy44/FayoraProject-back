@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
-using Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages.Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages;
+using Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview;
 using Fayora.Contracts.TourGuideModule.CreateTourGuide;

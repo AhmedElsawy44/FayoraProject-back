@@ -26,10 +26,10 @@ public class PackageOccurrenceRepository(ApplicationDbContext context)
                     where occurrence.Date.Year == year && occurrence.Date.Month == month
                     select new CalendarBookingItemDto
                     (
-                        occurrence.Id,    
-                        package.Title,    
-                        occurrence.Date,  
-                        "Tour"            
+                        occurrence.Id,
+                        package.Title,
+                        occurrence.Date,
+                        "Tour"
                     );
 
         return await query.ToListAsync(cancellationToken);
