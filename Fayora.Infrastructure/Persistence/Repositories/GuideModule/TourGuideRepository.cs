@@ -32,6 +32,21 @@ public class TourGuideRepository(ApplicationDbContext context) : ITourGuideRepos
         return await query.FirstOrDefaultAsync(g => g.UserId == id, cancellationToken);
     }
 
+    public async Task<(int activeGuide, decimal avgRating)> GetTourGuidesStatsAsync(CancellationToken cancellationToken)
+    {
+        int totalActiveGuides = await context.TourGuides
+            .CountAsync(t => t.IsAvailableForBooking == true, cancellationToken);
+
+        decimal? avgRatingNullable = await context.TourGuides
+            .AverageAsync(t => (decimal?)t.AverageRating, cancellationToken);
+
+        decimal currentAvgRating = avgRatingNullable ?? 0.0m;
+
+        currentAvgRating = Math.Round(currentAvgRating, 2);
+
+        return (totalActiveGuides, currentAvgRating);
+    }
+
     public async Task<bool> TourGuideExistAsync(Guid id, CancellationToken cancellationToken)
     {
         return await ExistsAsync(id, cancellationToken);
