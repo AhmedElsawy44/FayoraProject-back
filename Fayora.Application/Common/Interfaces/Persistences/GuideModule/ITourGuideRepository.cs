@@ -1,4 +1,6 @@
-﻿using Fayora.Domain.Entities.GuideModule;
+﻿using Fayora.Application.Features.AdminModule.Queries.GetTourGuideVerificationDetails;
+using Fayora.Application.Features.AdminModule.Queries.GetVerificationQueue;
+using Fayora.Domain.Entities.GuideModule;
 
 namespace Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 
@@ -14,4 +16,8 @@ public interface ITourGuideRepository
     public record GuideQueryOptions(
         bool ReadOnly = true
     );
+
+    Task<List<GetVerificationQueueResoponse>> GetPendingGuidesForVerificationAsync(CancellationToken cancellationToken);
+
+    Task<GetTourGuideVerificationDetailsResponse?> GetVerificationDetailsAsync(Guid id, CancellationToken cancellationToken);
 }

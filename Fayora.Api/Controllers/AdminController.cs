@@ -7,9 +7,13 @@ using Fayora.Application.Features.AdminModule.Queries.GetDetailedPackage;
 using Fayora.Application.Features.AdminModule.Queries.GetFinancialStats;
 using Fayora.Application.Features.AdminModule.Queries.GetInventoryQueue;
 using Fayora.Application.Features.AdminModule.Queries.GetInventoryStats;
+using Fayora.Application.Features.AdminModule.Queries.GetTourCompanyVerificationDetails;
 using Fayora.Application.Features.AdminModule.Queries.GetTourGuidesStat;
+using Fayora.Application.Features.AdminModule.Queries.GetTourGuideVerificationDetails;
 using Fayora.Application.Features.AdminModule.Queries.GetTravelAgenciesStats;
+using Fayora.Application.Features.AdminModule.Queries.GetVerificationQueue;
 using Fayora.Contracts.AdminModule.CreateLocation;
+using Fayora.Contracts.AdminModule.GetVerificationQueue;
 using Fayora.Contracts.AdminModule.VerifyContent;
 using Fayora.Domain.Enums.SharedModule;
 using MediatR;
@@ -149,6 +153,45 @@ public class AdminController(ISender sender) : ApiController
         var result = await sender.Send(query, cancellationToken);
 
         return Ok(result);
+    }
+
+    [HttpGet("verification-queue")]
+    public async Task<IActionResult> GetTravelAgenciesStats(
+        [FromQuery] GetVerificationQueueRequest request,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetVerificationQueueQuery(
+            request.Type,
+            request.PageNumber,
+            request.PageSize
+        );
+
+        var result = await sender.Send(query, cancellationToken);
+
+        return Ok(result);
+    }
+
+
+    [HttpGet("verification-queue/guide/{id:guid}")]
+    public async Task<IActionResult> GetTourGuideVerificationDetails(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetTourGuideVerificationDetailsQuery(id);
+        var result = await sender.Send(query, cancellationToken);
+
+        return result.Match(Ok, Problem);
+    }
+
+    [HttpGet("verification-queue/company/{id:guid}")]
+    public async Task<IActionResult> GetTourCompanyVerificationDetails(
+    Guid id,
+    CancellationToken cancellationToken)
+    {
+        var query = new GetTourCompanyVerificationDetailsQuery(id);
+        var result = await sender.Send(query, cancellationToken);
+
+        return result.Match(Ok, Problem);
     }
 }
 
