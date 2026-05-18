@@ -14,7 +14,7 @@ public class JwtService(IOptions<JwtSettings> jwtSettings) : IJwtService
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     public int ExpiresIn => _jwtSettings.TokenExpirationInMinutes * 60;
 
-    public string GenerateToken(string deviceId, User user)
+    public string GenerateToken(string deviceId, User user, bool isAccountVerified = true)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -29,6 +29,7 @@ public class JwtService(IOptions<JwtSettings> jwtSettings) : IJwtService
             new("phone",                           user.PhoneNumber?.Value ?? string.Empty),
             new("device_id",                        deviceId),
             new("email_verified",                   user.IsEmailVerified.ToString().ToLower(), ClaimValueTypes.Boolean),
+            new("phone_verified",                   user.IsPhoneVerified.ToString().ToLower(), ClaimValueTypes.Boolean),
             new("phone_verified",                   user.IsPhoneVerified.ToString().ToLower(), ClaimValueTypes.Boolean),
             new("roles",                            user.Roles.ToString())
         };

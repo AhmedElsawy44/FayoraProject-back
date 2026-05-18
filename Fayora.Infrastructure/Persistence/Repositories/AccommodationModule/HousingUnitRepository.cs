@@ -13,6 +13,16 @@ public class HousingUnitRepository(ApplicationDbContext context) : IHousingUnitR
         context.HousingUnits.Add(housingUnit);
     }
 
+    public Task<int> GetLiveListingsStatsAsync(CancellationToken cancellationToken = default)
+    {
+        return context.HousingUnits.CountAsync(u => u.Status == ItemStatus.Active, cancellationToken);
+    }
+
+    public Task<int> GetPendingReviewStatsAsync(CancellationToken cancellationToken = default)
+    {
+        return context.HousingUnits.CountAsync(u => u.Status == ItemStatus.Pending, cancellationToken);
+    }
+
     public async Task<HousingUnit?> GetUnitByIdAsync(
     Guid unitId,
     IHousingUnitRepository.UnitQueryOptions? options = null,

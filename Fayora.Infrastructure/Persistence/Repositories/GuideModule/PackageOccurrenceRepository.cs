@@ -1,4 +1,5 @@
 ﻿using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
+using Fayora.Application.Features.AdminModule.Queries.GetCalendarBookings;
 using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,26 @@ public class PackageOccurrenceRepository(ApplicationDbContext context)
     {
         await context.PackageOccurrences.AddRangeAsync(occurrences, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<List<CalendarBookingItemDto>> GetCalendarPackagessAsync(
+        int year,
+        int month,
+        CancellationToken cancellationToken)
+    {
+        var query = from occurrence in context.PackageOccurrences
+                    join package in context.GuideTourPackages
+                    on occurrence.PackageId equals package.Id
+                    where occurrence.Date.Year == year && occurrence.Date.Month == month
+                    select new CalendarBookingItemDto
+                    (
+                        occurrence.Id,    
+                        package.Title,    
+                        occurrence.Date,  
+                        "Tour"            
+                    );
+
+        return await query.ToListAsync(cancellationToken);
     }
 
     public Task<PackageOccurrence?> GetOccurrenceByPackageIdAndDate(Guid packageId, DateOnly date, CancellationToken cancellationToken)

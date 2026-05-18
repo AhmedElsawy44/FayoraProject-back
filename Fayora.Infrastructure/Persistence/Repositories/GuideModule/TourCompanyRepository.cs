@@ -1,5 +1,6 @@
 ﻿using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Domain.Entities.GuideModule;
+using Fayora.Domain.Enums.TourGuideModule;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fayora.Infrastructure.Persistence.Repositories.GuideModule;
@@ -24,9 +25,22 @@ public class TourCompanyRepository(ApplicationDbContext context) : ITourCompanyR
         return await query.FirstOrDefaultAsync(x => x.UserId == id, cancellationToken);
     }
 
-    public async Task<TourCompany?> GetTourCompanyByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
-        => await context.TourCompanies.FirstOrDefaultAsync(x => x.UserId == userId, cancellationToken);
+    public async Task<int> GetActiveCompaniesCountAsync(CancellationToken cancellationToken = default)
+    {
+        return await context.TourCompanies
+            .CountAsync(x => x.IsAvailableForBooking, cancellationToken);
+    }
 
-    public async Task<bool> TourCompanyExistAsync(Guid userId, CancellationToken cancellationToken = default)
-        => await context.TourCompanies.AnyAsync(x => x.UserId == userId, cancellationToken);
+    public async Task<int> GetCompaniesOnboardingStatsAsync(CancellationToken cancellationToken = default)
+    {
+        int totalInOnboarding = await context.TourCompanies
+            .CountAsync(x => x.Status == ItemStatus.Pending, cancellationToken);
+
+        return totalInOnboarding;
+    }
+
+    public Task<bool> TourCompanyExistAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        return context.TourCompanies.AnyAsync(x => x.UserId == userId, cancellationToken);
+    }
 }

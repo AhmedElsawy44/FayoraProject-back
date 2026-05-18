@@ -2,8 +2,13 @@
 using Fayora.Application.Features.AdminModule.Commands.CreateLocation;
 using Fayora.Application.Features.AdminModule.Commands.DeleteLocation;
 using Fayora.Application.Features.AdminModule.Commands.VerifyContent;
+using Fayora.Application.Features.AdminModule.Queries.GetCalendarBookings;
 using Fayora.Application.Features.AdminModule.Queries.GetDetailedPackage;
+using Fayora.Application.Features.AdminModule.Queries.GetFinancialStats;
 using Fayora.Application.Features.AdminModule.Queries.GetInventoryQueue;
+using Fayora.Application.Features.AdminModule.Queries.GetInventoryStats;
+using Fayora.Application.Features.AdminModule.Queries.GetTourGuidesStat;
+using Fayora.Application.Features.AdminModule.Queries.GetTravelAgenciesStats;
 using Fayora.Contracts.AdminModule.CreateLocation;
 using Fayora.Contracts.AdminModule.VerifyContent;
 using Fayora.Domain.Enums.SharedModule;
@@ -88,4 +93,63 @@ public class AdminController(ISender sender) : ApiController
             value => Ok(new { message = value }),
             Problem);
     }
+
+    [HttpGet("financial-stats")]
+    public async Task<IActionResult> GetFinancialStats(
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate,
+        CancellationToken cancellationToken)
+    {
+        var finalStartDate = startDate ?? new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+        var finalEndDate = endDate ?? DateTime.UtcNow;
+
+        var query = new GetFinancialStatsQuery(finalStartDate, finalEndDate);
+
+        var result = await sender.Send(query, cancellationToken);
+
+        return Ok(result);
+    }
+
+    [HttpGet("calendar-packages")]
+    public async Task<IActionResult> GetCalendarPackages(
+        [FromQuery] int year,
+        [FromQuery] int month,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetCalendarBookingsQuery(year, month);
+
+        var result = await sender.Send(query, cancellationToken);
+
+        return Ok(result);
+    }
+
+    [HttpGet("tour-guides-stats")]
+    public async Task<IActionResult> GetTourGuidesStats(CancellationToken cancellationToken)
+    {
+        var query = new GetTourGuidesStatsQuery();
+
+        var result = await sender.Send(query, cancellationToken);
+
+        return Ok(result);
+    }
+
+    [HttpGet("travel-agencies-stats")]
+    public async Task<IActionResult> GetTravelAgenciesStats(CancellationToken cancellationToken)
+    {
+        var query = new GetTravelAgenciesStatsQuery();
+        var result = await sender.Send(query, cancellationToken);
+
+        return Ok(result);
+    }
+
+    [HttpGet("inventory-stats")]
+    public async Task<IActionResult> GetInventoryStats(CancellationToken cancellationToken)
+    {
+        var query = new GetInventoryStatsQuery();
+
+        var result = await sender.Send(query, cancellationToken);
+
+        return Ok(result);
+    }
 }
+

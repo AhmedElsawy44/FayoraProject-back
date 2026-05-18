@@ -1,4 +1,5 @@
-﻿using Fayora.Domain.Entities.AccommodationModule;
+﻿using Fayora.Application.Features.AdminModule.Queries.GetInventoryStats;
+using Fayora.Domain.Entities.AccommodationModule;
 using Fayora.Domain.Enums.AccommodationModule;
 
 namespace Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
@@ -11,6 +12,10 @@ public interface IHousingUnitRepository
     Task<List<HousingUnit>> GetUnitsByTypeAsync(HousingType type, CancellationToken cancellationToken = default);
 
     Task<List<HousingUnit>> GetUnitsByIdsAsync(IEnumerable<Guid> unitIds, CancellationToken cancellationToken = default);
+
+    Task<int> GetLiveListingsStatsAsync(CancellationToken cancellationToken = default);
+
+    Task<int> GetPendingReviewStatsAsync(CancellationToken cancellationToken = default);
 
     public record UnitQueryOptions(
         bool IsReadOnly = true
