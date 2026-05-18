@@ -537,6 +537,9 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<int>("PackageStatus")
                         .HasColumnType("int");
 
+                    b.Property<int>("ProviderType")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(255)");

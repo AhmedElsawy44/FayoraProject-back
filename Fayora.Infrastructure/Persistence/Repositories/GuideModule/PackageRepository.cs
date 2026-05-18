@@ -95,6 +95,7 @@ public class PackageRepository(ApplicationDbContext context) : IPackageRepositor
     public async Task<(List<GuidePackage> Items, int TotalCount)> GetActivePackagesAsync(
     string? search,
     int? locationId,
+    ProviderType? providerType,
     ItemStatus? tourType,
     int? minDuration,
     int? maxDuration,
@@ -112,6 +113,9 @@ public class PackageRepository(ApplicationDbContext context) : IPackageRepositor
             query = query.Where(p =>
                 p.Title.Contains(search) ||
                 p.Description.Contains(search));
+
+        if (providerType.HasValue)
+            query = query.Where(p => p.ProviderType == providerType.Value);
 
         if (minDuration.HasValue)
             query = query.Where(p => p.DurationHours >= minDuration.Value);

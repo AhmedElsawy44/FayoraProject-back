@@ -25,6 +25,7 @@ namespace Fayora.Application.Features.TouristModule.Queries.GetLocationDetails
             var (packages, _) = await packageRepository.GetActivePackagesAsync(
                 search: null,
                 locationId: request.LocationId,
+                providerType: null,
                 tourType: null,
                 minDuration: null,
                 maxDuration: null,

@@ -126,6 +126,7 @@ namespace Fayora.Infrastructure.Migrations
                     Title = table.Column<string>(type: "nvarchar(255)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(2000)", nullable: false),
                     TourTypes = table.Column<int>(type: "int", nullable: false),
+                    ProviderType = table.Column<int>(type: "int", nullable: false),
                     DurationHours = table.Column<int>(type: "int", nullable: false),
                     NumOfDays = table.Column<int>(type: "int", nullable: false),
                     MaxCapacity = table.Column<int>(type: "int", nullable: false),
