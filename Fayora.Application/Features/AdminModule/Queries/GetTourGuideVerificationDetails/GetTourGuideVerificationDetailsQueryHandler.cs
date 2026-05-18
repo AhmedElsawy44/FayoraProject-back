@@ -2,9 +2,6 @@
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Fayora.Application.Features.AdminModule.Queries.GetTourGuideVerificationDetails;
 

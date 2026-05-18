@@ -26,7 +26,7 @@ public class Program
         var app = builder.Build();
 
         // Auto-migrate
-        await app.MigrateDatabaseAsync();
+        //await app.MigrateDatabaseAsync();
 
         //use background jobs (ex: Hangfire)
         app.UseBackgroundJobs();
