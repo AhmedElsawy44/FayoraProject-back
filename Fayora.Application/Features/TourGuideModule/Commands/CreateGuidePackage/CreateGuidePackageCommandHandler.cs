@@ -21,7 +21,6 @@ public class CreateGuidePackageCommandHandler(
     public async Task<Result<CreateGuidePackageResult>> Handle(CreateGuidePackageCommand request, CancellationToken cancellationToken)
     {
         var tourGuideId = clientContextProvider.GetContext().UserId;
-        if (tourGuideId == Guid.Empty) return TourGuideErrors.Unauthorized;
 
         var meetingPointResult = GeoPoint.Create(request.Latitude, request.Longitude);
         if (meetingPointResult.IsError) return meetingPointResult.Errors;
