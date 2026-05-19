@@ -57,11 +57,22 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateAccommodation
             if (totalGuests > unit.MaxGuests)
                 return AccommodationErrors.ExceedsMaxGuests;
 
-            // calculate the total price
-            int nights = (request.EndDate.DayNumber - request.StartDate.DayNumber);
-            decimal totalPrice = unit.PricePerNight * nights;
-            decimal serviceFee = totalPrice * unit.CommissionRate; // a 20% service fee (20% عمولة الشركه)
-            decimal payoutAmount = totalPrice - serviceFee;
+            //// calculate the total price
+
+            //int nights = (request.EndDate.DayNumber - request.StartDate.DayNumber);
+            //decimal totalPrice = unit.PricePerNight * nights;
+            //decimal serviceFee = totalPrice * unit.CommissionRate; // a 20% service fee (20% عمولة الشركه)
+            //decimal payoutAmount = totalPrice - serviceFee;
+
+            int nights = request.EndDate.DayNumber - request.StartDate.DayNumber;
+            var pricingResult = unit.CalculatePricing(nights);
+            if (pricingResult.IsError) return pricingResult.Errors;
+
+            var (totalPrice, serviceFee, payoutAmount) = (
+                pricingResult.Value.TotalPrice,
+                pricingResult.Value.ServiceFee,
+                pricingResult.Value.PayoutAmount);
+
 
             // create the booking 
             var booking = Booking.Create(
