@@ -39,7 +39,8 @@ public class BookingController(ISender sender) : ApiController
             request.BookingDate,
             request.Adults,
             request.Children,
-            paymentMethod
+            paymentMethod,
+            request.WalletNumber
         );
 
         var result = await sender.Send(command, cancellationToken);
@@ -65,7 +66,8 @@ public class BookingController(ISender sender) : ApiController
             request.EndDate,
             request.Adults,
             request.Children,
-            paymentMethod
+            paymentMethod,
+            request.WalletNumber
         );
 
         var result = await sender.Send(command, cancellationToken);
@@ -91,7 +93,8 @@ public class BookingController(ISender sender) : ApiController
             request.StartTime,
             request.Adults,
             request.Children,
-            paymentMethod
+            paymentMethod,
+            request.WalletNumber
         );
 
         var result = await sender.Send(command, cancellationToken);

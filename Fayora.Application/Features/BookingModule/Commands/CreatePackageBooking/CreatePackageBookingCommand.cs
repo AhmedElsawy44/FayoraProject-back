@@ -9,5 +9,6 @@ public record CreatePackageBookingCommand(
     DateOnly BookingDate,
     int Adults,
     int Children,
-    PaymentMethodType PaymentMethodType)
-    : ICommand<Result<string>>;
+    PaymentMethodType PaymentMethodType,
+    string? WalletNumber
+    ): ICommand<Result<string>>;

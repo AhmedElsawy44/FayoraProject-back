@@ -5,7 +5,8 @@ public record CreatePackageBookingRequest
     DateOnly BookingDate,
     int Adults,
     int Children,
-    string PaymentMethodType
+    string PaymentMethodType,
+    string? WalletNumber
 );
 
 

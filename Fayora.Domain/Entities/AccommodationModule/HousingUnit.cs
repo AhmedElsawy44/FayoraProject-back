@@ -203,7 +203,7 @@ public class HousingUnit : BaseEntity<Guid>
         return Result.Success;
     }
 
-    public record PricingResult(decimal TotalPrice, decimal ServiceFee, decimal PayoutAmount);
+    public sealed record PricingResult(decimal TotalPrice, decimal ServiceFee, decimal PayoutAmount);
 
     public Result<PricingResult> CalculatePricing(int nights)
     {

@@ -111,7 +111,8 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateAccommodation
                 user.LastName,
                 user.PrimaryEmail?.Value,
                 user.PhoneNumber?.Value,
-                request.PaymentMethodType));
+                request.PaymentMethodType,
+                request.WalletNumber));
             if (paymentResult.IsError)
             {
                 // Compensation - Remove the booking and calendar block if payment URL generation fails to avoid having orphaned bookings without payment

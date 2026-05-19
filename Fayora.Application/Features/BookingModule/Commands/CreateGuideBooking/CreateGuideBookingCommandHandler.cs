@@ -118,7 +118,8 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking
                 user.LastName,
                 user.PrimaryEmail?.Value,
                 user.PhoneNumber?.Value,
-                request.PaymentMethodType));
+                request.PaymentMethodType,
+                request.WalletNumber));
             if (paymentResult.IsError)
             {
                 bookingRepository.RemoveBooking(booking.Value);
