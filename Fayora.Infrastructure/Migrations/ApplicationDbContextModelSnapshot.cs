@@ -199,8 +199,14 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<decimal>("DepositAmount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsCashOnArrival")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsScanned")
                         .HasColumnType("bit");

@@ -111,9 +111,14 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking
             calendarBlockRepository.AddCalendarBlock(calendarBlock);
             await unitOfWork.CommitChangesAsync(cancellationToken);
 
+
+            decimal amountToPay = request.IsCashOnArrival
+                  ? booking.Value.DepositAmount
+                  : booking.Value.TotalPrice;
+
             var paymentResult = await paymentService.GeneratePaymentUrlAsync(new PaymentRequest(
                 booking.Value.Id,
-                totalPrice,
+                amountToPay,
                 user.FirstName,
                 user.LastName,
                 user.PrimaryEmail?.Value,

@@ -34,6 +34,8 @@ namespace Fayora.Infrastructure.Migrations
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsScanned = table.Column<bool>(type: "bit", nullable: false),
                     ScannedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    IsCashOnArrival = table.Column<bool>(type: "bit", nullable: false),
+                    DepositAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
                 },
                 constraints: table =>

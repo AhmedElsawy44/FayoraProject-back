@@ -10,5 +10,6 @@ public record CreatePackageBookingCommand(
     int Adults,
     int Children,
     PaymentMethodType PaymentMethodType,
-    string? WalletNumber
-    ): ICommand<Result<string>>;
+    string? WalletNumber,
+    bool IsCashOnArrival
+    ) : ICommand<Result<string>>;

@@ -103,10 +103,16 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateAccommodation
             calendarBlockRepository.AddCalendarBlock(calendarBlock);
             await unitOfWork.CommitChangesAsync(cancellationToken);
 
+
+            // لو العميل اختار الدفع عند الوصول، هيدفع العربون بس دلوقتي، ولو اختار يدفع أونلاين هيدفع السعر كامل
+            decimal amountToPay = request.IsCashOnArrival
+                ? booking.Value.DepositAmount
+                : booking.Value.TotalPrice;
+
             // then send to payment service
             var paymentResult = await paymentService.GeneratePaymentUrlAsync(new PaymentRequest(
                 booking.Value.Id,
-                totalPrice,
+                amountToPay,
                 user.FirstName,
                 user.LastName,
                 user.PrimaryEmail?.Value,

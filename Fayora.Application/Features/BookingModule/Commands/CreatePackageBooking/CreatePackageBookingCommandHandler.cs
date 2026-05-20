@@ -66,9 +66,14 @@ public class CreatePackageBookingCommandHandler(
         bookingRepository.AddBooking(booking.Value);
         await unitOfWork.CommitChangesAsync(cancellationToken);
 
+
+        decimal amountToPay = request.IsCashOnArrival
+              ? booking.Value.DepositAmount
+              : booking.Value.TotalPrice;
+
         var paymentResult = await paymentService.GeneratePaymentUrlAsync(new PaymentRequest(
             booking.Value.Id,
-            totalPrice.Value,
+            amountToPay,
             user.FirstName,
             user.LastName,
             user.PrimaryEmail?.Value,

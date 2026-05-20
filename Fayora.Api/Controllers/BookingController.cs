@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Fayora.Application.Features.BookingModule.Commands.ConfirmCashReceived;
 using Fayora.Application.Features.BookingModule.Commands.CreateAccommodationBooking;
 using Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking;
 using Fayora.Application.Features.BookingModule.Commands.CreatePackageBooking;
@@ -43,7 +44,8 @@ public class BookingController(ISender sender, IMapper mapper) : ApiController
             request.Adults,
             request.Children,
             paymentMethod,
-            request.WalletNumber
+            request.WalletNumber,
+            request.IsCashOnArrival
         );
 
         var result = await sender.Send(command, cancellationToken);
@@ -70,7 +72,8 @@ public class BookingController(ISender sender, IMapper mapper) : ApiController
             request.Adults,
             request.Children,
             paymentMethod,
-            request.WalletNumber
+            request.WalletNumber,
+            request.IsCashOnArrival
         );
 
         var result = await sender.Send(command, cancellationToken);
@@ -84,8 +87,7 @@ public class BookingController(ISender sender, IMapper mapper) : ApiController
     [FromBody] CreateGuideBookingRequest request,
     CancellationToken cancellationToken)
     {
-        var (paymentMethodOk, paymentMethod) =
-            EnumParser.TryParseEnum<PaymentMethodType>(request.PaymentMethodType);
+        var (paymentMethodOk, paymentMethod) = EnumParser.TryParseEnum<PaymentMethodType>(request.PaymentMethodType);
 
         if (!paymentMethodOk)
             return BadRequest($"Invalid payment method type: {request.PaymentMethodType}");
@@ -97,7 +99,8 @@ public class BookingController(ISender sender, IMapper mapper) : ApiController
             request.Adults,
             request.Children,
             paymentMethod,
-            request.WalletNumber
+            request.WalletNumber,
+            request.IsCashOnArrival
         );
 
         var result = await sender.Send(command, cancellationToken);
@@ -172,6 +175,18 @@ public class BookingController(ISender sender, IMapper mapper) : ApiController
         var result = await sender.Send(query, cancellationToken);
         return result.Match(
             value => Ok(mapper.Map<BookingDetailsResponse>(value)),
+            Problem);
+    }
+
+    [HttpPost("{bookingId:guid}/confirm-cash")]
+    public async Task<IActionResult> ConfirmCashReceived(
+    [FromRoute] Guid bookingId,
+    CancellationToken cancellationToken)
+    {
+        var command = new ConfirmCashReceivedCommand(bookingId);
+        var result = await sender.Send(command, cancellationToken);
+        return result.Match(
+            value => Ok(value),
             Problem);
     }
 }

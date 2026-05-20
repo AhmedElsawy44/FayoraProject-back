@@ -6,7 +6,8 @@ public record CreatePackageBookingRequest
     int Adults,
     int Children,
     string PaymentMethodType,
-    string? WalletNumber
+    string? WalletNumber,
+    bool IsCashOnArrival
 );
 
 

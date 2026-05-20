@@ -19,6 +19,12 @@ namespace Fayora.Infrastructure.Jobs
 
             foreach (var booking in expiredBookings)
             {
+
+                // if it's cash on arrival and only partially paid, skip cancellation to allow them to complete payment at the counter
+                if (booking.IsCashOnArrival &&
+                    booking.PaymentStatus == PaymentTransactionStatus.PartiallyPaid)
+                    continue;
+
                 // cancel the booking
                 booking.Cancel("Payment timeout");
 
