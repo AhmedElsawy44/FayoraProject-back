@@ -32,6 +32,9 @@ public class CreateLocationCommandHandler(
 
         var location = locationResult.Value;
 
+        locationRepository.AddLocation(location);
+        await unitOfWork.CommitChangesAsync(cancellationToken);
+
         if (request.ImageUrls?.Any() == true)
         {
             var imageUrlResults = new List<FileUrl>();
@@ -48,10 +51,8 @@ public class CreateLocationCommandHandler(
 
             location.AddImages(locationImages.Select(img => img.Id));
             locationImageRepository.AddLocationImages(locationImages);
+            await unitOfWork.CommitChangesAsync(cancellationToken);
         }
-
-        locationRepository.AddLocation(location);
-        await unitOfWork.CommitChangesAsync(cancellationToken);
 
         return location.Id;
     }
