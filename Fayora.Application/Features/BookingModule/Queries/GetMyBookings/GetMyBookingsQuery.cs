@@ -2,7 +2,7 @@
 using Fayora.Domain.Enums.BookingModule;
 using Fayora.Domain.ValueObjects;
 
-namespace Fayora.Application.Features.BookingModule.Commands.GetMyBookings;
+namespace Fayora.Application.Features.BookingModule.Queries.GetMyBookings;
 
 public record GetMyBookingsQuery(
     int PageNumber = 1,

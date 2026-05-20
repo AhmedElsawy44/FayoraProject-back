@@ -1,14 +1,17 @@
-﻿using Fayora.Application.Features.BookingModule.Commands.CreateAccommodationBooking;
+﻿using AutoMapper;
+using Fayora.Application.Features.BookingModule.Commands.CreateAccommodationBooking;
 using Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking;
 using Fayora.Application.Features.BookingModule.Commands.CreatePackageBooking;
 using Fayora.Application.Features.BookingModule.Commands.GenerateBookingQr;
-using Fayora.Application.Features.BookingModule.Commands.GetMyBookings;
 using Fayora.Application.Features.BookingModule.Commands.ProcessPaymentWebhook;
 using Fayora.Application.Features.BookingModule.Commands.ScanBookingQr;
 using Fayora.Application.Features.BookingModule.Common;
+using Fayora.Application.Features.BookingModule.Queries.GetBookingDetails;
+using Fayora.Application.Features.BookingModule.Queries.GetMyBookings;
 using Fayora.Contracts.BookingModule.CreateGuideBooking;
 using Fayora.Contracts.BookingModule.CreatePackageBooking;
 using Fayora.Contracts.BookingModule.CreateUnitBooking;
+using Fayora.Contracts.BookingModule.GetBookingDetails;
 using Fayora.Contracts.BookingModule.ScanBookingQr;
 using Fayora.Domain.Enums.BookingModule;
 using MediatR;
@@ -17,7 +20,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fayora.Api.Controllers;
 
 [Route("api/[controller]")]
-public class BookingController(ISender sender) : ApiController
+public class BookingController(ISender sender, IMapper mapper) : ApiController
 {
     [HttpPost("package/{packageId}/book")]
     public async Task<IActionResult> BookPackageAsync(
@@ -157,5 +160,18 @@ public class BookingController(ISender sender) : ApiController
         var result = await sender.Send(query, cancellationToken);
 
         return Ok(result);
+    }
+
+
+    [HttpGet("{bookingId:guid}")]
+    public async Task<IActionResult> GetBookingDetails(
+    [FromRoute] Guid bookingId,
+    CancellationToken cancellationToken)
+    {
+        var query = new GetBookingDetailsQuery(bookingId);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(mapper.Map<BookingDetailsResponse>(value)),
+            Problem);
     }
 }
