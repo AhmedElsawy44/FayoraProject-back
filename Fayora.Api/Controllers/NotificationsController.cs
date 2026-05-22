@@ -2,8 +2,6 @@ using Fayora.Application.Features.TouristModule.Commands.RegisterDeviceToken;
 using Fayora.Contracts.AdminModule.Notifications;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Fayora.Api.Controllers;
 
