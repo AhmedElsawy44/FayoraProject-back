@@ -1,5 +1,6 @@
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Domain.Entities.IdentityModule;
+using Fayora.Domain.Enums.IdentityModule;
 using Fayora.Infrastructure.Settings;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;

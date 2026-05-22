@@ -239,40 +239,14 @@ public class HousingUnit : BaseEntity<Guid>
         Status = status;
     }
 
-    public void AdminUpdate(
-        string title,
-        string? description,
-        HousingType type,
-        int locationId,
-        string addressDetails,
-        GeoPoint coordinates,
-        int numberOfRooms,
-        int bedRooms,
-        int bathRooms,
-        int numberOfBeds,
-        int maxGuests,
-        TimeSpan checkInTime,
-        TimeSpan checkOutTime,
-        decimal pricePerNight,
-        FileUrl mainImageUrl,
-        ItemStatus status)
+    public Result<(decimal TotalPrice, decimal ServiceFee, decimal PayoutAmount)> CalculatePricing(int nights)
     {
-        Title = title;
-        Description = description;
-        Type = type;
-        LocationId = locationId;
-        AddressDetails = addressDetails;
-        Coordinates = coordinates;
-        NumberOfRooms = numberOfRooms;
-        BedRooms = bedRooms;
-        BathRooms = bathRooms;
-        NumberOfBeds = numberOfBeds;
-        MaxGuests = maxGuests;
-        CheckInTime = checkInTime;
-        CheckOutTime = checkOutTime;
-        PricePerNight = pricePerNight;
-        MainImageUrl = mainImageUrl;
-        Status = status;
+        if(nights <= 0)
+            return Error.Validation("HousingUnit.Nights", "Number of nights must be greater than zero.");
+        decimal totalPrice = PricePerNight * nights;
+        decimal serviceFee = totalPrice * CommissionRate; 
+        decimal payoutAmount = totalPrice - serviceFee;
+        return (totalPrice, serviceFee, payoutAmount);
     }
 
 
