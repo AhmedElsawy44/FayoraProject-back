@@ -1,6 +1,8 @@
 using System;
 using Fayora.Application.Common.Interfaces.Services.ChatbotModule;
+using Fayora.Infrastructure.Settings;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Fayora.Infrastructure.Services.Chatbot;
 
@@ -15,10 +17,16 @@ public class ChatbotServiceFactory : IChatbotServiceFactory
 
     public IChatbotService GetService(string provider)
     {
-        return provider.ToLower() switch
+        var openRouterService = _serviceProvider.GetRequiredService<OpenRouterChatbotService>();
+        var settings = _serviceProvider.GetRequiredService<IOptions<OpenRouterSettings>>().Value;
+
+        string model = provider.ToLower() switch
         {
-            "openai" => _serviceProvider.GetRequiredService<OpenAIChatbotService>(),
-            "gemini" or _ => _serviceProvider.GetRequiredService<GeminiChatbotService>()
+            "openai" => settings.OpenAIModel,
+            "gemini" or _ => settings.GeminiModel
         };
+
+        openRouterService.SetModel(model);
+        return openRouterService;
     }
 }

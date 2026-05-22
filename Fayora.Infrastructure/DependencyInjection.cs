@@ -6,12 +6,14 @@ using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Common.Interfaces.Persistences.ChatModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Persistences.RecommendationModule;
 using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Common.Interfaces.Persistences.TouristModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Interfaces.Services.BookingModule;
 using Fayora.Application.Common.Interfaces.Services.SharedModule;
 using Fayora.Application.Common.Interfaces.Services.ChatbotModule;
+using Fayora.Application.Common.Interfaces.Services.RecommendationModule;
 using Fayora.Application.Common.Strategies;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Infrastructure.Persistence.Caching;
@@ -30,6 +32,7 @@ using Fayora.Infrastructure.Services.AuthModule;
 using Fayora.Infrastructure.Services.BookingModule;
 using Fayora.Infrastructure.Services.SharedModule;
 using Fayora.Infrastructure.Services.Chatbot;
+using Fayora.Infrastructure.Services.RecommendationModule;
 using Fayora.Infrastructure.Settings;
 using Fayora.Infrastructure.Strategies;
 using Hangfire;
@@ -97,6 +100,9 @@ public static class DependencyInjection
 
         services.AddScoped<ITouristRepository, TouristRepository>();
         services.AddScoped<IUserInteractionRepository, UserInteractionRepository>();
+
+        // Recommendation Module
+        services.AddScoped<IRecommendationRepository, Persistence.Repositories.RecommendationModule.RecommendationRepository>();
         services.AddScoped<IMessageSenderStrategy, WhatsAppSenderStrategy>();
         services.AddScoped<IMessageSenderStrategy, SmsSenderStrategy>();
 
@@ -190,10 +196,15 @@ public static class DependencyInjection
         // Chatbot Module
         services.Configure<GeminiSettings>(configuration.GetSection(GeminiSettings.SectionName));
         services.Configure<OpenAISettings>(configuration.GetSection(OpenAISettings.SectionName));
+        services.Configure<OpenRouterSettings>(configuration.GetSection(OpenRouterSettings.SectionName));
         services.AddHttpClient<GeminiChatbotService>();
         services.AddHttpClient<OpenAIChatbotService>();
+        services.AddHttpClient<OpenRouterChatbotService>();
         services.AddScoped<IChatbotServiceFactory, ChatbotServiceFactory>();
         services.AddScoped<IChatbotInteractionService, ChatbotInteractionService>();
+
+        // Recommendation Module
+        services.AddScoped<IRecommendationService, RecommendationEngine>();
 
 
         return services;

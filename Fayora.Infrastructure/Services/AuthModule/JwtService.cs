@@ -39,7 +39,7 @@ public class JwtService(IOptions<JwtSettings> jwtSettings) : IJwtService
             {
                 if (role != 0 && user.Roles.Value.HasFlag(role))
                 {
-                    claims.Add(new Claim("roles", role.ToString()));
+                    claims.Add(new System.Security.Claims.Claim("roles", role.ToString()));
                 }
             }
         }

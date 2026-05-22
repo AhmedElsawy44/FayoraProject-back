@@ -239,16 +239,19 @@ public class HousingUnit : BaseEntity<Guid>
         Status = status;
     }
 
-    public Result<(decimal TotalPrice, decimal ServiceFee, decimal PayoutAmount)> CalculatePricing(int nights)
-    {
-        if(nights <= 0)
-            return Error.Validation("HousingUnit.Nights", "Number of nights must be greater than zero.");
-        decimal totalPrice = PricePerNight * nights;
-        decimal serviceFee = totalPrice * CommissionRate; 
-        decimal payoutAmount = totalPrice - serviceFee;
-        return (totalPrice, serviceFee, payoutAmount);
-    }
+    public record PricingResult(decimal TotalPrice, decimal ServiceFee, decimal PayoutAmount);
 
+    public Result<PricingResult> CalculatePricing(int nights)
+    {
+        if (nights <= 0)
+            return Error.Validation("HousingUnit.InvalidNights", "Number of nights must be greater than zero.");
+
+        decimal totalPrice = PricePerNight * nights;
+        decimal serviceFee = totalPrice * CommissionRate;
+        decimal payoutAmount = totalPrice - serviceFee;
+
+        return new PricingResult(totalPrice, serviceFee, payoutAmount);
+    }
 
     private HousingUnit() { }
 }
