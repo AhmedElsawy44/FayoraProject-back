@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Entity;
+using Fayora.Domain.Common.Entity;
 using Fayora.Domain.Common.Events.IdentityModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
@@ -137,6 +137,22 @@ public class User : AuditableEntity<Guid>
             user.PrimaryEmail = emailResult.Value;
 
         return user;
+    }
+
+    public static User CreateBotUser(Guid botId, string firstName, string lastName)
+    {
+        return new User
+        {
+            Id = botId,
+            FirstName = firstName,
+            LastName = lastName,
+            Roles = Role.Bot,
+            Status = UserStatus.Active,
+            IsEmailVerified = true,
+            IsPhoneVerified = true,
+            CurrentBalance = 0,
+            IsProfileComplete = true
+        };
     }
 
     private static FileUrl? GetDefaultProfileImageForSocialProvider(string? pictureUrl)

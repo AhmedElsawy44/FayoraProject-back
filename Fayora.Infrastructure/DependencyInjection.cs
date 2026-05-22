@@ -11,6 +11,7 @@ using Fayora.Application.Common.Interfaces.Persistences.TouristModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Interfaces.Services.BookingModule;
 using Fayora.Application.Common.Interfaces.Services.SharedModule;
+using Fayora.Application.Common.Interfaces.Services.ChatbotModule;
 using Fayora.Application.Common.Strategies;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Infrastructure.Persistence.Caching;
@@ -28,6 +29,7 @@ using Fayora.Infrastructure.Services.Authentication;
 using Fayora.Infrastructure.Services.AuthModule;
 using Fayora.Infrastructure.Services.BookingModule;
 using Fayora.Infrastructure.Services.SharedModule;
+using Fayora.Infrastructure.Services.Chatbot;
 using Fayora.Infrastructure.Settings;
 using Fayora.Infrastructure.Strategies;
 using Hangfire;
@@ -169,6 +171,14 @@ public static class DependencyInjection
         services.AddScoped<IInventoryModerationService, InventoryModerationService>();
 
         services.AddHttpClient<IPaymentService, PaymobPaymentService>();
+
+        // Chatbot Module
+        services.Configure<GeminiSettings>(configuration.GetSection(GeminiSettings.SectionName));
+        services.Configure<OpenAISettings>(configuration.GetSection(OpenAISettings.SectionName));
+        services.AddHttpClient<GeminiChatbotService>();
+        services.AddHttpClient<OpenAIChatbotService>();
+        services.AddScoped<IChatbotServiceFactory, ChatbotServiceFactory>();
+        services.AddScoped<IChatbotInteractionService, ChatbotInteractionService>();
 
 
         return services;
