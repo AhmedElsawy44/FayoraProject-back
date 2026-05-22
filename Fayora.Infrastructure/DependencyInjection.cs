@@ -190,8 +190,10 @@ public static class DependencyInjection
         // Chatbot Module
         services.Configure<GeminiSettings>(configuration.GetSection(GeminiSettings.SectionName));
         services.Configure<OpenAISettings>(configuration.GetSection(OpenAISettings.SectionName));
+        services.Configure<OpenRouterSettings>(configuration.GetSection(OpenRouterSettings.SectionName));
         services.AddHttpClient<GeminiChatbotService>();
         services.AddHttpClient<OpenAIChatbotService>();
+        services.AddHttpClient<OpenRouterChatbotService>();
         services.AddScoped<IChatbotServiceFactory, ChatbotServiceFactory>();
         services.AddScoped<IChatbotInteractionService, ChatbotInteractionService>();
 
