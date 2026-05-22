@@ -59,7 +59,8 @@ public class CreatePackageBookingCommandHandler(
             requiredSpots,
             package.CancellationPolicy,
             request.BookingDate.ToDateTime(TimeOnly.MinValue),
-            request.BookingDate.ToDateTime(TimeOnly.MinValue).AddHours(package.DurationHours));
+            request.BookingDate.ToDateTime(TimeOnly.MinValue).AddHours(package.DurationHours),
+            request.IsCashOnArrival);
         if (booking.IsError) return booking.Errors;
 
 

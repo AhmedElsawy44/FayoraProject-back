@@ -30,8 +30,12 @@ namespace Fayora.Application.Features.BookingModule.Commands.GenerateBookingQr
                 return BookingErrors.Unauthorized;
 
 
-            if (booking.PaymentStatus != PaymentTransactionStatus.Paid)
+            var isPaymentValid = booking.PaymentStatus == PaymentTransactionStatus.Paid ||
+                  (booking.IsCashOnArrival && booking.PaymentStatus == PaymentTransactionStatus.PartiallyPaid);
+
+            if (!isPaymentValid)
                 return BookingErrors.BookingNotPaid;
+
 
             if (booking.BookingStatus == BookingStatus.Cancelled)
                 return BookingErrors.BookingCancelled;
