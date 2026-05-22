@@ -1,12 +1,13 @@
 using AutoMapper;
+using Fayora.Application.Features.AccommodationModule.Queries.GetRecommendedUnits;
 using Fayora.Application.Features.TouristModule.Commands.CreateTouristProfile;
-using Fayora.Application.Features.TouristModule.Queries.GetRecommendedLocations;
-using Fayora.Application.Features.TouristModule.Queries.GetRecommendedPackages;
 using Fayora.Application.Features.TouristModule.Commands.TrackUserInteraction;
 using Fayora.Application.Features.TouristModule.Queries.GetAllActivePackages;
 using Fayora.Application.Features.TouristModule.Queries.GetAllLocations;
 using Fayora.Application.Features.TouristModule.Queries.GetInterests;
 using Fayora.Application.Features.TouristModule.Queries.GetLocationDetails;
+using Fayora.Application.Features.TouristModule.Queries.GetRecommendedLocations;
+using Fayora.Application.Features.TouristModule.Queries.GetRecommendedPackages;
 using Fayora.Contracts.AdminModule.CreateLocation;
 using Fayora.Contracts.TouristModule;
 using Fayora.Domain.Enums.SharedModule;
@@ -181,6 +182,19 @@ public class TouristController(ISender sender, IMapper mapper) : ApiController
         return result.Match(
             value => Ok(value),
             Problem);
+    }
+
+    [HttpGet("recommended")]
+    public async Task<IActionResult> GetRecommendedUnits(
+        [FromQuery] int count = 10,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetRecommendedUnitsQuery(count);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(value),
+            errors => Problem()
+        );
     }
 }
 
