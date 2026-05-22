@@ -65,6 +65,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<ChatbotSession> ChatbotSessions { get; set; }
     public DbSet<ChatbotMessage> ChatbotMessages { get; set; }
 
+    // Notification Module
+    public DbSet<Fayora.Domain.Entities.NotificationModule.DeviceToken> DeviceTokens { get; set; }
+    public DbSet<Fayora.Domain.Entities.NotificationModule.PushCampaign> PushCampaigns { get; set; }
+
+
     public async Task CommitChangesAsync(CancellationToken cancellationToken = default)
     {
         var domainEvents = ChangeTracker.Entries<AggregateRoot>()

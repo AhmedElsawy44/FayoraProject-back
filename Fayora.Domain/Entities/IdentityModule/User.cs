@@ -506,5 +506,41 @@ public class User : AuditableEntity<Guid>
         }
     }
 
+    public void AdminUpdateDetails(string firstName, string lastName, string? email, string? phone)
+    {
+        FirstName = firstName;
+        LastName = lastName;
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            var emailResult = Email.Create(email);
+            if (emailResult.IsSuccess)
+                PrimaryEmail = emailResult.Value;
+        }
+        if (!string.IsNullOrWhiteSpace(phone))
+        {
+            var phoneResult = PhoneNumber.Create(phone);
+            if (phoneResult.IsSuccess)
+                PhoneNumber = phoneResult.Value;
+        }
+        Updated();
+    }
+
+    public void AdminUpdateStatus(UserStatus status)
+    {
+        Status = status;
+        if (status == UserStatus.Active)
+        {
+            LockedUntil = null;
+            AccessFailedCount = 0;
+        }
+        Updated();
+    }
+
+    public void AdminUpdateRoles(Role role)
+    {
+        Roles = role;
+        Updated();
+    }
+
     private User() { }
 }

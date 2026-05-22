@@ -43,6 +43,12 @@ using StackExchange.Redis;
 using System.Text;
 
 
+using Fayora.Application.Common.Interfaces.Persistences.NotificationModule;
+using Fayora.Infrastructure.Persistence.Repositories.NotificationModule;
+using Fayora.Application.Common.Interfaces.Services.NotificationModule;
+using Fayora.Infrastructure.Services.NotificationModule;
+
+
 namespace Fayora.Infrastructure;
 
 public static class DependencyInjection
@@ -73,6 +79,12 @@ public static class DependencyInjection
             ConnectionMultiplexer.Connect(redisConnectionString!)
         );
 
+
+        // Admin Module
+        services.AddScoped<IAdminRepository, AdminRepository>();
+
+        // Notification Module
+        services.AddScoped<INotificationRepository, NotificationRepository>();
 
         // Identity Module
         services.AddScoped<IDeviceRepository, DeviceRepository>();
@@ -163,10 +175,13 @@ public static class DependencyInjection
         services.AddScoped<IVerificationStrategy, TourGuideVerificationStrategy>();
         services.AddScoped<IVerificationStrategy, TourCompanyVerificationStrategy>();
         services.AddScoped<IVerificationStrategy, GuidePackageVerificationStrategy>();
+        services.AddScoped<IVerificationStrategy, HousingUnitVerificationStrategy>();
 
         services.AddScoped<IVerificationFactory, VerificationFactory>();
 
         services.AddScoped<IFileStorageService, LocalFileService>();
+        services.AddSingleton<IFirebaseNotificationService, FirebaseNotificationService>();
+        services.AddScoped<INotificationScheduler, NotificationScheduler>();
 
         services.AddScoped<IInventoryModerationService, InventoryModerationService>();
 
@@ -202,6 +217,7 @@ public static class DependencyInjection
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = jwtSettings.Issuer,
                 ValidAudience = jwtSettings.Audience,
+                RoleClaimType = "roles",
                 IssuerSigningKey = new SymmetricSecurityKey(
                     Encoding.UTF8.GetBytes(jwtSettings.Secret)),
             });
