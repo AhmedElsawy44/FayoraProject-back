@@ -82,6 +82,7 @@ public class Program
             app.MapControllers();
 
             app.MapHub<ChatHub>("/chatHub");
+            app.MapHub<ChatbotHub>("/chatbotHub");
 
             await app.RunAsync();
         }

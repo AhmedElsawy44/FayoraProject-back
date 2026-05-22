@@ -1,5 +1,6 @@
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Domain.Entities.IdentityModule;
+using Fayora.Domain.Enums.IdentityModule;
 using Fayora.Infrastructure.Settings;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -38,7 +39,7 @@ public class JwtService(IOptions<JwtSettings> jwtSettings) : IJwtService
             {
                 if (role != 0 && user.Roles.Value.HasFlag(role))
                 {
-                    claims.Add(new Claim("roles", role.ToString()));
+                    claims.Add(new System.Security.Claims.Claim("roles", role.ToString()));
                 }
             }
         }
