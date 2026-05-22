@@ -48,8 +48,6 @@ public interface IRecommendationService
     /// </summary>
     Task<List<RecommendedGuideResult>> GetTrendingGuidesAsync(
         int count, CancellationToken cancellationToken);
-}
-
 
     /// <summary>
     /// Returns personalized location recommendations for an authenticated user.
@@ -65,3 +63,4 @@ public interface IRecommendationService
     Task<List<RecommendedLocationResult>> GetTrendingLocationsAsync(
         int count, CancellationToken cancellationToken);
 }
+

@@ -69,23 +69,13 @@ public class RecommendationEngine(
     {
         logger.LogInformation("Generating personalized recommendations for user {UserId}", userId);
 
-        // 1. Load all data in parallel
-        var candidatesTask = repository.GetCandidatePackagesAsync(cancellationToken);
-        var interestsTask = repository.GetUserInterestIdsAsync(userId, cancellationToken);
-        var profileTask = repository.GetUserProfileDataAsync(userId, cancellationToken);
-        var interactionsTask = repository.GetUserInteractionsAsync(userId, ScoringWindowDays, cancellationToken);
-        var bookedTask = repository.GetUserBookedPackageIdsAsync(userId, cancellationToken);
-        var popularityTask = repository.GetPopularityStatsAsync(ScoringWindowDays, cancellationToken);
-
-        await Task.WhenAll(candidatesTask, interestsTask, profileTask,
-                           interactionsTask, bookedTask, popularityTask);
-
-        var candidates = candidatesTask.Result;
-        var userInterests = interestsTask.Result;
-        var userProfile = profileTask.Result;
-        var interactions = interactionsTask.Result;
-        var bookedIds = bookedTask.Result.ToHashSet();
-        var popularity = popularityTask.Result;
+        // 1. Load all data sequentially
+        var candidates = await repository.GetCandidatePackagesAsync(cancellationToken);
+        var userInterests = await repository.GetUserInterestIdsAsync(userId, cancellationToken);
+        var userProfile = await repository.GetUserProfileDataAsync(userId, cancellationToken);
+        var interactions = await repository.GetUserInteractionsAsync(userId, ScoringWindowDays, cancellationToken);
+        var bookedIds = (await repository.GetUserBookedPackageIdsAsync(userId, cancellationToken)).ToHashSet();
+        var popularity = await repository.GetPopularityStatsAsync(ScoringWindowDays, cancellationToken);
 
         // 2. Load co-occurrence map (cached)
         var coOccurrence = await GetCachedCoOccurrenceAsync(cancellationToken);
@@ -187,25 +177,14 @@ public class RecommendationEngine(
     {
         logger.LogInformation("Generating personalized location recommendations for user {UserId}", userId);
 
-        // 1. Load locations and packages in parallel
-        var locationsTask = repository.GetCandidateLocationsAsync(cancellationToken);
-        var candidatesTask = repository.GetCandidatePackagesAsync(cancellationToken);
-        var interestsTask = repository.GetUserInterestIdsAsync(userId, cancellationToken);
-        var profileTask = repository.GetUserProfileDataAsync(userId, cancellationToken);
-        var interactionsTask = repository.GetUserInteractionsAsync(userId, ScoringWindowDays, cancellationToken);
-        var bookedTask = repository.GetUserBookedPackageIdsAsync(userId, cancellationToken);
-        var popularityTask = repository.GetPopularityStatsAsync(ScoringWindowDays, cancellationToken);
-
-        await Task.WhenAll(locationsTask, candidatesTask, interestsTask, profileTask,
-                           interactionsTask, bookedTask, popularityTask);
-
-        var locations = locationsTask.Result;
-        var candidates = candidatesTask.Result;
-        var userInterests = interestsTask.Result;
-        var userProfile = profileTask.Result;
-        var interactions = interactionsTask.Result;
-        var bookedIds = bookedTask.Result.ToHashSet();
-        var popularity = popularityTask.Result;
+        // 1. Load locations and packages sequentially
+        var locations = await repository.GetCandidateLocationsAsync(cancellationToken);
+        var candidates = await repository.GetCandidatePackagesAsync(cancellationToken);
+        var userInterests = await repository.GetUserInterestIdsAsync(userId, cancellationToken);
+        var userProfile = await repository.GetUserProfileDataAsync(userId, cancellationToken);
+        var interactions = await repository.GetUserInteractionsAsync(userId, ScoringWindowDays, cancellationToken);
+        var bookedIds = (await repository.GetUserBookedPackageIdsAsync(userId, cancellationToken)).ToHashSet();
+        var popularity = await repository.GetPopularityStatsAsync(ScoringWindowDays, cancellationToken);
 
         // 2. Load co-occurrence map (cached)
         var coOccurrence = await GetCachedCoOccurrenceAsync(cancellationToken);
@@ -264,15 +243,9 @@ public class RecommendationEngine(
     {
         logger.LogInformation("Generating trending location recommendations (anonymous/cold-start)");
 
-        var locationsTask = repository.GetCandidateLocationsAsync(cancellationToken);
-        var candidatesTask = repository.GetCandidatePackagesAsync(cancellationToken);
-        var popularityTask = repository.GetPopularityStatsAsync(ScoringWindowDays, cancellationToken);
-
-        await Task.WhenAll(locationsTask, candidatesTask, popularityTask);
-
-        var locations = locationsTask.Result;
-        var candidates = candidatesTask.Result;
-        var popularity = popularityTask.Result;
+        var locations = await repository.GetCandidateLocationsAsync(cancellationToken);
+        var candidates = await repository.GetCandidatePackagesAsync(cancellationToken);
+        var popularity = await repository.GetPopularityStatsAsync(ScoringWindowDays, cancellationToken);
 
         var maxPopularity = popularity.Count > 0
             ? popularity.Values.Max(p => p.ViewCount + p.BookingCount * 5)
@@ -667,7 +640,6 @@ public class RecommendationEngine(
                 s.Reason))
             .ToList();
     }
-}
 
 
     public async Task<List<RecommendedUnitResult>> GetPersonalizedUnitsAsync(
@@ -675,20 +647,12 @@ public class RecommendationEngine(
     {
         logger.LogInformation("Generating personalized unit recommendations for user {UserId}", userId);
 
-        // 1. Load all data in parallel
-        var candidatesTask = repository.GetCandidateUnitsAsync(cancellationToken);
-        var profileTask = repository.GetUserProfileDataAsync(userId, cancellationToken);
-        var interactionsTask = repository.GetUserUnitInteractionsAsync(userId, ScoringWindowDays, cancellationToken);
-        var bookedTask = repository.GetUserBookedUnitIdsAsync(userId, cancellationToken);
-        var popularityTask = repository.GetUnitPopularityStatsAsync(ScoringWindowDays, cancellationToken);
-
-        await Task.WhenAll(candidatesTask, profileTask, interactionsTask, bookedTask, popularityTask);
-
-        var candidates = candidatesTask.Result;
-        var userProfile = profileTask.Result;
-        var interactions = interactionsTask.Result;
-        var bookedIds = bookedTask.Result.ToHashSet();
-        var popularity = popularityTask.Result;
+        // 1. Load all data sequentially
+        var candidates = await repository.GetCandidateUnitsAsync(cancellationToken);
+        var userProfile = await repository.GetUserProfileDataAsync(userId, cancellationToken);
+        var interactions = await repository.GetUserUnitInteractionsAsync(userId, ScoringWindowDays, cancellationToken);
+        var bookedIds = (await repository.GetUserBookedUnitIdsAsync(userId, cancellationToken)).ToHashSet();
+        var popularity = await repository.GetUnitPopularityStatsAsync(ScoringWindowDays, cancellationToken);
 
         // 2. Load co-occurrence map (cached)
         var coOccurrence = await GetCachedUnitCoOccurrenceAsync(cancellationToken);
@@ -933,23 +897,13 @@ public class RecommendationEngine(
     {
         logger.LogInformation("Generating personalized tour guide recommendations for user {UserId}", userId);
 
-        // 1. Load all data in parallel
-        var candidatesTask = repository.GetCandidateGuidesAsync(cancellationToken);
-        var interestsTask = repository.GetUserInterestIdsAsync(userId, cancellationToken);
-        var profileTask = repository.GetUserProfileDataAsync(userId, cancellationToken);
-        var interactionsTask = repository.GetUserGuideInteractionsAsync(userId, ScoringWindowDays, cancellationToken);
-        var bookedTask = repository.GetUserBookedGuideIdsAsync(userId, cancellationToken);
-        var popularityTask = repository.GetGuidePopularityStatsAsync(ScoringWindowDays, cancellationToken);
-
-        await Task.WhenAll(candidatesTask, interestsTask, profileTask,
-                           interactionsTask, bookedTask, popularityTask);
-
-        var candidates = candidatesTask.Result;
-        var userInterests = interestsTask.Result;
-        var userProfile = profileTask.Result;
-        var interactions = interactionsTask.Result;
-        var bookedIds = bookedTask.Result.ToHashSet();
-        var popularity = popularityTask.Result;
+        // 1. Load all data sequentially
+        var candidates = await repository.GetCandidateGuidesAsync(cancellationToken);
+        var userInterests = await repository.GetUserInterestIdsAsync(userId, cancellationToken);
+        var userProfile = await repository.GetUserProfileDataAsync(userId, cancellationToken);
+        var interactions = await repository.GetUserGuideInteractionsAsync(userId, ScoringWindowDays, cancellationToken);
+        var bookedIds = (await repository.GetUserBookedGuideIdsAsync(userId, cancellationToken)).ToHashSet();
+        var popularity = await repository.GetGuidePopularityStatsAsync(ScoringWindowDays, cancellationToken);
 
         // 2. Load co-occurrence map (cached)
         var coOccurrence = await GetCachedGuideCoOccurrenceAsync(cancellationToken);

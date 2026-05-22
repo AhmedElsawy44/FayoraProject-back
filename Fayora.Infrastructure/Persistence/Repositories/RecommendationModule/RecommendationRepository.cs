@@ -164,7 +164,6 @@ public class RecommendationRepository(ApplicationDbContext context) : IRecommend
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-<<<<<<< HEAD
     public async Task<List<HousingUnitScoringData>> GetCandidateUnitsAsync(CancellationToken cancellationToken)
     {
         return await context.HousingUnits
@@ -455,7 +454,8 @@ public class RecommendationRepository(ApplicationDbContext context) : IRecommend
         }
 
         return result;
-=======
+    }
+
     public async Task<List<LocationScoringData>> GetCandidateLocationsAsync(CancellationToken cancellationToken)
     {
         // Get all active, approved packages with their location IDs
@@ -493,7 +493,7 @@ public class RecommendationRepository(ApplicationDbContext context) : IRecommend
             loc.Category,
             locationToPackages.TryGetValue(loc.Id, out var pkgIds) ? pkgIds : new List<Guid>()
         )).ToList();
->>>>>>> 5991f16 (recommded locations in home pageendpoint)
     }
 }
+
 
