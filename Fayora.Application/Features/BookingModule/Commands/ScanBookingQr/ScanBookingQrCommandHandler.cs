@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
@@ -67,7 +67,11 @@ namespace Fayora.Application.Features.BookingModule.Commands.ScanBookingQr
             };
 
 
-            if (booking.PaymentStatus != PaymentTransactionStatus.Paid)
+            bool canScanQr = booking.IsCashOnArrival
+                ? booking.PaymentStatus == PaymentTransactionStatus.PartiallyPaid || booking.PaymentStatus == PaymentTransactionStatus.Paid
+                : booking.PaymentStatus == PaymentTransactionStatus.Paid;
+
+            if (!canScanQr)
                 return BookingErrors.BookingNotPaid;
 
             if (booking.BookingStatus == BookingStatus.Cancelled)

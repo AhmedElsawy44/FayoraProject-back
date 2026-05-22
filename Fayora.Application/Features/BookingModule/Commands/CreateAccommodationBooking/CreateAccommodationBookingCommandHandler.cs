@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
@@ -86,7 +86,8 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateAccommodation
                 totalGuests,
                 unit.CancellationPolicy,
                 startDateTime,
-                endDateTime);
+                endDateTime,
+                request.IsCashOnArrival);
             if (booking.IsError) return booking.Errors;
 
             // create the calendar block for the booked dates to prevent double booking 
