@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace Fayora.Infrastructure.Migrations
+namespace Fayora.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -62,6 +62,21 @@ namespace Fayora.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ChatbotSessions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DeviceId = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChatbotSessions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Chats",
                 columns: table => new
                 {
@@ -92,6 +107,23 @@ namespace Fayora.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Cities", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DeviceTokens",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Token = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
+                    DeviceType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    LastActiveAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeviceTokens", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -327,6 +359,30 @@ namespace Fayora.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PushCampaigns",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    Body = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: true),
+                    TargetAudience = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    ScheduledAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    SentAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    SuccessCount = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    FailureCount = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    CreatedByAdminId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    HangfireJobId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PushCampaigns", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SubscriptionTiers",
                 columns: table => new
                 {
@@ -539,6 +595,29 @@ namespace Fayora.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserTokens", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ChatbotMessages",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SessionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChatbotMessages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ChatbotMessages_ChatbotSessions_SessionId",
+                        column: x => x.SessionId,
+                        principalTable: "ChatbotSessions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -814,9 +893,35 @@ namespace Fayora.Infrastructure.Migrations
                 column: "StartDate");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ChatbotMessages_SessionId",
+                table: "ChatbotMessages",
+                column: "SessionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChatbotSessions_DeviceId",
+                table: "ChatbotSessions",
+                column: "DeviceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChatbotSessions_UserId",
+                table: "ChatbotSessions",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Chats_Participants_Scope",
                 table: "Chats",
                 columns: new[] { "FirstUserId", "SecondUserId", "ScopeType", "ScopeId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeviceTokens_Token",
+                table: "DeviceTokens",
+                column: "Token",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeviceTokens_UserId",
+                table: "DeviceTokens",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GuideCities_CityId",
@@ -1020,6 +1125,12 @@ namespace Fayora.Infrastructure.Migrations
                 name: "CalendarBlocks");
 
             migrationBuilder.DropTable(
+                name: "ChatbotMessages");
+
+            migrationBuilder.DropTable(
+                name: "DeviceTokens");
+
+            migrationBuilder.DropTable(
                 name: "GuideCities");
 
             migrationBuilder.DropTable(
@@ -1056,6 +1167,9 @@ namespace Fayora.Infrastructure.Migrations
                 name: "PaymentTransactions");
 
             migrationBuilder.DropTable(
+                name: "PushCampaigns");
+
+            migrationBuilder.DropTable(
                 name: "SubscriptionTiers");
 
             migrationBuilder.DropTable(
@@ -1087,6 +1201,9 @@ namespace Fayora.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "VerificationCodes");
+
+            migrationBuilder.DropTable(
+                name: "ChatbotSessions");
 
             migrationBuilder.DropTable(
                 name: "Cities");

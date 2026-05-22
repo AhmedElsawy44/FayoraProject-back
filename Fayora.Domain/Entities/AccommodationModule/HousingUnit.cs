@@ -218,5 +218,42 @@ public class HousingUnit : BaseEntity<Guid>
 
     }
 
+    public void AdminUpdate(
+        string title,
+        string? description,
+        HousingType type,
+        int locationId,
+        string addressDetails,
+        GeoPoint coordinates,
+        int numberOfRooms,
+        int bedRooms,
+        int bathRooms,
+        int numberOfBeds,
+        int maxGuests,
+        TimeSpan checkInTime,
+        TimeSpan checkOutTime,
+        decimal pricePerNight,
+        FileUrl mainImageUrl,
+        ItemStatus status)
+    {
+        Title = title;
+        Description = description;
+        Type = type;
+        LocationId = locationId;
+        AddressDetails = addressDetails;
+        Coordinates = coordinates;
+        NumberOfRooms = numberOfRooms;
+        BedRooms = bedRooms;
+        BathRooms = bathRooms;
+        NumberOfBeds = numberOfBeds;
+        MaxGuests = maxGuests;
+        CheckInTime = checkInTime;
+        CheckOutTime = checkOutTime;
+        PricePerNight = pricePerNight;
+        MainImageUrl = mainImageUrl;
+        Status = status;
+    }
+
+
     private HousingUnit() { }
 }

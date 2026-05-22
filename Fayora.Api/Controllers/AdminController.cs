@@ -73,7 +73,6 @@ using System.Threading.Tasks;
 namespace Fayora.Api.Controllers;
 
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")]
 public class AdminController(ISender sender) : ApiController
 {
     public record ChangeUserStatusRequest(int Status);
