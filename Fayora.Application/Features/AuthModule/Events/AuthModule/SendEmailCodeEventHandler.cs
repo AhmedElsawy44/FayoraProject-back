@@ -38,6 +38,7 @@ public class SendEmailCodeEventHandler(
             CodePurpose.ResetPassword => MessagePurpose.ResetPassword,
             CodePurpose.AccountDeletion => MessagePurpose.AccountDeletion,
             CodePurpose.ReactivateAccount => MessagePurpose.ReactivateAccount,
+            CodePurpose.Login => MessagePurpose.Login,
             _ => throw new ArgumentOutOfRangeException(nameof(purpose), $"Unexpected OTP purpose: {purpose}")
         };
     }
