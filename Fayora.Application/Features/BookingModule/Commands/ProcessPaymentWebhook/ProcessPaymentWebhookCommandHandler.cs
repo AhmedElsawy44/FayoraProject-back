@@ -41,10 +41,18 @@ public class ProcessPaymentWebhookCommandHandler(
 
         if (paymentInfo.IsSuccess)
         {
-            var paidResult = booking.MarkAsPaid();
-            if (paidResult.IsError) return paidResult.Errors;
-            paymentTransaction.MarkAsPaid(paymentInfo.GatewayOrderId);
-
+            if (booking.IsCashOnArrival)
+            {
+                var depositResult = booking.MarkDepositAsPaid();
+                if (depositResult.IsError) return depositResult.Errors;
+                paymentTransaction.MarkAsPartiallyPaid(paymentInfo.GatewayOrderId);
+            }
+            else
+            {
+                var paidResult = booking.MarkAsPaid();
+                if (paidResult.IsError) return paidResult.Errors;
+                paymentTransaction.MarkAsPaid(paymentInfo.GatewayOrderId);
+            }
         }
         else
         {

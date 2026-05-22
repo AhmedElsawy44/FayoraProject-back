@@ -10,6 +10,8 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking
         TimeSpan StartTime,
         int Adults,
         int Children,
-        PaymentMethodType PaymentMethodType
+        PaymentMethodType PaymentMethodType,
+        string? WalletNumber,
+        bool IsCashOnArrival
     ) : ICommand<Result<string>>;
 }

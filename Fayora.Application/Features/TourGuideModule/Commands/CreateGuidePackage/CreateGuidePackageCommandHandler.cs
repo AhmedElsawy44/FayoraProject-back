@@ -6,6 +6,8 @@ using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.GuideModule;
+using Fayora.Domain.Entities.SharedModule;
+using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Application.Features.TourGuideModule.Commands.CreateGuidePackage;
@@ -21,6 +23,8 @@ public class CreateGuidePackageCommandHandler(
     public async Task<Result<CreateGuidePackageResult>> Handle(CreateGuidePackageCommand request, CancellationToken cancellationToken)
     {
         var tourGuideId = clientContextProvider.GetContext().UserId;
+
+        var providerType = clientContextProvider.GetContext().Roles.Contains("TourGuide") ? ProviderType.TourGuide : ProviderType.TourCompany;
 
         var meetingPointResult = GeoPoint.Create(request.Latitude, request.Longitude);
         if (meetingPointResult.IsError) return meetingPointResult.Errors;
@@ -54,6 +58,7 @@ public class CreateGuidePackageCommandHandler(
             request.Title,
             request.Description,
             request.TourType,
+            providerType,
             request.DurationHours,
             meetingPoint,
             request.TransportType,

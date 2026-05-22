@@ -1,14 +1,18 @@
-﻿using Fayora.Application.Features.BookingModule.Commands.CreateAccommodationBooking;
+﻿using AutoMapper;
+using Fayora.Application.Features.BookingModule.Commands.ConfirmCashReceived;
+using Fayora.Application.Features.BookingModule.Commands.CreateAccommodationBooking;
 using Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking;
 using Fayora.Application.Features.BookingModule.Commands.CreatePackageBooking;
 using Fayora.Application.Features.BookingModule.Commands.GenerateBookingQr;
-using Fayora.Application.Features.BookingModule.Commands.GetMyBookings;
 using Fayora.Application.Features.BookingModule.Commands.ProcessPaymentWebhook;
 using Fayora.Application.Features.BookingModule.Commands.ScanBookingQr;
 using Fayora.Application.Features.BookingModule.Common;
+using Fayora.Application.Features.BookingModule.Queries.GetBookingDetails;
+using Fayora.Application.Features.BookingModule.Queries.GetMyBookings;
 using Fayora.Contracts.BookingModule.CreateGuideBooking;
 using Fayora.Contracts.BookingModule.CreatePackageBooking;
 using Fayora.Contracts.BookingModule.CreateUnitBooking;
+using Fayora.Contracts.BookingModule.GetBookingDetails;
 using Fayora.Contracts.BookingModule.ScanBookingQr;
 using Fayora.Domain.Enums.BookingModule;
 using MediatR;
@@ -17,7 +21,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fayora.Api.Controllers;
 
 [Route("api/[controller]")]
-public class BookingController(ISender sender) : ApiController
+public class BookingController(ISender sender, IMapper mapper) : ApiController
 {
     [HttpPost("package/{packageId}/book")]
     public async Task<IActionResult> BookPackageAsync(
@@ -39,7 +43,9 @@ public class BookingController(ISender sender) : ApiController
             request.BookingDate,
             request.Adults,
             request.Children,
-            paymentMethod
+            paymentMethod,
+            request.WalletNumber,
+            request.IsCashOnArrival
         );
 
         var result = await sender.Send(command, cancellationToken);
@@ -65,7 +71,9 @@ public class BookingController(ISender sender) : ApiController
             request.EndDate,
             request.Adults,
             request.Children,
-            paymentMethod
+            paymentMethod,
+            request.WalletNumber,
+            request.IsCashOnArrival
         );
 
         var result = await sender.Send(command, cancellationToken);
@@ -79,8 +87,7 @@ public class BookingController(ISender sender) : ApiController
     [FromBody] CreateGuideBookingRequest request,
     CancellationToken cancellationToken)
     {
-        var (paymentMethodOk, paymentMethod) =
-            EnumParser.TryParseEnum<PaymentMethodType>(request.PaymentMethodType);
+        var (paymentMethodOk, paymentMethod) = EnumParser.TryParseEnum<PaymentMethodType>(request.PaymentMethodType);
 
         if (!paymentMethodOk)
             return BadRequest($"Invalid payment method type: {request.PaymentMethodType}");
@@ -91,7 +98,9 @@ public class BookingController(ISender sender) : ApiController
             request.StartTime,
             request.Adults,
             request.Children,
-            paymentMethod
+            paymentMethod,
+            request.WalletNumber,
+            request.IsCashOnArrival
         );
 
         var result = await sender.Send(command, cancellationToken);
@@ -154,5 +163,30 @@ public class BookingController(ISender sender) : ApiController
         var result = await sender.Send(query, cancellationToken);
 
         return Ok(result);
+    }
+
+
+    [HttpGet("{bookingId:guid}")]
+    public async Task<IActionResult> GetBookingDetails(
+    [FromRoute] Guid bookingId,
+    CancellationToken cancellationToken)
+    {
+        var query = new GetBookingDetailsQuery(bookingId);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(mapper.Map<BookingDetailsResponse>(value)),
+            Problem);
+    }
+
+    [HttpPost("{bookingId:guid}/confirm-cash")]
+    public async Task<IActionResult> ConfirmCashReceived(
+    [FromRoute] Guid bookingId,
+    CancellationToken cancellationToken)
+    {
+        var command = new ConfirmCashReceivedCommand(bookingId);
+        var result = await sender.Send(command, cancellationToken);
+        return result.Match(
+            value => Ok(value),
+            Problem);
     }
 }

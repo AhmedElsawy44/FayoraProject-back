@@ -1,5 +1,6 @@
 ﻿using Fayora.Application.Common.Interfaces.Services.BookingModule;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.BookingModule;
 using Fayora.Infrastructure.Settings;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
@@ -37,6 +38,10 @@ public class PaymobPaymentService(HttpClient httpClient, PaymobSettings paymobSe
         var orderData = await orderResponse.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: cancellationToken);
         var gatewayOrderId = orderData.GetProperty("id").GetRawText();
 
+
+        var integrationId = request.MethodType == PaymentMethodType.MobileWallet
+            ? paymobSettings.WalletIntegrationId : paymobSettings.CardIntegrationId;
+
         var paymentKeyResponse = await httpClient.PostAsJsonAsync("acceptance/payment_keys",
             new
             {
@@ -61,14 +66,37 @@ public class PaymobPaymentService(HttpClient httpClient, PaymobSettings paymobSe
                     state = "NA"
                 },
                 currency = "EGP",
-                integration_id = paymobSettings.IntegrationId
+                integration_id = integrationId
             }, cancellationToken);
 
 
         var paymentKeyData = await paymentKeyResponse.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: cancellationToken);
         string paymentToken = paymentKeyData.GetProperty("token").GetString()!;
 
-        string paymentUrl = $"https://accept.paymob.com/api/acceptance/iframes/{paymobSettings.IframeId}?payment_token={paymentToken}";
+
+        string paymentUrl;
+        
+        if (request.MethodType == PaymentMethodType.MobileWallet)
+        {
+            var walletResponse = await httpClient.PostAsJsonAsync("acceptance/payments/pay",
+                new
+                {
+                    source = new
+                    {
+                        identifier = request.WalletNumber,
+                        subtype = "WALLET"
+                    },
+                    payment_token = paymentToken
+                }, cancellationToken);
+
+            var walletData = await walletResponse.Content
+                .ReadFromJsonAsync<JsonElement>(cancellationToken: cancellationToken);
+            paymentUrl = walletData.GetProperty("redirect_url").GetString()!;
+        }
+        else
+        {
+            paymentUrl = $"https://accept.paymob.com/api/acceptance/iframes/{paymobSettings.IframeId}?payment_token={paymentToken}";
+        }
 
         return new PaymentResponse(
             paymentUrl,
