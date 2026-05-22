@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Fayora.Application.Features.AuthModule.Commands.ConfirmChangeEmail;
 using Fayora.Application.Features.AuthModule.Commands.ConfirmChangePhone;
 using Fayora.Application.Features.AuthModule.Commands.LoginWithEmail;
@@ -10,6 +10,7 @@ using Fayora.Application.Features.AuthModule.Commands.RegisterWithPhone;
 using Fayora.Application.Features.AuthModule.Commands.RestoreAccount;
 using Fayora.Application.Features.AuthModule.Commands.VerifyEmail;
 using Fayora.Application.Features.AuthModule.Commands.VerifyPhone;
+using Fayora.Application.Features.AuthModule.Commands.VerifyAdminLogin;
 using Fayora.Application.Features.AuthModule.Queries.GetUser;
 using Fayora.Contracts.AuthModule.ConfirmChangeEmail;
 using Fayora.Contracts.AuthModule.ConfirmChangePhone;
@@ -33,6 +34,7 @@ public class AuthMappingProfile : Profile
         CreateMap<LoginWithPhoneResult, PhoneLoginResponse>();
         CreateMap<VerifyEmailResult, EmailVerifyResponse>();
         CreateMap<VerifyPhoneResult, PhoneVerifyResponse>();
+        CreateMap<VerifyAdminLoginResult, VerifyAdminLoginResponse>();
         CreateMap<LoginWithSocialResult, SocialLoginResponse>();
         CreateMap<RestoreAccountResult, RestoreAccountResponse>();
         CreateMap<RefreshTokenResult, RefreshTokenResponse>();

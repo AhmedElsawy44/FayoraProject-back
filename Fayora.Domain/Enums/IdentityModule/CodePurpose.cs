@@ -1,4 +1,4 @@
-﻿namespace Fayora.Domain.Enums.IdentityModule;
+namespace Fayora.Domain.Enums.IdentityModule;
 
 public enum CodePurpose
 {
@@ -7,5 +7,6 @@ public enum CodePurpose
     AccountDeletion,
     ReactivateAccount,
     ChangeEmail,
-    ChangePhoneNumber
+    ChangePhoneNumber,
+    Login
 }

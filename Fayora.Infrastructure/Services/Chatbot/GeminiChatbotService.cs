@@ -15,6 +15,7 @@ public class GeminiChatbotService : IChatbotService
 {
     private readonly HttpClient _httpClient;
     private readonly GeminiSettings _settings;
+    private static int _currentKeyIndex = 0;
 
     public GeminiChatbotService(HttpClient httpClient, IOptions<GeminiSettings> settings)
     {
@@ -28,15 +29,23 @@ public class GeminiChatbotService : IChatbotService
         List<ToolResponse>? toolResponses = null,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(_settings.ApiKey))
+        var apiKeys = new List<string>();
+        if (_settings.ApiKeys != null && _settings.ApiKeys.Count > 0)
+        {
+            apiKeys.AddRange(_settings.ApiKeys);
+        }
+        else if (!string.IsNullOrWhiteSpace(_settings.ApiKey))
+        {
+            apiKeys.Add(_settings.ApiKey);
+        }
+
+        if (apiKeys.Count == 0)
         {
             return new ChatbotResponse 
             { 
                 Text = "{\"text\": \"عذراً، لم يتم إعداد مفتاح API لخدمة الذكاء الاصطناعي بشكل صحيح.\", \"cards\": [], \"suggestions\": [\"إعادة المحاولة\"], \"map\": null}" 
             };
         }
-
-        var url = $"https://generativelanguage.googleapis.com/v1beta/models/{_settings.Model}:generateContent?key={_settings.ApiKey}";
 
         var contentsList = new List<object>();
 
@@ -309,50 +318,50 @@ Guidelines for JSON Fields:
         };
 
         HttpResponseMessage? response = null;
-        int maxRetries = 3;
-        int delayMs = 2000;
+        string? errContent = null;
+        int keysAttempted = 0;
+        int maxKeyAttempts = apiKeys.Count;
 
-        try
+        while (keysAttempted < maxKeyAttempts)
         {
-            for (int retry = 0; retry <= maxRetries; retry++)
+            int keyIndex = (int.MaxValue & _currentKeyIndex) % apiKeys.Count;
+            var currentKey = apiKeys[keyIndex];
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/{_settings.Model}:generateContent?key={currentKey}";
+
+            try
             {
-                try
+                response = await _httpClient.PostAsJsonAsync(url, requestBody, cancellationToken);
+
+                if (response.IsSuccessStatusCode)
                 {
-                    response = await _httpClient.PostAsJsonAsync(url, requestBody, cancellationToken);
-                    
-                    if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests && retry < maxRetries)
-                    {
-                        Console.WriteLine($"[Gemini Request] Rate limit hit (429). Retrying in {delayMs}ms (Attempt {retry + 1}/{maxRetries})...");
-                        await Task.Delay(delayMs, cancellationToken);
-                        delayMs *= 2;
-                        continue;
-                    }
                     break;
                 }
-                catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.TooManyRequests && retry < maxRetries)
+
+                errContent = await response.Content.ReadAsStringAsync(cancellationToken);
+                Console.WriteLine($"[Gemini Key Rotation] Key {keyIndex} failed. Status: {response.StatusCode}, Body: {errContent}");
+
+                System.Threading.Interlocked.Increment(ref _currentKeyIndex);
+                keysAttempted++;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Gemini Key Rotation Exception] Key {keyIndex} failed: {ex.Message}");
+                System.Threading.Interlocked.Increment(ref _currentKeyIndex);
+                keysAttempted++;
+
+                if (keysAttempted >= maxKeyAttempts)
                 {
-                    Console.WriteLine($"[Gemini Request] Rate limit hit (429 Exception). Retrying in {delayMs}ms (Attempt {retry + 1}/{maxRetries})...");
-                    await Task.Delay(delayMs, cancellationToken);
-                    delayMs *= 2;
+                    throw;
                 }
             }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[Gemini Request Exception] {ex.Message}");
-            throw;
-        }
 
-        if (response == null)
+        if (response == null || !response.IsSuccessStatusCode)
         {
-            throw new HttpRequestException("No response received from Gemini API.");
-        }
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var errContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            Console.WriteLine($"[Gemini Error Response] Code: {response.StatusCode}, Body: {errContent}");
-            throw new HttpRequestException($"Gemini API error: {response.StatusCode} - {errContent}", null, response.StatusCode);
+            var finalMsg = response != null 
+                ? $"Gemini API error: {response.StatusCode} - {errContent}"
+                : "No response received from Gemini API after trying all keys.";
+            throw new HttpRequestException(finalMsg, null, response?.StatusCode);
         }
 
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);

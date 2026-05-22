@@ -1,4 +1,4 @@
-﻿namespace Fayora.Contracts.AuthModule.Login;
+namespace Fayora.Contracts.AuthModule.Login;
 
 public record EmailLoginResponse
 (
@@ -7,7 +7,8 @@ public record EmailLoginResponse
     string LastName,
     string Email,
     string? ProfileImageUrl,
-    string AccessToken,
-    string RefreshToken,
-    int ExpiresIn
+    string? AccessToken,
+    string? RefreshToken,
+    int ExpiresIn,
+    bool RequiresOtp = false
 );

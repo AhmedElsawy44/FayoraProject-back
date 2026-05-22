@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Infrastructure.Settings;
 using Microsoft.Extensions.Options;
@@ -29,10 +29,19 @@ public class JwtService(IOptions<JwtSettings> jwtSettings) : IJwtService
             new("phone",                           user.PhoneNumber?.Value ?? string.Empty),
             new("device_id",                        deviceId),
             new("email_verified",                   user.IsEmailVerified.ToString().ToLower(), ClaimValueTypes.Boolean),
-            new("phone_verified",                   user.IsPhoneVerified.ToString().ToLower(), ClaimValueTypes.Boolean),
-            new("phone_verified",                   user.IsPhoneVerified.ToString().ToLower(), ClaimValueTypes.Boolean),
-            new("roles",                            user.Roles.ToString())
+            new("phone_verified",                   user.IsPhoneVerified.ToString().ToLower(), ClaimValueTypes.Boolean)
         };
+
+        if (user.Roles.HasValue)
+        {
+            foreach (var role in Enum.GetValues<Role>())
+            {
+                if (role != 0 && user.Roles.Value.HasFlag(role))
+                {
+                    claims.Add(new Claim("roles", role.ToString()));
+                }
+            }
+        }
 
         var token = new JwtSecurityToken(
             issuer: _jwtSettings.Issuer,

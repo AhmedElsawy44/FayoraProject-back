@@ -1,4 +1,4 @@
-﻿namespace Fayora.Application.Features.AuthModule.Commands.LoginWithEmail;
+namespace Fayora.Application.Features.AuthModule.Commands.LoginWithEmail;
 
 public record LoginWithEmailResult
 (
@@ -7,7 +7,8 @@ public record LoginWithEmailResult
     string LastName,
     string Email,
     string? ProfileImageUrl,
-    string AccessToken,
-    string RefreshToken,
-    int ExpiresIn
+    string? AccessToken,
+    string? RefreshToken,
+    int ExpiresIn,
+    bool RequiresOtp = false
 );

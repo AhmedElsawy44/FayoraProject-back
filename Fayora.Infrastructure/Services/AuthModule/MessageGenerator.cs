@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using System.Security.Cryptography;
 using static Fayora.Application.Common.Interfaces.Services.AuthModule.IMessageGenerator;
 
@@ -39,6 +39,10 @@ public class MessageGenerator : IMessageGenerator
             MessagePurpose.EmailVerified => (
                 Subject: "Email Verified",
                 Body: "Your email address has been successfully verified. Thank you for confirming your contact information!"
+            ),
+            MessagePurpose.Login => (
+                Subject: "Fayora Admin Login Verification Code",
+                Body: $"Your admin login verification code is: {code}. Please enter this code to complete your login. Do NOT share this code with anyone."
             ),
             _ => (
                 Subject: "Fayora Security Code",
