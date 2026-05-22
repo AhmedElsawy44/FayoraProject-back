@@ -23,7 +23,6 @@ public class CreateGuidePackageCommandHandler(
     public async Task<Result<CreateGuidePackageResult>> Handle(CreateGuidePackageCommand request, CancellationToken cancellationToken)
     {
         var tourGuideId = clientContextProvider.GetContext().UserId;
-        if (tourGuideId == Guid.Empty) return TourGuideErrors.Unauthorized;
 
         var providerType = clientContextProvider.GetContext().Roles.Contains("TourGuide") ? ProviderType.TourGuide : ProviderType.TourCompany;
 

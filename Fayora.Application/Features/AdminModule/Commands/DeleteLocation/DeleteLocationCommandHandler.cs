@@ -2,9 +2,6 @@
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Domain.Common.Results;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Fayora.Application.Features.AdminModule.Commands.DeleteLocation
 {

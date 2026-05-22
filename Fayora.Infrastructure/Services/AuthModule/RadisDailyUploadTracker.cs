@@ -6,8 +6,7 @@ namespace Fayora.Infrastructure.Services.AuthModule;
 
 public class RadisDailyUploadTracker(ICacheService cache) : IDailyUploadTracker
 {
-
-    private string GetCacheKey(Guid userId, UploadContext context)
+    private static string GetCacheKey(Guid userId, UploadContext context)
     {
         var today = DateTime.UtcNow.ToString("yyyyMMdd");
         return $"UploadLimit_{userId}_{context}_{today}";

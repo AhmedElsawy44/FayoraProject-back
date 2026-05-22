@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Contracts.TourGuideModule.GetMyPackages
+﻿namespace Fayora.Contracts.TourGuideModule.GetMyPackages
 {
     public record MyPackagesResponse(
         List<PackageSummaryResponse> Items,
@@ -15,7 +11,7 @@ namespace Fayora.Contracts.TourGuideModule.GetMyPackages
         Guid Id,
         string Title,
         decimal AdultPrice,
-        decimal ChildPrice, 
+        decimal ChildPrice,
         int DurationHours,
         int MaxCapacity,
         string MainImageUrl,

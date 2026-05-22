@@ -1,5 +1,4 @@
-﻿using Fayora.Application.Features.AdminModule.Queries.GetInventoryStats;
-using Fayora.Domain.Entities.AccommodationModule;
+﻿using Fayora.Domain.Entities.AccommodationModule;
 using Fayora.Domain.Enums.AccommodationModule;
 
 namespace Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
