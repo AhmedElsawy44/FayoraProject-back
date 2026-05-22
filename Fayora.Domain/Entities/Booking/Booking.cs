@@ -113,6 +113,7 @@ public class Booking : BaseEntity<Guid>
         return Result.Success;
     }
 
+    // we need to handle it by domain event to apply cancellation policy and calculate refund amount
     public Result<Success> Cancel(string reason)
     {
         if (BookingStatus == BookingStatus.Completed)

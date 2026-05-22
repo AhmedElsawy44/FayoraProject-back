@@ -1,9 +1,7 @@
 using Fayora.Application.Common.Abstractions.Messaging;
-using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Domain.Common.Results;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Fayora.Application.Features.AdminModule.Commands.CancelBooking;
 

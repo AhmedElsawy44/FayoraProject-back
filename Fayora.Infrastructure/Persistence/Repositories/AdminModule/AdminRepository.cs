@@ -40,6 +40,8 @@ public class AdminRepository(ApplicationDbContext context) : IAdminRepository
         {
             query = query.Where(u => u.FirstName.Contains(searchQuery) ||
                                      u.LastName.Contains(searchQuery) ||
+                                     Fayora.Infrastructure.Persistence.Repositories.ApplicationDbContext.Difference(u.FirstName, searchQuery) >= 3 ||
+                                     Fayora.Infrastructure.Persistence.Repositories.ApplicationDbContext.Difference(u.LastName, searchQuery) >= 3 ||
                                      (u.PrimaryEmail != null && u.PrimaryEmail.Value.Contains(searchQuery)) ||
                                      (u.PhoneNumber != null && u.PhoneNumber.Value.Contains(searchQuery)));
         }
@@ -530,7 +532,7 @@ public class AdminRepository(ApplicationDbContext context) : IAdminRepository
             if (s.UserId.HasValue)
             {
                 var user = await context.Users.FirstOrDefaultAsync(u => u.Id == s.UserId.Value, ct);
-                if (user != null) userName = $"{user.FirstName} {user.LastName}";
+                if (user != null) userName = $"{user.FullName}";
             }
 
             var messageCount = await context.ChatbotMessages.CountAsync(m => m.SessionId == s.Id, ct);

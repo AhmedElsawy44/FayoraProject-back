@@ -110,6 +110,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         httpContextAccessor.HttpContext!.Items["DomainEventsQueue"] = domainEventsQueue;
     }
 
+    [DbFunction("DIFFERENCE", IsBuiltIn = true)]
+    public static int Difference(string stringValue1, string stringValue2) => throw new NotImplementedException();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
