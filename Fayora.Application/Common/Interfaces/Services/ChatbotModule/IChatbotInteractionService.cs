@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Fayora.Application.Features.ChatbotModule.Commands.SendChatbotMessage;
 using Fayora.Contracts.ChatbotModule;
 

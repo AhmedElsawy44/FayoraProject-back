@@ -3,9 +3,7 @@ using Fayora.Application.Features.ChatbotModule.Queries.GetChatbotHistory;
 using Fayora.Domain.Common.Results;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
-using System;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Fayora.Api.Hubs;
 

@@ -1,5 +1,3 @@
-using System;
-
 namespace Fayora.Application.Common.Interfaces.Services.NotificationModule;
 
 public interface INotificationScheduler

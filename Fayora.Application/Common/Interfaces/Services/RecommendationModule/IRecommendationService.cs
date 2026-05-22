@@ -1,4 +1,6 @@
+using Fayora.Application.Features.AccommodationModule.Queries.GetRecommendedUnits;
 using Fayora.Application.Features.TouristModule.Queries.GetRecommendedPackages;
+using Fayora.Application.Features.TourGuideModule.Queries.GetRecommendedGuides;
 
 namespace Fayora.Application.Common.Interfaces.Services.RecommendationModule;
 
@@ -17,4 +19,33 @@ public interface IRecommendationService
     /// </summary>
     Task<List<RecommendedPackageResult>> GetTrendingAsync(
         int count, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns personalized unit recommendations for an authenticated user
+    /// using budget and travel style matching, collaborative filtering, popularity, and recency signals.
+    /// </summary>
+    Task<List<RecommendedUnitResult>> GetPersonalizedUnitsAsync(
+        Guid userId, int count, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns trending units for anonymous or cold-start users
+    /// using popularity and recency signals.
+    /// </summary>
+    Task<List<RecommendedUnitResult>> GetTrendingUnitsAsync(
+        int count, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns personalized tour guide recommendations for an authenticated user
+    /// using content-based, collaborative, popularity, and recency signals.
+    /// </summary>
+    Task<List<RecommendedGuideResult>> GetPersonalizedGuidesAsync(
+        Guid userId, int count, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns trending tour guides for anonymous or cold-start users
+    /// using popularity and recency signals.
+    /// </summary>
+    Task<List<RecommendedGuideResult>> GetTrendingGuidesAsync(
+        int count, CancellationToken cancellationToken);
 }
+

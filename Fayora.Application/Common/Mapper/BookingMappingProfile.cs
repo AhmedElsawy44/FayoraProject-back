@@ -1,9 +1,6 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.BookingModule.Queries.GetBookingDetails;
 using Fayora.Contracts.BookingModule.GetBookingDetails;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Fayora.Application.Common.Mapper
 {

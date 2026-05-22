@@ -1,8 +1,5 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Fayora.Application.Common.Interfaces.Persistences.NotificationModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Persistences.NotificationModule;
 using Fayora.Application.Common.Interfaces.Services.SharedModule;
 using Microsoft.Extensions.Logging;
 

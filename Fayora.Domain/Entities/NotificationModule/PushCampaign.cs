@@ -1,4 +1,3 @@
-using System;
 using Fayora.Domain.Common.Entity;
 
 namespace Fayora.Domain.Entities.NotificationModule;
@@ -32,8 +31,8 @@ public class PushCampaign : AuditableEntity<Guid>
         if (string.IsNullOrWhiteSpace(body))
             throw new ArgumentException("Body cannot be null or empty.", nameof(body));
 
-        var status = scheduledAt.HasValue && scheduledAt.Value > DateTimeOffset.UtcNow 
-            ? "Scheduled" 
+        var status = scheduledAt.HasValue && scheduledAt.Value > DateTimeOffset.UtcNow
+            ? "Scheduled"
             : "Draft"; // Will be "Sending" shortly if sent immediately
 
         return new PushCampaign

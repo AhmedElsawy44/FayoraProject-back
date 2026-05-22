@@ -5,7 +5,6 @@ using Fayora.Application.Features.TouristModule.Queries.GetAllActivePackages;
 using Fayora.Application.Features.TouristModule.Queries.GetAllLocations;
 using Fayora.Application.Features.TouristModule.Queries.GetInterests;
 using Fayora.Application.Features.TouristModule.Queries.GetLocationDetails;
-using Fayora.Application.Features.TouristModule.Queries.GetRecommendedPackages;
 using Fayora.Contracts.AdminModule.CreateLocation;
 using Fayora.Contracts.TouristModule;
 using Fayora.Domain.Enums.SharedModule;
@@ -155,23 +154,6 @@ public class TouristController(ISender sender, IMapper mapper) : ApiController
         var result = await sender.Send(query, cancellationToken);
         return result.Match(
             value => Ok(mapper.Map<LocationDetailsResponse>(value)),
-            Problem);
-    }
-
-    /// <summary>
-    /// Returns personalized package recommendations for authenticated users,
-    /// or trending packages for anonymous users.
-    /// Uses a multi-signal scoring engine (content-based, collaborative, popularity, recency).
-    /// </summary>
-    [HttpGet("recommended")]
-    public async Task<IActionResult> GetRecommendedPackages(
-        [FromQuery] int count = 10,
-        CancellationToken cancellationToken = default)
-    {
-        var query = new GetRecommendedPackagesQuery(count);
-        var result = await sender.Send(query, cancellationToken);
-        return result.Match(
-            value => Ok(value),
             Problem);
     }
 }

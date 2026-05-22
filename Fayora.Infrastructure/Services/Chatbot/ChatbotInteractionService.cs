@@ -1,19 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Fayora.Application.Common.Interfaces.Services.ChatbotModule;
 using Fayora.Application.Features.ChatbotModule.Commands.SendChatbotMessage;
 using Fayora.Contracts.ChatbotModule;
-using Fayora.Domain.Entities.Booking;
 using Fayora.Domain.Entities.ChatbotModule;
 using Fayora.Domain.Enums.BookingModule;
-using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Fayora.Infrastructure.Services.Chatbot;
 

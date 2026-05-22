@@ -1,5 +1,3 @@
-using System;
-using System.Threading;
 using Fayora.Application.Common.Interfaces.Services.NotificationModule;
 using Fayora.Infrastructure.Jobs;
 using Hangfire;

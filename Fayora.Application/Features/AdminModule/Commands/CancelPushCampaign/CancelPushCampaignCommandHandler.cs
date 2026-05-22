@@ -1,8 +1,6 @@
-using System.Threading;
-using System.Threading.Tasks;
 using Fayora.Application.Common.Abstractions.Messaging;
-using Fayora.Application.Common.Interfaces.Persistences.NotificationModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Persistences.NotificationModule;
 using Fayora.Application.Common.Interfaces.Services.NotificationModule;
 using Fayora.Domain.Common.Results;
 

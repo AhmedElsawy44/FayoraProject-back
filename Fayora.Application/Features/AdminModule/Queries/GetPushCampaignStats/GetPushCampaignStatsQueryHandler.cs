@@ -1,5 +1,3 @@
-using System.Threading;
-using System.Threading.Tasks;
 using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.NotificationModule;
 using Fayora.Contracts.AdminModule.Notifications;

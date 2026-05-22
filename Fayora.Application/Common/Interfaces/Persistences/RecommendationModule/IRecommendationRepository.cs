@@ -52,6 +52,64 @@ public interface IRecommendationRepository
     /// </summary>
     Task<UserProfileData?> GetUserProfileDataAsync(
         Guid userId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns all active, approved housing units with scoring metadata.
+    /// </summary>
+    Task<List<HousingUnitScoringData>> GetCandidateUnitsAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns a user's unit interaction history (views, favorites) for the scoring window.
+    /// </summary>
+    Task<List<UserInteractionData>> GetUserUnitInteractionsAsync(
+        Guid userId, int daysWindow, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns the IDs of housing units the user has booked.
+    /// </summary>
+    Task<List<Guid>> GetUserBookedUnitIdsAsync(
+        Guid userId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Builds a co-occurrence map for housing units booking history.
+    /// </summary>
+    Task<Dictionary<Guid, HashSet<Guid>>> GetUnitCoOccurrenceMapAsync(
+        int daysWindow, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns global popularity stats per unit within a rolling time window.
+    /// </summary>
+    Task<Dictionary<Guid, PopularityData>> GetUnitPopularityStatsAsync(
+        int daysWindow, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns all active guides with scoring metadata.
+    /// </summary>
+    Task<List<GuideScoringData>> GetCandidateGuidesAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns a user's guide interaction history (views, favorites) for the scoring window.
+    /// </summary>
+    Task<List<UserInteractionData>> GetUserGuideInteractionsAsync(
+        Guid userId, int daysWindow, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns the IDs of guides the user has booked.
+    /// </summary>
+    Task<List<Guid>> GetUserBookedGuideIdsAsync(
+        Guid userId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Builds a co-occurrence map for guides booking history.
+    /// </summary>
+    Task<Dictionary<Guid, HashSet<Guid>>> GetGuideCoOccurrenceMapAsync(
+        int daysWindow, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns global popularity stats per guide within a rolling time window.
+    /// </summary>
+    Task<Dictionary<Guid, PopularityData>> GetGuidePopularityStatsAsync(
+        int daysWindow, CancellationToken cancellationToken);
 }
 
 // ── Projection DTOs ──────────────────────────────────────────────────────────
@@ -67,6 +125,33 @@ public record PackageScoringData(
     DateTimeOffset CreatedAt,
     List<int> LocationIds);
 
+public record HousingUnitScoringData(
+    Guid Id,
+    string Title,
+    decimal PricePerNight,
+    string MainImageUrl,
+    string AddressDetails,
+    decimal Rating,
+    int Views,
+    DateTimeOffset CreatedAt,
+    int LocationId,
+    int MaxGuests,
+    int BedRooms,
+    int NumberOfBeds);
+
+public record GuideScoringData(
+    Guid UserId,
+    string FullName,
+    string? ProfileImageUrl,
+    decimal? BaseRate,
+    int? YearsOfExperience,
+    bool IsSuperGuide,
+    decimal AverageRating,
+    int ReviewCount,
+    int Views,
+    DateTimeOffset CreatedAt,
+    TourType TourTypes);
+
 public record UserInteractionData(
     Guid EntityId,
     InteractionType Type,
@@ -79,3 +164,4 @@ public record PopularityData(
 public record UserProfileData(
     Fayora.Domain.Enums.TouristModule.BudgetTier? BudgetTier,
     Fayora.Domain.Enums.TouristModule.TravelStyle? TravelStyle);
+

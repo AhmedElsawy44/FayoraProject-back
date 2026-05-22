@@ -1,5 +1,3 @@
-using System;
-
 namespace Fayora.Contracts.AdminModule.FinancialTransactions;
 
 public record GetTransactionsResponse(

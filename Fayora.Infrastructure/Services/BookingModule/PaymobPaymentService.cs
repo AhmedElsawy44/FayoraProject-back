@@ -75,7 +75,7 @@ public class PaymobPaymentService(HttpClient httpClient, PaymobSettings paymobSe
 
 
         string paymentUrl;
-        
+
         if (request.MethodType == PaymentMethodType.MobileWallet)
         {
             var walletResponse = await httpClient.PostAsJsonAsync("acceptance/payments/pay",

@@ -1,9 +1,6 @@
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Strategies;
 using Fayora.Domain.Common.Results;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using static Fayora.Application.Common.Interfaces.Persistences.AccommodationModule.IHousingUnitRepository;
 
 namespace Fayora.Infrastructure.Strategies;

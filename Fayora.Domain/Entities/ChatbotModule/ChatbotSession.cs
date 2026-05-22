@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Fayora.Domain.Common.Entity;
 
 namespace Fayora.Domain.Entities.ChatbotModule;

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Fayora.Application.Features.TourGuideModule.Commands.ActivateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateGuideWeeklySchedule;
@@ -11,6 +11,8 @@ using Fayora.Application.Features.TourGuideModule.Commands.UpdateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview;
+using Fayora.Application.Features.TourGuideModule.Queries.GetRecommendedGuides;
+using Fayora.Application.Features.TouristModule.Queries.GetRecommendedPackages;
 using Fayora.Contracts.TourGuideModule.CreateGuidePackage;
 using Fayora.Contracts.TourGuideModule.CreatePackageOccurrences;
 using Fayora.Contracts.TourGuideModule.CreateTourCompany;
@@ -263,6 +265,40 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
 
         return result.Match(
             value => Ok(mapper.Map<MyPackagesResponse>(value)),
+            Problem);
+    }
+
+    /// <summary>
+    /// Returns personalized package recommendations for authenticated users,
+    /// or trending packages for anonymous users.
+    /// Uses a multi-signal scoring engine (content-based, collaborative, popularity, recency).
+    /// </summary>
+    [HttpGet("recommended")]
+    public async Task<IActionResult> GetRecommendedPackages(
+        [FromQuery] int count = 10,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetRecommendedPackagesQuery(count);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(value),
+            Problem);
+    }
+
+    /// <summary>
+    /// Returns personalized tour guide recommendations for authenticated users,
+    /// or trending guides for anonymous users.
+    /// Uses a multi-signal scoring engine (content-based, collaborative, popularity, recency).
+    /// </summary>
+    [HttpGet("recommended-guides")]
+    public async Task<IActionResult> GetRecommendedGuides(
+        [FromQuery] int count = 10,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetRecommendedGuidesQuery(count);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(value),
             Problem);
     }
 }

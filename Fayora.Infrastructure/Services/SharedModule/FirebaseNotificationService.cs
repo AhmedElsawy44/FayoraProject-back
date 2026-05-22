@@ -1,14 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+using Fayora.Application.Common.Interfaces.Services.SharedModule;
 using FirebaseAdmin;
 using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Fayora.Application.Common.Interfaces.Services.SharedModule;
 
 namespace Fayora.Infrastructure.Services.SharedModule;
 
@@ -76,7 +71,7 @@ public class FirebaseNotificationService : IFirebaseNotificationService
         {
             var count = Math.Min(batchSize, targetTokens.Count - i);
             var batch = targetTokens.GetRange(i, count);
-            
+
             var notification = new Notification
             {
                 Title = title,

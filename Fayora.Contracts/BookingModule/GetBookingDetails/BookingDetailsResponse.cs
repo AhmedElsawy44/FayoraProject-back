@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Contracts.BookingModule.GetBookingDetails
+﻿namespace Fayora.Contracts.BookingModule.GetBookingDetails
 {
     public record BookingDetailsResponse(
         Guid BookingId,

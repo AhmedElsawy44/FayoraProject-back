@@ -40,7 +40,7 @@ public class Booking : BaseEntity<Guid>
         if (endDate <= startDate)
             return Error.Validation();
 
-        decimal depositAmount = isCashOnArrival? basePrice * BookingConstants.CashOnArrivalDepositRate : 0;
+        decimal depositAmount = isCashOnArrival ? basePrice * BookingConstants.CashOnArrivalDepositRate : 0;
 
         return new Booking
         {

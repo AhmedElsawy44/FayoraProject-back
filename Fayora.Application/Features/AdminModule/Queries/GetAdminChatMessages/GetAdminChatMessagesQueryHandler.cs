@@ -2,9 +2,6 @@ using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
 using Fayora.Contracts.AdminModule.LiveChatMonitoring;
 using Fayora.Domain.Common.Results;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Fayora.Application.Features.AdminModule.Queries.GetAdminChatMessages;
 

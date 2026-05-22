@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Fayora.Domain.Entities.NotificationModule;
 using Fayora.Contracts.AdminModule.Notifications;
+using Fayora.Domain.Entities.NotificationModule;
 
 namespace Fayora.Application.Common.Interfaces.Persistences.NotificationModule;
 

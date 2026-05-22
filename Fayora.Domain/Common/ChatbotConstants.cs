@@ -1,5 +1,3 @@
-using System;
-
 namespace Fayora.Domain.Common;
 
 public static class ChatbotConstants

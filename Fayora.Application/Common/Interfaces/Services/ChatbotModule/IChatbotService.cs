@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace Fayora.Application.Common.Interfaces.Services.ChatbotModule;
 
 public class ChatbotResponse
@@ -30,8 +26,8 @@ public class ToolResponse
 public interface IChatbotService
 {
     Task<ChatbotResponse> GenerateResponseAsync(
-        string userPrompt, 
-        List<(string Role, string Content)> history, 
+        string userPrompt,
+        List<(string Role, string Content)> history,
         List<ToolResponse>? toolResponses = null,
         CancellationToken cancellationToken = default);
 }
