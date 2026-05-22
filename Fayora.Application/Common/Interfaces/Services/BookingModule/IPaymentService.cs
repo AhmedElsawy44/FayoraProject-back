@@ -16,7 +16,8 @@ public record PaymentRequest(
     string CustomerLastName,
     string? CustomerEmail,
     string? CustomerPhoneNumber,
-    PaymentMethodType MethodType
+    PaymentMethodType MethodType,
+    string? WalletNumber
 );
 
 public record PaymentResponse(

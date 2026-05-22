@@ -8,6 +8,7 @@ using Fayora.Application.Features.TouristModule.Queries.GetLocationDetails;
 using Fayora.Contracts.AdminModule.CreateLocation;
 using Fayora.Contracts.TouristModule;
 using Fayora.Domain.Enums.SharedModule;
+using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.Enums.TouristModule;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -115,7 +116,8 @@ public class TouristController(ISender sender, IMapper mapper) : ApiController
     public async Task<IActionResult> GetActivePackages(
     [FromQuery] string? search,
     [FromQuery] int? locationId,
-    [FromQuery] string? tourType,
+    [FromQuery] ProviderType? providerType,
+    [FromQuery] TourType? tourType,
     [FromQuery] int? minDuration,
     [FromQuery] int? maxDuration,
     [FromQuery] decimal? minPrice,
@@ -124,9 +126,11 @@ public class TouristController(ISender sender, IMapper mapper) : ApiController
     [FromQuery] int pageSize = 10,
     CancellationToken cancellationToken = default)
     {
+
         var query = new GetActivePackagesQuery(
             search,
             locationId,
+            providerType,
             tourType,
             minDuration,
             maxDuration,

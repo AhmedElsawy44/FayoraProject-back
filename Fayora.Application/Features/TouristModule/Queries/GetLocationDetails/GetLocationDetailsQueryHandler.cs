@@ -7,6 +7,7 @@ namespace Fayora.Application.Features.TouristModule.Queries.GetLocationDetails
 {
     public class GetLocationDetailsQueryHandler(
         ILocationRepository locationRepository,
+        ILocationImageRepository locationImageRepository,
         IPackageRepository packageRepository)
         : IQueryHandler<GetLocationDetailsQuery, Result<GetLocationDetailsResult>>
     {
@@ -22,6 +23,7 @@ namespace Fayora.Application.Features.TouristModule.Queries.GetLocationDetails
             var (packages, _) = await packageRepository.GetActivePackagesAsync(
                 search: null,
                 locationId: request.LocationId,
+                providerType: null,
                 tourType: null,
                 minDuration: null,
                 maxDuration: null,
@@ -31,6 +33,11 @@ namespace Fayora.Application.Features.TouristModule.Queries.GetLocationDetails
                 pageSize: 10,
                 cancellationToken: cancellationToken);
 
+
+            var images = await locationImageRepository.GetImagesByLocationIdAsync(
+                 request.LocationId, cancellationToken);
+
+
             return new GetLocationDetailsResult(
                 location.Id,
                 location.Name,
@@ -38,7 +45,7 @@ namespace Fayora.Application.Features.TouristModule.Queries.GetLocationDetails
                 location.Rating,
                 location.Category.ToString(),
                 location.MainImageUrl.Value,
-                location.ImageIds.Select(id => id.ToString()).ToList(),
+                images.Select(i => i.ImageUrl.Value).ToList(),
                 location.Coordinates?.Latitude,
                 location.Coordinates?.Longitude,
                 packages.Select(p => new LocationPackageSummaryResult(

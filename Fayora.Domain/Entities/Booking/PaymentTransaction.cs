@@ -30,6 +30,11 @@ public class PaymentTransaction
         GatewayTransactionId = gatewayTransactionId;
         ErrorMessage = null;
     }
+    public void MarkAsPartiallyPaid(string gatewayTransactionId)
+    {
+        Status = PaymentTransactionStatus.PartiallyPaid;
+        GatewayTransactionId = gatewayTransactionId;
+    }
 
     public void MarkAsFailed(string errorMessage, string? gatewayTransactionId = null)
     {

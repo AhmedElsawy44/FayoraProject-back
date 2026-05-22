@@ -5,7 +5,7 @@ using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Domain.Enums.BookingModule;
 
-namespace Fayora.Application.Features.BookingModule.Commands.GetMyBookings;
+namespace Fayora.Application.Features.BookingModule.Queries.GetMyBookings;
 
 public class GetMyBookingsQueryHandler(
     IClientContextProvider clientContextProvider,

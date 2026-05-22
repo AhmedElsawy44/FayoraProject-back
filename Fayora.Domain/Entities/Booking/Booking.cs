@@ -1,4 +1,5 @@
-﻿using Fayora.Domain.Common.Events.BookingModule;
+﻿using Fayora.Domain.Common.Entity.Constants;
+using Fayora.Domain.Common.Events.BookingModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.BookingModule;
 using Fayora.Domain.Enums.SharedModule;
@@ -23,16 +24,23 @@ public class Booking : BaseEntity<Guid>
     public DateTime EndDate { get; init; }
     public bool IsScanned { get; private set; }
     public DateTimeOffset? ScannedAt { get; private set; }
+
+    public bool IsCashOnArrival { get; private set; }
+    public decimal DepositAmount { get; private set; }
+
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
+
 
     public static Result<Booking> Create(
         Guid userId, Guid providerId, ServiceType type, Guid serviceId,
         decimal basePrice, decimal serviceFee, decimal payoutAmount,
         int seatsCount, CancellationPolicy policy, DateTime startDate,
-        DateTime endDate)
+        DateTime endDate, bool isCashOnArrival = false)
     {
         if (endDate <= startDate)
             return Error.Validation();
+
+        decimal depositAmount = isCashOnArrival? basePrice * BookingConstants.CashOnArrivalDepositRate : 0;
 
         return new Booking
         {
@@ -50,7 +58,9 @@ public class Booking : BaseEntity<Guid>
             BookingStatus = BookingStatus.Pending,
             PaymentStatus = PaymentTransactionStatus.Pending,
             StartDate = startDate,
-            EndDate = endDate
+            EndDate = endDate,
+            IsCashOnArrival = isCashOnArrival,
+            DepositAmount = depositAmount
         };
     }
 
@@ -61,6 +71,35 @@ public class Booking : BaseEntity<Guid>
 
         PaymentStatus = PaymentTransactionStatus.Paid;
         BookingStatus = BookingStatus.Completed;
+        return Result.Success;
+    }
+
+
+    public Result<Success> MarkDepositAsPaid()
+    {
+        if (!IsCashOnArrival)
+            return Error.Validation("Booking.NotCashOnArrival", "This booking is not cash on arrival.");
+
+        if (PaymentStatus == PaymentTransactionStatus.PartiallyPaid)
+            return Error.Validation("Booking.DepositAlreadyPaid", "Deposit is already paid.");
+
+        PaymentStatus = PaymentTransactionStatus.PartiallyPaid;
+        return Result.Success;
+    }
+
+    public Result<Success> ConfirmCashReceived()
+    {
+        if (!IsCashOnArrival)
+            return Error.Validation("Booking.NotCashOnArrival", "This booking is not cash on arrival.");
+
+        if (BookingStatus == BookingStatus.Completed)
+            return Error.Validation("Booking.AlreadyCompleted", "Booking is already completed.");
+
+        if (!IsScanned)
+            return Error.Validation("Booking.NotScanned", "QR code must be scanned first.");
+
+        BookingStatus = BookingStatus.Completed;
+        PaymentStatus = PaymentTransactionStatus.Paid;
         return Result.Success;
     }
 

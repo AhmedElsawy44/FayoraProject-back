@@ -57,11 +57,22 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateAccommodation
             if (totalGuests > unit.MaxGuests)
                 return AccommodationErrors.ExceedsMaxGuests;
 
-            // calculate the total price
-            int nights = (request.EndDate.DayNumber - request.StartDate.DayNumber);
-            decimal totalPrice = unit.PricePerNight * nights;
-            decimal serviceFee = totalPrice * unit.CommissionRate; // a 20% service fee (20% عمولة الشركه)
-            decimal payoutAmount = totalPrice - serviceFee;
+            //// calculate the total price
+
+            //int nights = (request.EndDate.DayNumber - request.StartDate.DayNumber);
+            //decimal totalPrice = unit.PricePerNight * nights;
+            //decimal serviceFee = totalPrice * unit.CommissionRate; // a 20% service fee (20% عمولة الشركه)
+            //decimal payoutAmount = totalPrice - serviceFee;
+
+            int nights = request.EndDate.DayNumber - request.StartDate.DayNumber;
+            var pricingResult = unit.CalculatePricing(nights);
+            if (pricingResult.IsError) return pricingResult.Errors;
+
+            var (totalPrice, serviceFee, payoutAmount) = (
+                pricingResult.Value.TotalPrice,
+                pricingResult.Value.ServiceFee,
+                pricingResult.Value.PayoutAmount);
+
 
             // create the booking 
             var booking = Booking.Create(
@@ -92,15 +103,22 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateAccommodation
             calendarBlockRepository.AddCalendarBlock(calendarBlock);
             await unitOfWork.CommitChangesAsync(cancellationToken);
 
+
+            // لو العميل اختار الدفع عند الوصول، هيدفع العربون بس دلوقتي، ولو اختار يدفع أونلاين هيدفع السعر كامل
+            decimal amountToPay = request.IsCashOnArrival
+                ? booking.Value.DepositAmount
+                : booking.Value.TotalPrice;
+
             // then send to payment service
             var paymentResult = await paymentService.GeneratePaymentUrlAsync(new PaymentRequest(
                 booking.Value.Id,
-                totalPrice,
+                amountToPay,
                 user.FirstName,
                 user.LastName,
                 user.PrimaryEmail?.Value,
                 user.PhoneNumber?.Value,
-                request.PaymentMethodType));
+                request.PaymentMethodType,
+                request.WalletNumber));
             if (paymentResult.IsError)
             {
                 // Compensation - Remove the booking and calendar block if payment URL generation fails to avoid having orphaned bookings without payment

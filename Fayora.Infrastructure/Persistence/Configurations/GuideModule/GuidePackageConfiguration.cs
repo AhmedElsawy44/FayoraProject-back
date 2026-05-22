@@ -17,6 +17,7 @@ public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
             .HasColumnType("nvarchar(2000)");
         builder.Property(x => x.AdultPrice).IsRequired().HasPrecision(18, 2);
         builder.Property(x => x.ChildPrice).HasPrecision(18, 2);
+        builder.Property(x => x.ProviderType).HasConversion<int>();
         builder.Property(x => x.CancellationPolicy).HasConversion<int>();
         builder.Property(x => x.TransportType).HasConversion<int>();
         builder.Property(x => x.PackageStatus).HasConversion<int>();

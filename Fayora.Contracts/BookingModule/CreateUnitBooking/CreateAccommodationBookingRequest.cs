@@ -5,6 +5,8 @@
         DateOnly EndDate,
         int Adults,
         int Children,
-        string PaymentMethodType
+        string PaymentMethodType,
+        string? WalletNumber,
+        bool IsCashOnArrival
     );
 }

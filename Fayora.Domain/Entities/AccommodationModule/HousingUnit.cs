@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.AccommodationModule;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
@@ -201,6 +201,21 @@ public class HousingUnit : BaseEntity<Guid>
         Status = ItemStatus.Rejected;
         AdminNotes = adminNotes;
         return Result.Success;
+    }
+
+    public sealed record PricingResult(decimal TotalPrice, decimal ServiceFee, decimal PayoutAmount);
+
+    public Result<PricingResult> CalculatePricing(int nights)
+    {
+        if (nights <= 0)
+            return Error.Validation("HousingUnit.InvalidNights", "Number of nights must be greater than zero.");
+
+        decimal totalPrice = PricePerNight * nights;
+        decimal serviceFee = totalPrice * CommissionRate;
+        decimal payoutAmount = totalPrice - serviceFee;
+
+        return new PricingResult(totalPrice, serviceFee, payoutAmount);
+
     }
 
     private HousingUnit() { }

@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Entity;
+using Fayora.Domain.Common.Entity;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
@@ -13,6 +13,7 @@ public class GuidePackage : AuditableEntity<Guid>
     public string Title { get; private set; } = null!;
     public string Description { get; private set; } = null!;
     public TourType TourTypes { get; private set; }
+    public ProviderType ProviderType { get; private set; }
     public int DurationHours { get; private set; }
     public int NumOfDays { get; private set; }
     public int MaxCapacity { get; private set; }
@@ -59,6 +60,7 @@ public class GuidePackage : AuditableEntity<Guid>
         string title,
         string description,
         TourType tourTypes,
+        ProviderType providerType,
         int durationHours,
         GeoPoint meetingPoint,
         TransportType transportType,
@@ -76,6 +78,7 @@ public class GuidePackage : AuditableEntity<Guid>
         Title = title;
         Description = description;
         TourTypes = tourTypes;
+        ProviderType = providerType;
         DurationHours = durationHours;
         MeetingPoint = meetingPoint;
         TransportType = transportType;
@@ -96,7 +99,7 @@ public class GuidePackage : AuditableEntity<Guid>
 
     public static Result<GuidePackage> Create(
         Guid guideId, string title, string description,
-        TourType tourTypes, int durationHours,
+        TourType tourTypes, ProviderType providerType, int durationHours,
         GeoPoint meetingPoint, TransportType transportType,
         int maxCapacity, decimal adultPrice, decimal childPrice,
         string? arrivalNote, FileUrl mainImageUrl,
@@ -111,7 +114,7 @@ public class GuidePackage : AuditableEntity<Guid>
         if (maxCapacity <= 0)
             return Error.Validation("Package.InvalidCapacity", "Max capacity must be greater than zero.");
 
-        return new GuidePackage(guideId, title, description, tourTypes,
+        return new GuidePackage(guideId, title, description, tourTypes, providerType,
             durationHours, meetingPoint, transportType, maxCapacity,
             adultPrice, childPrice, arrivalNote, mainImageUrl,
             mainVideoUrl, guestRequirements, cancellationPolicy);
@@ -291,5 +294,26 @@ public class GuidePackage : AuditableEntity<Guid>
         }
 
         return Result.Success;
+    }
+
+    public void AdminUpdate(
+        string title,
+        string description,
+        int durationHours,
+        int maxCapacity,
+        decimal adultPrice,
+        decimal childPrice,
+        TourType tourTypes,
+        ItemStatus status)
+    {
+        Title = title;
+        Description = description;
+        DurationHours = durationHours;
+        MaxCapacity = maxCapacity;
+        AdultPrice = adultPrice;
+        ChildPrice = childPrice;
+        TourTypes = tourTypes;
+        PackageStatus = status;
+        Updated();
     }
 }

@@ -1,6 +1,10 @@
 ﻿using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.TourGuideModule;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Fayora.Application.Features.TouristModule.Queries.GetAllActivePackages
 {
@@ -13,9 +17,12 @@ namespace Fayora.Application.Features.TouristModule.Queries.GetAllActivePackages
             GetActivePackagesQuery request,
             CancellationToken cancellationToken)
         {
+
+
             var (items, totalCount) = await packageRepository.GetActivePackagesAsync(
                 request.Search,
                 request.LocationId,
+                request.ProviderType,
                 null,
                 request.MinDuration,
                 request.MaxDuration,

@@ -38,6 +38,7 @@ public interface IPackageRepository
     Task<(List<GuidePackage> Items, int TotalCount)> GetActivePackagesAsync(
     string? search,
     int? locationId,
+    ProviderType? providerType,
     ItemStatus? tourType,
     int? minDuration,
     int? maxDuration,
