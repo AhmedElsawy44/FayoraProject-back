@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
@@ -95,7 +95,8 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking
                 request.Adults + request.Children,
                 guide.CancellationPolicy,
                 startDateTime,
-                endDateTime);
+                endDateTime,
+                request.IsCashOnArrival);
             if (booking.IsError) return booking.Errors;
 
             // CalendarBlock for tour guide booking
