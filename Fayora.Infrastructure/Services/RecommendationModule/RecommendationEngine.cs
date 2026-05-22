@@ -2,6 +2,7 @@ using Fayora.Application.Common.Abstractions.Caching;
 using Fayora.Application.Common.Interfaces.Persistences.RecommendationModule;
 using Fayora.Application.Common.Interfaces.Services.RecommendationModule;
 using Fayora.Application.Features.AccommodationModule.Queries.GetRecommendedUnits;
+using Fayora.Application.Features.TouristModule.Queries.GetRecommendedLocations;
 using Fayora.Application.Features.TouristModule.Queries.GetRecommendedPackages;
 using Fayora.Application.Features.TourGuideModule.Queries.GetRecommendedGuides;
 using Fayora.Domain.Enums.SharedModule;
@@ -19,6 +20,7 @@ namespace Fayora.Infrastructure.Services.RecommendationModule;
 /// 4. Recency Boost             (exponential decay favoring newer packages)
 ///
 /// Cold-start fallback: trending packages with diversity injection.
+/// Also supports location recommendations by aggregating package scores per location.
 /// </summary>
 public class RecommendationEngine(
     IRecommendationRepository repository,
@@ -59,7 +61,7 @@ public class RecommendationEngine(
     };
 
     // ═════════════════════════════════════════════════════════════════════════
-    //  PUBLIC API
+    //  PUBLIC API — PACKAGES
     // ═════════════════════════════════════════════════════════════════════════
 
     public async Task<List<RecommendedPackageResult>> GetPersonalizedAsync(
@@ -172,6 +174,125 @@ public class RecommendationEngine(
         var results = ApplyDiversityAndSelect(scored, count);
 
         logger.LogInformation("Generated {Count} trending recommendations", results.Count);
+
+        return results;
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    //  PUBLIC API — LOCATIONS
+    // ═════════════════════════════════════════════════════════════════════════
+
+    public async Task<List<RecommendedLocationResult>> GetPersonalizedLocationsAsync(
+        Guid userId, int count, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Generating personalized location recommendations for user {UserId}", userId);
+
+        // 1. Load locations and packages in parallel
+        var locationsTask = repository.GetCandidateLocationsAsync(cancellationToken);
+        var candidatesTask = repository.GetCandidatePackagesAsync(cancellationToken);
+        var interestsTask = repository.GetUserInterestIdsAsync(userId, cancellationToken);
+        var profileTask = repository.GetUserProfileDataAsync(userId, cancellationToken);
+        var interactionsTask = repository.GetUserInteractionsAsync(userId, ScoringWindowDays, cancellationToken);
+        var bookedTask = repository.GetUserBookedPackageIdsAsync(userId, cancellationToken);
+        var popularityTask = repository.GetPopularityStatsAsync(ScoringWindowDays, cancellationToken);
+
+        await Task.WhenAll(locationsTask, candidatesTask, interestsTask, profileTask,
+                           interactionsTask, bookedTask, popularityTask);
+
+        var locations = locationsTask.Result;
+        var candidates = candidatesTask.Result;
+        var userInterests = interestsTask.Result;
+        var userProfile = profileTask.Result;
+        var interactions = interactionsTask.Result;
+        var bookedIds = bookedTask.Result.ToHashSet();
+        var popularity = popularityTask.Result;
+
+        // 2. Load co-occurrence map (cached)
+        var coOccurrence = await GetCachedCoOccurrenceAsync(cancellationToken);
+
+        // 3. Compute user-specific signals
+        var userTourTypes = GetUserTourTypePreferences(userInterests);
+        var favoritedIds = interactions
+            .Where(i => i.Type == InteractionType.Favorite)
+            .Select(i => i.EntityId)
+            .ToHashSet();
+        var viewedIds = interactions
+            .Where(i => i.Type == InteractionType.View)
+            .Select(i => i.EntityId)
+            .ToHashSet();
+
+        var collaborativeCandidates = GetCollaborativeCandidates(bookedIds, coOccurrence);
+
+        var maxPopularity = popularity.Count > 0
+            ? popularity.Values.Max(p => p.ViewCount + p.BookingCount * 5)
+            : 1;
+
+        // 4. Score ALL packages (build a lookup: PackageId → Score + Reason)
+        var packageScores = new Dictionary<Guid, (double Score, string Reason)>();
+        foreach (var pkg in candidates)
+        {
+            var (contentScore, contentReason) = ScoreContentBased(pkg, userTourTypes, userProfile);
+            var collaborativeScore = ScoreCollaborative(pkg.Id, collaborativeCandidates);
+            var popularityScore = ScorePopularity(pkg.Id, popularity, maxPopularity);
+            var recencyScore = ScoreRecency(pkg.CreatedAt);
+
+            double favoriteBoost = favoritedIds.Contains(pkg.Id) ? 0.10 : 0.0;
+            double viewBoost = viewedIds.Contains(pkg.Id) ? 0.03 : 0.0;
+
+            var finalScore =
+                (W_Content * contentScore) +
+                (W_Collaborative * collaborativeScore) +
+                (W_Popularity * popularityScore) +
+                (W_Recency * recencyScore) +
+                favoriteBoost + viewBoost;
+
+            var reason = DetermineReason(contentScore, collaborativeScore, popularityScore, contentReason);
+            packageScores[pkg.Id] = (finalScore, reason);
+        }
+
+        // 5. Aggregate package scores per location
+        var results = AggregateLocationScores(locations, packageScores, count, isPersonalized: true);
+
+        logger.LogInformation("Generated {Count} personalized location recommendations for user {UserId}",
+            results.Count, userId);
+
+        return results;
+    }
+
+    public async Task<List<RecommendedLocationResult>> GetTrendingLocationsAsync(
+        int count, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Generating trending location recommendations (anonymous/cold-start)");
+
+        var locationsTask = repository.GetCandidateLocationsAsync(cancellationToken);
+        var candidatesTask = repository.GetCandidatePackagesAsync(cancellationToken);
+        var popularityTask = repository.GetPopularityStatsAsync(ScoringWindowDays, cancellationToken);
+
+        await Task.WhenAll(locationsTask, candidatesTask, popularityTask);
+
+        var locations = locationsTask.Result;
+        var candidates = candidatesTask.Result;
+        var popularity = popularityTask.Result;
+
+        var maxPopularity = popularity.Count > 0
+            ? popularity.Values.Max(p => p.ViewCount + p.BookingCount * 5)
+            : 1;
+
+        // Score all packages with trending formula
+        var packageScores = new Dictionary<Guid, (double Score, string Reason)>();
+        foreach (var pkg in candidates)
+        {
+            var popScore = ScorePopularity(pkg.Id, popularity, maxPopularity);
+            var recScore = ScoreRecency(pkg.CreatedAt);
+            var finalScore = (0.65 * popScore) + (0.35 * recScore);
+
+            packageScores[pkg.Id] = (finalScore, "🔥 Trending in Fayoum");
+        }
+
+        // Aggregate per location
+        var results = AggregateLocationScores(locations, packageScores, count, isPersonalized: false);
+
+        logger.LogInformation("Generated {Count} trending location recommendations", results.Count);
 
         return results;
     }
@@ -465,6 +586,89 @@ public class RecommendationEngine(
                 s.Reason))
             .ToList();
     }
+
+    /// <summary>
+    /// Aggregates per-package scores to produce per-location scores.
+    /// For each location, considers all associated packages' scores:
+    /// - Personalized: 40% max + 30% avg + 20% rating + 10% density
+    /// - Trending:     50% max + 30% rating + 20% density
+    /// </summary>
+    private static List<RecommendedLocationResult> AggregateLocationScores(
+        List<LocationScoringData> locations,
+        Dictionary<Guid, (double Score, string Reason)> packageScores,
+        int count,
+        bool isPersonalized)
+    {
+        // Compute max rating and max package count for normalization
+        var maxRating = locations.Count > 0 ? (double)locations.Max(l => l.Rating) : 1.0;
+        if (maxRating == 0) maxRating = 1.0;
+
+        var maxPackageCount = locations.Count > 0 ? locations.Max(l => l.AssociatedPackageIds.Count) : 1;
+        if (maxPackageCount == 0) maxPackageCount = 1;
+
+        var scoredLocations = new List<(LocationScoringData Location, double Score, string Reason, int PkgCount)>();
+
+        foreach (var loc in locations)
+        {
+            // Get scores for this location's packages
+            var locPackageScores = loc.AssociatedPackageIds
+                .Where(pid => packageScores.ContainsKey(pid))
+                .Select(pid => packageScores[pid])
+                .ToList();
+
+            var pkgCount = locPackageScores.Count;
+
+            double locationScore;
+            string reason;
+
+            if (pkgCount == 0)
+            {
+                // No active packages → still show the location but with a low score based on rating
+                var normalizedRating = (double)loc.Rating / maxRating;
+                locationScore = 0.10 * normalizedRating;
+                reason = "📍 Discover this place";
+            }
+            else
+            {
+                var maxScore = locPackageScores.Max(s => s.Score);
+                var avgScore = locPackageScores.Average(s => s.Score);
+                var normalizedRating = (double)loc.Rating / maxRating;
+                var normalizedDensity = (double)pkgCount / maxPackageCount;
+
+                if (isPersonalized)
+                {
+                    // Personalized: 40% max + 30% avg + 20% rating + 10% density
+                    locationScore = (0.40 * maxScore) + (0.30 * avgScore) + (0.20 * normalizedRating) + (0.10 * normalizedDensity);
+                }
+                else
+                {
+                    // Trending: 50% max + 30% rating + 20% density
+                    locationScore = (0.50 * maxScore) + (0.30 * normalizedRating) + (0.20 * normalizedDensity);
+                }
+
+                // Pick the reason from the highest-scoring package
+                reason = locPackageScores.OrderByDescending(s => s.Score).First().Reason;
+            }
+
+            scoredLocations.Add((loc, locationScore, reason, pkgCount));
+        }
+
+        return scoredLocations
+            .OrderByDescending(s => s.Score)
+            .Take(count)
+            .Select(s => new RecommendedLocationResult(
+                s.Location.Id,
+                s.Location.Name,
+                s.Location.MainImageUrl,
+                s.Location.Rating,
+                s.Location.Category.ToString(),
+                s.PkgCount,
+                Math.Round(s.Score, 4),
+                s.Reason))
+            .ToList();
+    }
+}
+
 
     public async Task<List<RecommendedUnitResult>> GetPersonalizedUnitsAsync(
         Guid userId, int count, CancellationToken cancellationToken)

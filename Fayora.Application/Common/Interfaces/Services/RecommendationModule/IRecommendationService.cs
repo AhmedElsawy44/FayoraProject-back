@@ -1,4 +1,5 @@
 using Fayora.Application.Features.AccommodationModule.Queries.GetRecommendedUnits;
+using Fayora.Application.Features.TouristModule.Queries.GetRecommendedLocations;
 using Fayora.Application.Features.TouristModule.Queries.GetRecommendedPackages;
 using Fayora.Application.Features.TourGuideModule.Queries.GetRecommendedGuides;
 
@@ -49,3 +50,18 @@ public interface IRecommendationService
         int count, CancellationToken cancellationToken);
 }
 
+
+    /// <summary>
+    /// Returns personalized location recommendations for an authenticated user.
+    /// Scores locations by aggregating their associated packages' recommendation scores.
+    /// </summary>
+    Task<List<RecommendedLocationResult>> GetPersonalizedLocationsAsync(
+        Guid userId, int count, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns trending locations for anonymous or cold-start users.
+    /// Scores locations by aggregating their associated packages' trending scores.
+    /// </summary>
+    Task<List<RecommendedLocationResult>> GetTrendingLocationsAsync(
+        int count, CancellationToken cancellationToken);
+}

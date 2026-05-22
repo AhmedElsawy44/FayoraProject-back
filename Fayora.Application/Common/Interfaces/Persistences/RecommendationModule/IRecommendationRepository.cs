@@ -54,6 +54,7 @@ public interface IRecommendationRepository
         Guid userId, CancellationToken cancellationToken);
 
     /// <summary>
+<<<<<<< HEAD
     /// Returns all active, approved housing units with scoring metadata.
     /// </summary>
     Task<List<HousingUnitScoringData>> GetCandidateUnitsAsync(CancellationToken cancellationToken);
@@ -110,9 +111,22 @@ public interface IRecommendationRepository
     /// </summary>
     Task<Dictionary<Guid, PopularityData>> GetGuidePopularityStatsAsync(
         int daysWindow, CancellationToken cancellationToken);
+=======
+    /// Returns all locations with their associated active package IDs for scoring.
+    /// </summary>
+    Task<List<LocationScoringData>> GetCandidateLocationsAsync(CancellationToken cancellationToken);
+>>>>>>> 5991f16 (recommded locations in home pageendpoint)
 }
 
 // ── Projection DTOs ──────────────────────────────────────────────────────────
+
+public record LocationScoringData(
+    int Id,
+    string Name,
+    string MainImageUrl,
+    decimal Rating,
+    LocationCategory Category,
+    List<Guid> AssociatedPackageIds);
 
 public record PackageScoringData(
     Guid Id,

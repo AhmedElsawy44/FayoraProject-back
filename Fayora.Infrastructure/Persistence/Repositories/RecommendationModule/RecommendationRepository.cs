@@ -164,6 +164,7 @@ public class RecommendationRepository(ApplicationDbContext context) : IRecommend
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+<<<<<<< HEAD
     public async Task<List<HousingUnitScoringData>> GetCandidateUnitsAsync(CancellationToken cancellationToken)
     {
         return await context.HousingUnits
@@ -454,5 +455,45 @@ public class RecommendationRepository(ApplicationDbContext context) : IRecommend
         }
 
         return result;
+=======
+    public async Task<List<LocationScoringData>> GetCandidateLocationsAsync(CancellationToken cancellationToken)
+    {
+        // Get all active, approved packages with their location IDs
+        var activePackages = await context.GuideTourPackages
+            .AsNoTracking()
+            .Where(p => p.IsActive
+                        && p.PackageStatus == ItemStatus.Active
+                        && p.DeletedAt == null)
+            .Select(p => new { p.Id, LocationIds = p.LocationIds.ToList() })
+            .ToListAsync(cancellationToken);
+
+        // Build a map: LocationId → List<PackageId>
+        var locationToPackages = new Dictionary<int, List<Guid>>();
+        foreach (var pkg in activePackages)
+        {
+            foreach (var locId in pkg.LocationIds)
+            {
+                if (!locationToPackages.ContainsKey(locId))
+                    locationToPackages[locId] = new List<Guid>();
+                locationToPackages[locId].Add(pkg.Id);
+            }
+        }
+
+        // Get all locations
+        var locations = await context.Locations
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        // Build scoring data
+        return locations.Select(loc => new LocationScoringData(
+            loc.Id,
+            loc.Name,
+            loc.MainImageUrl.Value,
+            loc.Rating,
+            loc.Category,
+            locationToPackages.TryGetValue(loc.Id, out var pkgIds) ? pkgIds : new List<Guid>()
+        )).ToList();
+>>>>>>> 5991f16 (recommded locations in home pageendpoint)
     }
 }
+
