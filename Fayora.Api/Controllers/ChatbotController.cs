@@ -3,12 +3,8 @@ using Fayora.Application.Features.ChatbotModule.Commands.SendChatbotMessage;
 using Fayora.Application.Features.ChatbotModule.Queries.GetChatbotHistory;
 using Fayora.Contracts.ChatbotModule;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Fayora.Api.Controllers;
 

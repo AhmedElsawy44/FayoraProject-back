@@ -11,6 +11,7 @@
 	<PropertyGroup>
 		<MSBuildWarningsAsErrors></MSBuildWarningsAsErrors>
 		<NoWarn>NU1903</NoWarn>
+		<UserSecretsId>df157f75-af0e-4651-a284-9037ae33a98e</UserSecretsId>
 	</PropertyGroup>
 
   <ItemGroup>
