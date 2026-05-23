@@ -50,6 +50,8 @@ using Fayora.Application.Common.Interfaces.Persistences.NotificationModule;
 using Fayora.Infrastructure.Persistence.Repositories.NotificationModule;
 using Fayora.Application.Common.Interfaces.Services.NotificationModule;
 using Fayora.Infrastructure.Services.NotificationModule;
+using Fayora.Application.Common.Interfaces.Persistences.ExploreModule;
+using Fayora.Infrastructure.Persistence.Repositories.ExploreModule;
 
 
 namespace Fayora.Infrastructure;
@@ -126,6 +128,9 @@ public static class DependencyInjection
         services.AddScoped<ICityRepository, CityRepository>();
         services.AddScoped<ILocationRepository, LocationRepository>();
         services.AddScoped<ILocationImageRepository, LocationImageRepository>();
+
+        // Explore Module
+        services.AddScoped<IExploreRepository, ExploreRepository>();
 
         // Chat Module
         services.AddScoped<IChatRepository, ChatRepository>();
