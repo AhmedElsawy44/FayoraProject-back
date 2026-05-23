@@ -59,7 +59,8 @@ public class FirebaseNotificationService : IFirebaseNotificationService
         string body,
         string? imageUrl,
         List<string> targetTokens,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Dictionary<string, string>? data = null)
     {
         if (!_isFirebaseInitialized || targetTokens == null || targetTokens.Count == 0)
         {
@@ -84,15 +85,25 @@ public class FirebaseNotificationService : IFirebaseNotificationService
                 ImageUrl = imageUrl
             };
 
+            var dataPayload = new Dictionary<string, string>
+            {
+                { "title", title },
+                { "body", body }
+            };
+
+            if (data != null)
+            {
+                foreach (var kvp in data)
+                {
+                    dataPayload[kvp.Key] = kvp.Value;
+                }
+            }
+
             var message = new MulticastMessage
             {
                 Tokens = batch,
                 Notification = notification,
-                Data = new Dictionary<string, string>
-                {
-                    { "title", title },
-                    { "body", body }
-                }
+                Data = dataPayload
             };
 
             try
@@ -118,12 +129,27 @@ public class FirebaseNotificationService : IFirebaseNotificationService
         string title,
         string body,
         string? imageUrl,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Dictionary<string, string>? data = null)
     {
         if (!_isFirebaseInitialized || string.IsNullOrWhiteSpace(token))
         {
             _logger.LogWarning("FCM Single Push skipped. Firebase initialized: {Init}, Token: {Token}", _isFirebaseInitialized, token);
             return false;
+        }
+
+        var dataPayload = new Dictionary<string, string>
+        {
+            { "title", title },
+            { "body", body }
+        };
+
+        if (data != null)
+        {
+            foreach (var kvp in data)
+            {
+                dataPayload[kvp.Key] = kvp.Value;
+            }
         }
 
         var message = new Message
@@ -135,11 +161,7 @@ public class FirebaseNotificationService : IFirebaseNotificationService
                 Body = body,
                 ImageUrl = imageUrl
             },
-            Data = new Dictionary<string, string>
-            {
-                { "title", title },
-                { "body", body }
-            }
+            Data = dataPayload
         };
 
         try

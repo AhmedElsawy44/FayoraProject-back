@@ -87,4 +87,46 @@ public class NotificationRepository(ApplicationDbContext context) : INotificatio
             totalFailureDeliveries
         );
     }
+
+    public async Task AddInAppNotificationAsync(InAppNotification notification, CancellationToken ct)
+    {
+        await context.InAppNotifications.AddAsync(notification, ct);
+    }
+
+    public async Task<List<InAppNotification>> GetInAppNotificationsPaginatedAsync(Guid userId, int pageNumber, int pageSize, CancellationToken ct)
+    {
+        return await context.InAppNotifications
+            .Where(n => n.UserId == userId)
+            .OrderByDescending(n => n.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(ct);
+    }
+
+    public async Task<InAppNotification?> GetInAppNotificationByIdAsync(Guid id, Guid userId, CancellationToken ct)
+    {
+        return await context.InAppNotifications
+            .FirstOrDefaultAsync(n => n.Id == id && n.UserId == userId, ct);
+    }
+
+    public async Task<int> GetUnreadCountAsync(Guid userId, CancellationToken ct)
+    {
+        return await context.InAppNotifications
+            .CountAsync(n => n.UserId == userId && !n.IsRead, ct);
+    }
+
+    public async Task<List<string>> GetTokensByUserIdAsync(Guid userId, CancellationToken ct)
+    {
+        return await context.DeviceTokens
+            .Where(dt => dt.UserId == userId)
+            .Select(dt => dt.Token)
+            .ToListAsync(ct);
+    }
+
+    public async Task<List<InAppNotification>> GetUnreadNotificationsByUserIdAsync(Guid userId, CancellationToken ct)
+    {
+        return await context.InAppNotifications
+            .Where(n => n.UserId == userId && !n.IsRead)
+            .ToListAsync(ct);
+    }
 }

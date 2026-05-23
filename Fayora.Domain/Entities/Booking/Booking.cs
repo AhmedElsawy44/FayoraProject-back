@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Entity.Constants;
+using Fayora.Domain.Common.Entity.Constants;
 using Fayora.Domain.Common.Events.BookingModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.BookingModule;
@@ -42,7 +42,7 @@ public class Booking : BaseEntity<Guid>
 
         decimal depositAmount = isCashOnArrival? basePrice * BookingConstants.CashOnArrivalDepositRate : 0;
 
-        return new Booking
+        var booking = new Booking
         {
             Id = Guid.CreateVersion7(),
             UserId = userId,
@@ -62,6 +62,10 @@ public class Booking : BaseEntity<Guid>
             IsCashOnArrival = isCashOnArrival,
             DepositAmount = depositAmount
         };
+
+        booking.RaiseDomainEvent(new BookingCreatedEvent(booking.Id));
+
+        return booking;
     }
 
     public Result<Success> MarkAsPaid()
@@ -71,6 +75,9 @@ public class Booking : BaseEntity<Guid>
 
         PaymentStatus = PaymentTransactionStatus.Paid;
         BookingStatus = BookingStatus.Completed;
+
+        RaiseDomainEvent(new BookingPaidEvent(Id));
+
         return Result.Success;
     }
 
@@ -84,6 +91,9 @@ public class Booking : BaseEntity<Guid>
             return Error.Validation("Booking.DepositAlreadyPaid", "Deposit is already paid.");
 
         PaymentStatus = PaymentTransactionStatus.PartiallyPaid;
+
+        RaiseDomainEvent(new BookingDepositPaidEvent(Id));
+
         return Result.Success;
     }
 
@@ -100,6 +110,9 @@ public class Booking : BaseEntity<Guid>
 
         BookingStatus = BookingStatus.Completed;
         PaymentStatus = PaymentTransactionStatus.Paid;
+
+        RaiseDomainEvent(new BookingCompletedEvent(Id));
+
         return Result.Success;
     }
 

@@ -11,12 +11,14 @@ public interface IFirebaseNotificationService
         string body,
         string? imageUrl,
         List<string> targetTokens,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken,
+        Dictionary<string, string>? data = null);
 
     Task<bool> SendToTokenAsync(
         string token,
         string title,
         string body,
         string? imageUrl,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken,
+        Dictionary<string, string>? data = null);
 }
