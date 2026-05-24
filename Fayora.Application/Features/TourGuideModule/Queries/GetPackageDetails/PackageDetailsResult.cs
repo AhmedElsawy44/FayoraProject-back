@@ -33,6 +33,7 @@
     );
 
     public record GuideInfoDetailsResult(
+        Guid GuideUserId,
         string FirstName,
         string LastName,
         string? ProfileImageUrl,
