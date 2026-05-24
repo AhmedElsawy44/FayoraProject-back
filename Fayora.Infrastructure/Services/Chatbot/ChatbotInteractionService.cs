@@ -51,10 +51,7 @@ public class ChatbotInteractionService(
 
         dbHistory.Reverse();
 
-        var history = dbHistory.Select(m => (
-            Role: m.Role,
-            Content: m.Content
-        )).ToList();
+        var history = dbHistory.Select(m => (m.Role,m.Content)).ToList();
 
         var toolResponses = new List<ToolResponse>();
         string responseText = string.Empty;
