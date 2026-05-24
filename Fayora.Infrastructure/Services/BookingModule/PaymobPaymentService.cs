@@ -103,6 +103,29 @@ public class PaymobPaymentService(HttpClient httpClient, PaymobSettings paymobSe
             gatewayOrderId);
     }
 
+    public async Task<Result<Success>> RefundAsync(string gatewayTransactionId, decimal amountInEgp, CancellationToken cancellationToken = default)
+    {
+        int amountInCents = (int)(amountInEgp * 100);
+
+        var authResponse = await httpClient.PostAsJsonAsync("auth/tokens",
+            new { api_key = paymobSettings.ApiKey }, cancellationToken);
+
+        var authData = await authResponse.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: cancellationToken);
+        string authToken = authData.GetProperty("token").GetString()!;
+
+        var refundResponse = await httpClient.PostAsJsonAsync("acceptance/void_refund/refund",
+            new
+            {
+                auth_token = authToken,
+                transaction_id = gatewayTransactionId,
+                amount_cents = amountInCents
+            }, cancellationToken);
+
+        return refundResponse.IsSuccessStatusCode
+            ? Result.Success
+            : Error.Failure("Refund.Failed", "Failed to process refund.");
+    }
+
     public Result<WebhookResult> ValidateAndParseWebhook(IReadOnlyDictionary<string, string> webhookData, string receivedHmac)
     {
         var keysToHash = new[]
