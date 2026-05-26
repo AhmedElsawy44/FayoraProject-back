@@ -7,5 +7,5 @@ using System.Text;
 
 namespace Fayora.Application.Features.SharedModule.Queries.GetMyOffers
 {
-    public record GetMyOffersQuery : IQuery<Result<List<DiscountOfferResponse>>>;
+    public record GetMyOffersQuery(string? Status) : IQuery<Result<List<DiscountOfferResponse>>>;
 }

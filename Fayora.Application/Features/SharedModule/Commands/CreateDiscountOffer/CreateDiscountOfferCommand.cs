@@ -12,5 +12,5 @@ namespace Fayora.Application.Features.SharedModule.Commands.CreateDiscountOffer
         DiscountType DiscountType,
         decimal DiscountValue,
         DateTimeOffset StartDate,
-        DateTimeOffset EndDate) : ICommand<Result<Success>>;
+        DateTimeOffset EndDate) : ICommand<Result<string>>;
 }

@@ -12,9 +12,9 @@ namespace Fayora.Application.Features.SharedModule.Commands.CreateDiscountOffer
         IClientContextProvider clientContextProvider,
         IDiscountOfferRepository discountOfferRepository,
         IUnitOfWork unitOfWork)
-        : ICommandHandler<CreateDiscountOfferCommand, Result<Success>>
+        : ICommandHandler<CreateDiscountOfferCommand, Result<string>>
     {
-        public async Task<Result<Success>> Handle(
+        public async Task<Result<string>> Handle(
             CreateDiscountOfferCommand request,
             CancellationToken cancellationToken)
         {
@@ -46,7 +46,7 @@ namespace Fayora.Application.Features.SharedModule.Commands.CreateDiscountOffer
 
             await unitOfWork.CommitChangesAsync(cancellationToken);
 
-            return new Success();
+            return offerResult.Value.Id.ToString();
         }
     }
 }

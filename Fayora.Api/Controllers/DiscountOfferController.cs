@@ -55,9 +55,10 @@ namespace Fayora.Api.Controllers
             var result = await sender.Send(command, cancellationToken);
 
             return result.Match(
-                _ => (IActionResult)NoContent(),
+                _ => (IActionResult)Ok(new { Message = "Offer cancelled successfully." }),  
                 errors => Problem(errors)
             );
+
         }
 
 
@@ -82,9 +83,11 @@ namespace Fayora.Api.Controllers
 
 
         [HttpGet("my-offers")]
-        public async Task<IActionResult> GetMyOffers(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetMyOffers(
+            [FromQuery] string? status,
+            CancellationToken cancellationToken)
         {
-            var query = new GetMyOffersQuery();
+            var query = new GetMyOffersQuery(status);
 
             var result = await sender.Send(query, cancellationToken);
 
