@@ -9,10 +9,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Fayora.Infrastructure.Persistence.Migrations
+namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260524183518_InitialCreate")]
+    [Migration("20260526014711_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

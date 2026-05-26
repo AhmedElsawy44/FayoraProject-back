@@ -3,6 +3,7 @@ using Fayora.Application.Common.Factories;
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
 using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
+using Fayora.Application.Common.Interfaces.Persistences.ChatbotModule;
 using Fayora.Application.Common.Interfaces.Persistences.ChatModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
@@ -24,6 +25,7 @@ using Fayora.Infrastructure.Persistence.Repositories.AccommodationModule;
 using Fayora.Infrastructure.Persistence.Repositories.AdminModule;
 using Fayora.Infrastructure.Persistence.Repositories.BookingModule;
 using Fayora.Infrastructure.Persistence.Repositories.ChatModule;
+using Fayora.Infrastructure.Persistence.Repositories.DummyReposForChatbot;
 using Fayora.Infrastructure.Persistence.Repositories.GuideModule;
 using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories.NotificationModule;
@@ -137,6 +139,10 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
         services.AddSingleton<ICacheService, CacheService>();
 
+        //chatbot
+        services.AddScoped<IChatbotSessionRepository, ChatbotSessionRepository>();
+        services.AddScoped<ITravelRepository, TravelRepository>();
+
 
         return services;
     }
@@ -200,6 +206,9 @@ public static class DependencyInjection
         services.AddHttpClient<OpenRouterChatbotService>();
         services.AddScoped<IChatbotServiceFactory, ChatbotServiceFactory>();
         services.AddScoped<IChatbotInteractionService, ChatbotInteractionService>();
+
+        services.AddScoped<IAiChatService, AiChatService>();
+        services.AddScoped<IRecommendationEngineService, RecommendationEngineService>();
 
         // Recommendation Module
         services.AddScoped<IRecommendationService, RecommendationEngine>();

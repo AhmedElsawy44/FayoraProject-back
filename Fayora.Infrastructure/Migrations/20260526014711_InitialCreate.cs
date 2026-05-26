@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace Fayora.Infrastructure.Persistence.Migrations
+namespace Fayora.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
