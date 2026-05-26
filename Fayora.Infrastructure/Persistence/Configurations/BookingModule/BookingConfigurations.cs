@@ -20,6 +20,7 @@ internal sealed class BookingConfigurations : IEntityTypeConfiguration<Booking>
         builder.HasIndex(x => x.PaymentStatus);
         builder.HasIndex(x => x.StartDate);
         builder.HasIndex(x => x.EndDate);
+        builder.HasIndex(x => x.AppliedOfferId);  // ✅ مفيد للـ analytics
 
         builder.Property(x => x.ServiceType)
             .HasConversion<int>();
@@ -44,6 +45,14 @@ internal sealed class BookingConfigurations : IEntityTypeConfiguration<Booking>
 
         builder.Property(x => x.TotalPrice)
             .HasColumnType("decimal(18,2)");
+
+
+        builder.Property(x => x.DiscountAmount)
+            .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(0);
+
+        builder.Property(x => x.AppliedOfferId)
+            .IsRequired(false);
 
         builder.Property(x => x.CreatedAt)
             .IsRequired();

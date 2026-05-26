@@ -25,22 +25,37 @@ public class Booking : BaseEntity<Guid>
     public bool IsScanned { get; private set; }
     public DateTimeOffset? ScannedAt { get; private set; }
 
+    // for cash on arrival
     public bool IsCashOnArrival { get; private set; }
     public decimal DepositAmount { get; private set; }
 
-    public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
+    // Discount details (if any)
+    public Guid? AppliedOfferId { get; private set; }
+    public decimal DiscountAmount { get; private set; }
 
+    public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
 
     public static Result<Booking> Create(
         Guid userId, Guid providerId, ServiceType type, Guid serviceId,
         decimal basePrice, decimal serviceFee, decimal payoutAmount,
         int seatsCount, CancellationPolicy policy, DateTime startDate,
-        DateTime endDate, bool isCashOnArrival = false)
+        DateTime endDate, bool isCashOnArrival = false,
+        Guid? appliedOfferId = null, decimal discountAmount = 0)
     {
         if (endDate <= startDate)
             return Error.Validation();
 
-        decimal depositAmount = isCashOnArrival ? basePrice * BookingConstants.CashOnArrivalDepositRate : 0;
+        if (discountAmount < 0)
+            return Error.Validation("Booking.InvalidDiscount", "Discount amount cannot be negative.");
+
+        if (discountAmount > basePrice)
+            return Error.Validation("Booking.InvalidDiscount", "Discount amount cannot exceed base price.");
+
+        var priceAfterDiscount = basePrice - discountAmount;
+
+        var depositAmount = isCashOnArrival
+            ? priceAfterDiscount * BookingConstants.CashOnArrivalDepositRate
+            : 0;
 
         return new Booking
         {
@@ -50,8 +65,9 @@ public class Booking : BaseEntity<Guid>
             ServiceType = type,
             ServiceId = serviceId,
             BasePrice = basePrice,
+            DiscountAmount = discountAmount,
             ServiceFee = serviceFee,
-            TotalPrice = basePrice + serviceFee,
+            TotalPrice = priceAfterDiscount + serviceFee,
             PayoutAmount = payoutAmount,
             SeatsCount = seatsCount,
             AppliedCancelPolicy = policy,
@@ -60,7 +76,8 @@ public class Booking : BaseEntity<Guid>
             StartDate = startDate,
             EndDate = endDate,
             IsCashOnArrival = isCashOnArrival,
-            DepositAmount = depositAmount
+            DepositAmount = depositAmount,
+            AppliedOfferId = appliedOfferId,
         };
     }
 
@@ -74,7 +91,6 @@ public class Booking : BaseEntity<Guid>
         return Result.Success;
     }
 
-
     public Result<Success> MarkDepositAsPaid()
     {
         if (!IsCashOnArrival)
@@ -86,6 +102,7 @@ public class Booking : BaseEntity<Guid>
         PaymentStatus = PaymentTransactionStatus.PartiallyPaid;
         return Result.Success;
     }
+
     public Result<Success> MarkAsRefunded()
     {
         if (BookingStatus == BookingStatus.Refunded)
@@ -122,7 +139,6 @@ public class Booking : BaseEntity<Guid>
         return Result.Success;
     }
 
-    // we need to handle it by domain event to apply cancellation policy and calculate refund amount
     public Result<Success> Cancel(string reason)
     {
         if (BookingStatus == BookingStatus.Completed)
@@ -130,7 +146,6 @@ public class Booking : BaseEntity<Guid>
 
         if (BookingStatus == BookingStatus.Cancelled)
             return Error.Validation("Booking is already cancelled.");
-
 
         if (AppliedCancelPolicy == CancellationPolicy.FreeCancellation48Hours)
         {

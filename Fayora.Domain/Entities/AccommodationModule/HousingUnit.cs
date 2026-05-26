@@ -45,6 +45,7 @@ public class HousingUnit : BaseEntity<Guid>
 
     public string? AdminNotes { get; private set; }
 
+
     private HousingUnit(
         Guid ownerId,
         string title,
