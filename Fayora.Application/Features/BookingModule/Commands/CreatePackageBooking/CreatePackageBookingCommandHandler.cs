@@ -12,7 +12,6 @@ using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.Booking;
 using Fayora.Domain.Enums.BookingModule;
 using Fayora.Domain.Enums.SharedModule;
-using MediatR;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.IPackageRepository;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
@@ -52,6 +51,11 @@ public class CreatePackageBookingCommandHandler(
         if (totalPrice.IsError) return totalPrice.Errors;
 
 
+        decimal serviceFee = totalPrice.Value * 0m; // = 0% service fee, can be changed later if needed
+        decimal payoutAmount = totalPrice.Value - serviceFee;
+
+
+
         Guid? appliedOfferId = null;
         decimal discountAmount = 0;
 
@@ -61,7 +65,7 @@ public class CreatePackageBookingCommandHandler(
         var offer = activeOffers.FirstOrDefault();
         if (offer is not null)
         {
-            var discountResult = offer.ApplyTo(totalPrice.Value );
+            var discountResult = offer.ApplyTo(totalPrice.Value);
             if (!discountResult.IsError)
             {
                 discountAmount = totalPrice.Value - discountResult.Value;
@@ -75,8 +79,8 @@ public class CreatePackageBookingCommandHandler(
             ServiceType.GuidePackage,
             package.Id,
             totalPrice.Value,
-            0m,
-            totalPrice.Value,
+            serviceFee,
+            payoutAmount,
             requiredSpots,
             package.CancellationPolicy,
             request.BookingDate.ToDateTime(TimeOnly.MinValue),
@@ -117,7 +121,7 @@ public class CreatePackageBookingCommandHandler(
         paymentTransactionRepository.AddPaymentTransaction(new PaymentTransaction(
             booking.Value.Id,
             paymentResult.Value.GatewayOrderId,
-            totalPrice.Value,
+            booking.Value.TotalPrice,
             request.PaymentMethodType));
         await unitOfWork.CommitChangesAsync(cancellationToken);
 

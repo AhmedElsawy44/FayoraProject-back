@@ -190,6 +190,9 @@ namespace Fayora.Infrastructure.Migrations
                     b.Property<int>("AppliedCancelPolicy")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("AppliedOfferId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<decimal>("BasePrice")
                         .HasColumnType("decimal(18,2)");
 
@@ -201,6 +204,11 @@ namespace Fayora.Infrastructure.Migrations
 
                     b.Property<decimal>("DepositAmount")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
@@ -245,6 +253,8 @@ namespace Fayora.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AppliedOfferId");
 
                     b.HasIndex("BookingStatus");
 
@@ -1366,6 +1376,68 @@ namespace Fayora.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Cities", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.SharedModule.DiscountOffer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("DiscountType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal>("DiscountValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTimeOffset>("EndDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("StartDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("TargetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("TargetId");
+
+                    b.HasIndex("TargetId", "TargetType", "Status");
+
+                    b.ToTable("DiscountOffers", (string)null);
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.SharedModule.Location", b =>

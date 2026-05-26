@@ -61,6 +61,7 @@ public class Program
             if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
             {
                 app.UseSwagger();
+                app.UseDeveloperExceptionPage();
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Fayora API V1");

@@ -102,6 +102,8 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
                 booking.Id,
                 title,
                 imageUrl,
+                booking.BasePrice,        
+                booking.DiscountAmount,
                 booking.TotalPrice,
                 booking.SeatsCount,
                 booking.StartDate,

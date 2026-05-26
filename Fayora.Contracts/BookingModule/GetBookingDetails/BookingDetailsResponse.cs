@@ -4,6 +4,8 @@
         Guid BookingId,
         string Title,
         string ImageUrl,
+        decimal BasePrice,
+        decimal DiscountAmount,
         decimal TotalPrice,
         int GuestsCount,
         DateTime StartDate,

@@ -165,7 +165,7 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking
             paymentTransactionRepository.AddPaymentTransaction(new PaymentTransaction(
                 booking.Value.Id,
                 paymentResult.Value.GatewayOrderId,
-                totalPrice,
+                booking.Value.TotalPrice, 
                 request.PaymentMethodType));
             await unitOfWork.CommitChangesAsync(cancellationToken);
 

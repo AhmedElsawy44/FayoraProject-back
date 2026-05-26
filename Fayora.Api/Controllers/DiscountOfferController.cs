@@ -40,7 +40,7 @@ namespace Fayora.Api.Controllers
 
             return result.Match(
                 offerId => Ok(new { OfferId = offerId }),
-                errors => Problem()
+                errors => Problem(errors)
             );
         }
 
@@ -56,7 +56,7 @@ namespace Fayora.Api.Controllers
 
             return result.Match(
                 _ => (IActionResult)NoContent(),
-                errors => Problem()
+                errors => Problem(errors)
             );
         }
 
@@ -76,7 +76,7 @@ namespace Fayora.Api.Controllers
 
             return result.Match(
                 value => Ok(value),
-                errors => Problem()
+                errors => Problem(errors)
             );
         }
 
@@ -90,7 +90,7 @@ namespace Fayora.Api.Controllers
 
             return result.Match(
                 value => Ok(value),
-                errors => Problem()
+                errors => Problem(errors)
             );
         }
     }
