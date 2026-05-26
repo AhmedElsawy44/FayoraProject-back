@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.SharedModule;
+using Fayora.Domain.Entities.SharedModule;
 using Fayora.Domain.Enums.SharedModule;
 
 namespace Fayora.Application.Common.Interfaces.Persistences.SharedModule
@@ -19,6 +19,8 @@ namespace Fayora.Application.Common.Interfaces.Persistences.SharedModule
         Task<bool> HasActiveOfferForTargetAsync(
             Guid targetId,
             OfferTargetType targetType,
+            DateTimeOffset startDate,
+            DateTimeOffset endDate,
             CancellationToken cancellationToken = default);
     }
 }

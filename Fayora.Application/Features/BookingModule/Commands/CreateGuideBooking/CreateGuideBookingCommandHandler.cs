@@ -103,6 +103,10 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking
                 {
                     discountAmount = totalPrice - discountResult.Value;
                     appliedOfferId = offer.Id;
+
+                    var discountedBasePrice = discountResult.Value;
+                    serviceFee = discountedBasePrice * 0.2m;
+                    payoutAmount = discountedBasePrice - serviceFee;
                 }
             }
 

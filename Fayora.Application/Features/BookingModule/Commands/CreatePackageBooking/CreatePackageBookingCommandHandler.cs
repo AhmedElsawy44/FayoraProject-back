@@ -39,6 +39,9 @@ public class CreatePackageBookingCommandHandler(
         var package = await packageRepository.GetPackageByIdAsync(request.PackageId, new PackageQueryOptions { ReadOnly = true }, cancellationToken);
         if (package is null) return TourGuideErrors.PackageNotFound;
 
+        if (package.PackageStatus != Fayora.Domain.Enums.TourGuideModule.ItemStatus.Active)
+            return TourGuideErrors.PackageNotAvailable;
+
         var occurrence = await
             packageOccurrenceRepository.GetOccurrenceByPackageIdAndDate(request.PackageId, request.BookingDate, cancellationToken);
         if (occurrence is null) return BookingErrors.OccurrenceNotFound;
@@ -70,6 +73,10 @@ public class CreatePackageBookingCommandHandler(
             {
                 discountAmount = totalPrice.Value - discountResult.Value;
                 appliedOfferId = offer.Id;
+
+                var discountedBasePrice = discountResult.Value;
+                serviceFee = discountedBasePrice * 0m;
+                payoutAmount = discountedBasePrice - serviceFee;
             }
         }
 

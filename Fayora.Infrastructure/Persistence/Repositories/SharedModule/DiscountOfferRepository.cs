@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
+using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Domain.Entities.SharedModule;
 using Fayora.Domain.Enums.SharedModule;
 using Microsoft.EntityFrameworkCore;
@@ -51,6 +51,8 @@ namespace Fayora.Infrastructure.Persistence.Repositories.SharedModule
         public async Task<bool> HasActiveOfferForTargetAsync(
             Guid targetId,
             OfferTargetType targetType,
+            DateTimeOffset startDate,
+            DateTimeOffset endDate,
             CancellationToken cancellationToken = default)
         {
             return await context.DiscountOffers
@@ -58,7 +60,8 @@ namespace Fayora.Infrastructure.Persistence.Repositories.SharedModule
                     o.TargetId == targetId &&
                     o.TargetType == targetType &&
                     o.Status == DiscountOfferStatus.Active &&
-                    o.EndDate > DateTimeOffset.UtcNow,
+                    o.StartDate < endDate &&
+                    o.EndDate > startDate,
                     cancellationToken);
         }
 
