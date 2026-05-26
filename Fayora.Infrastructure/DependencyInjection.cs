@@ -126,6 +126,7 @@ public static class DependencyInjection
         services.AddScoped<ICityRepository, CityRepository>();
         services.AddScoped<ILocationRepository, LocationRepository>();
         services.AddScoped<ILocationImageRepository, LocationImageRepository>();
+        services.AddScoped<IDiscountOfferRepository, DiscountOfferRepository>();
 
         // Chat Module
         services.AddScoped<IChatRepository, ChatRepository>();
