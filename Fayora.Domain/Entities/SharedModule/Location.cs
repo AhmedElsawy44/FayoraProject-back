@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.ValueObjects;
 
@@ -32,7 +32,7 @@ namespace Fayora.Domain.Entities.SharedModule
             Coordinates = coordinates;
             MainImageUrl = mainImageUrl;
             Category = category;
-            Rating =rating;
+            Rating = rating;
             ReviewCount = 0;
         }
 
@@ -44,7 +44,7 @@ namespace Fayora.Domain.Entities.SharedModule
             decimal longitude,
             LocationCategory category,
             FileUrl mainImageUrl)
-            
+
         {
             if (string.IsNullOrWhiteSpace(name))
                 return Error.Validation("Location.Name", "Name is required.");
@@ -52,10 +52,31 @@ namespace Fayora.Domain.Entities.SharedModule
             var coordinates = GeoPoint.Create(latitude, longitude);
             if (coordinates.IsError) return coordinates.Errors;
 
-            return new Location(name, description,rating,  coordinates.Value, mainImageUrl, category);
+            return new Location(name, description, rating, coordinates.Value, mainImageUrl, category);
         }
 
         public void AddImage(Guid imageId) => _imageIds.Add(imageId);
         public void AddImages(IEnumerable<Guid> imageIds) => _imageIds.AddRange(imageIds);
+
+        public void Update(
+            string name,
+            string? description,
+            decimal rating,
+            decimal latitude,
+            decimal longitude,
+            LocationCategory category,
+            FileUrl mainImageUrl)
+        {
+            Name = name;
+            Description = description;
+            Rating = rating;
+            var coordinatesResult = GeoPoint.Create(latitude, longitude);
+            if (coordinatesResult.IsSuccess)
+            {
+                Coordinates = coordinatesResult.Value;
+            }
+            Category = category;
+            MainImageUrl = mainImageUrl;
+        }
     }
 }

@@ -1,10 +1,6 @@
 ﻿using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Domain.Common.Results;
-using Fayora.Domain.Enums.TourGuideModule;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Fayora.Application.Features.TouristModule.Queries.GetAllActivePackages
 {

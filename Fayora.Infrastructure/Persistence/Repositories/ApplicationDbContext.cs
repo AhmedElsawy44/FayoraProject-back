@@ -2,6 +2,7 @@ using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Entities.AccommodationModule;
 using Fayora.Domain.Entities.Booking;
+using Fayora.Domain.Entities.ChatbotModule;
 using Fayora.Domain.Entities.ChatModule;
 using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Entities.IdentityModule;
@@ -60,6 +61,15 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Location> Locations { get; set; }
     public DbSet<LocationImage> LocationImages { get; set; }
 
+    // Chatbot Module
+    public DbSet<ChatbotSession> ChatbotSessions { get; set; }
+    public DbSet<ChatbotMessage> ChatbotMessages { get; set; }
+
+    // Notification Module
+    public DbSet<Fayora.Domain.Entities.NotificationModule.DeviceToken> DeviceTokens { get; set; }
+    public DbSet<Fayora.Domain.Entities.NotificationModule.PushCampaign> PushCampaigns { get; set; }
+
+
     public async Task CommitChangesAsync(CancellationToken cancellationToken = default)
     {
         var domainEvents = ChangeTracker.Entries<AggregateRoot>()
@@ -99,6 +109,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         httpContextAccessor.HttpContext!.Items["DomainEventsQueue"] = domainEventsQueue;
     }
+
+    [DbFunction("DIFFERENCE", IsBuiltIn = true)]
+    public static int Difference(string stringValue1, string stringValue2) => throw new NotImplementedException();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

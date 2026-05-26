@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Contracts.TouristModule
+﻿namespace Fayora.Contracts.TouristModule
 {
     public record LocationDetailsResponse(
         int Id,

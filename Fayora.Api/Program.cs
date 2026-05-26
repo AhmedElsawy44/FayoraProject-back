@@ -58,7 +58,7 @@ public class Program
 
             app.AddInfrastructureMiddleware();
 
-            if (app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI(c =>
@@ -82,6 +82,7 @@ public class Program
             app.MapControllers();
 
             app.MapHub<ChatHub>("/chatHub");
+            app.MapHub<ChatbotHub>("/chatbotHub");
 
             await app.RunAsync();
         }

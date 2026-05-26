@@ -28,6 +28,7 @@
     );
 
     public record GuideInfoResponse(
+        Guid GuideUserId,
         string FirstName,
         string LastName,
         string? ProfileImageUrl,

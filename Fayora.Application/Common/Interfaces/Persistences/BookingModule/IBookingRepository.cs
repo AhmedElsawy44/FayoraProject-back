@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Features.AdminModule.Queries.GetExecutiveDashboard;
+﻿using Fayora.Application.Features.AdminModule.Queries.GetFinancialStats;
 using Fayora.Application.Features.AdminModule.Queries.GetTourGuidesStat;
 using Fayora.Application.Features.AdminModule.Queries.GetTravelAgenciesStats;
 using Fayora.Domain.Entities.Booking;

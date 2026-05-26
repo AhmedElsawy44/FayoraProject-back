@@ -1,9 +1,9 @@
-﻿namespace Fayora.Application.Features.AdminModule.Queries.GetExecutiveDashboard;
+﻿namespace Fayora.Application.Features.AdminModule.Queries.GetFinancialStats;
 
 public record FinancialStatsResponse(
     FinancialSummary Summary,
     List<MonthlyRevenueItem> RevenueChart,
-    List<BookingMixItem> BookingMix, 
+    List<BookingMixItem> BookingMix,
     List<WeeklyBookingBarChartItem> WeeklyBookingBarChartItems
 );
 

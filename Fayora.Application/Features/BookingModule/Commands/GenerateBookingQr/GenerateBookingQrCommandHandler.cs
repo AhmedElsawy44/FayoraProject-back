@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Interfaces.Services.BookingModule;
@@ -30,10 +30,11 @@ namespace Fayora.Application.Features.BookingModule.Commands.GenerateBookingQr
                 return BookingErrors.Unauthorized;
 
 
-            var isPaymentValid = booking.PaymentStatus == PaymentTransactionStatus.Paid ||
-                  (booking.IsCashOnArrival && booking.PaymentStatus == PaymentTransactionStatus.PartiallyPaid);
+            bool canGenerateQr = booking.IsCashOnArrival
+                ? booking.PaymentStatus == PaymentTransactionStatus.PartiallyPaid || booking.PaymentStatus == PaymentTransactionStatus.Paid
+                : booking.PaymentStatus == PaymentTransactionStatus.Paid;
 
-            if (!isPaymentValid)
+            if (!canGenerateQr)
                 return BookingErrors.BookingNotPaid;
 
 

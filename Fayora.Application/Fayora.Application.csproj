@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -26,10 +26,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Fayora.Contracts\Fayora.Contracts.csproj" />
     <ProjectReference Include="..\Fayora.Domain\Fayora.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Features\AdminModule\Queries\GetDetailedUnit\" />
   </ItemGroup>
 
 </Project>

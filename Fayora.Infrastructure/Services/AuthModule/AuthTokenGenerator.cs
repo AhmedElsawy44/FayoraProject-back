@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
+using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Domain.Entities.IdentityModule;
@@ -23,14 +23,14 @@ public class AuthTokenGenerator(
         CancellationToken cancellationToken = default)
     {
         var isAccountVerified = true;
-        if (user.Roles == Role.TourGuide)
+        if (user.Roles.HasValue && user.Roles.Value.HasFlag(Role.TourGuide))
         {
             var tourGuide = await tourGuideRepository.GetGuideByIdAsync(user.Id, new GuideQueryOptions(), cancellationToken);
             if (tourGuide != null)
                 isAccountVerified = tourGuide.Status == ItemStatus.Active;
             else isAccountVerified = false;
         }
-        if (user.Roles == Role.TourCompany)
+        if (user.Roles.HasValue && user.Roles.Value.HasFlag(Role.TourCompany))
         {
             var company = await tourCompanyRepository.GetTourCompanyByIdAsync(user.Id, new GuideQueryOptions(), cancellationToken);
             if (company != null)

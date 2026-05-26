@@ -3,10 +3,8 @@ using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
-using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.GuideModule;
-using Fayora.Domain.Entities.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 
@@ -23,7 +21,6 @@ public class CreateGuidePackageCommandHandler(
     public async Task<Result<CreateGuidePackageResult>> Handle(CreateGuidePackageCommand request, CancellationToken cancellationToken)
     {
         var tourGuideId = clientContextProvider.GetContext().UserId;
-        if (tourGuideId == Guid.Empty) return TourGuideErrors.Unauthorized;
 
         var providerType = clientContextProvider.GetContext().Roles.Contains("TourGuide") ? ProviderType.TourGuide : ProviderType.TourCompany;
 

@@ -1,6 +1,5 @@
 ﻿using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
-using Fayora.Application.Features.AdminModule.Queries.GetExecutiveDashboard;
 
 namespace Fayora.Application.Features.AdminModule.Queries.GetFinancialStats;
 

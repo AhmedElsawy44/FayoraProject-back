@@ -129,16 +129,16 @@ public class PackageRepository(ApplicationDbContext context) : IPackageRepositor
         if (maxPrice.HasValue)
             query = query.Where(p => p.AdultPrice <= maxPrice.Value);
 
-        
+
         var allPackages = await query.ToListAsync(cancellationToken);
 
-        
+
         if (locationId.HasValue)
             allPackages = allPackages
                 .Where(p => p.LocationIds.Contains(locationId.Value))
                 .ToList();
 
-       
+
         if (!string.IsNullOrWhiteSpace(search))
             allPackages = allPackages
                 .Where(p => p.LocationIds.Any(id =>

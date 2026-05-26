@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Fayora.Application.Features.AuthModule.Commands.ChangeEmail;
 using Fayora.Application.Features.AuthModule.Commands.ChangePassword;
 using Fayora.Application.Features.AuthModule.Commands.ChangePhone;
@@ -15,6 +15,7 @@ using Fayora.Application.Features.AuthModule.Commands.RestoreAccount;
 using Fayora.Application.Features.AuthModule.Commands.SendEmailCode;
 using Fayora.Application.Features.AuthModule.Commands.SendPhoneCode;
 using Fayora.Application.Features.AuthModule.Commands.UpdateAccount;
+using Fayora.Application.Features.AuthModule.Commands.VerifyAdminLogin;
 using Fayora.Application.Features.AuthModule.Commands.VerifyDeleteAccount;
 using Fayora.Application.Features.AuthModule.Commands.VerifyEmail;
 using Fayora.Application.Features.AuthModule.Commands.VerifyPhone;
@@ -221,6 +222,34 @@ public class AuthController(ISender sender, IMapper mapper) : ApiController
 
         return result.Match(
             value => Ok(mapper.Map<SocialLoginResponse>(value)),
+            Problem
+        );
+    }
+
+    [HttpPost("login/admin/verify")]
+    public async Task<IActionResult> VerifyAdminLogin(
+        [FromBody] VerifyAdminLoginRequest request,
+        [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
+        CancellationToken cancellationToken)
+    {
+        var (success, deviceLanguage) = EnumParser.TryParseEnum<Language>(request.DeviceLanguage);
+
+        if (!success)
+            return BadRequest("Invalid Device Language");
+
+        var command = new VerifyAdminLoginCommand(
+            request.Email,
+            request.Code,
+            deviceId,
+            request.FcmToken,
+            request.SimCountryIsoCode,
+            request.TimeZone,
+            deviceLanguage);
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            value => Ok(mapper.Map<VerifyAdminLoginResponse>(value)),
             Problem
         );
     }

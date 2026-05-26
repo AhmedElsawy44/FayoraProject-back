@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
@@ -8,9 +8,6 @@ using Fayora.Application.Common.Interfaces.Services.BookingModule;
 using Fayora.Application.Features.BookingModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.BookingModule;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using static Fayora.Application.Common.Interfaces.Persistences.AccommodationModule.IHousingUnitRepository;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.IPackageRepository;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.ITourGuideRepository;
@@ -87,7 +84,11 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
                 }
             }
 
-            if (booking.PaymentStatus == PaymentTransactionStatus.Paid)
+            bool canGenerateQr = booking.IsCashOnArrival
+                ? booking.PaymentStatus == PaymentTransactionStatus.PartiallyPaid || booking.PaymentStatus == PaymentTransactionStatus.Paid
+                : booking.PaymentStatus == PaymentTransactionStatus.Paid;
+
+            if (canGenerateQr)
             {
                 qrToken = qrTokenService.GenerateToken(new QrTokenPayload(
                     booking.Id,

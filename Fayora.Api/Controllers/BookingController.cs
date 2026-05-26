@@ -13,6 +13,7 @@ using Fayora.Contracts.BookingModule.CreateGuideBooking;
 using Fayora.Contracts.BookingModule.CreatePackageBooking;
 using Fayora.Contracts.BookingModule.CreateUnitBooking;
 using Fayora.Contracts.BookingModule.GetBookingDetails;
+using Fayora.Application.Features.BookingModule.Commands.CancelBooking;
 using Fayora.Contracts.BookingModule.ScanBookingQr;
 using Fayora.Domain.Enums.BookingModule;
 using MediatR;
@@ -184,6 +185,18 @@ public class BookingController(ISender sender, IMapper mapper) : ApiController
     CancellationToken cancellationToken)
     {
         var command = new ConfirmCashReceivedCommand(bookingId);
+        var result = await sender.Send(command, cancellationToken);
+        return result.Match(
+            value => Ok(value),
+            Problem);
+    }
+
+    [HttpPost("{bookingId:guid}/cancel")]
+    public async Task<IActionResult> CancelBooking(
+    [FromRoute] Guid bookingId,
+    CancellationToken cancellationToken)
+    {
+        var command = new CancelBookingCommand(bookingId);
         var result = await sender.Send(command, cancellationToken);
         return result.Match(
             value => Ok(value),

@@ -9,5 +9,5 @@ public interface IPackageOccurrenceRepository
 
     Task ReleaseSeatsAsync(Guid packageId, DateOnly date, int count, CancellationToken cancellationToken);
 
-    Task <List<CalendarBookingItemDto>> GetCalendarPackagessAsync(int year, int month, CancellationToken cancellationToken);
+    Task<List<CalendarBookingItemDto>> GetCalendarPackagessAsync(int year, int month, CancellationToken cancellationToken);
 }

@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Entity;
+using Fayora.Domain.Common.Entity;
 using Fayora.Domain.Common.Events.IdentityModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Common.Results;
@@ -137,6 +137,22 @@ public class User : AuditableEntity<Guid>
             user.PrimaryEmail = emailResult.Value;
 
         return user;
+    }
+
+    public static User CreateBotUser(Guid botId, string firstName, string lastName)
+    {
+        return new User
+        {
+            Id = botId,
+            FirstName = firstName,
+            LastName = lastName,
+            Roles = Role.Bot,
+            Status = UserStatus.Active,
+            IsEmailVerified = true,
+            IsPhoneVerified = true,
+            CurrentBalance = 0,
+            IsProfileComplete = true
+        };
     }
 
     private static FileUrl? GetDefaultProfileImageForSocialProvider(string? pictureUrl)
@@ -488,6 +504,80 @@ public class User : AuditableEntity<Guid>
             Roles |= role;
             Updated();
         }
+    }
+
+    public void AdminUpdateDetails(string firstName, string lastName, string? email, string? phone)
+    {
+        FirstName = firstName;
+        LastName = lastName;
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            var emailResult = Email.Create(email);
+            if (emailResult.IsSuccess)
+                PrimaryEmail = emailResult.Value;
+        }
+        if (!string.IsNullOrWhiteSpace(phone))
+        {
+            var phoneResult = PhoneNumber.Create(phone);
+            if (phoneResult.IsSuccess)
+                PhoneNumber = phoneResult.Value;
+        }
+        Updated();
+    }
+
+    public void AdminUpdateStatus(UserStatus status)
+    {
+        Status = status;
+        if (status == UserStatus.Active)
+        {
+            LockedUntil = null;
+            AccessFailedCount = 0;
+        }
+        Updated();
+    }
+
+    public void AdminUpdateRoles(Role role)
+    {
+        Roles = role;
+        Updated();
+    }
+
+    // Don't user this method for normal user creation, only for seeding an admin user with specific Id and email!!!
+    public static Result<User> CreateAdmin(
+    Guid adminId,
+    string FirstName,
+    string LastName,
+    string email,
+    string password,
+    string profileImageUrl,
+    IPasswordHasher passwordHasher)
+    {
+        var emailResult = Email.Create(email);
+        if (emailResult.IsError) return UserErrors.InvalidEmail;
+
+        var passwordHashResult = passwordHasher.HashPassword(password);
+        if (passwordHashResult.IsError) return UserErrors.InvalidPassword;
+
+        var profileImageResult = FileUrl.Create(profileImageUrl);
+        if (profileImageResult.IsError) return Error.Validation("User.InvalidProfileImage", "The provided profile image URL is invalid.");
+
+        return new User
+        {
+            Id = adminId,
+            FirstName = "Fayora",
+            LastName = "Admin",
+            PrimaryEmail = emailResult.Value,
+            _passwordHash = passwordHashResult.Value,
+            IsEmailVerified = true,
+            Roles = Role.Admin,
+            ProfileImageUrl = profileImageResult.Value,
+            IsProfileComplete = true
+        };
+    }
+
+    public static User CreateBotUser(Guid botUserId, object botFirstName, object botLastName)
+    {
+        throw new NotImplementedException();
     }
 
     private User() { }
