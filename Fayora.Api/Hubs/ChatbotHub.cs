@@ -17,21 +17,10 @@ public class ChatbotHub(ISender sender) : Hub<IChatbotClient>
             return;
         }
 
-        Guid? userId = null;
-        if (Context.User?.Identity?.IsAuthenticated == true)
-        {
-            var userIdClaim = Context.User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value;
-            if (Guid.TryParse(userIdClaim, out var parsedUserId))
-            {
-                userId = parsedUserId;
-            }
-        }
-
         var command = new SendChatbotMessageCommand(
             deviceId,
             content,
-            sessionId,
-            userId);
+            sessionId);
 
         var result = await sender.Send(command);
 

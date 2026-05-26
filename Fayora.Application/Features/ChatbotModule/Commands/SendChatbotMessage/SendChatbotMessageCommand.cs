@@ -6,6 +6,5 @@ namespace Fayora.Application.Features.ChatbotModule.Commands.SendChatbotMessage;
 public record SendChatbotMessageCommand(
     string DeviceId,
     string Content,
-    Guid? SessionId = null,
-    Guid? UserId = null
+    Guid? SessionId = null
 ) : ICommand<Result<ChatbotMessageResult>>;

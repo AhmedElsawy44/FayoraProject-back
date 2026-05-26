@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace Fayora.Infrastructure.Persistence.Configurations.IdentityModule;
 
-internal class UserConfigurations : IEntityTypeConfiguration<User>
+internal sealed class UserConfigurations : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
@@ -53,6 +53,8 @@ internal class UserConfigurations : IEntityTypeConfiguration<User>
             .HasColumnType("NVARCHAR(3)")
             .HasMaxLength(3);
 
+        builder.Ignore(u => u.IsProfileComplete);
+            
         builder.Property<string>("_passwordHash")
             .HasField("_passwordHash")
             .HasColumnName("PasswordHash")

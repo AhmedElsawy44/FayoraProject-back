@@ -542,5 +542,43 @@ public class User : AuditableEntity<Guid>
         Updated();
     }
 
+    // Don't user this method for normal user creation, only for seeding an admin user with specific Id and email!!!
+    public static Result<User> CreateAdmin(
+    Guid adminId,
+    string FirstName,
+    string LastName,
+    string email,
+    string password,
+    string profileImageUrl,
+    IPasswordHasher passwordHasher)
+    {
+        var emailResult = Email.Create(email);
+        if (emailResult.IsError) return UserErrors.InvalidEmail;
+
+        var passwordHashResult = passwordHasher.HashPassword(password);
+        if (passwordHashResult.IsError) return UserErrors.InvalidPassword;
+
+        var profileImageResult = FileUrl.Create(profileImageUrl);
+        if (profileImageResult.IsError) return Error.Validation("User.InvalidProfileImage", "The provided profile image URL is invalid.");
+
+        return new User
+        {
+            Id = adminId,
+            FirstName = "Fayora",
+            LastName = "Admin",
+            PrimaryEmail = emailResult.Value,
+            _passwordHash = passwordHashResult.Value,
+            IsEmailVerified = true,
+            Roles = Role.Admin,
+            ProfileImageUrl = profileImageResult.Value,
+            IsProfileComplete = true
+        };
+    }
+
+    public static User CreateBotUser(Guid botUserId, object botFirstName, object botLastName)
+    {
+        throw new NotImplementedException();
+    }
+
     private User() { }
 }
