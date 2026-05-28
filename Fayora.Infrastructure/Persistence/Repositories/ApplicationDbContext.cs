@@ -60,6 +60,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<City> Cities { get; set; }
     public DbSet<Location> Locations { get; set; }
     public DbSet<LocationImage> LocationImages { get; set; }
+    public DbSet<DiscountOffer> DiscountOffers { get; set; }
 
     // Chatbot Module
     public DbSet<ChatbotSession> ChatbotSessions { get; set; }

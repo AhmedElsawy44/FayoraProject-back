@@ -37,6 +37,7 @@ namespace Fayora.Application.Features.BookingModule.Commands.GenerateBookingQr
             if (!canGenerateQr)
                 return BookingErrors.BookingNotPaid;
 
+
             if (booking.BookingStatus == BookingStatus.Cancelled)
                 return BookingErrors.BookingCancelled;
 

@@ -2,6 +2,7 @@ using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Interfaces.Services.BookingModule;
 using Fayora.Application.Features.AuthModule.Common;
@@ -10,6 +11,8 @@ using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.Booking;
 using Fayora.Domain.Enums.BookingModule;
+using Fayora.Domain.Enums.SharedModule;
+using MediatR;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.IPackageRepository;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
@@ -20,6 +23,7 @@ public class CreatePackageBookingCommandHandler(
     IBookingRepository bookingRepository,
     IPackageRepository packageRepository,
     IPackageOccurrenceRepository packageOccurrenceRepository,
+    IDiscountOfferRepository discountOfferRepository,
     IPaymentTransactionRepository paymentTransactionRepository,
     IClientContextProvider clientContextProvider,
     IPaymentService paymentService,
@@ -48,6 +52,23 @@ public class CreatePackageBookingCommandHandler(
         if (totalPrice.IsError) return totalPrice.Errors;
 
 
+        Guid? appliedOfferId = null;
+        decimal discountAmount = 0;
+
+        var activeOffers = await discountOfferRepository.GetActiveByTargetAsync(
+            package.Id, OfferTargetType.GuidePackage, cancellationToken);
+
+        var offer = activeOffers.FirstOrDefault();
+        if (offer is not null)
+        {
+            var discountResult = offer.ApplyTo(totalPrice.Value );
+            if (!discountResult.IsError)
+            {
+                discountAmount = totalPrice.Value - discountResult.Value;
+                appliedOfferId = offer.Id;
+            }
+        }
+
         var booking = Booking.Create(
             userId,
             package.UserId,
@@ -60,7 +81,9 @@ public class CreatePackageBookingCommandHandler(
             package.CancellationPolicy,
             request.BookingDate.ToDateTime(TimeOnly.MinValue),
             request.BookingDate.ToDateTime(TimeOnly.MinValue).AddHours(package.DurationHours),
-            request.IsCashOnArrival);
+            request.IsCashOnArrival,
+            appliedOfferId,
+            discountAmount);
         if (booking.IsError) return booking.Errors;
 
 
