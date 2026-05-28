@@ -3,6 +3,7 @@ using Fayora.Api.Hubs;
 using Fayora.Application;
 using Fayora.Infrastructure;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Scalar.AspNetCore;
 using Serilog;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -60,13 +61,18 @@ public class Program
 
             if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
             {
+                app.MapOpenApi();
+                app.MapScalarApiReference(options => options
+                    .WithTitle("Fayora API V1")
+                    .WithTheme(ScalarTheme.Saturn)
+                    .EnableDarkMode());
+
                 app.UseSwagger();
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Fayora API V1");
                     c.RoutePrefix = "swagger";
                 });
-                app.MapOpenApi();
             }
 
             app.UseStaticFiles();
