@@ -1,10 +1,12 @@
-﻿namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
+namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
 {
     public record PackageDetailsResult(
         string Title,
         string Description,
         decimal AdultPrice,
         decimal ChildPrice,
+        decimal DiscountedAdultPrice,
+        decimal DiscountedChildPrice,
         int DurationHours,
         string MainImageUrl,
         List<string> ImageUrls,

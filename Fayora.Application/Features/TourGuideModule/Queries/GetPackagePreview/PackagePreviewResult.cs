@@ -1,10 +1,12 @@
-﻿namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
+namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
 {
     public record PackagePreviewResult(
         string Title,
         string Description,
         decimal AdultPrice,
         decimal ChildPrice,
+        decimal DiscountedAdultPrice,
+        decimal DiscountedChildPrice,
         int DurationHours,
         string MainImageUrl,
         List<string> ImageUrls,

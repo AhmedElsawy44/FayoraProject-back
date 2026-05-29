@@ -68,12 +68,12 @@ namespace Fayora.Infrastructure.Persistence.Repositories.SharedModule
 
         public async Task CleanUpExpiredOrCancelledOffersAsync(CancellationToken cancellationToken = default)
         {
-            // 1. Mark active offers whose end dates have passed as Expired
+            // Mark active offers whose end dates have passed as Expired
             await context.DiscountOffers
                 .Where(o => o.Status == DiscountOfferStatus.Active && o.EndDate < DateTimeOffset.UtcNow)
                 .ExecuteUpdateAsync(s => s.SetProperty(o => o.Status, DiscountOfferStatus.Expired), cancellationToken);
 
-            // 2. Identify offers that are Cancelled or Expired, excluding those with active or future bookings
+            // Identify offers that are Cancelled or Expired, excluding those with active or future bookings
             var nowUtc = DateTime.UtcNow;
             var offerIdsWithActiveBookings = await context.Bookings
                 .Where(b => b.AppliedOfferId != null && b.EndDate >= nowUtc)
@@ -90,12 +90,12 @@ namespace Fayora.Infrastructure.Persistence.Repositories.SharedModule
             {
                 var offerIdsToDelete = offersToDelete.Select(o => o.Id).ToList();
 
-                // 3. Null out AppliedOfferId in Bookings referencing these offers
+                // Null out AppliedOfferId in Bookings referencing these offers
                 await context.Bookings
                     .Where(b => b.AppliedOfferId != null && offerIdsToDelete.Contains(b.AppliedOfferId.Value))
                     .ExecuteUpdateAsync(s => s.SetProperty(b => b.AppliedOfferId, (Guid?)null), cancellationToken);
 
-                // 4. Delete the offers from database
+                // Delete the offers from database
                 await context.DiscountOffers
                     .Where(o => offerIdsToDelete.Contains(o.Id))
                     .ExecuteDeleteAsync(cancellationToken);

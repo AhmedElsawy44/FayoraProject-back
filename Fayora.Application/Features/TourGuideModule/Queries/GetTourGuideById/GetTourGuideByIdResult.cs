@@ -1,4 +1,4 @@
-﻿//using Fayora.Domain.Entities.Shared;
+//using Fayora.Domain.Entities.Shared;
 //using Fayora.Domain.Enums.SharedModule;
 //using Fayora.Domain.Enums.TourGuideModule;
 //using Fayora.Domain.ValueObjects;
@@ -9,6 +9,7 @@
 //(
 //    Guid Id,
 //    decimal BaseRate,
+//    decimal DiscountedBaseRate,
 //    int YearsOfExperience,
 //    string LicenseNumber,
 //    DateOnly LicenseExpiryDate,

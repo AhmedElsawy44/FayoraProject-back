@@ -1,4 +1,4 @@
-﻿namespace Fayora.Contracts.AccommodationModule.Responses;
+namespace Fayora.Contracts.AccommodationModule.Responses;
 
 public record Amenity(
     string Name,
@@ -23,6 +23,7 @@ public record GetUnitByIdResponse(
     string CheckInTime,
     string CheckOutTime,
     decimal PricePerNight,
+    decimal DiscountedPricePerNight,
     decimal Rating,
     int ReviewCount,
     int Views,

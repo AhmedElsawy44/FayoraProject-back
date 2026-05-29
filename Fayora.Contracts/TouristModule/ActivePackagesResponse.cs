@@ -1,4 +1,4 @@
-﻿namespace Fayora.Contracts.TouristModule
+namespace Fayora.Contracts.TouristModule
 {
     public record ActivePackagesResponse(
         List<ActivePackageSummaryResponse> Items,
@@ -11,6 +11,7 @@
         Guid Id,
         string Title,
         decimal AdultPrice,
+        decimal DiscountedAdultPrice,
         int DurationHours,
         string MainImageUrl,
         string TourTypes,
