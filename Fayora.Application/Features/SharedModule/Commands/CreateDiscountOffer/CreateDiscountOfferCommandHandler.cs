@@ -29,7 +29,7 @@ namespace Fayora.Application.Features.SharedModule.Commands.CreateDiscountOffer
         {
             var ownerId = clientContextProvider.GetContext().UserId;
 
-            // 1. Verify existence of target and ownership/authorization
+            // Verify existence of target and ownership/authorization
             switch (request.TargetType)
             {
                 case OfferTargetType.HousingUnit:
@@ -69,7 +69,7 @@ namespace Fayora.Application.Features.SharedModule.Commands.CreateDiscountOffer
                     return DiscountOfferErrors.TargetNotFound;
             }
 
-            // 2. Check that this target doesn't have overlapping active offers
+            //Check that this target doesn't have overlapping active offers
             var hasActive = await discountOfferRepository.HasActiveOfferForTargetAsync(
                 request.TargetId,
                 request.TargetType,

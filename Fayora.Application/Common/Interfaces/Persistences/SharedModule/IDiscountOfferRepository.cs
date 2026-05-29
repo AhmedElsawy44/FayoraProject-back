@@ -22,5 +22,7 @@ namespace Fayora.Application.Common.Interfaces.Persistences.SharedModule
             DateTimeOffset startDate,
             DateTimeOffset endDate,
             CancellationToken cancellationToken = default);
+
+        Task CleanUpExpiredOrCancelledOffersAsync(CancellationToken cancellationToken = default);
     }
 }
