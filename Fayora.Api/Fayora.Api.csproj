@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	<WebRoot>wwwroot</WebRoot>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <AllowMissingPrunePackageData>true</AllowMissingPrunePackageData>
   </PropertyGroup>
 
 	<PropertyGroup>

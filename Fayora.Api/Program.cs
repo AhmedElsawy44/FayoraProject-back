@@ -2,6 +2,7 @@ using Fayora.Api.Externals;
 using Fayora.Api.Hubs;
 using Fayora.Application;
 using Fayora.Infrastructure;
+using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Scalar.AspNetCore;
 using Serilog;
@@ -101,7 +102,6 @@ public class Program
         {
             Log.CloseAndFlush();
         }
-
     }
 }
 

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Fayora.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialLinuxCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -36,6 +36,8 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     ScannedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     IsCashOnArrival = table.Column<bool>(type: "bit", nullable: false),
                     DepositAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    AppliedOfferId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DiscountAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false, defaultValue: 0m),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
                 },
                 constraints: table =>
@@ -124,6 +126,29 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DeviceTokens", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DiscountOffers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TargetId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TargetType = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    DiscountType = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    DiscountValue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    StartDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    EndDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DiscountOffers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -822,6 +847,11 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Bookings_AppliedOfferId",
+                table: "Bookings",
+                column: "AppliedOfferId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Bookings_BookingStatus",
                 table: "Bookings",
                 column: "BookingStatus");
@@ -921,6 +951,21 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                 name: "IX_DeviceTokens_UserId",
                 table: "DeviceTokens",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DiscountOffers_OwnerId",
+                table: "DiscountOffers",
+                column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DiscountOffers_TargetId",
+                table: "DiscountOffers",
+                column: "TargetId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DiscountOffers_TargetId_TargetType_Status",
+                table: "DiscountOffers",
+                columns: new[] { "TargetId", "TargetType", "Status" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_GuideCities_CityId",
@@ -1128,6 +1173,9 @@ namespace Fayora.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "DeviceTokens");
+
+            migrationBuilder.DropTable(
+                name: "DiscountOffers");
 
             migrationBuilder.DropTable(
                 name: "GuideCities");
