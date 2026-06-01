@@ -1,4 +1,4 @@
-﻿namespace Fayora.Application.Features.TouristModule.Queries.GetAllActivePackages
+namespace Fayora.Application.Features.TouristModule.Queries.GetAllActivePackages
 {
 
     public record GetActivePackagesResult(
@@ -12,6 +12,7 @@
         Guid Id,
         string Title,
         decimal AdultPrice,
+        decimal DiscountedAdultPrice,
         int DurationHours,
         string MainImageUrl,
         string TourTypes,

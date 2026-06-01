@@ -1,9 +1,10 @@
-﻿namespace Fayora.Contracts.TourGuideModule.GetTourGuideById;
+namespace Fayora.Contracts.TourGuideModule.GetTourGuideById;
 
 public record GetTourGuideByIdResponse(
     Guid Id,
     Guid UserId,
     decimal BaseRate,
+    decimal DiscountedBaseRate,
     int YearsOfExperience,
     string LicenseNumber,
     DateTime LicenseExpiryDate,

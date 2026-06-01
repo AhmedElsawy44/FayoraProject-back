@@ -64,6 +64,7 @@ public class GetMyBookingsQueryHandler(
             ? await userRepository.GetUsersByIdsAsync(guideIds, new IUserRepository.UserQueryOptions { IsReadOnly = true }, cancellationToken)
             : [];
 
+
         var packagesDict = packages.ToDictionary(p => p.Id);
         var accommodationsDict = accommodations.ToDictionary(a => a.Id);
         var guideUsersDict = guideUsers.ToDictionary(u => u.Id);

@@ -81,6 +81,10 @@ public class CreateAccommodationBookingCommandHandler(
             {
                 discountAmount = totalPrice - discountResult.Value;
                 appliedOfferId = offer.Id;
+
+                var discountedBasePrice = discountResult.Value;
+                serviceFee = discountedBasePrice * unit.CommissionRate;
+                payoutAmount = discountedBasePrice - serviceFee;
             }
         }
 
@@ -138,7 +142,7 @@ public class CreateAccommodationBookingCommandHandler(
         paymentTransactionRepository.AddPaymentTransaction(new PaymentTransaction(
             booking.Value.Id,
             paymentResult.Value.GatewayOrderId,
-            totalPrice,
+            booking.Value.TotalPrice,
             request.PaymentMethodType));
         await unitOfWork.CommitChangesAsync(cancellationToken);
 

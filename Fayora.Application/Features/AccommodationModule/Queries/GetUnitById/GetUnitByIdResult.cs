@@ -1,4 +1,4 @@
-﻿//using Fayora.Domain.Entities.AccommodationModule;
+//using Fayora.Domain.Entities.AccommodationModule;
 //using Fayora.Domain.Enums.AccommodationModule;
 //using Fayora.Domain.ValueObjects;
 
@@ -21,6 +21,7 @@
 //    TimeSpan CheckInTime,
 //    TimeSpan CheckOutTime,
 //    decimal PricePerNight,
+//    decimal DiscountedPricePerNight,
 //    decimal Rating,
 //    int ReviewCount,
 //    int Views,

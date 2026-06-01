@@ -37,7 +37,7 @@ namespace Fayora.Domain.Entities.SharedModule
             DateTimeOffset startDate,
             DateTimeOffset endDate)
         {
-            Id = Guid.NewGuid();
+            Id = Guid.CreateVersion7();
             OwnerId = ownerId;
             TargetId = targetId;
             TargetType = targetType;

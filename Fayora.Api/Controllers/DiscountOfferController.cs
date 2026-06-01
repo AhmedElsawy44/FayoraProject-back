@@ -40,7 +40,7 @@ namespace Fayora.Api.Controllers
 
             return result.Match(
                 offerId => Ok(new { OfferId = offerId }),
-                errors => Problem()
+                errors => Problem(errors)
             );
         }
 
@@ -55,9 +55,10 @@ namespace Fayora.Api.Controllers
             var result = await sender.Send(command, cancellationToken);
 
             return result.Match(
-                _ => (IActionResult)NoContent(),
-                errors => Problem()
+                _ => (IActionResult)Ok(new { Message = "Offer cancelled successfully." }),  
+                errors => Problem(errors)
             );
+
         }
 
 
@@ -76,21 +77,23 @@ namespace Fayora.Api.Controllers
 
             return result.Match(
                 value => Ok(value),
-                errors => Problem()
+                errors => Problem(errors)
             );
         }
 
 
         [HttpGet("my-offers")]
-        public async Task<IActionResult> GetMyOffers(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetMyOffers(
+            [FromQuery] string? status,
+            CancellationToken cancellationToken)
         {
-            var query = new GetMyOffersQuery();
+            var query = new GetMyOffersQuery(status);
 
             var result = await sender.Send(query, cancellationToken);
 
             return result.Match(
                 value => Ok(value),
-                errors => Problem()
+                errors => Problem(errors)
             );
         }
     }

@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
+using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
@@ -40,7 +40,7 @@ namespace Fayora.Application.Features.BookingModule.Events
 
             
             var paymentTransaction = await paymentTransactionRepository
-                .GetByBookingGatewayOrderIdAsync(booking.Id.ToString(), cancellationToken);
+                .GetByBookingIdAsync(booking.Id, cancellationToken);
 
             if (paymentTransaction is not null &&
                 paymentTransaction.Status == PaymentTransactionStatus.Paid)

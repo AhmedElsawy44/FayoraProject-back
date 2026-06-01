@@ -1,10 +1,12 @@
-﻿namespace Fayora.Contracts.TourGuideModule.GetPackagePreview
+namespace Fayora.Contracts.TourGuideModule.GetPackagePreview
 {
     public record PackagePreviewResponse(
         string Title,
         string Description,
         decimal AdultPrice,
         decimal ChildPrice,
+        decimal DiscountedAdultPrice,
+        decimal DiscountedChildPrice,
         int DurationHours,
         string MainImageUrl,
         List<string> ImageUrls,

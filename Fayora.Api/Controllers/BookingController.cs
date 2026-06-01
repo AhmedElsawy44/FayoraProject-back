@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Fayora.Application.Features.BookingModule.Commands.ConfirmCashReceived;
 using Fayora.Application.Features.BookingModule.Commands.CreateAccommodationBooking;
 using Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking;
@@ -96,7 +96,6 @@ public class BookingController(ISender sender, IMapper mapper) : ApiController
         var command = new CreateGuideBookingCommand(
             guideId,
             request.BookingDate,
-            request.StartTime,
             request.Adults,
             request.Children,
             paymentMethod,

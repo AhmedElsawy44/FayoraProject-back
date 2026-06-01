@@ -69,6 +69,12 @@ public static class WebApplicationExtensions
                 job => job.ExecuteAsync(CancellationToken.None),
                 "*/5 * * * *");
 
+        app.Services.GetRequiredService<IRecurringJobManager>()
+            .AddOrUpdate<CleanupDiscountOffersJob>(
+                "cleanup-expired-cancelled-offers",
+                job => job.ExecuteAsync(CancellationToken.None),
+                Cron.Daily());
+
         return app;
     }
 }

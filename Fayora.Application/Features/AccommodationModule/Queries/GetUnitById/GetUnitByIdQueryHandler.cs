@@ -1,13 +1,16 @@
-﻿//using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
+//using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
+//using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 //using Fayora.Application.Features.AccommodationModule.Common;
 //using Fayora.Domain.Common.Results;
+//using Fayora.Domain.Enums.SharedModule;
 //using MediatR;
 
 //namespace Fayora.Application.Features.AccommodationModule.Queries.GetUnitById;
 
 //public class GetUnitByIdQueryHandler(
 //    IHousingUnitRepository housingUnitRepository,
-//    IMasterAmenityRepository masterAmenityRepository) : IRequestHandler<GetUnitByIdQuery, Result<GetUnitByIdResult>>
+//    IMasterAmenityRepository masterAmenityRepository,
+//    IDiscountOfferRepository discountOfferRepository) : IRequestHandler<GetUnitByIdQuery, Result<GetUnitByIdResult>>
 //{
 //    public async Task<Result<GetUnitByIdResult>> Handle(GetUnitByIdQuery request, CancellationToken cancellationToken)
 //    {
@@ -27,6 +30,19 @@
 //            ? await masterAmenityRepository.GetAmenitiesByIdsAsync(amenityIds, cancellationToken)
 //            : [];
 
+//        decimal discountedPricePerNight = unit.PricePerNight;
+//        var activeOffers = await discountOfferRepository.GetActiveByTargetAsync(
+//            unit.Id, OfferTargetType.HousingUnit, cancellationToken);
+//        var offer = activeOffers.FirstOrDefault();
+//        if (offer is not null)
+//        {
+//            var discountResult = offer.ApplyTo(unit.PricePerNight);
+//            if (!discountResult.IsError)
+//            {
+//                discountedPricePerNight = discountResult.Value;
+//            }
+//        }
+
 //        return new GetUnitByIdResult(
 //            unit.Id,
 //            unit.OwnerId,
@@ -44,6 +60,7 @@
 //            unit.CheckInTime,
 //            unit.CheckOutTime,
 //            unit.PricePerNight,
+//            discountedPricePerNight,
 //            unit.Rating,
 //            unit.ReviewCount,
 //            unit.Views,

@@ -1,7 +1,9 @@
 using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Interfaces.Services.RecommendationModule;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.SharedModule;
 
 namespace Fayora.Application.Features.AccommodationModule.Queries.GetRecommendedUnits;
 
@@ -12,7 +14,8 @@ namespace Fayora.Application.Features.AccommodationModule.Queries.GetRecommended
 /// </summary>
 public class GetRecommendedUnitsQueryHandler(
     IRecommendationService recommendationService,
-    IClientContextProvider clientContextProvider)
+    IClientContextProvider clientContextProvider,
+    IDiscountOfferRepository discountOfferRepository)
     : IQueryHandler<GetRecommendedUnitsQuery, Result<List<RecommendedUnitResult>>>
 {
     public async Task<Result<List<RecommendedUnitResult>>> Handle(
@@ -49,6 +52,24 @@ public class GetRecommendedUnitsQueryHandler(
             // Anonymous user → trending only
             recommendations = await recommendationService.GetTrendingUnitsAsync(
                 count, cancellationToken);
+        }
+
+        for (int i = 0; i < recommendations.Count; i++)
+        {
+            var item = recommendations[i];
+            decimal discountedPrice = item.PricePerNight;
+            var activeOffers = await discountOfferRepository.GetActiveByTargetAsync(
+                item.UnitId, OfferTargetType.HousingUnit, cancellationToken);
+            var offer = activeOffers.FirstOrDefault();
+            if (offer is not null)
+            {
+                var discountResult = offer.ApplyTo(item.PricePerNight);
+                if (!discountResult.IsError)
+                {
+                    discountedPrice = discountResult.Value;
+                }
+            }
+            recommendations[i] = item with { DiscountedPricePerNight = discountedPrice };
         }
 
         return recommendations;

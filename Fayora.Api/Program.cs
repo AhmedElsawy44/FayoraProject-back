@@ -69,6 +69,7 @@ public class Program
                     .EnableDarkMode());
 
                 app.UseSwagger();
+                app.UseDeveloperExceptionPage();
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Fayora API V1");

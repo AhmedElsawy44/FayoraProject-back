@@ -6,7 +6,9 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
         Guid BookingId,
         string Title,
         string ImageUrl,
-        decimal TotalPrice,
+        decimal BasePrice,       // السعر الأصلي قبل أي خصم  
+        decimal DiscountAmount,  // قيمة الخصم اللي اتطبق  
+        decimal TotalPrice,      // اللي المستخدم دفعه فعلاً  
         int GuestsCount,
         DateTime StartDate,
         DateTime EndDate,

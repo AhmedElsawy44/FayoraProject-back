@@ -1,9 +1,11 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.SharedModule;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.IPackageRepository;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.ITourGuideRepository;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
@@ -11,9 +13,10 @@ using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IU
 namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
 {
     public class GetPackagePreviewQueryHandler(
-    IPackageRepository packageRepository,
-    ITourGuideRepository tourGuideRepository,
-    IUserRepository userRepository)
+        IPackageRepository packageRepository,
+        ITourGuideRepository tourGuideRepository,
+        IUserRepository userRepository,
+        IDiscountOfferRepository discountOfferRepository)
     : IQueryHandler<GetPackagePreviewQuery, Result<PackagePreviewResult>>
     {
         public async Task<Result<PackagePreviewResult>> Handle(
@@ -41,11 +44,31 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
                 cancellationToken);
             if (user is null) return AuthErrors.UserNotFound;
 
+            decimal discountedAdultPrice = package.AdultPrice;
+            decimal discountedChildPrice = package.ChildPrice;
+
+            var activeOffers = await discountOfferRepository.GetActiveByTargetAsync(
+                package.Id, OfferTargetType.GuidePackage, cancellationToken);
+
+            var offer = activeOffers.FirstOrDefault();
+            if (offer is not null)
+            {
+                var adultResult = offer.ApplyTo(package.AdultPrice);
+                var childResult = offer.ApplyTo(package.ChildPrice);
+                if (!adultResult.IsError && !childResult.IsError)
+                {
+                    discountedAdultPrice = adultResult.Value;
+                    discountedChildPrice = childResult.Value;
+                }
+            }
+
             return new PackagePreviewResult(
                 package.Title,
                 package.Description,
                 package.AdultPrice,
                 package.ChildPrice,
+                discountedAdultPrice,
+                discountedChildPrice,
                 package.DurationHours,
                 package.MainImageUrl.Value,
                 package.ImageIds.Select(id => id.ToString()).ToList(),
@@ -66,7 +89,6 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
                     guide.ReviewCount,
                     guide.CompletedToursCount),
                 package.LocationIds.ToList());
-
         }
     }
 }

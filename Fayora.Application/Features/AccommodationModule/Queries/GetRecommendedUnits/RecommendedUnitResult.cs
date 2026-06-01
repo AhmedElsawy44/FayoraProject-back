@@ -13,4 +13,5 @@ public record RecommendedUnitResult(
     decimal Rating,
     int Views,
     double RecommendationScore,
-    string RecommendationReason);
+    string RecommendationReason,
+    decimal DiscountedPricePerNight = 0);

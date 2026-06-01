@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.BookingModule;
 
 namespace Fayora.Domain.Entities.Booking;
@@ -46,9 +46,9 @@ public class PaymentTransaction
 
     public Result<Success> MarkAsRefunded()
     {
-        if (Status != PaymentTransactionStatus.Paid)
+        if (Status != PaymentTransactionStatus.Paid && Status != PaymentTransactionStatus.PartiallyPaid)
         {
-            return Error.Validation("Only successful transactions can be refunded.");
+            return Error.Validation("Only paid or partially paid transactions can be refunded.");
         }
         Status = PaymentTransactionStatus.Refunded;
         return Result.Success;

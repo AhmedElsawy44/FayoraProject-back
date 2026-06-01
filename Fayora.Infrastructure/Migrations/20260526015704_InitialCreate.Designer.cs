@@ -9,11 +9,16 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Fayora.Infrastructure.Persistence.Migrations
+namespace Fayora.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
+<<<<<<<< HEAD:Fayora.Infrastructure/Migrations/20260530010114_InitialLinuxCreate.Designer.cs
     [Migration("20260530010114_InitialLinuxCreate")]
     partial class InitialLinuxCreate
+========
+    [Migration("20260526015704_InitialCreate")]
+    partial class InitialCreate
+>>>>>>>> Dev:Fayora.Infrastructure/Migrations/20260526015704_InitialCreate.Designer.cs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

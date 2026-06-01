@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Common.Results;
 
 namespace Fayora.Application.Features.TourGuideModule.Common;
 
@@ -92,5 +92,10 @@ public static class TourGuideErrors
     public static readonly Error GuideRateNotSet = Error.Validation(
         "TourGuide.GuideRateNotSet",
         "The tour guide has not set their rate yet."
+    );
+
+    public static readonly Error PackageNotAvailable = Error.Validation(
+        "TourGuide.PackageNotAvailable",
+        "The package is not available for booking."
     );
 }
