@@ -3,13 +3,13 @@ using FluentValidation;
 
 namespace Fayora.Application.Features.AuthModule.Commands.LoginWithSocial;
 
-public class LoginWithAppleCommandValidator : AbstractValidator<LoginWithSocialCommand>
+public class LoginWithSocialCommandValidator : AbstractValidator<LoginWithSocialCommand>
 {
-    public LoginWithAppleCommandValidator()
+    public LoginWithSocialCommandValidator()
     {
         RuleFor(x => x.Token)
-        .NotEmpty().WithMessage("Apple ID Token is required.")
-        .MinimumLength(50).WithMessage("ID Token is too short to be a valid Apple token.");
+        .NotEmpty().WithMessage("Token is required.")
+        .MinimumLength(50).WithMessage("Token is too short to be a valid Apple token.");
 
         RuleFor(x => x.FirstName)
             .NotEmpty().WithMessage("First name is required.")
@@ -41,5 +41,9 @@ public class LoginWithAppleCommandValidator : AbstractValidator<LoginWithSocialC
         RuleFor(x => x.SimCountryIsoCode)
             .Length(2).WithMessage("SIM Country ISO code must be exactly 2 letters (e.g., 'EG', 'US').")
             .When(x => !string.IsNullOrWhiteSpace(x.SimCountryIsoCode));
+
+        RuleFor(x => x.IdentityProvider)
+            .IsInEnum()
+            .WithMessage("Invalid identity provider.");
     }
 }
