@@ -169,7 +169,7 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking
             paymentTransactionRepository.AddPaymentTransaction(new PaymentTransaction(
                 booking.Value.Id,
                 paymentResult.Value.GatewayOrderId,
-                booking.Value.TotalPrice, 
+                amountToPay, 
                 request.PaymentMethodType));
             await unitOfWork.CommitChangesAsync(cancellationToken);
 

@@ -64,10 +64,15 @@ public class GetMyBookingsQueryHandler(
             ? await userRepository.GetUsersByIdsAsync(guideIds, new IUserRepository.UserQueryOptions { IsReadOnly = true }, cancellationToken)
             : [];
 
+        var guides = guideIds.Any()
+            ? await tourGuideRepository.GetGuidesByIdsAsync(guideIds, new ITourGuideRepository.GuideQueryOptions(ReadOnly: true), cancellationToken)
+            : [];
+
 
         var packagesDict = packages.ToDictionary(p => p.Id);
         var accommodationsDict = accommodations.ToDictionary(a => a.Id);
         var guideUsersDict = guideUsers.ToDictionary(u => u.Id);
+        var guidesDict = guides.ToDictionary(g => g.UserId);
 
         var responseItems = new List<BookingResponse>();
 
@@ -103,11 +108,7 @@ public class GetMyBookingsQueryHandler(
             {
                 if (guideUsersDict.TryGetValue(booking.ServiceId, out var guideUser))
                 {
-                    var guide = await tourGuideRepository.GetGuideByIdAsync(
-                        booking.ServiceId,
-                        new ITourGuideRepository.GuideQueryOptions(ReadOnly: true),
-                        cancellationToken);
-
+                    guidesDict.TryGetValue(booking.ServiceId, out var guide);
                     var location = guide?.LastLocation ?? GeoPoint.Create(0, 0).Value;
 
                     responseItems.Add(new BookingResponse(

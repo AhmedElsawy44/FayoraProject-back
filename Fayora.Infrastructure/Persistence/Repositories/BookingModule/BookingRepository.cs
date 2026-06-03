@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
+using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Features.AdminModule.Queries.GetFinancialStats;
 using Fayora.Application.Features.AdminModule.Queries.GetTourGuidesStat;
 using Fayora.Application.Features.AdminModule.Queries.GetTravelAgenciesStats;
@@ -325,7 +325,7 @@ public class BookingRepository(ApplicationDbContext context) : IBookingRepositor
             .Where(b => b.ServiceType == ServiceType.Accommodation
                      && (b.BookingStatus == BookingStatus.Completed)
                      && b.CreatedAt >= firstDayOfCurrentMonth)
-            .Select(b => b.SeatsCount)
+            .Select(b => b.ServiceId)
             .Distinct()
             .CountAsync(cancellationToken);
 

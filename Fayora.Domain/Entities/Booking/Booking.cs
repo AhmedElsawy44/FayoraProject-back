@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Entity.Constants;
+using Fayora.Domain.Common.Entity.Constants;
 using Fayora.Domain.Common.Events.BookingModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.BookingModule;
@@ -139,7 +139,7 @@ public class Booking : BaseEntity<Guid>
         return Result.Success;
     }
 
-    public Result<Success> Cancel(string reason)
+    public Result<Success> Cancel(string reason, bool bypassPolicies = false)
     {
         if (BookingStatus == BookingStatus.Completed)
             return Error.Validation("Cannot cancel a completed booking.");
@@ -147,17 +147,20 @@ public class Booking : BaseEntity<Guid>
         if (BookingStatus == BookingStatus.Cancelled)
             return Error.Validation("Booking is already cancelled.");
 
-        if (AppliedCancelPolicy == CancellationPolicy.FreeCancellation48Hours)
+        if (!bypassPolicies)
         {
-            var hoursUntilStart = (StartDate - DateTime.UtcNow).TotalHours;
-            if (hoursUntilStart < 48)
-                return Error.Validation("Booking.CancellationWindowPassed",
-                    "Cannot cancel. Cancellation is only allowed 48 hours before the trip.");
-        }
-        else if (AppliedCancelPolicy == CancellationPolicy.NonRefundable)
-        {
-            return Error.Validation("Booking.NonRefundable",
-                "This booking is non-refundable and cannot be cancelled.");
+            if (AppliedCancelPolicy == CancellationPolicy.FreeCancellation48Hours)
+            {
+                var hoursUntilStart = (StartDate - DateTime.UtcNow).TotalHours;
+                if (hoursUntilStart < 48)
+                    return Error.Validation("Booking.CancellationWindowPassed",
+                        "Cannot cancel. Cancellation is only allowed 48 hours before the trip.");
+            }
+            else if (AppliedCancelPolicy == CancellationPolicy.NonRefundable)
+            {
+                return Error.Validation("Booking.NonRefundable",
+                    "This booking is non-refundable and cannot be cancelled.");
+            }
         }
 
         BookingStatus = BookingStatus.Cancelled;
