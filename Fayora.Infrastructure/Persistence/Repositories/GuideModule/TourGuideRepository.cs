@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
+using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Features.AdminModule.Queries.GetTourGuideVerificationDetails;
 using Fayora.Application.Features.AdminModule.Queries.GetVerificationQueue;
 using Fayora.Contracts.AdminModule.GetVerificationQueue;
@@ -34,6 +34,21 @@ public class TourGuideRepository(ApplicationDbContext context) : ITourGuideRepos
         }
 
         return await query.FirstOrDefaultAsync(g => g.UserId == id, cancellationToken);
+    }
+
+    public async Task<List<TourGuide>> GetGuidesByIdsAsync(
+        List<Guid> ids,
+        ITourGuideRepository.GuideQueryOptions options,
+        CancellationToken cancellationToken)
+    {
+        IQueryable<TourGuide> query = context.TourGuides;
+
+        if (options.ReadOnly)
+        {
+            query = query.AsNoTracking();
+        }
+
+        return await query.Where(g => ids.Contains(g.UserId)).ToListAsync(cancellationToken);
     }
     public async Task<List<GetVerificationQueueResoponse>> GetPendingGuidesForVerificationAsync(CancellationToken cancellationToken)
     {

@@ -191,7 +191,10 @@ public static class DependencyInjection
 
         services.AddScoped<IInventoryModerationService, InventoryModerationService>();
 
-        services.AddHttpClient<IPaymentService, PaymobPaymentService>();
+        services.AddHttpClient<IPaymentService, PaymobPaymentService>(client =>
+        {
+            client.BaseAddress = new Uri("https://accept.paymob.com/api/");
+        });
 
         // Chatbot Module
         services.Configure<OpenRouterSettings>(configuration.GetSection(OpenRouterSettings.SectionName));

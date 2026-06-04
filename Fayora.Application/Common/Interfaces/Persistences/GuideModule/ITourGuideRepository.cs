@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Features.AdminModule.Queries.GetTourGuideVerificationDetails;
+using Fayora.Application.Features.AdminModule.Queries.GetTourGuideVerificationDetails;
 using Fayora.Application.Features.AdminModule.Queries.GetVerificationQueue;
 using Fayora.Domain.Entities.GuideModule;
 
@@ -8,6 +8,7 @@ public interface ITourGuideRepository
 {
     public void AddTourGuide(TourGuide tourGuide);
     public Task<TourGuide?> GetGuideByIdAsync(Guid id, GuideQueryOptions options, CancellationToken cancellationToken);
+    public Task<List<TourGuide>> GetGuidesByIdsAsync(List<Guid> ids, GuideQueryOptions options, CancellationToken cancellationToken);
 
     public Task<bool> TourGuideExistAsync(Guid id, CancellationToken cancellationToken);
 

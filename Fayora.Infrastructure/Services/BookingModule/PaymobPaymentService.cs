@@ -1,7 +1,8 @@
-﻿using Fayora.Application.Common.Interfaces.Services.BookingModule;
+using Fayora.Application.Common.Interfaces.Services.BookingModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.BookingModule;
 using Fayora.Infrastructure.Settings;
+using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
@@ -9,8 +10,9 @@ using System.Text.Json;
 
 namespace Fayora.Infrastructure.Services.BookingModule;
 
-public class PaymobPaymentService(HttpClient httpClient, PaymobSettings paymobSettings) : IPaymentService
+public class PaymobPaymentService(HttpClient httpClient, IOptions<PaymobSettings> paymobSettingsOptions) : IPaymentService
 {
+    private readonly PaymobSettings paymobSettings = paymobSettingsOptions.Value;
     public async Task<Result<PaymentResponse>> GeneratePaymentUrlAsync(PaymentRequest request, CancellationToken cancellationToken = default)
     {
         int amountInCents = (int)(request.AmountInEgp * 100);
@@ -32,6 +34,7 @@ public class PaymobPaymentService(HttpClient httpClient, PaymobSettings paymobSe
                 delivery_needed = "false",
                 amount_cents = amountInCents,
                 currency = "EGP",
+                merchant_order_id = request.BookingId.ToString(),
                 items = Array.Empty<object>()
             }, cancellationToken);
 
@@ -126,41 +129,123 @@ public class PaymobPaymentService(HttpClient httpClient, PaymobSettings paymobSe
             : Error.Failure("Refund.Failed", "Failed to process refund.");
     }
 
-    public Result<WebhookResult> ValidateAndParseWebhook(IReadOnlyDictionary<string, string> webhookData, string receivedHmac)
+    public Result<WebhookResult> ValidateAndParseWebhook(string jsonPayload, string receivedHmac)
     {
-        var keysToHash = new[]
+        try
         {
-            "amount_cents", "created_at", "currency", "error_occured", "has_parent_transaction",
-            "id", "integration_id", "is_3d_secure", "is_auth", "is_capture", "is_refunded",
-            "is_standalone_payment", "is_voided", "order", "owner", "pending", "source_data.pan",
-            "source_data.sub_type", "source_data.type", "success"
-        };
-
-        var concatenatedString = new StringBuilder();
-        foreach (var key in keysToHash)
-        {
-            if (webhookData.TryGetValue(key, out var value))
+            using var document = JsonDocument.Parse(jsonPayload);
+            var root = document.RootElement;
+            
+            if (!root.TryGetProperty("obj", out var objElement))
             {
-                concatenatedString.Append(value);
+                return Error.Failure("Webhook.InvalidPayload", "Missing obj element in Paymob payload.");
             }
+
+            var amount_cents = GetStringOrRaw(objElement, "amount_cents");
+            var created_at = GetStringOrRaw(objElement, "created_at");
+            var currency = GetStringOrRaw(objElement, "currency");
+            var error_occured = GetStringOrRaw(objElement, "error_occured");
+            var has_parent_transaction = GetStringOrRaw(objElement, "has_parent_transaction");
+            var id = GetStringOrRaw(objElement, "id");
+            var integration_id = GetStringOrRaw(objElement, "integration_id");
+            var is_3d_secure = GetStringOrRaw(objElement, "is_3d_secure");
+            var is_auth = GetStringOrRaw(objElement, "is_auth");
+            var is_capture = GetStringOrRaw(objElement, "is_capture");
+            var is_refunded = GetStringOrRaw(objElement, "is_refunded");
+            var is_standalone_payment = GetStringOrRaw(objElement, "is_standalone_payment");
+            var is_voided = GetStringOrRaw(objElement, "is_voided");
+            
+            string order = "";
+            string merchantOrderId = "";
+            if (objElement.TryGetProperty("order", out var orderElement))
+            {
+                if (orderElement.ValueKind == JsonValueKind.Object)
+                {
+                    order = GetStringOrRaw(orderElement, "id");
+                    merchantOrderId = GetStringOrRaw(orderElement, "merchant_order_id");
+                }
+                else
+                {
+                    order = orderElement.GetRawText();
+                }
+            }
+
+            var owner = GetStringOrRaw(objElement, "owner");
+            var pending = GetStringOrRaw(objElement, "pending");
+
+            string sourceDataPan = "";
+            string sourceDataSubType = "";
+            string sourceDataType = "";
+            if (objElement.TryGetProperty("source_data", out var sdElement) && sdElement.ValueKind == JsonValueKind.Object)
+            {
+                sourceDataPan = GetStringOrRaw(sdElement, "pan");
+                sourceDataSubType = GetStringOrRaw(sdElement, "sub_type");
+                sourceDataType = GetStringOrRaw(sdElement, "type");
+            }
+
+            var success = GetStringOrRaw(objElement, "success");
+
+            var concatenatedString = new StringBuilder();
+            concatenatedString.Append(amount_cents);
+            concatenatedString.Append(created_at);
+            concatenatedString.Append(currency);
+            concatenatedString.Append(error_occured);
+            concatenatedString.Append(has_parent_transaction);
+            concatenatedString.Append(id);
+            concatenatedString.Append(integration_id);
+            concatenatedString.Append(is_3d_secure);
+            concatenatedString.Append(is_auth);
+            concatenatedString.Append(is_capture);
+            concatenatedString.Append(is_refunded);
+            concatenatedString.Append(is_standalone_payment);
+            concatenatedString.Append(is_voided);
+            concatenatedString.Append(order);
+            concatenatedString.Append(owner);
+            concatenatedString.Append(pending);
+            concatenatedString.Append(sourceDataPan);
+            concatenatedString.Append(sourceDataSubType);
+            concatenatedString.Append(sourceDataType);
+            concatenatedString.Append(success);
+
+            using var hmac = new HMACSHA512(Encoding.UTF8.GetBytes(paymobSettings.HmacSecret));
+            var hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(concatenatedString.ToString()));
+            var calculatedHmac = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+
+            if (calculatedHmac != receivedHmac.ToLower())
+            {
+                return Error.Failure("Invalid HMAC signature. Possible forgery attack!");
+            }
+
+            bool isSuccessVal = false;
+            if (objElement.TryGetProperty("success", out var successProp))
+            {
+                if (successProp.ValueKind == JsonValueKind.True) isSuccessVal = true;
+                else if (successProp.ValueKind == JsonValueKind.False) isSuccessVal = false;
+                else if (successProp.ValueKind == JsonValueKind.String) bool.TryParse(successProp.GetString(), out isSuccessVal);
+            }
+
+            decimal.TryParse(amount_cents, out var amountCentsDecimal);
+
+            return new WebhookResult(isSuccessVal, order, merchantOrderId, amountCentsDecimal);
         }
-
-        using var hmac = new HMACSHA512(Encoding.UTF8.GetBytes(paymobSettings.HmacSecret));
-        var hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(concatenatedString.ToString()));
-        var calculatedHmac = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
-
-        if (calculatedHmac != receivedHmac.ToLower())
+        catch (Exception ex)
         {
-            return Error.Failure("Invalid HMAC signature. Possible forgery attack!");
+            return Error.Failure("Webhook.ParseError", $"Error parsing webhook payload: {ex.Message}");
         }
+    }
 
-        bool isSuccess = bool.Parse(webhookData["success"]);
-        string gatewayOrderId = webhookData["order"];
-        decimal amountCents = decimal.Parse(webhookData["amount_cents"]);
+    private static string GetStringOrRaw(JsonElement element, string propName)
+    {
+        if (!element.TryGetProperty(propName, out var prop))
+            return string.Empty;
 
-        string bookingId = webhookData.TryGetValue("order.merchant_order_id", out var bId) ? bId : string.Empty;
-
-        var result = new WebhookResult(isSuccess, gatewayOrderId, bookingId, amountCents);
-        return result;
+        return prop.ValueKind switch
+        {
+            JsonValueKind.String => prop.GetString() ?? string.Empty,
+            JsonValueKind.True => "true",
+            JsonValueKind.False => "false",
+            JsonValueKind.Null => "null",
+            _ => prop.GetRawText()
+        };
     }
 }

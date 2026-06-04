@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
+using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
@@ -26,7 +26,7 @@ namespace Fayora.Infrastructure.Jobs
                     continue;
 
                 // cancel the booking
-                booking.Cancel("Payment timeout");
+                booking.Cancel("Payment timeout", bypassPolicies: true);
 
                 // remove the associated CalendarBlock
                 await calendarBlockRepository
