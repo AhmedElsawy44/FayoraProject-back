@@ -30,6 +30,7 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
     );
 
     public record GuideInfoResult(
+        Guid GuideUserId,
         string FirstName,
         string LastName,
         string? ProfileImageUrl,

@@ -82,6 +82,7 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
                     package.MeetingPoint.Latitude,
                     package.MeetingPoint.Longitude),
                 new GuideInfoResult(
+                    user.Id,
                     user.FirstName,
                     user.LastName,
                     user.ProfileImageUrl?.Value,

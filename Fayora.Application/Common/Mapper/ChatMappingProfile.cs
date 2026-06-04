@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Fayora.Application.Features.ChatModule.Queries.GetChats;
 using Fayora.Application.Features.ChatModule.Queries.GetMessages;
 using Fayora.Contracts.ChatModule.GetChats;
@@ -13,7 +13,14 @@ public class ChatMappingProfile : Profile
         CreateMap<GetChatsResult, GetChatsResponse>();
 
         CreateMap<Domain.Entities.ChatModule.Message, Message>()
-            .ForMember(dest => dest.SentAt, opt => opt.MapFrom(src => src.CreatedAt));
+            .ConstructUsing(src => new Message(
+                src.Id,
+                src.ChatId,
+                src.SenderId,
+                src.Content,
+                src.CreatedAt,
+                src.ReadAt
+            ));
 
         CreateMap<GetMessagesResult, GetMessagesResponse>();
     }

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitOwner;
 using Fayora.Contracts.AccommodationModule.Responses;
 using Fayora.Domain.Entities.AccommodationModule;
@@ -16,6 +16,13 @@ public class AccommodationMapper : Profile
         //CreateMap<GetAllMasterAmenitiesResult, GetAllMasterAmenitiesResponse>();
 
         CreateMap<HousingUnit, GetAllUnitsByTypeResponse>()
-            .ForMember(dest => dest.MainImageUrl, opt => opt.MapFrom(src => src.MainImageUrl.Value));
+            .ConstructUsing(src => new GetAllUnitsByTypeResponse(
+                src.Title,
+                src.PricePerNight,
+                src.PricePerNight,
+                src.Rating,
+                src.MainImageUrl.Value,
+                src.AddressDetails
+            ));
     }
 }
