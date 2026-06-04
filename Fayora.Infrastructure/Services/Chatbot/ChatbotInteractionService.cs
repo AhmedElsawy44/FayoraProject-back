@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,18 +13,22 @@ using Fayora.Domain.Entities.Booking;
 using Fayora.Domain.Entities.ChatbotModule;
 using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Entities.SharedModule;
+using Fayora.Domain.Entities.TouristModule;
 using Fayora.Domain.Enums.BookingModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Infrastructure.Persistence.Repositories;
+using Fayora.Infrastructure.Settings;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Fayora.Infrastructure.Services.Chatbot;
 
 public class ChatbotInteractionService(
     ApplicationDbContext context,
-    OpenRouterChatbotService openRouterService) : IChatbotInteractionService
+    OpenRouterChatbotService openRouterService,
+    IOptions<GeminiSettings> geminiSettings) : IChatbotInteractionService
 {
-    private const int DailyLimit = 20;
+    private readonly GeminiSettings _geminiSettings = geminiSettings.Value;
 
     public async Task<ChatbotMessageResult> ProcessMessageAsync(
         string deviceId,
@@ -58,11 +63,13 @@ public class ChatbotInteractionService(
         var messageCountToday = await context.ChatbotMessages
             .CountAsync(m => m.SessionId == session.Id && m.Role == "user" && m.CreatedAt >= today, cancellationToken);
 
-        if (messageCountToday >= DailyLimit)
+        int dailyLimit = _geminiSettings.DailyMessageLimit;
+
+        if (messageCountToday >= dailyLimit)
         {
             var limitResponse = new ChatbotFinalResponse(
                 session.Id,
-                $"لقد وصلت للحد اليومي المسموح به ({DailyLimit} رسالة) 🌟 رقّي حسابك أو جرب العودة غداً!",
+                $"لقد وصلت للحد اليومي المسموح به ({dailyLimit} رسالة) 🌟 رقّي حسابك أو جرب العودة غداً!",
                 new List<ChatbotCard>(),
                 new List<string> { "الرجوع للبداية ↩️" },
                 session.Id.ToString()
@@ -82,12 +89,44 @@ public class ChatbotInteractionService(
 
         // --- User Context Enrichment ---
         string userName = "صديقي";
+        string userPreferencesContext = "";
         if (userId.HasValue)
         {
             var user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId.Value, cancellationToken);
             if (user != null)
             {
                 userName = user.FirstName;
+            }
+
+            var touristProfile = await context.Tourists
+                .FirstOrDefaultAsync(t => t.UserId == userId.Value, cancellationToken);
+
+            if (touristProfile != null)
+            {
+                var prefs = new List<string>();
+                if (touristProfile.BudgetTier.HasValue)
+                    prefs.Add($"الميزانية المفضلة: {touristProfile.BudgetTier.Value}");
+                if (touristProfile.TravelStyle.HasValue)
+                    prefs.Add($"أسلوب السفر المفضل: {touristProfile.TravelStyle.Value}");
+
+                if (touristProfile.Interests != null && touristProfile.Interests.Any())
+                {
+                    var interestIds = touristProfile.Interests.ToList();
+                    var interestNames = await context.MasterInterests
+                        .Where(mi => interestIds.Contains(mi.Id) && mi.IsActive)
+                        .Select(mi => mi.Name)
+                        .ToListAsync(cancellationToken);
+
+                    if (interestNames.Any())
+                    {
+                        prefs.Add($"الاهتمامات السياحية: {string.Join("، ", interestNames)}");
+                    }
+                }
+
+                if (prefs.Any())
+                {
+                    userPreferencesContext = "\nتفضيلات المستخدم الحالية (استخدمها لتوجيه ترشيحاتك بشكل خفي ولطيف):\n- " + string.Join("\n- ", prefs);
+                }
             }
         }
 
@@ -127,7 +166,7 @@ public class ChatbotInteractionService(
 
                     if (entity == "housing")
                     {
-                        var accommodations = await SearchAccommodationsAsync(filters, cancellationToken);
+                        var accommodations = await SearchAccommodationsAsync(filters, queryStr, cancellationToken);
                         if (accommodations.Any())
                         {
                             hasRealData = true;
@@ -144,7 +183,7 @@ public class ChatbotInteractionService(
                     }
                     else if (entity == "guide")
                     {
-                        var packages = await SearchGuidePackagesAsync(filters, cancellationToken);
+                        var packages = await SearchGuidePackagesAsync(filters, queryStr, cancellationToken);
                         if (packages.Any())
                         {
                             hasRealData = true;
@@ -161,7 +200,7 @@ public class ChatbotInteractionService(
                     }
                     else if (entity == "place")
                     {
-                        var locations = await SearchPlacesAsync(filters, cancellationToken);
+                        var locations = await SearchPlacesAsync(filters, queryStr, cancellationToken);
                         if (locations.Any())
                         {
                             hasRealData = true;
@@ -223,7 +262,7 @@ public class ChatbotInteractionService(
                                    (now.Month == 6 || now.Month == 7 || now.Month == 8) ? "الصيف — حار، الأفضل البحيرات والأنشطة المسائية" :
                                    "الخريف — هوا لطيف، مناسب جداً للرحلات";
 
-            string systemPrompt = ChatbotPrompts.BuildRespondPrompt(userName, currentMonth, currentSeason, dbContextText);
+            string systemPrompt = ChatbotPrompts.BuildRespondPrompt(userName, currentMonth, currentSeason, dbContextText, userPreferencesContext);
             var responseResult = await openRouterService.RespondAsync(content, history, systemPrompt, cancellationToken);
             
             botResponseText = responseResult.Text;
@@ -295,7 +334,7 @@ public class ChatbotInteractionService(
             .ToListAsync(cancellationToken);
     }
 
-    private async Task<List<HousingUnit>> SearchAccommodationsAsync(SearchFilters filters, CancellationToken ct)
+    private async Task<List<HousingUnit>> SearchAccommodationsAsync(SearchFilters filters, string? queryText, CancellationToken ct)
     {
         var query = context.HousingUnits
             .Where(h => h.Status == ItemStatus.Active);
@@ -312,13 +351,24 @@ public class ChatbotInteractionService(
                 query = query.Where(h => h.AddressDetails.Contains(filters.Area) || h.Title.Contains(filters.Area));
         }
 
+        var keywords = ExtractKeywords(queryText);
+        if (keywords.Any())
+        {
+            var keywordPredicate = BuildKeywordPredicate<HousingUnit>(
+                keywords,
+                h => h.Title,
+                h => h.Description
+            );
+            query = query.Where(keywordPredicate);
+        }
+
         return await query
             .OrderByDescending(h => h.Rating)
             .Take(4)
             .ToListAsync(ct);
     }
 
-    private async Task<List<GuidePackage>> SearchGuidePackagesAsync(SearchFilters filters, CancellationToken ct)
+    private async Task<List<GuidePackage>> SearchGuidePackagesAsync(SearchFilters filters, string? queryText, CancellationToken ct)
     {
         var query = context.GuideTourPackages
             .Where(p => p.PackageStatus == ItemStatus.Active && p.IsActive);
@@ -335,18 +385,40 @@ public class ChatbotInteractionService(
                 query = query.Where(p => p.Title.Contains(filters.Area) || p.Description.Contains(filters.Area));
         }
 
+        var keywords = ExtractKeywords(queryText);
+        if (keywords.Any())
+        {
+            var keywordPredicate = BuildKeywordPredicate<GuidePackage>(
+                keywords,
+                p => p.Title,
+                p => p.Description
+            );
+            query = query.Where(keywordPredicate);
+        }
+
         return await query
             .Take(4)
             .ToListAsync(ct);
     }
 
-    private async Task<List<Location>> SearchPlacesAsync(SearchFilters filters, CancellationToken ct)
+    private async Task<List<Location>> SearchPlacesAsync(SearchFilters filters, string? queryText, CancellationToken ct)
     {
         var query = context.Locations.AsQueryable();
 
         if (filters != null && !string.IsNullOrEmpty(filters.Area))
         {
             query = query.Where(l => l.Name.Contains(filters.Area) || (l.Description != null && l.Description.Contains(filters.Area)));
+        }
+
+        var keywords = ExtractKeywords(queryText);
+        if (keywords.Any())
+        {
+            var keywordPredicate = BuildKeywordPredicate<Location>(
+                keywords,
+                l => l.Name,
+                l => l.Description
+            );
+            query = query.Where(keywordPredicate);
         }
 
         return await query
@@ -368,5 +440,86 @@ public class ChatbotInteractionService(
             return new List<string> { "لوحدي 🎒", "كابل 💑", "عيلة 👨‍👩‍👧", "أصحاب 👫" };
         
         return new List<string> { "فنادق في الفيوم 🏨", "أماكن سياحية 🏛️", "مرشد سياحي 🗺️", "خطة رحلة 📅" };
+    }
+
+    private static readonly HashSet<string> ArabicStopWords = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "في", "من", "على", "إلى", "عن", "مع", "أو", "ثم", "يا", "هذا", "هذه", "التي", "الذي", "عايز", "عايزة", "عاوز", "عاوزة",
+        "حابب", "حاببة", "بتاع", "فندق", "شاليه", "مكان", "سكن", "إقامة", "رحلة", "جولة", "مرشد", "تكون", "يكون", "عندي", "أنا",
+        "نحن", "هو", "هي", "هم", "هن", "أنت", "أنتم", "تفاصيل", "معلومات", "حاجة", "حاجات", "أماكن", "مكان", "أريد"
+    };
+
+    private static List<string> ExtractKeywords(string? queryText)
+    {
+        if (string.IsNullOrWhiteSpace(queryText)) return new List<string>();
+
+        var words = queryText.Split(new[] { ' ', ',', '.', '؟', '!', '-', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+        var keywords = new List<string>();
+
+        foreach (var word in words)
+        {
+            var cleaned = word.Trim().ToLower();
+            if (cleaned.Length > 2 && !ArabicStopWords.Contains(cleaned))
+            {
+                keywords.Add(cleaned);
+            }
+        }
+
+        return keywords;
+    }
+
+    private static Expression<Func<T, bool>> BuildKeywordPredicate<T>(
+        List<string> keywords,
+        Expression<Func<T, string>> titleProperty,
+        Expression<Func<T, string?>> descriptionProperty)
+    {
+        var parameter = Expression.Parameter(typeof(T), "x");
+        Expression? body = null;
+
+        var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) })!;
+
+        foreach (var keyword in keywords)
+        {
+            var keywordConst = Expression.Constant(keyword, typeof(string));
+
+            var titleExpr = ReplaceParameter(titleProperty, parameter);
+            var titleContains = Expression.Call(titleExpr, containsMethod, keywordConst);
+
+            Expression keywordMatch = titleContains;
+
+            if (descriptionProperty != null)
+            {
+                var descExpr = ReplaceParameter(descriptionProperty, parameter);
+                var nullConst = Expression.Constant(null, typeof(string));
+                var notNullExpr = Expression.NotEqual(descExpr, nullConst);
+                var descContains = Expression.Call(descExpr, containsMethod, keywordConst);
+                var descMatch = Expression.AndAlso(notNullExpr, descContains);
+
+                keywordMatch = Expression.OrElse(titleContains, descMatch);
+            }
+
+            body = body == null ? keywordMatch : Expression.OrElse(body, keywordMatch);
+        }
+
+        if (body == null)
+        {
+            return x => true;
+        }
+
+        return Expression.Lambda<Func<T, bool>>(body, parameter);
+    }
+
+    private static Expression ReplaceParameter(LambdaExpression lambda, ParameterExpression newParameter)
+    {
+        var visitor = new ParameterReplacer(lambda.Parameters[0], newParameter);
+        return visitor.Visit(lambda.Body);
+    }
+
+    private class ParameterReplacer(ParameterExpression oldParameter, ParameterExpression newParameter) : ExpressionVisitor
+    {
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            return node == oldParameter ? newParameter : base.VisitParameter(node);
+        }
     }
 }

@@ -53,8 +53,7 @@ action=reply: سؤال عام مش محتاج قاعدة بيانات
 action=off_topic: خارج الفيوم والسياحة تماماً
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ";
-
-    public static string BuildRespondPrompt(string userName, string month, string season, string dbContext)
+    public static string BuildRespondPrompt(string userName, string month, string season, string dbContext, string userPreferencesContext = "")
     {
         bool hasData = !string.IsNullOrWhiteSpace(dbContext);
 
@@ -62,6 +61,7 @@ action=off_topic: خارج الفيوم والسياحة تماماً
 
 اسم المستخدم: {userName}
 الشهر الحاضر: {month} — الموسم: {season}
+{userPreferencesContext}
 {dbContext}
 
 شخصيتك:
