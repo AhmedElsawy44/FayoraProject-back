@@ -140,11 +140,6 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
         services.AddSingleton<ICacheService, CacheService>();
 
-        //chatbot
-        services.AddScoped<IChatbotSessionRepository, ChatbotSessionRepository>();
-        services.AddScoped<ITravelRepository, TravelRepository>();
-
-
         return services;
     }
 
@@ -199,21 +194,13 @@ public static class DependencyInjection
         services.AddHttpClient<IPaymentService, PaymobPaymentService>();
 
         // Chatbot Module
-        services.Configure<GeminiSettings>(configuration.GetSection(GeminiSettings.SectionName));
-        services.Configure<OpenAISettings>(configuration.GetSection(OpenAISettings.SectionName));
         services.Configure<OpenRouterSettings>(configuration.GetSection(OpenRouterSettings.SectionName));
-        services.AddHttpClient<GeminiChatbotService>();
-        services.AddHttpClient<OpenAIChatbotService>();
         services.AddHttpClient<OpenRouterChatbotService>();
-        services.AddScoped<IChatbotServiceFactory, ChatbotServiceFactory>();
         services.AddScoped<IChatbotInteractionService, ChatbotInteractionService>();
 
-        services.AddScoped<IAiChatService, AiChatService>();
-        services.AddScoped<IRecommendationEngineService, RecommendationEngineService>();
-
         // Recommendation Module
-        services.AddScoped<IRecommendationService, RecommendationEngine>();
-
+        services.Configure<RecommendationSettings>(configuration.GetSection(RecommendationSettings.SectionName));
+        services.AddHttpClient<IRecommendationService, RecommendationEngine>();
 
         return services;
     }

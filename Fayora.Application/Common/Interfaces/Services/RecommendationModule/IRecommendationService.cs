@@ -62,5 +62,57 @@ public interface IRecommendationService
     /// </summary>
     Task<List<RecommendedLocationResult>> GetTrendingLocationsAsync(
         int count, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns combined personalized recommendations (units, guides, packages) for home screen.
+    /// </summary>
+    Task<AllRecommendationsResult> GetAllRecommendationsAsync(
+        Guid userId, int count, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns paginated and session-diverse package recommendations.
+    /// </summary>
+    Task<List<RecommendedPackageResult>> GetPackagesSeeAllAsync(
+        Guid userId, int page, int size, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns paginated and session-diverse housing unit recommendations.
+    /// </summary>
+    Task<List<RecommendedUnitResult>> GetUnitsSeeAllAsync(
+        Guid userId, int page, int size, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns paginated and session-diverse tour guide recommendations.
+    /// </summary>
+    Task<List<RecommendedGuideResult>> GetGuidesSeeAllAsync(
+        Guid userId, int page, int size, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns similar housing units for a given stays item.
+    /// </summary>
+    Task<List<RecommendedUnitResult>> GetSimilarUnitsAsync(
+        Guid unitId, int count, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns similar tour guides.
+    /// </summary>
+    Task<List<RecommendedGuideResult>> GetSimilarGuidesAsync(
+        Guid guideId, int count, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns similar packages.
+    /// </summary>
+    Task<List<RecommendedPackageResult>> GetSimilarPackagesAsync(
+        Guid packageId, int count, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Refreshes/retrains the Python recommender model.
+    /// </summary>
+    Task<PythonRefreshResult> RefreshAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Evaluates the Python model.
+    /// </summary>
+    Task<object> EvaluateAsync(int topN, string cutoffDate, CancellationToken cancellationToken);
 }
 

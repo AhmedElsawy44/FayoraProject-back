@@ -4,6 +4,8 @@ using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitCalenda
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitOwner;
 using Fayora.Application.Features.AccommodationModule.Queries.GetRecommendedUnits;
 using Fayora.Application.Features.AccommodationModule.Queries.GetUnitsByType;
+using Fayora.Application.Features.AccommodationModule.Queries.GetRecommendedUnitsSeeAll;
+using Fayora.Application.Features.AccommodationModule.Queries.GetSimilarUnits;
 using Fayora.Contracts.AccommodationModule.Requests;
 using Fayora.Contracts.AccommodationModule.Responses;
 using Fayora.Domain.Enums.AccommodationModule;
@@ -176,6 +178,34 @@ public class AccommodationController(ISender sender, IMapper mapper) : ApiContro
         CancellationToken cancellationToken = default)
     {
         var query = new GetRecommendedUnitsQuery(count);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(value),
+            errors => Problem()
+        );
+    }
+
+    [HttpGet("recommended/see-all")]
+    public async Task<IActionResult> GetRecommendedUnitsSeeAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int size = 10,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetRecommendedUnitsSeeAllQuery(page, size);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(value),
+            errors => Problem()
+        );
+    }
+
+    [HttpGet("{id:guid}/similar")]
+    public async Task<IActionResult> GetSimilarUnits(
+        [FromRoute] Guid id,
+        [FromQuery] int count = 5,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetSimilarUnitsQuery(id, count);
         var result = await sender.Send(query, cancellationToken);
         return result.Match(
             value => Ok(value),

@@ -1,5 +1,7 @@
 using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
 using Fayora.Application.Features.AdminModule.Commands.CancelBooking;
+using Fayora.Application.Features.AdminModule.Commands.RefreshRecommendations;
+using Fayora.Application.Features.AdminModule.Queries.EvaluateRecommendations;
 using Fayora.Application.Features.AdminModule.Commands.CancelPushCampaign;
 using Fayora.Application.Features.AdminModule.Commands.ChangeUserStatus;
 using Fayora.Application.Features.AdminModule.Commands.CreateCity;
@@ -660,5 +662,24 @@ public class AdminController(ISender sender) : ApiController
         var command = new SendTestNotificationCommand(request.Token);
         var result = await sender.Send(command, ct);
         return result.Match(_ => Ok(new { message = "Test notification sent successfully." }), Problem);
+    }
+
+    [HttpPost("recommendations/refresh")]
+    public async Task<IActionResult> RefreshRecommendations(CancellationToken cancellationToken)
+    {
+        var command = new RefreshRecommendationsCommand();
+        var result = await sender.Send(command, cancellationToken);
+        return result.Match(Ok, Problem);
+    }
+
+    [HttpGet("recommendations/evaluate")]
+    public async Task<IActionResult> EvaluateRecommendations(
+        [FromQuery] int topN = 10,
+        [FromQuery] string cutoffDate = "2025-01-01",
+        CancellationToken cancellationToken = default)
+    {
+        var query = new EvaluateRecommendationsQuery(topN, cutoffDate);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(Ok, Problem);
     }
 }

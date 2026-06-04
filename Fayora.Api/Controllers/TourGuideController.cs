@@ -12,6 +12,8 @@ using Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview;
 using Fayora.Application.Features.TourGuideModule.Queries.GetRecommendedGuides;
+using Fayora.Application.Features.TourGuideModule.Queries.GetRecommendedGuidesSeeAll;
+using Fayora.Application.Features.TourGuideModule.Queries.GetSimilarGuides;
 using Fayora.Application.Features.TouristModule.Queries.GetRecommendedPackages;
 using Fayora.Contracts.TourGuideModule.CreateGuidePackage;
 using Fayora.Contracts.TourGuideModule.CreatePackageOccurrences;
@@ -296,6 +298,32 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
         CancellationToken cancellationToken = default)
     {
         var query = new GetRecommendedGuidesQuery(count);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(value),
+            Problem);
+    }
+
+    [HttpGet("recommended-guides/see-all")]
+    public async Task<IActionResult> GetRecommendedGuidesSeeAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int size = 10,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetRecommendedGuidesSeeAllQuery(page, size);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(value),
+            Problem);
+    }
+
+    [HttpGet("{id:guid}/similar")]
+    public async Task<IActionResult> GetSimilarGuides(
+        [FromRoute] Guid id,
+        [FromQuery] int count = 5,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetSimilarGuidesQuery(id, count);
         var result = await sender.Send(query, cancellationToken);
         return result.Match(
             value => Ok(value),
