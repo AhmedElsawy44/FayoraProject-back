@@ -10,7 +10,13 @@ public record CreatePushCampaignRequest(
     string Body,
     string? ImageUrl,
     string TargetAudience, // "All", "Tourist", "TourGuide", "TravelAgency"
-    DateTimeOffset? ScheduledAt
+    DateTimeOffset? ScheduledAt,
+    bool IsRecurring = false,
+    string? ScheduleType = null,
+    string? DaysOfWeek = null,
+    int? DayOfMonth = null,
+    TimeSpan? PreferredTime = null,
+    string? CronExpression = null
 );
 
 public record PushCampaignResponse(
@@ -24,7 +30,10 @@ public record PushCampaignResponse(
     string Status,
     int SuccessCount,
     int FailureCount,
-    DateTimeOffset CreatedAt
+    DateTimeOffset CreatedAt,
+    bool IsRecurring,
+    string? CronExpression,
+    DateTimeOffset? LastRunAt
 );
 
 public record SendTestPushRequest(

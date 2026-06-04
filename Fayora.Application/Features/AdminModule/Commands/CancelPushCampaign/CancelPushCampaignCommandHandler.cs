@@ -19,12 +19,16 @@ public class CancelPushCampaignCommandHandler(
             return Error.NotFound("Campaign.NotFound", $"Push campaign with ID {request.Id} was not found.");
         }
 
-        if (campaign.Status != "Scheduled")
+        if (campaign.Status != "Scheduled" && campaign.Status != "Recurring")
         {
-            return Error.Conflict("Campaign.InvalidStatus", $"Push campaign with status '{campaign.Status}' cannot be cancelled. Only 'Scheduled' campaigns can be cancelled.");
+            return Error.Conflict("Campaign.InvalidStatus", $"Push campaign with status '{campaign.Status}' cannot be cancelled. Only 'Scheduled' or 'Recurring' campaigns can be cancelled.");
         }
 
-        if (!string.IsNullOrEmpty(campaign.HangfireJobId))
+        if (campaign.IsRecurring)
+        {
+            notificationScheduler.CancelRecurringCampaign(campaign.Id);
+        }
+        else if (!string.IsNullOrEmpty(campaign.HangfireJobId))
         {
             notificationScheduler.CancelCampaign(campaign.HangfireJobId);
         }

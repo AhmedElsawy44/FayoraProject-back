@@ -26,7 +26,10 @@ public class GetPushCampaignsQueryHandler(INotificationRepository notificationRe
             c.Status,
             c.SuccessCount,
             c.FailureCount,
-            c.CreatedAt
+            c.CreatedAt,
+            c.IsRecurring,
+            c.CronExpression,
+            c.LastRunAt
         )).ToList();
 
         return responseList;

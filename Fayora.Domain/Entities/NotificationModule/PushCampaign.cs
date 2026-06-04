@@ -15,6 +15,9 @@ public class PushCampaign : AuditableEntity<Guid>
     public int FailureCount { get; private set; }
     public Guid CreatedByAdminId { get; private set; }
     public string? HangfireJobId { get; private set; }
+    public bool IsRecurring { get; private set; }
+    public string? CronExpression { get; private set; }
+    public DateTimeOffset? LastRunAt { get; private set; }
 
     private PushCampaign() { }
 
@@ -44,6 +47,36 @@ public class PushCampaign : AuditableEntity<Guid>
             TargetAudience = targetAudience,
             ScheduledAt = scheduledAt,
             Status = status,
+            CreatedByAdminId = createdByAdminId,
+            IsRecurring = false
+        };
+    }
+
+    public static PushCampaign CreateRecurring(
+        string title,
+        string body,
+        string? imageUrl,
+        string targetAudience,
+        string cronExpression,
+        Guid createdByAdminId)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+            throw new ArgumentException("Title cannot be null or empty.", nameof(title));
+        if (string.IsNullOrWhiteSpace(body))
+            throw new ArgumentException("Body cannot be null or empty.", nameof(body));
+        if (string.IsNullOrWhiteSpace(cronExpression))
+            throw new ArgumentException("Cron expression cannot be null or empty.", nameof(cronExpression));
+
+        return new PushCampaign
+        {
+            Id = Guid.NewGuid(),
+            Title = title,
+            Body = body,
+            ImageUrl = imageUrl,
+            TargetAudience = targetAudience,
+            IsRecurring = true,
+            CronExpression = cronExpression,
+            Status = "Recurring",
             CreatedByAdminId = createdByAdminId
         };
     }
@@ -63,6 +96,14 @@ public class PushCampaign : AuditableEntity<Guid>
         Updated();
     }
 
+    public void RecordRecurringRun(int successCount, int failureCount)
+    {
+        LastRunAt = DateTimeOffset.UtcNow;
+        SuccessCount += successCount;
+        FailureCount += failureCount;
+        Updated();
+    }
+
     public void MarkAsFailed(string errorDetails)
     {
         Status = "Failed";
@@ -71,7 +112,7 @@ public class PushCampaign : AuditableEntity<Guid>
 
     public void Cancel()
     {
-        if (Status == "Scheduled")
+        if (Status == "Scheduled" || Status == "Recurring")
         {
             Status = "Cancelled";
             Updated();

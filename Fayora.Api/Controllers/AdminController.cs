@@ -638,7 +638,13 @@ public class AdminController(ISender sender) : ApiController
             request.Body,
             request.ImageUrl,
             request.TargetAudience,
-            request.ScheduledAt);
+            request.ScheduledAt,
+            request.IsRecurring,
+            request.ScheduleType,
+            request.DaysOfWeek,
+            request.DayOfMonth,
+            request.PreferredTime,
+            request.CronExpression);
 
         var result = await sender.Send(command, ct);
         return result.Match(

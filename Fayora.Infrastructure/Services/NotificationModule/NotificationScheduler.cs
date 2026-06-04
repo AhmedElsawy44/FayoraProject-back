@@ -4,7 +4,9 @@ using Hangfire;
 
 namespace Fayora.Infrastructure.Services.NotificationModule;
 
-public class NotificationScheduler(IBackgroundJobClient backgroundJobClient) : INotificationScheduler
+public class NotificationScheduler(
+    IBackgroundJobClient backgroundJobClient,
+    IRecurringJobManager recurringJobManager) : INotificationScheduler
 {
     public string ScheduleCampaign(Guid campaignId, DateTimeOffset scheduledAt)
     {
@@ -26,5 +28,19 @@ public class NotificationScheduler(IBackgroundJobClient backgroundJobClient) : I
             return false;
         }
         return backgroundJobClient.Delete(jobId);
+    }
+
+    public void ScheduleRecurringCampaign(Guid campaignId, string cronExpression)
+    {
+        recurringJobManager.AddOrUpdate<PushCampaignJob>(
+            $"campaign-{campaignId}",
+            job => job.ExecuteAsync(campaignId, CancellationToken.None),
+            cronExpression,
+            new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+    }
+
+    public void CancelRecurringCampaign(Guid campaignId)
+    {
+        recurringJobManager.RemoveIfExists($"campaign-{campaignId}");
     }
 }
