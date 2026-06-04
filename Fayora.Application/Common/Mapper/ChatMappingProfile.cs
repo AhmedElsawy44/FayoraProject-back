@@ -12,7 +12,7 @@ public class ChatMappingProfile : Profile
     {
         CreateMap<GetChatsResult, GetChatsResponse>();
 
-        CreateMap<Domain.Entities.ChatModule.Message, Contracts.ChatModule.GetMessages.Message>()
+        CreateMap<Domain.Entities.ChatModule.Message, Message>()
             .ForMember(dest => dest.SentAt, opt => opt.MapFrom(src => src.CreatedAt));
 
         CreateMap<GetMessagesResult, GetMessagesResponse>();
