@@ -8,6 +8,7 @@ public interface INotificationRepository
     Task AddDeviceTokenAsync(DeviceToken token, CancellationToken ct);
     Task<DeviceToken?> GetDeviceTokenByTokenAsync(string token, CancellationToken ct);
     Task<List<string>> GetTokensByAudienceAsync(string targetAudience, CancellationToken ct);
+    Task<List<string>> GetTokensByUserIdAsync(Guid userId, CancellationToken ct);
     Task AddPushCampaignAsync(PushCampaign campaign, CancellationToken ct);
     Task<PushCampaign?> GetPushCampaignByIdAsync(Guid id, CancellationToken ct);
     Task<List<PushCampaign>> GetPushCampaignsPaginatedAsync(int pageNumber, int pageSize, CancellationToken ct);
