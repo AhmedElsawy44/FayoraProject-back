@@ -24,4 +24,4 @@ public record CreateGuidePackageRequest
     HashSet<int> LocationIds
 );
 
-public record ActivityDto(decimal Latitude, decimal Longitude, string Description, TimeOnly ActivityTime, bool IsOptional);
+public record ActivityDto(decimal Latitude, decimal Longitude, string Description, TimeOnly ActivityTime, bool IsOptional, int? LocationId);
