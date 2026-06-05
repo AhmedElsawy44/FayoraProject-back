@@ -7,7 +7,9 @@ using Fayora.Application.Features.TourGuideModule.Commands.CreateTourCompany;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Commands.DeactivateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.DeleteGuidePackage;
+using Fayora.Application.Features.TourGuideModule.Commands.UpdateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.UpdateTourGuide;
+using Fayora.Contracts.TourGuideModule.UpdateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview;
@@ -145,6 +147,53 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
         return result.Match(Ok, Problem);
     }
 
+
+    [HttpPut("package/{packageId:guid}")]
+    public async Task<IActionResult> UpdateGuidePackage(
+        [FromRoute] Guid packageId,
+        [FromBody] UpdateGuidePackageRequest request,
+        CancellationToken ct)
+    {
+        var (tourTypeOk, tourType) = EnumParser.TryParseEnum<TourType>(request.TourType);
+        if (!tourTypeOk)
+            return BadRequest("Invalid Tour Type");
+
+        var (transportTypeOk, transportType) = EnumParser.TryParseEnum<TransportType>(request.TransportType);
+        if (!transportTypeOk)
+            return BadRequest("Invalid Transport Type");
+
+        var (cancellationPolicyOk, cancellationPolicy) = EnumParser.TryParseEnum<CancellationPolicy>(request.CancellationPolicy);
+        if (!cancellationPolicyOk)
+            return BadRequest("Invalid Cancellation Policy");
+
+        var command = new UpdateGuidePackageCommand(
+            packageId,
+            request.Title,
+            request.Description,
+            tourType,
+            request.DurationHours,
+            request.Longitude,
+            request.Latitude,
+            transportType,
+            request.ArrivalNote,
+            request.AdultPrice,
+            request.ChildPrice,
+            request.MaxCapacity,
+            request.IncludedIds,
+            request.ExcludedIds,
+            request.MainImageUrl,
+            request.VideoURL,
+            request.ImageURLs,
+            request.GuestRequirements,
+            cancellationPolicy,
+            request.Activities,
+            request.LocationIds
+        );
+
+        var result = await sender.Send(command, ct);
+
+        return result.Match(value => Ok(new { packageId = value }), Problem);
+    }
 
     [HttpPatch("package/{PackageId:guid}/activate")]
     public async Task<IActionResult> ActivatePackage(Guid PackageId, CancellationToken cancellationToken)

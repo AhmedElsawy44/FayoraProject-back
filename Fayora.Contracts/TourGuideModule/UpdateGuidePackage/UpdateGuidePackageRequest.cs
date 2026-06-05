@@ -1,7 +1,8 @@
-﻿namespace Fayora.Contracts.TourGuideModule.CreateGuidePackage;
+using Fayora.Contracts.TourGuideModule.CreateGuidePackage;
 
-public record CreateGuidePackageRequest
-(
+namespace Fayora.Contracts.TourGuideModule.UpdateGuidePackage;
+
+public record UpdateGuidePackageRequest(
     string Title,
     string Description,
     string TourType,
@@ -23,5 +24,3 @@ public record CreateGuidePackageRequest
     List<ActivityDto> Activities,
     HashSet<int> LocationIds
 );
-
-public record ActivityDto(decimal Latitude, decimal Longitude, string Description, TimeOnly ActivityTime, bool IsOptional, int? LocationId);

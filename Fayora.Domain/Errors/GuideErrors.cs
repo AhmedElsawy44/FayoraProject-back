@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Common.Results;
 
 namespace Fayora.Domain.Errors;
 
@@ -11,4 +11,8 @@ public static class GuideErrors
     public static readonly Error DuplicateDatesInRequest = Error.Validation("TourGuide.DuplicateDates", "The request contains duplicate dates.");
 
     public static readonly Error OccurrenceNotFound = Error.NotFound("TourGuide.OccurrenceNotFound", "The requested occurrence was not found.");
+
+    public static readonly Error UnauthorizedPackageAccess = Error.Forbidden("TourGuide.UnauthorizedPackageAccess", "You are not authorized to modify this package.");
+
+    public static readonly Error PackageHasActiveBookings = Error.Conflict("TourGuide.PackageHasActiveBookings", "Cannot update a package that has active (non-cancelled) bookings.");
 }

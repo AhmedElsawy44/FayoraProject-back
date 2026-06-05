@@ -26,7 +26,8 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
     public record PackageActivityDetailsResult(
         string Description,
         TimeOnly ActivityTime,
-        bool IsOptional
+        bool IsOptional,
+        int? LocationId
     );
 
     public record GeoPointDetailsResult(

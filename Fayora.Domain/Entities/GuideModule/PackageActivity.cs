@@ -7,11 +7,12 @@ public class PackageActivity : BaseEntity<Guid>
 {
     public Guid PackageId { get; private set; }
     public GeoPoint Place { get; private set; } = default!;
+    public int? LocationId { get; private set; }
     public string Description { get; private set; } = default!;
     public TimeOnly ActivityTime { get; private set; }
     public bool IsOptional { get; private set; }
 
-    public static Result<PackageActivity> Create(Guid packageId, decimal latitude, decimal longitude, string? description, TimeOnly activityTime, bool isOptional)
+    public static Result<PackageActivity> Create(Guid packageId, decimal latitude, decimal longitude, string? description, TimeOnly activityTime, bool isOptional, int? locationId = null)
     {
         var place = GeoPoint.Create(latitude, longitude);
         if (place.IsError) return place.Errors;
@@ -23,7 +24,8 @@ public class PackageActivity : BaseEntity<Guid>
             Place = place.Value,
             Description = description = null!,
             ActivityTime = activityTime,
-            IsOptional = isOptional
+            IsOptional = isOptional,
+            LocationId = locationId
         };
     }
 

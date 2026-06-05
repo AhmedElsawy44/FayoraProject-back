@@ -21,7 +21,8 @@ namespace Fayora.Contracts.TourGuideModule.GetPackagePreview
     public record PackageActivityResponse(
         string Description,
         TimeOnly ActivityTime,
-        bool IsOptional
+        bool IsOptional,
+        int? LocationId
     );
 
     public record GeoPointResponse(

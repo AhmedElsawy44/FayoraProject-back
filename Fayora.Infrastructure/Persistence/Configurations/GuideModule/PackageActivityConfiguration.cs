@@ -31,5 +31,8 @@ internal class PackageActivityConfiguration : IEntityTypeConfiguration<PackageAc
                         .HasPrecision(18, 10)
                         .IsRequired();
         });
+
+        builder.Property(a => a.LocationId)
+       .IsRequired(false);
     }
 }

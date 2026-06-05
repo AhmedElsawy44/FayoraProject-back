@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
+using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +36,16 @@ public class PackageRepository(ApplicationDbContext context) : IPackageRepositor
             .AsNoTracking()
             .Where(a => a.PackageId == packageId)
             .ToListAsync(cancellationToken);
+    }
+
+    public void AddPackageActivities(IEnumerable<PackageActivity> activities)
+    {
+        context.PackageActivities.AddRange(activities);
+    }
+
+    public void RemovePackageActivities(IEnumerable<PackageActivity> activities)
+    {
+        context.PackageActivities.RemoveRange(activities);
     }
 
     public async Task<(List<GuidePackage> Items, int TotalCount)> GetMyPackagesAsync(

@@ -74,7 +74,8 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
                 activities.Select(a => new PackageActivityDetailsResult(
                     a.Description,
                     a.ActivityTime,
-                    a.IsOptional)).ToList(),
+                    a.IsOptional,
+                    a.LocationId)).ToList(),
                 new GeoPointDetailsResult(
                     package.MeetingPoint.Latitude,
                     package.MeetingPoint.Longitude),
