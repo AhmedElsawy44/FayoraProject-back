@@ -153,20 +153,81 @@ public class GuidePackage : AuditableEntity<Guid>
 
     public void IncrementViews() => Views++;
 
-    public void UpdateDetails(
+    public Result<Success> UpdateDetails(
         string title,
         string description,
         int durationHours,
         decimal adultPrice,
         decimal childPrice,
-        TourType tourTypes)
+        TourType tourTypes,
+        int maxCapacity,
+        GeoPoint meetingPoint,
+        string? arrivalNote,
+        TransportType transportType,
+        string? guestRequirements,
+        CancellationPolicy cancellationPolicy,
+        FileUrl mainImageUrl,
+        FileUrl? mainVideoUrl)
     {
+        if (adultPrice <= 0)
+            return Error.Validation("Package.InvalidPrice", "Adult price must be positive.");
+
+        if (durationHours <= 0)
+            return Error.Validation("Package.InvalidDuration", "Duration must be greater than zero.");
+
+        if (maxCapacity <= 0)
+            return Error.Validation("Package.InvalidCapacity", "Max capacity must be greater than zero.");
+
         Title = title;
         Description = description;
         DurationHours = durationHours;
         AdultPrice = adultPrice;
         ChildPrice = childPrice;
         TourTypes = tourTypes;
+        MaxCapacity = maxCapacity;
+        MeetingPoint = meetingPoint;
+        ArrivalNote = arrivalNote;
+        TransportType = transportType;
+        GuestRequirements = guestRequirements;
+        CancellationPolicy = cancellationPolicy;
+        MainImageUrl = mainImageUrl;
+        MainVideoUrl = mainVideoUrl;
+        Updated();
+        return Result.Success;
+    }
+
+    public void UpdateIncludedItems(IEnumerable<int> ids)
+    {
+        _includedItemIds.Clear();
+        _includedItemIds.AddRange(ids);
+        Updated();
+    }
+
+    public void UpdateExcludedItems(IEnumerable<int> ids)
+    {
+        _excludedItemIds!.Clear();
+        _excludedItemIds.AddRange(ids);
+        Updated();
+    }
+
+    public void UpdateLocations(IEnumerable<int> locationIds)
+    {
+        _locationIds.Clear();
+        _locationIds.AddRange(locationIds);
+        Updated();
+    }
+
+    public void UpdateImages(IEnumerable<Guid> imageIds)
+    {
+        _imageIds.Clear();
+        _imageIds.AddRange(imageIds);
+        Updated();
+    }
+
+    public void UpdateActivities(IEnumerable<Guid> activityIds)
+    {
+        _activityIds.Clear();
+        _activityIds.AddRange(activityIds);
         Updated();
     }
 

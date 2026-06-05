@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.GuideModule;
+using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Enums.TourGuideModule;
 
 namespace Fayora.Application.Common.Interfaces.Persistences.GuideModule;
@@ -21,6 +21,8 @@ public interface IPackageRepository
     Guid packageId,
     CancellationToken cancellationToken = default);
 
+    void AddPackageActivities(IEnumerable<PackageActivity> activities);
+    void RemovePackageActivities(IEnumerable<PackageActivity> activities);
 
     //for tourist's point of view
     Task<GuidePackage?> GetPackageWithOccurrencesAsync(
