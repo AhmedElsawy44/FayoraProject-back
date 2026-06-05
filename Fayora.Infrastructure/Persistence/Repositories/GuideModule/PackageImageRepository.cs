@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
+using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Domain.Entities.GuideModule;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,9 +11,13 @@ public class PackageImageRepository(ApplicationDbContext context) : IPackageImag
         context.PackageImages.AddRange(guideImages);
     }
 
+    public void RemovePackageImages(IEnumerable<PackageImage> guideImages)
+    {
+        context.PackageImages.RemoveRange(guideImages);
+    }
+
     public Task<List<PackageImage>> GetPackageImages(Guid packageId, CancellationToken cancellationToken)
     {
         return context.PackageImages.Where(x => x.PackageId == packageId).ToListAsync(cancellationToken);
     }
 }
-

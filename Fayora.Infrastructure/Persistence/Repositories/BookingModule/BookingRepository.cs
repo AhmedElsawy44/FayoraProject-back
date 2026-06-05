@@ -82,6 +82,16 @@ public class BookingRepository(ApplicationDbContext context) : IBookingRepositor
         context.Bookings.Remove(booking);
     }
 
+    public Task<bool> HasBookingsForPackageAsync(Guid packageId, CancellationToken cancellationToken = default)
+    {
+        return context.Bookings
+            .AsNoTracking()
+            .AnyAsync(
+                b => b.ServiceId == packageId
+                     && b.BookingStatus != BookingStatus.Cancelled,
+                cancellationToken);
+    }
+
     public async Task<FinancialSummary> GetFinancialSummaryAsync(
         DateTime startDate,
         DateTime endDate,
