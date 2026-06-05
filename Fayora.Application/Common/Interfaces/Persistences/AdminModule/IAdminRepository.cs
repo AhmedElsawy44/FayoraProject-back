@@ -1,4 +1,5 @@
 using Fayora.Application.Features.AdminModule.Queries.GetUserDetails;
+using Fayora.Application.Features.AdminModule.Queries.GetUnitOwnerVerificationDetails;
 using Fayora.Contracts.AdminModule.ChatbotMonitoring;
 using Fayora.Contracts.AdminModule.Cities;
 using Fayora.Contracts.AdminModule.FinancialTransactions;
@@ -82,4 +83,19 @@ public interface IAdminRepository
     Task<ChatbotSnapshotDto> GetChatbotSnapshotAsync(CancellationToken ct);
     Task<FinancialSnapshotDto> GetFinancialSnapshotAsync(CancellationToken ct);
     Task<GrowthIndicatorsDto> GetGrowthIndicatorsAsync(CancellationToken ct);
+
+    // Custom Admin Panel Enhancements
+    Task<GetDetailedAccommodationResponse?> GetDetailedAccommodationByIdAsync(Guid id, CancellationToken ct);
+    Task<GetUnitOwnerVerificationDetailsResponse?> GetUnitOwnerVerificationDetailsAsync(Guid id, CancellationToken ct);
+    Task<List<GetProvidersResponse>> GetProvidersAsync(string providerType, int pageNumber, int pageSize, string? searchQuery, CancellationToken ct);
+    Task<bool> DeleteAccommodationAsync(Guid id, CancellationToken ct);
+    Task<bool> DeleteTourPackageAsync(Guid id, CancellationToken ct);
+
+    Task<GetDetailedCompanyResponse?> GetDetailedCompanyByIdAsync(Guid id, CancellationToken ct);
+    Task<GetDetailedGuideResponse?> GetDetailedGuideByIdAsync(Guid id, CancellationToken ct);
+    Task<GetDetailedLocationResponse?> GetDetailedLocationByIdAsync(int id, CancellationToken ct);
+    Task<bool> UpdateCompanyDetailsAsync(Guid id, UpdateCompanyDetailsRequest request, CancellationToken ct);
+    Task<bool> UpdateGuideDetailsAsync(Guid id, UpdateGuideDetailsRequest request, CancellationToken ct);
+    Task<bool> DeleteCompanyAsync(Guid id, CancellationToken ct);
+    Task<bool> DeleteGuideAsync(Guid id, CancellationToken ct);
 }

@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
@@ -115,5 +115,33 @@ public class TourGuide : GuideAccountBase
         var citiesToAdd = newCities.Where(c => !existingCityIds.Contains(c.CityId));
 
         _guideCities.AddRange(citiesToAdd);
+    }
+
+    public void AdminUpdate(
+        decimal? baseRate,
+        PricingUnit? pricingUnit,
+        int? yearsOfExperience,
+        string? licenseNumber,
+        DateOnly? licenseExpiryDate,
+        bool isSuperGuide,
+        decimal averageRating,
+        int reviewCount,
+        int completedToursCount,
+        bool isAvailableForBooking,
+        decimal responseRate,
+        decimal cancellationRate)
+    {
+        BaseRate = baseRate;
+        PricingUnit = pricingUnit;
+        YearsOfExperience = yearsOfExperience;
+        LicenseNumber = licenseNumber;
+        LicenseExpiryDate = licenseExpiryDate;
+        IsSuperGuide = isSuperGuide;
+        AverageRating = averageRating;
+        ReviewCount = reviewCount;
+        CompletedToursCount = completedToursCount;
+        IsAvailableForBooking = isAvailableForBooking;
+        ResponseRate = responseRate;
+        CancellationRate = cancellationRate;
     }
 }

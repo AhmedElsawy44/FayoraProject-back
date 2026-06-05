@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 
@@ -54,5 +54,27 @@ public class TourCompany : GuideAccountBase
     public void IncrementCompletedTours()
     {
         CompletedToursCount++;
+    }
+
+    public void AdminUpdate(
+        string companyName,
+        bool isSuperCompany,
+        LicenseClass licenseClass,
+        decimal averageRating,
+        int reviewCount,
+        int completedToursCount,
+        bool isAvailableForBooking,
+        decimal responseRate,
+        decimal cancellationRate)
+    {
+        CompanyName = companyName;
+        IsSuperCompany = isSuperCompany;
+        LicenseClass = licenseClass;
+        AverageRating = averageRating;
+        ReviewCount = reviewCount;
+        CompletedToursCount = completedToursCount;
+        IsAvailableForBooking = isAvailableForBooking;
+        ResponseRate = responseRate;
+        CancellationRate = cancellationRate;
     }
 }
