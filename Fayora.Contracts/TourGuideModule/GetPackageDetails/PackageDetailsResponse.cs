@@ -28,7 +28,8 @@ namespace Fayora.Contracts.TourGuideModule.GetPackageDetails
     public record PackageActivityDetailsResponse(
         string Description,
         TimeOnly ActivityTime,
-        bool IsOptional
+        bool IsOptional,
+        int? LocationId
     );
 
     public record PackageOccurrenceResponse(
