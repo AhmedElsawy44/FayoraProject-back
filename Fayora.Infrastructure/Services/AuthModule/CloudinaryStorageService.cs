@@ -1,4 +1,4 @@
-﻿using CloudinaryDotNet;
+using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Infrastructure.Settings;
@@ -29,6 +29,8 @@ public class CloudinaryStorageService : IStorageService
         using var stream = file.OpenReadStream();
 
         var isImage = file.ContentType.StartsWith("image/");
+        var isVideo = file.ContentType.StartsWith("video/") || 
+                      new[] { ".mp4", ".mov", ".avi", ".mkv", ".webm" }.Contains(Path.GetExtension(file.FileName).ToLowerInvariant());
 
         var uploadParams = new RawUploadParams
         {
@@ -48,6 +50,17 @@ public class CloudinaryStorageService : IStorageService
 
             var imageResult = await _cloudinary.UploadAsync(imageParams, cancellationToken);
             return imageResult.SecureUrl.ToString();
+        }
+        else if (isVideo)
+        {
+            var videoParams = new VideoUploadParams
+            {
+                File = new FileDescription(file.FileName, stream),
+                Folder = $"Fayora/{folder}"
+            };
+
+            var videoResult = await _cloudinary.UploadAsync(videoParams, cancellationToken);
+            return videoResult.SecureUrl.ToString();
         }
 
         var result = await _cloudinary.UploadAsync(uploadParams, "raw");
