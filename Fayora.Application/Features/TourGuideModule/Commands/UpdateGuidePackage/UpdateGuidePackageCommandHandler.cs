@@ -34,6 +34,7 @@ public class UpdateGuidePackageCommandHandler(
         if (package is null)
             return GuideErrors.PackageNotFound;
 
+        // 2. Ownership check — only the owner can update
         if (package.UserId != userId)
             return GuideErrors.UnauthorizedPackageAccess;
 
@@ -105,6 +106,7 @@ public class UpdateGuidePackageCommandHandler(
  
         package.UpdateLocations(request.LocationIds);
 
+        // 12. Replace activities — delete old, create new
         var existingActivities = await packageRepository.GetActivitiesByPackageIdAsync(request.PackageId, cancellationToken);
         if (existingActivities.Any())
             packageRepository.RemovePackageActivities(existingActivities);
