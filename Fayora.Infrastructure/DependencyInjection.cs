@@ -10,6 +10,7 @@ using Fayora.Application.Common.Interfaces.Persistences.NotificationModule;
 using Fayora.Application.Common.Interfaces.Persistences.RecommendationModule;
 using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Common.Interfaces.Persistences.TouristModule;
+using Fayora.Application.Common.Interfaces.Persistences.ExploreModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Interfaces.Services.BookingModule;
 using Fayora.Application.Common.Interfaces.Services.ChatbotModule;
@@ -29,6 +30,7 @@ using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories.NotificationModule;
 using Fayora.Infrastructure.Persistence.Repositories.SharedModule;
 using Fayora.Infrastructure.Persistence.Repositories.TouristModule;
+using Fayora.Infrastructure.Persistence.Repositories.ExploreModule;
 using Fayora.Infrastructure.Services.AdminModule;
 using Fayora.Infrastructure.Services.Authentication;
 using Fayora.Infrastructure.Services.AuthModule;
@@ -125,6 +127,9 @@ public static class DependencyInjection
         services.AddScoped<ILocationRepository, LocationRepository>();
         services.AddScoped<ILocationImageRepository, LocationImageRepository>();
         services.AddScoped<IDiscountOfferRepository, DiscountOfferRepository>();
+
+        // Explore Module
+        services.AddScoped<IExploreRepository, ExploreRepository>();
 
         // Chat Module
         services.AddScoped<IChatRepository, ChatRepository>();
