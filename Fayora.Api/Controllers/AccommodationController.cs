@@ -3,6 +3,7 @@ using Fayora.Application.Features.AccommodationModule.Commands.CreateUnit;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitCalendarBlock;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitOwner;
 using Fayora.Application.Features.AccommodationModule.Queries.GetRecommendedUnits;
+using Fayora.Application.Features.AccommodationModule.Queries.GetUnitById;
 using Fayora.Application.Features.AccommodationModule.Queries.GetUnitsByType;
 using Fayora.Contracts.AccommodationModule.Requests;
 using Fayora.Contracts.AccommodationModule.Responses;
@@ -115,20 +116,18 @@ public class AccommodationController(ISender sender, IMapper mapper) : ApiContro
     }
 
 
-    //[HttpGet("housing-units/{id:guid}")]
-    //public async Task<IActionResult> GetUnitById(
-    //    [FromRoute] Guid id,
-    //    CancellationToken cancellationToken)
-    //{
-    //    var query = new GetUnitByIdQuery(id);
-
-    //    var result = await sender.Send(query, cancellationToken);
-
-    //    return result.Match(
-    //        value => Ok(value),
-    //        errors => Problem()
-    //    );
-    //}
+    [HttpGet("housing-units/{id:guid}")]
+    public async Task<IActionResult> GetUnitById(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetUnitByIdQuery(id);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(mapper.Map<GetUnitByIdResponse>(value)),
+            errors => Problem()
+        );
+    }
 
     //[HttpPost("housing-units/{id:guid}/views")]
     //public async Task<IActionResult> IncrementUnitViews(

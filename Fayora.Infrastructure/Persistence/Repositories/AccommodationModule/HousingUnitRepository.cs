@@ -24,19 +24,15 @@ public class HousingUnitRepository(ApplicationDbContext context) : IHousingUnitR
     }
 
     public async Task<HousingUnit?> GetUnitByIdAsync(
-    Guid unitId,
-    IHousingUnitRepository.UnitQueryOptions? options = null,
-    CancellationToken cancellationToken = default)
+        Guid unitId,
+        IHousingUnitRepository.UnitQueryOptions? options = null,
+        CancellationToken cancellationToken = default)
     {
         IQueryable<HousingUnit> query = context.HousingUnits;
 
-        if (options is not null)
-        {
-            if (options.IsReadOnly)
-            {
-                query = query.AsNoTracking();
-            }
-        }
+        if (options?.IsReadOnly == true)
+            query = query.AsNoTracking();
+
 
         return await query.FirstOrDefaultAsync(u => u.Id == unitId, cancellationToken);
     }

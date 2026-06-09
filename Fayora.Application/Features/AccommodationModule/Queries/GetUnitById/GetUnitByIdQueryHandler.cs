@@ -1,73 +1,80 @@
-//using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
-//using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
-//using Fayora.Application.Features.AccommodationModule.Common;
-//using Fayora.Domain.Common.Results;
-//using Fayora.Domain.Enums.SharedModule;
-//using MediatR;
+using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
+using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
+using Fayora.Application.Features.AccommodationModule.Common;
+using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.SharedModule;
+using MediatR;
 
-//namespace Fayora.Application.Features.AccommodationModule.Queries.GetUnitById;
+namespace Fayora.Application.Features.AccommodationModule.Queries.GetUnitById;
 
-//public class GetUnitByIdQueryHandler(
-//    IHousingUnitRepository housingUnitRepository,
-//    IMasterAmenityRepository masterAmenityRepository,
-//    IDiscountOfferRepository discountOfferRepository) : IRequestHandler<GetUnitByIdQuery, Result<GetUnitByIdResult>>
-//{
-//    public async Task<Result<GetUnitByIdResult>> Handle(GetUnitByIdQuery request, CancellationToken cancellationToken)
-//    {
-//        var option = new IHousingUnitRepository.UnitQueryOptions(
-//            IncludeAmenities: true,
-//            IncludeImages: true,
-//            IsReadOnly: true
-//        );
+public class GetUnitByIdQueryHandler(
+    IHousingUnitRepository housingUnitRepository,
+    IHousingUnitImageRepository housingUnitImageRepository,
+    IDiscountOfferRepository discountOfferRepository)
+    : IRequestHandler<GetUnitByIdQuery, Result<GetUnitByIdResult>>
+{
+    public async Task<Result<GetUnitByIdResult>> Handle(
+        GetUnitByIdQuery request,
+        CancellationToken cancellationToken)
+    {
+        var options = new IHousingUnitRepository.UnitQueryOptions(IsReadOnly: true);
 
-//        var unit = await housingUnitRepository.GetUnitByIdAsync(request.UnitId, option, cancellationToken);
+        var unit = await housingUnitRepository.GetUnitByIdAsync(
+            request.UnitId, options, cancellationToken);
 
-//        if (unit is null) return AccommodationErrors.UnitNotFound;
+        if (unit is null)
+            return AccommodationErrors.UnitNotFound;
 
-//        var amenityIds = unit.Amenities.Select(a => a.AmenityId).ToList();
 
-//        var amenities = amenityIds.Count != 0
-//            ? await masterAmenityRepository.GetAmenitiesByIdsAsync(amenityIds, cancellationToken)
-//            : [];
+        var images = await housingUnitImageRepository.GetByUnitIdAsync(
+            request.UnitId, cancellationToken);
 
-//        decimal discountedPricePerNight = unit.PricePerNight;
-//        var activeOffers = await discountOfferRepository.GetActiveByTargetAsync(
-//            unit.Id, OfferTargetType.HousingUnit, cancellationToken);
-//        var offer = activeOffers.FirstOrDefault();
-//        if (offer is not null)
-//        {
-//            var discountResult = offer.ApplyTo(unit.PricePerNight);
-//            if (!discountResult.IsError)
-//            {
-//                discountedPricePerNight = discountResult.Value;
-//            }
-//        }
+        var imageUrls = images.Select(i => i.ImageUrl.Value).ToList();
 
-//        return new GetUnitByIdResult(
-//            unit.Id,
-//            unit.OwnerId,
-//            unit.Title,
-//            unit.Description,
-//            unit.Type,
-//            unit.LocationId,
-//            unit.AddressDetails,
-//            unit.Coordinates,
-//            unit.NumberOfRooms,
-//            unit.BedRooms,
-//            unit.BathRooms,
-//            unit.NumberOfBeds,
-//            unit.MaxGuests,
-//            unit.CheckInTime,
-//            unit.CheckOutTime,
-//            unit.PricePerNight,
-//            discountedPricePerNight,
-//            unit.Rating,
-//            unit.ReviewCount,
-//            unit.Views,
-//            unit.MainImageUrl,
-//            unit.Images.Select(i => i.ImageUrl).ToList(),
-//            amenities,
-//            unit.CreatedAt
-//        );
-//    }
-//}
+
+        var amenities = Enum.GetValues<Fayora.Domain.Enums.AccommodationModule.Amenities>()
+            .Where(a => a != Fayora.Domain.Enums.AccommodationModule.Amenities.None
+                     && unit.Amenities.HasFlag(a))
+            .Select(a => a.ToString())
+            .ToList();
+
+
+        decimal discountedPricePerNight = unit.PricePerNight;
+        var activeOffers = await discountOfferRepository.GetActiveByTargetAsync(
+            unit.Id, OfferTargetType.HousingUnit, cancellationToken);
+        var offer = activeOffers.FirstOrDefault();
+        if (offer is not null)
+        {
+            var discountResult = offer.ApplyTo(unit.PricePerNight);
+            if (!discountResult.IsError)
+                discountedPricePerNight = discountResult.Value;
+        }
+
+        return new GetUnitByIdResult(
+            unit.Id,
+            unit.OwnerId,
+            unit.Title,
+            unit.Description,
+            unit.Type,
+            unit.LocationId,
+            unit.AddressDetails,
+            unit.Coordinates,
+            unit.NumberOfRooms,
+            unit.BedRooms,
+            unit.BathRooms,
+            unit.NumberOfBeds,
+            unit.MaxGuests,
+            unit.CheckInTime,
+            unit.CheckOutTime,
+            unit.PricePerNight,
+            discountedPricePerNight,
+            unit.Rating,
+            unit.ReviewCount,
+            unit.Views,
+            unit.MainImageUrl.Value,
+            imageUrls,
+            amenities,
+            unit.CreatedAt
+        );
+    }
+}
