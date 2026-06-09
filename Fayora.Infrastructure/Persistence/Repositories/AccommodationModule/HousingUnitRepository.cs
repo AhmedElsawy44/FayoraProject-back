@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
+using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Domain.Entities.AccommodationModule;
 using Fayora.Domain.Enums.AccommodationModule;
 using Fayora.Domain.Enums.TourGuideModule;
@@ -63,6 +63,33 @@ public class HousingUnitRepository(ApplicationDbContext context) : IHousingUnitR
         return await context.HousingUnits
             .AsNoTracking()
             .Where(u => u.Type == type && u.Status == ItemStatus.Active)
+            .OrderBy(u => Guid.NewGuid())
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<HousingUnit>> GetUnitsAsync(
+        HousingType? type = null,
+        string? searchTerm = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = context.HousingUnits
+            .AsNoTracking()
+            .Where(u => u.Status == ItemStatus.Active);
+
+        if (type.HasValue)
+        {
+            query = query.Where(u => u.Type == type.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var term = searchTerm.Trim().ToLower();
+            query = query.Where(u =>
+                u.Title.ToLower().Contains(term) ||
+                u.AddressDetails.ToLower().Contains(term));
+        }
+
+        return await query
             .OrderBy(u => Guid.NewGuid())
             .ToListAsync(cancellationToken);
     }
