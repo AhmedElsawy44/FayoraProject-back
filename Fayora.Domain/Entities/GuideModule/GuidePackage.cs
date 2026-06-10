@@ -167,6 +167,7 @@ public class GuidePackage : AuditableEntity<Guid>
         string title,
         string description,
         int durationHours,
+        int numOfDays,
         decimal adultPrice,
         decimal childPrice,
         TourType tourTypes,
@@ -185,12 +186,16 @@ public class GuidePackage : AuditableEntity<Guid>
         if (durationHours <= 0)
             return Error.Validation("Package.InvalidDuration", "Duration must be greater than zero.");
 
+        if (numOfDays <= 0)
+            return Error.Validation("Package.InvalidNumOfDays", "Number of days must be greater than zero.");
+
         if (maxCapacity <= 0)
             return Error.Validation("Package.InvalidCapacity", "Max capacity must be greater than zero.");
 
         Title = title;
         Description = description;
         DurationHours = durationHours;
+        NumOfDays = numOfDays;
         AdultPrice = adultPrice;
         ChildPrice = childPrice;
         TourTypes = tourTypes;
@@ -390,4 +395,11 @@ public class GuidePackage : AuditableEntity<Guid>
 
     public void AddNight(Guid nightId) => _nightIds.Add(nightId);
     public void AddNights(IEnumerable<Guid> nightIds) => _nightIds.AddRange(nightIds);
+
+    public void UpdateNights(IEnumerable<Guid> nightIds)
+    {
+        _nightIds.Clear();
+        _nightIds.AddRange(nightIds);
+        Updated();
+    }
 }

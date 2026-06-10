@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.GuideModule;
+using Fayora.Domain.Entities.GuideModule;
 
 namespace Fayora.Application.Common.Interfaces.Persistences.GuideModule
 {
@@ -6,6 +6,8 @@ namespace Fayora.Application.Common.Interfaces.Persistences.GuideModule
     {
         void Add(PackageAccommodation accommodation);
         Task<PackageAccommodation?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<List<PackageAccommodation>> GetByPackageIdAsync(Guid packageId, CancellationToken cancellationToken = default);
+        void RemoveAccommodations(List<PackageAccommodation> accommodations);
     }
 
 }

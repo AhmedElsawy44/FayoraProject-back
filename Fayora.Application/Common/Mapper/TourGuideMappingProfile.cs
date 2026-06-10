@@ -1,10 +1,12 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages;
+using Fayora.Application.Features.TourGuideModule.Queries.GetPackageAccommodation;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview;
 using Fayora.Contracts.TourGuideModule.CreateTourGuide;
 using Fayora.Contracts.TourGuideModule.GetMyPackages;
+using Fayora.Contracts.TourGuideModule.GetPackageAccommodation;
 using Fayora.Contracts.TourGuideModule.GetPackageDetails;
 using Fayora.Contracts.TourGuideModule.GetPackagePreview;
 using Fayora.Contracts.TourGuideModule.GetTourGuideById;
@@ -42,6 +44,6 @@ public class TourGuideMappingProfile : Profile
 
         CreateMap<PackageNightDetailsResult, PackageNightDetailsResponse>();
         CreateMap<PackageNightResult, PackageNightResponse>();
-
+        CreateMap<GetPackageAccommodationResult, GetPackageAccommodationResponse>();
     }
 }

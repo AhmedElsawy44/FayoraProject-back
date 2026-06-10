@@ -88,6 +88,7 @@ public class UpdateGuidePackageCommandHandler(
             request.Title,
             request.Description,
             request.DurationHours,
+            request.NumOfDays,
             request.AdultPrice,
             request.ChildPrice,
             request.TourType,
@@ -134,7 +135,7 @@ public class UpdateGuidePackageCommandHandler(
         package.UpdateActivities(newActivityIds);
 
 
-        // Nights
+        // Nights validations
         if (request.NumOfDays > 1 && (request.Nights == null || !request.Nights.Any()))
             return Error.Validation("Package.NightsRequired",
                 "Multi-day packages must include accommodation for each night.");
@@ -143,52 +144,77 @@ public class UpdateGuidePackageCommandHandler(
             return Error.Validation("Package.NoNightsAllowed",
                 "Single-day packages cannot have accommodation nights.");
 
-        // remove existing nights first
+        var expectedNightsCount = request.NumOfDays > 1 ? request.NumOfDays - 1 : 0;
+        if (request.NumOfDays > 1 && request.Nights?.Count != expectedNightsCount)
+            return Error.Validation("Package.InvalidNightsCount",
+                $"Number of nights must be exactly {expectedNightsCount}.");
+
+        if (request.Nights?.Any() == true && request.Nights.Count > expectedNightsCount)
+            return Error.Validation("Package.TooManyNights",
+                "Number of nights cannot exceed NumOfDays - 1.");
+
+        // remove existing nights and accommodations first
         var existingNights = await packageNightRepository.GetByPackageIdAsync(
             request.PackageId, cancellationToken);
         if (existingNights.Any())
             packageNightRepository.RemoveNights(existingNights);
 
+        var existingAccommodations = await packageAccommodationRepository.GetByPackageIdAsync(
+            request.PackageId, cancellationToken);
+        if (existingAccommodations.Any())
+            packageAccommodationRepository.RemoveAccommodations(existingAccommodations);
+
         // add new nights and accommodations
         if (request.Nights?.Any() == true)
         {
             var nightIds = new List<Guid>();
+            var createdAccommodations = new Dictionary<string, Guid>();
+
             foreach (var nightReq in request.Nights)
             {
                 Guid? accommodationId = null;
 
                 if (nightReq.NewAccommodation is not null)
                 {
-                    var (accommodationTypeOk, accommodationType) =
-                        EnumParser.TryParseEnum<PackageAccommodationType>(nightReq.NewAccommodation.Type);
-                    if (!accommodationTypeOk)
-                        return Error.Validation("PackageAccommodation.InvalidType", "Invalid accommodation type.");
+                    var key = $"{nightReq.NewAccommodation.Name.Trim().ToLower()}_{nightReq.NewAccommodation.Type}";
 
-                    PackageAmenities combinedAmenities = PackageAmenities.None;
-                    if (nightReq.NewAccommodation.Amenities?.Any() == true)
+                    if (createdAccommodations.TryGetValue(key, out var existingAccommodationId))
                     {
-                        foreach (var amenity in nightReq.NewAccommodation.Amenities)
-                        {
-                            var (amenityOk, amenityValue) = EnumParser.TryParseEnum<PackageAmenities>(amenity);
-                            if (amenityOk) combinedAmenities |= amenityValue;
-                        }
+                        accommodationId = existingAccommodationId;
                     }
+                    else
+                    {
+                        if (!Enum.TryParse<PackageAccommodationType>(nightReq.NewAccommodation.Type, out var accommodationType))
+                            return Error.Validation("PackageAccommodation.InvalidType", "Invalid accommodation type.");
 
-                    var accommodationResult = PackageAccommodation.Create(
-                        package.Id,
-                        nightReq.NewAccommodation.Name,
-                        nightReq.NewAccommodation.Description,
-                        accommodationType,
-                        nightReq.NewAccommodation.MainImageUrl,
-                        nightReq.NewAccommodation.Latitude,
-                        nightReq.NewAccommodation.Longitude,
-                        nightReq.NewAccommodation.CheckInTime,
-                        nightReq.NewAccommodation.CheckOutTime,
-                        combinedAmenities);
+                        PackageAmenities combinedAmenities = PackageAmenities.None;
+                        if (nightReq.NewAccommodation.Amenities?.Any() == true)
+                        {
+                            foreach (var amenity in nightReq.NewAccommodation.Amenities)
+                            {
+                                if (Enum.TryParse<PackageAmenities>(amenity, out var amenityValue))
+                                    combinedAmenities |= amenityValue;
+                            }
+                        }
 
-                    if (accommodationResult.IsError) return accommodationResult.Errors;
-                    accommodationId = accommodationResult.Value.Id;
-                    packageAccommodationRepository.Add(accommodationResult.Value);
+                        var accommodationResult = PackageAccommodation.Create(
+                            package.Id,
+                            nightReq.NewAccommodation.Name,
+                            nightReq.NewAccommodation.Description,
+                            accommodationType,
+                            nightReq.NewAccommodation.MainImageUrl,
+                            nightReq.NewAccommodation.Latitude,
+                            nightReq.NewAccommodation.Longitude,
+                            nightReq.NewAccommodation.CheckInTime,
+                            nightReq.NewAccommodation.CheckOutTime,
+                            combinedAmenities,
+                            nightReq.NewAccommodation.GalleryImages);
+
+                        if (accommodationResult.IsError) return accommodationResult.Errors;
+                        accommodationId = accommodationResult.Value.Id;
+                        createdAccommodations[key] = accommodationId.Value;
+                        packageAccommodationRepository.Add(accommodationResult.Value);
+                    }
                 }
 
                 var nightResult = PackageNight.Create(
@@ -203,7 +229,11 @@ public class UpdateGuidePackageCommandHandler(
                 packageNightRepository.Add(nightResult.Value);
             }
 
-            package.AddNights(nightIds);
+            package.UpdateNights(nightIds);
+        }
+        else
+        {
+            package.UpdateNights([]);
         }
 
 

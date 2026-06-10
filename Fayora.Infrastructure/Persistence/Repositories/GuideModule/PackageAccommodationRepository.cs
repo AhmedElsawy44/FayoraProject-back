@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
+using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Domain.Entities.GuideModule;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -16,5 +16,13 @@ namespace Fayora.Infrastructure.Persistence.Repositories.GuideModule
             => await context.PackageAccommodations
                 .AsNoTracking()
                 .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+
+        public async Task<List<PackageAccommodation>> GetByPackageIdAsync(Guid packageId, CancellationToken cancellationToken = default)
+            => await context.PackageAccommodations
+                .Where(a => a.PackageId == packageId)
+                .ToListAsync(cancellationToken);
+
+        public void RemoveAccommodations(List<PackageAccommodation> accommodations)
+            => context.PackageAccommodations.RemoveRange(accommodations);
     }
 }
