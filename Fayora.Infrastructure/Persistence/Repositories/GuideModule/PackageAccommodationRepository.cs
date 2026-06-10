@@ -1,0 +1,20 @@
+﻿using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
+using Fayora.Domain.Entities.GuideModule;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Fayora.Infrastructure.Persistence.Repositories.GuideModule
+{
+    public class PackageAccommodationRepository(ApplicationDbContext context) : IPackageAccommodationRepository
+    {
+        public void Add(PackageAccommodation accommodation)
+            => context.PackageAccommodations.Add(accommodation);
+
+        public async Task<PackageAccommodation?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+            => await context.PackageAccommodations
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+    }
+}

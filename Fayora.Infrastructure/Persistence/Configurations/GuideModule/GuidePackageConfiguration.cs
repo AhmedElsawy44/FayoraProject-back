@@ -72,6 +72,14 @@ public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
                 v => JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions?)null) ?? new List<Guid>())
             .Metadata.SetValueComparer(CreateGuidListComparer());
 
+        builder.Property<List<Guid>>("_nightIds")
+           .HasColumnName("NightIds")
+           .HasConversion(
+               v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+               v => JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions?)null) ?? new List<Guid>())
+           .Metadata.SetValueComparer(CreateGuidListComparer());
+
+
         builder.Property(x => x.TourTypes).HasConversion<int>();
 
         builder.HasMany(p => p.Occurrences)

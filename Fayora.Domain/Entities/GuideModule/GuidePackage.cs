@@ -16,6 +16,8 @@ public class GuidePackage : AuditableEntity<Guid>
     public ProviderType ProviderType { get; private set; }
     public int DurationHours { get; private set; }
     public int NumOfDays { get; private set; }
+    public int NumOfNights => NumOfDays > 1 ? NumOfDays - 1 : 0;
+
     public int MaxCapacity { get; private set; }
     public decimal AdultPrice { get; private set; }
     public decimal ChildPrice { get; private set; }
@@ -49,6 +51,9 @@ public class GuidePackage : AuditableEntity<Guid>
     private readonly List<Guid> _activityIds = [];
     public IReadOnlyCollection<Guid> ActivityIds => _activityIds.AsReadOnly();
 
+    private readonly List<Guid> _nightIds = [];
+    public IReadOnlyCollection<Guid> NightIds => _nightIds.AsReadOnly();
+
     private readonly List<PackageOccurrence> _occurrences = [];
     public IReadOnlyCollection<PackageOccurrence> Occurrences => _occurrences.AsReadOnly();
 
@@ -62,6 +67,7 @@ public class GuidePackage : AuditableEntity<Guid>
         TourType tourTypes,
         ProviderType providerType,
         int durationHours,
+        int numOfDays,
         GeoPoint meetingPoint,
         TransportType transportType,
         int maxCapacity,
@@ -80,6 +86,7 @@ public class GuidePackage : AuditableEntity<Guid>
         TourTypes = tourTypes;
         ProviderType = providerType;
         DurationHours = durationHours;
+        NumOfDays = numOfDays;
         MeetingPoint = meetingPoint;
         TransportType = transportType;
         MaxCapacity = maxCapacity;
@@ -99,7 +106,7 @@ public class GuidePackage : AuditableEntity<Guid>
 
     public static Result<GuidePackage> Create(
         Guid guideId, string title, string description,
-        TourType tourTypes, ProviderType providerType, int durationHours,
+        TourType tourTypes, ProviderType providerType, int durationHours,int numOfDays,
         GeoPoint meetingPoint, TransportType transportType,
         int maxCapacity, decimal adultPrice, decimal childPrice,
         string? arrivalNote, FileUrl mainImageUrl,
@@ -111,11 +118,14 @@ public class GuidePackage : AuditableEntity<Guid>
         if (durationHours <= 0)
             return Error.Validation("Package.InvalidDuration", "Duration must be greater than zero.");
 
+        if (numOfDays <= 0)
+            return Error.Validation("Package.InvalidNumOfDays", "Number of days must be greater than zero.");
+
         if (maxCapacity <= 0)
             return Error.Validation("Package.InvalidCapacity", "Max capacity must be greater than zero.");
 
         return new GuidePackage(guideId, title, description, tourTypes, providerType,
-            durationHours, meetingPoint, transportType, maxCapacity,
+            durationHours, numOfDays, meetingPoint, transportType, maxCapacity,
             adultPrice, childPrice, arrivalNote, mainImageUrl,
             mainVideoUrl, guestRequirements, cancellationPolicy);
     }
@@ -377,4 +387,7 @@ public class GuidePackage : AuditableEntity<Guid>
         PackageStatus = status;
         Updated();
     }
+
+    public void AddNight(Guid nightId) => _nightIds.Add(nightId);
+    public void AddNights(IEnumerable<Guid> nightIds) => _nightIds.AddRange(nightIds);
 }

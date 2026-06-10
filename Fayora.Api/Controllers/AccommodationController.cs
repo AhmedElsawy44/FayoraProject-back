@@ -4,7 +4,6 @@ using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitCalenda
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitOwner;
 using Fayora.Application.Features.AccommodationModule.Queries.GetRecommendedUnits;
 using Fayora.Application.Features.AccommodationModule.Queries.GetUnitById;
-using Fayora.Application.Features.AccommodationModule.Queries.GetUnitsByType;
 using Fayora.Application.Features.AccommodationModule.Queries.GetUnits;
 using Fayora.Contracts.AccommodationModule.Requests;
 using Fayora.Contracts.AccommodationModule.Responses;
