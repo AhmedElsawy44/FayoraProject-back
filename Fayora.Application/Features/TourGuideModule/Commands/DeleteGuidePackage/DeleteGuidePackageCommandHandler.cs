@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
+using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.TourGuideModule.Common;
@@ -15,6 +15,8 @@ public class DeleteGuidePackageCommandHandler(
     ITourGuideRepository tourGuideRepository,
     ITourCompanyRepository tourCompanyRepository,
     IPackageRepository packageRepository,
+    IPackageNightRepository packageNightRepository,
+    IPackageAccommodationRepository packageAccommodationRepository,
     IUnitOfWork unitOfWork,
     IClientContextProvider clientContextProvider) : IRequestHandler<DeleteGuidePackageCommand, Result<Unit>>
 {
@@ -43,6 +45,15 @@ public class DeleteGuidePackageCommandHandler(
         if (package is null) return TourGuideErrors.PackageNotFound;
 
         package.Delete();
+
+        // Delete associated nights and accommodations
+        var existingNights = await packageNightRepository.GetByPackageIdAsync(request.PackageId, cancellationToken);
+        if (existingNights.Any())
+            packageNightRepository.RemoveNights(existingNights);
+
+        var existingAccommodations = await packageAccommodationRepository.GetByPackageIdAsync(request.PackageId, cancellationToken);
+        if (existingAccommodations.Any())
+            packageAccommodationRepository.RemoveAccommodations(existingAccommodations);
 
 
         await unitOfWork.CommitChangesAsync(cancellationToken);
