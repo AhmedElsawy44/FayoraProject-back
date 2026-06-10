@@ -113,48 +113,60 @@ public class CreateGuidePackageCommandHandler(
 
         if (request.Nights?.Any() == true)
         {
-           
             if (request.Nights.Count > package.NumOfNights)
                 return Error.Validation("Package.TooManyNights",
                     "Number of nights cannot exceed NumOfDays - 1.");
 
             var nightIds = new List<Guid>();
+            var createdAccommodations = new Dictionary<string, Guid>(); // Key: "Name|Type", Value: AccommodationId , to avoid creating duplicate accommodations with the same name and type in more than one night
+
             foreach (var nightReq in request.Nights)
             {
                 Guid? accommodationId = null;
 
                 if (nightReq.NewAccommodation is not null)
                 {
+                    var key = $"{nightReq.NewAccommodation.Name.Trim().ToLower()}_{nightReq.NewAccommodation.Type}";
 
-                    if (!Enum.TryParse<PackageAccommodationType>(nightReq.NewAccommodation.Type, out var accommodationType))
-                        return Error.Validation("PackageAccommodation.InvalidType", "Invalid accommodation type.");
-
-                    PackageAmenities combinedAmenities = PackageAmenities.None;
-                    if (nightReq.NewAccommodation.Amenities?.Any() == true)
+                    if (createdAccommodations.TryGetValue(key, out var existingAccommodationId))
                     {
-                        foreach (var amenity in nightReq.NewAccommodation.Amenities)
-                        {
-                            if (Enum.TryParse<PackageAmenities>(amenity, out var amenityValue))
-                                combinedAmenities |= amenityValue;
-                        }
+                        //the same accommodation was created before in the same request
+                        accommodationId = existingAccommodationId;
                     }
+                    else
+                    {
+                        if (!Enum.TryParse<PackageAccommodationType>(nightReq.NewAccommodation.Type, out var accommodationType))
+                            return Error.Validation("PackageAccommodation.InvalidType", "Invalid accommodation type.");
 
-                    var accommodationResult = PackageAccommodation.Create(
-                        package.Id,
-                        nightReq.NewAccommodation.Name,
-                        nightReq.NewAccommodation.Description,
-                        accommodationType,
-                        nightReq.NewAccommodation.MainImageUrl,
-                        nightReq.NewAccommodation.Latitude,
-                        nightReq.NewAccommodation.Longitude,
-                        nightReq.NewAccommodation.CheckInTime,
-                        nightReq.NewAccommodation.CheckOutTime,
-                        combinedAmenities,
-                        nightReq.NewAccommodation.GalleryImages);
+                        PackageAmenities combinedAmenities = PackageAmenities.None;
+                        if (nightReq.NewAccommodation.Amenities?.Any() == true)
+                        {
+                            foreach (var amenity in nightReq.NewAccommodation.Amenities)
+                            {
+                                if (Enum.TryParse<PackageAmenities>(amenity, out var amenityValue))
+                                    combinedAmenities |= amenityValue;
+                            }
+                        }
 
-                    if (accommodationResult.IsError) return accommodationResult.Errors;
-                    accommodationId = accommodationResult.Value.Id;
-                    packageAccommodationRepository.Add(accommodationResult.Value);
+                        var accommodationResult = PackageAccommodation.Create(
+                            package.Id,
+                            nightReq.NewAccommodation.Name,
+                            nightReq.NewAccommodation.Description,
+                            accommodationType,
+                            nightReq.NewAccommodation.MainImageUrl,
+                            nightReq.NewAccommodation.Latitude,
+                            nightReq.NewAccommodation.Longitude,
+                            nightReq.NewAccommodation.CheckInTime,
+                            nightReq.NewAccommodation.CheckOutTime,
+                            combinedAmenities,
+                            nightReq.NewAccommodation.GalleryImages);
+
+                        if (accommodationResult.IsError) return accommodationResult.Errors;
+
+                        accommodationId = accommodationResult.Value.Id;
+                        createdAccommodations[key] = accommodationId.Value; 
+                        packageAccommodationRepository.Add(accommodationResult.Value);
+                    }
                 }
 
                 var nightResult = PackageNight.Create(
