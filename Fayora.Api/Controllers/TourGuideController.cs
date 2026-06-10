@@ -9,8 +9,8 @@ using Fayora.Application.Features.TourGuideModule.Commands.DeactivateGuidePackag
 using Fayora.Application.Features.TourGuideModule.Commands.DeleteGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.UpdateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.UpdateTourGuide;
-using Fayora.Contracts.TourGuideModule.UpdateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages;
+using Fayora.Application.Features.TourGuideModule.Queries.GetPackageAccommodation;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview;
 using Fayora.Application.Features.TourGuideModule.Queries.GetRecommendedGuides;
@@ -21,8 +21,10 @@ using Fayora.Contracts.TourGuideModule.CreateTourCompany;
 using Fayora.Contracts.TourGuideModule.CreateTourGuide;
 using Fayora.Contracts.TourGuideModule.CreateWeeklySchedule;
 using Fayora.Contracts.TourGuideModule.GetMyPackages;
+using Fayora.Contracts.TourGuideModule.GetPackageAccommodation;
 using Fayora.Contracts.TourGuideModule.GetPackageDetails;
 using Fayora.Contracts.TourGuideModule.GetPackagePreview;
+using Fayora.Contracts.TourGuideModule.UpdateGuidePackage;
 using Fayora.Contracts.TourGuideModule.UpdateTourGuide;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
@@ -350,6 +352,19 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
         var result = await sender.Send(query, cancellationToken);
         return result.Match(
             value => Ok(value),
+            Problem);
+    }
+
+
+    [HttpGet("package-accommodations/{packageAccommodationId:guid}")]
+    public async Task<IActionResult> GetPackageAccommodation(
+    [FromRoute] Guid packageAccommodationId,
+    CancellationToken cancellationToken)
+    {
+        var query = new GetPackageAccommodationQuery(packageAccommodationId);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(mapper.Map<GetPackageAccommodationResponse>(value)),
             Problem);
     }
 }
