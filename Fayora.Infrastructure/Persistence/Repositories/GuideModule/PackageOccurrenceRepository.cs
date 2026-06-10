@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
+using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Features.AdminModule.Queries.GetCalendarBookings;
 using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Enums.TourGuideModule;
@@ -35,10 +35,23 @@ public class PackageOccurrenceRepository(ApplicationDbContext context)
         return await query.ToListAsync(cancellationToken);
     }
 
+    public Task<PackageOccurrence?> GetOccurrenceByIdAsync(Guid occurrenceId, CancellationToken cancellationToken)
+    {
+        return context.PackageOccurrences
+            .FirstOrDefaultAsync(x => x.Id == occurrenceId, cancellationToken);
+    }
+
     public Task<PackageOccurrence?> GetOccurrenceByPackageIdAndDate(Guid packageId, DateOnly date, CancellationToken cancellationToken)
     {
         return context.PackageOccurrences
             .FirstOrDefaultAsync(x => x.PackageId == packageId && x.Date == date, cancellationToken);
+    }
+
+    public Task<List<PackageOccurrence>> GetOccurrencesByPackageIdAsync(Guid packageId, CancellationToken cancellationToken)
+    {
+        return context.PackageOccurrences
+            .Where(x => x.PackageId == packageId)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<bool> HasOverlappingOccurrenceAsync(Guid packageId, List<DateOnly> dates, CancellationToken cancellationToken)
@@ -62,5 +75,10 @@ public class PackageOccurrenceRepository(ApplicationDbContext context)
                                  cancellationToken);
 
         occurrence?.ReleaseSeats(count);
+    }
+
+    public void Remove(PackageOccurrence occurrence)
+    {
+        context.PackageOccurrences.Remove(occurrence);
     }
 }

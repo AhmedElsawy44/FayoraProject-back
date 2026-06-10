@@ -12,6 +12,8 @@ public interface IBookingRepository
     Task<bool> HasOverlapAsync(Guid serviceId, DateTime startDateTime, DateTime endDateTime, CancellationToken cancellationToken = default);
     Task<bool> HasBookingsForPackageAsync(Guid packageId, CancellationToken cancellationToken = default);
 
+    Task<bool> HasBookingsForOccurrenceAsync(Guid packageId, DateOnly date, CancellationToken cancellationToken = default);
+
     void RemoveBooking(Booking booking);
 
     //for expired pending bookings

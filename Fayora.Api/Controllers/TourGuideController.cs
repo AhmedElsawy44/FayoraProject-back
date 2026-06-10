@@ -8,6 +8,8 @@ using Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Commands.DeactivateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.DeleteGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.UpdateGuidePackage;
+using Fayora.Application.Features.TourGuideModule.Commands.UpdatePackageOccurrence;
+using Fayora.Application.Features.TourGuideModule.Commands.DeletePackageOccurrence;
 using Fayora.Application.Features.TourGuideModule.Commands.UpdateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackageAccommodation;
@@ -25,6 +27,7 @@ using Fayora.Contracts.TourGuideModule.GetPackageAccommodation;
 using Fayora.Contracts.TourGuideModule.GetPackageDetails;
 using Fayora.Contracts.TourGuideModule.GetPackagePreview;
 using Fayora.Contracts.TourGuideModule.UpdateGuidePackage;
+using Fayora.Contracts.TourGuideModule.UpdatePackageOccurrence;
 using Fayora.Contracts.TourGuideModule.UpdateTourGuide;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
@@ -368,5 +371,43 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
         return result.Match(
             value => Ok(mapper.Map<GetPackageAccommodationResponse>(value)),
             Problem);
+    }
+
+    [HttpPut("{packageId:guid}/occurrences/{occurrenceId:guid}")]
+    public async Task<IActionResult> UpdateOccurrence(
+        [FromRoute] Guid packageId,
+        [FromRoute] Guid occurrenceId,
+        [FromBody] UpdatePackageOccurrenceRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdatePackageOccurrenceCommand(
+            packageId,
+            occurrenceId,
+            request.NewDate,
+            request.NewAvailableSeats
+        );
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            _ => NoContent(),
+            Problem
+        );
+    }
+
+    [HttpDelete("{packageId:guid}/occurrences/{occurrenceId:guid}")]
+    public async Task<IActionResult> DeleteOccurrence(
+        [FromRoute] Guid packageId,
+        [FromRoute] Guid occurrenceId,
+        CancellationToken cancellationToken)
+    {
+        var command = new DeletePackageOccurrenceCommand(packageId, occurrenceId);
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            _ => NoContent(),
+            Problem
+        );
     }
 }
