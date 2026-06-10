@@ -12,6 +12,9 @@ namespace Fayora.Infrastructure.Persistence.Repositories.GuideModule
         public void Add(PackageNight night)
             => context.PackageNights.Add(night);
 
+        public void RemoveNights(List<PackageNight> nights)
+           => context.PackageNights.RemoveRange(nights);
+
         public async Task<List<PackageNight>> GetByPackageIdAsync(Guid packageId, CancellationToken cancellationToken = default)
             => await context.PackageNights
                 .AsNoTracking()

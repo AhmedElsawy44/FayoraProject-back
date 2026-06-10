@@ -174,6 +174,8 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             request.Description,
             tourType,
             request.DurationHours,
+            request.NumOfDays,
+            request.Nights,
             request.Longitude,
             request.Latitude,
             transportType,

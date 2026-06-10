@@ -4,6 +4,7 @@ using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Application.Features.TourGuideModule.Common;
+using Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.IPackageRepository;
@@ -15,6 +16,7 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
     public class GetPackagePreviewQueryHandler(
         IPackageRepository packageRepository,
         ITourGuideRepository tourGuideRepository,
+        IPackageNightRepository packageNightRepository,
         IUserRepository userRepository,
         IDiscountOfferRepository discountOfferRepository)
     : IQueryHandler<GetPackagePreviewQuery, Result<PackagePreviewResult>>
@@ -31,6 +33,9 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
 
             var activities = await packageRepository.GetActivitiesByPackageIdAsync(
                 request.PackageId, cancellationToken);
+
+            var nights = await packageNightRepository.GetByPackageIdAsync(
+               request.PackageId, cancellationToken);
 
             var guide = await tourGuideRepository.GetGuideByIdAsync(
                 package.UserId,
@@ -70,6 +75,8 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
                 discountedAdultPrice,
                 discountedChildPrice,
                 package.DurationHours,
+                package.NumOfDays,
+                package.NumOfNights,
                 package.MainImageUrl.Value,
                 package.ImageIds.Select(id => id.ToString()).ToList(),
                 package.IncludedItemIds.ToList(),
@@ -79,6 +86,12 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
                     a.ActivityTime,
                     a.IsOptional,
                     a.LocationId)).ToList(),
+                nights.Select(n => new PackageNightResult(
+                    n.Id,
+                    n.NightNumber,
+                    n.NightDate,
+                    n.HousingUnitId,
+                    n.PackageAccommodationId)).ToList(),
                 new GeoPointResult(
                     package.MeetingPoint.Latitude,
                     package.MeetingPoint.Longitude),

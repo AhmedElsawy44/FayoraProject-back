@@ -40,5 +40,8 @@ public class TourGuideMappingProfile : Profile
         CreateMap<GetMyPackagesResult, MyPackagesResponse>();
         CreateMap<PackageSummaryResult, PackageSummaryResponse>();
 
+        CreateMap<PackageNightDetailsResult, PackageNightDetailsResponse>();
+        CreateMap<PackageNightResult, PackageNightResponse>();
+
     }
 }
