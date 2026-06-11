@@ -38,6 +38,8 @@ public class GuidePackage : AuditableEntity<Guid>
     public string? ArrivalNote { get; private set; }
     public TransportType TransportType { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
+    public decimal AverageRating { get; private set; }
+    public int ReviewCount { get; private set; }
 
     private readonly List<int> _locationIds = [];
     public IReadOnlyCollection<int> LocationIds => _locationIds.AsReadOnly();
@@ -99,6 +101,8 @@ public class GuidePackage : AuditableEntity<Guid>
 
         IsActive = false;
         Views = 0;
+        AverageRating = 0m;
+        ReviewCount = 0;
 
         CancellationPolicy = cancellationPolicy;
         PackageStatus = ItemStatus.Pending;
@@ -401,5 +405,33 @@ public class GuidePackage : AuditableEntity<Guid>
         _nightIds.Clear();
         _nightIds.AddRange(nightIds);
         Updated();
+    }
+
+    public void AddReview(decimal newRating)
+    {
+        AverageRating = ((AverageRating * ReviewCount) + newRating) / (ReviewCount + 1);
+        ReviewCount++;
+    }
+
+    public void UpdateReview(decimal oldRating, decimal newRating)
+    {
+        if (ReviewCount > 0)
+        {
+            AverageRating = ((AverageRating * ReviewCount) - oldRating + newRating) / ReviewCount;
+        }
+    }
+
+    public void DeleteReview(decimal rating)
+    {
+        if (ReviewCount > 1)
+        {
+            AverageRating = ((AverageRating * ReviewCount) - rating) / (ReviewCount - 1);
+            ReviewCount--;
+        }
+        else
+        {
+            AverageRating = 0;
+            ReviewCount = 0;
+        }
     }
 }

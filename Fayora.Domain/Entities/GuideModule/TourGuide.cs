@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
@@ -83,6 +83,28 @@ public class TourGuide : GuideAccountBase
     {
         AverageRating = ((AverageRating * ReviewCount) + newRating) / (ReviewCount + 1);
         ReviewCount++;
+    }
+
+    public void UpdateReview(decimal oldRating, decimal newRating)
+    {
+        if (ReviewCount > 0)
+        {
+            AverageRating = ((AverageRating * ReviewCount) - oldRating + newRating) / ReviewCount;
+        }
+    }
+
+    public void DeleteReview(decimal rating)
+    {
+        if (ReviewCount > 1)
+        {
+            AverageRating = ((AverageRating * ReviewCount) - rating) / (ReviewCount - 1);
+            ReviewCount--;
+        }
+        else
+        {
+            AverageRating = 0;
+            ReviewCount = 0;
+        }
     }
 
     public void MarkTourCompleted()
