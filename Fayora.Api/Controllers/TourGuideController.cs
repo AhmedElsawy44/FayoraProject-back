@@ -14,6 +14,7 @@ using Fayora.Application.Features.TourGuideModule.Commands.UpdateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackageAccommodation;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails;
+using Fayora.Application.Features.TourGuideModule.Queries.GetPackageOccurrenceDetails;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview;
 using Fayora.Application.Features.TourGuideModule.Queries.GetRecommendedGuides;
 using Fayora.Application.Features.TouristModule.Queries.GetRecommendedPackages;
@@ -25,6 +26,7 @@ using Fayora.Contracts.TourGuideModule.CreateWeeklySchedule;
 using Fayora.Contracts.TourGuideModule.GetMyPackages;
 using Fayora.Contracts.TourGuideModule.GetPackageAccommodation;
 using Fayora.Contracts.TourGuideModule.GetPackageDetails;
+using Fayora.Contracts.TourGuideModule.GetPackageOccurrenceDetails;
 using Fayora.Contracts.TourGuideModule.GetPackagePreview;
 using Fayora.Contracts.TourGuideModule.UpdateGuidePackage;
 using Fayora.Contracts.TourGuideModule.UpdatePackageOccurrence;
@@ -409,5 +411,18 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             _ => NoContent(),
             Problem
         );
+    }
+
+    [HttpGet("packages/{packageId:guid}/occurrences/{occurrenceId:guid}/details")]
+    public async Task<IActionResult> GetPackageOccurrenceDetails(
+        [FromRoute] Guid packageId,
+        [FromRoute] Guid occurrenceId,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetPackageOccurrenceDetailsQuery(packageId, occurrenceId);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(mapper.Map<PackageOccurrenceDetailsResponse>(value)),
+            Problem);
     }
 }

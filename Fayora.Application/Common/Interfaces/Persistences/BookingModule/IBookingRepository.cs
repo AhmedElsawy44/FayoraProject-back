@@ -38,4 +38,9 @@ public interface IBookingRepository
     Task<CombinedGmvDto> GetCompaniesGmvAsync(CancellationToken cancellationToken);
     Task<AvgCommissionDto> GetCompaniesAvgCommissionAsync(CancellationToken cancellationToken);
     Task<double> GetLocationsAvgOccupancyAsync(CancellationToken cancellationToken = default);
+
+    Task<List<Booking>> GetBookingsForOccurrenceAsync(
+        Guid packageId,
+        DateOnly date,
+        CancellationToken cancellationToken = default);
 }

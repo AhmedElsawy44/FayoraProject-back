@@ -358,4 +358,23 @@ public class BookingRepository(ApplicationDbContext context) : IBookingRepositor
 
         return Math.Round(occupancyRate, 2);
     }
+
+    public async Task<List<Booking>> GetBookingsForOccurrenceAsync(
+        Guid packageId,
+        DateOnly date,
+        CancellationToken cancellationToken = default)
+    {
+        var startOfDay = date.ToDateTime(TimeOnly.MinValue);
+        var endOfDay = date.ToDateTime(TimeOnly.MaxValue);
+
+        return await context.Bookings
+            .AsNoTracking()
+            .Where(b =>
+                b.ServiceId == packageId &&
+                b.ServiceType == ServiceType.GuidePackage &&
+                b.BookingStatus != BookingStatus.Cancelled &&
+                b.StartDate >= startOfDay &&
+                b.StartDate <= endOfDay)
+            .ToListAsync(cancellationToken);
+    }
 }
