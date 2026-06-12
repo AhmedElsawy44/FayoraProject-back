@@ -92,6 +92,21 @@ public class BookingRepository(ApplicationDbContext context) : IBookingRepositor
                 cancellationToken);
     }
 
+    public Task<bool> HasBookingsForOccurrenceAsync(Guid packageId, DateOnly date, CancellationToken cancellationToken = default)
+    {
+        var startOfDay = date.ToDateTime(TimeOnly.MinValue);
+        var endOfDay = date.ToDateTime(TimeOnly.MaxValue);
+
+        return context.Bookings
+            .AsNoTracking()
+            .AnyAsync(
+                b => b.ServiceId == packageId
+                     && b.BookingStatus != BookingStatus.Cancelled
+                     && b.StartDate >= startOfDay
+                     && b.StartDate <= endOfDay,
+                cancellationToken);
+    }
+
     public async Task<FinancialSummary> GetFinancialSummaryAsync(
         DateTime startDate,
         DateTime endDate,
@@ -342,5 +357,24 @@ public class BookingRepository(ApplicationDbContext context) : IBookingRepositor
         double occupancyRate = ((double)bookedUnitsCount / totalHousingUnits) * 100;
 
         return Math.Round(occupancyRate, 2);
+    }
+
+    public async Task<List<Booking>> GetBookingsForOccurrenceAsync(
+        Guid packageId,
+        DateOnly date,
+        CancellationToken cancellationToken = default)
+    {
+        var startOfDay = date.ToDateTime(TimeOnly.MinValue);
+        var endOfDay = date.ToDateTime(TimeOnly.MaxValue);
+
+        return await context.Bookings
+            .AsNoTracking()
+            .Where(b =>
+                b.ServiceId == packageId &&
+                b.ServiceType == ServiceType.GuidePackage &&
+                b.BookingStatus != BookingStatus.Cancelled &&
+                b.StartDate >= startOfDay &&
+                b.StartDate <= endOfDay)
+            .ToListAsync(cancellationToken);
     }
 }

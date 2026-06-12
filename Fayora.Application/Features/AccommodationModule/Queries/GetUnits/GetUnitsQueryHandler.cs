@@ -6,21 +6,22 @@ using Fayora.Contracts.AccommodationModule.Responses;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 
-namespace Fayora.Application.Features.AccommodationModule.Queries.GetUnitsByType
+namespace Fayora.Application.Features.AccommodationModule.Queries.GetUnits
 {
 
-    public class GetUnitsByTypeQueryHandler(
+    public class GetUnitsQueryHandler(
         IHousingUnitRepository housingUnitRepository,
         IDiscountOfferRepository discountOfferRepository,
         IMapper mapper)
-        : IQueryHandler<GetUnitsByTypeQuery, Result<List<GetAllUnitsByTypeResponse>>>
+        : IQueryHandler<GetUnitsQuery, Result<List<GetAllUnitsByTypeResponse>>>
     {
         public async Task<Result<List<GetAllUnitsByTypeResponse>>> Handle(
-            GetUnitsByTypeQuery request,
+            GetUnitsQuery request,
             CancellationToken cancellationToken)
         {
-            var units = await housingUnitRepository.GetUnitsByTypeAsync(
+            var units = await housingUnitRepository.GetUnitsAsync(
                 request.Type,
+                request.SearchTerm,
                 cancellationToken);
 
             var response = mapper.Map<List<GetAllUnitsByTypeResponse>>(units);

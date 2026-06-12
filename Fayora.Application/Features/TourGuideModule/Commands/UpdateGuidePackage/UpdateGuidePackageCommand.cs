@@ -12,6 +12,8 @@ public record UpdateGuidePackageCommand(
     string Description,
     TourType TourType,
     int DurationHours,
+    int NumOfDays,
+    List<NightDto>? Nights,
     decimal Longitude,
     decimal Latitude,
     TransportType TransportType,

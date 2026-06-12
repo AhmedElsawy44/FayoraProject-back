@@ -98,4 +98,14 @@ public static class TourGuideErrors
         "TourGuide.PackageNotAvailable",
         "The package is not available for booking."
     );
+
+    public static readonly Error OccurrenceNotFound = Error.NotFound(
+        "TourGuide.OccurrenceNotFound",
+        "The specified occurrence was not found for this package."
+    );
+
+    public static readonly Error OccurrenceHasActiveBookings = Error.Conflict(
+        "TourGuide.OccurrenceHasActiveBookings",
+        "Cannot modify this occurrence because it has active bookings."
+    );
 }

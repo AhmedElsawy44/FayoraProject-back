@@ -121,6 +121,12 @@ public class Booking : BaseEntity<Guid>
         if (BookingStatus == BookingStatus.Completed)
             return Error.Validation("Booking.AlreadyCompleted", "Booking is already completed.");
 
+        if (BookingStatus == BookingStatus.Cancelled || BookingStatus == BookingStatus.Refunded)
+            return Error.Validation("Booking.CannotConfirmForNonPending", "Cannot confirm cash received for cancelled or refunded bookings.");
+
+        if (PaymentStatus != PaymentTransactionStatus.PartiallyPaid)
+            return Error.Validation("Booking.DepositNotPaid", "Deposit must be paid first before confirming cash receipt.");
+
         if (!IsScanned)
             return Error.Validation("Booking.NotScanned", "QR code must be scanned first.");
 

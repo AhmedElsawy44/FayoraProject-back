@@ -8,11 +8,14 @@ namespace Fayora.Contracts.TourGuideModule.GetPackagePreview
         decimal DiscountedAdultPrice,
         decimal DiscountedChildPrice,
         int DurationHours,
+        int NumOfDays,
+        int NumOfNights,
         string MainImageUrl,
         List<string> ImageUrls,
         List<int> IncludedItemIds,
         List<int>? ExcludedItemIds,
         List<PackageActivityResponse> Activities,
+        List<PackageNightResponse> Nights,
         List<int> LocationIds,
         GeoPointResponse MeetingPoint,
         GuideInfoResponse GuideInfo
@@ -24,6 +27,14 @@ namespace Fayora.Contracts.TourGuideModule.GetPackagePreview
         bool IsOptional,
         int? LocationId
     );
+
+    public record PackageNightResponse(
+    Guid Id,
+    int NightNumber,
+    DateOnly NightDate,
+    Guid? HousingUnitId,
+    Guid? PackageAccommodationId
+);
 
     public record GeoPointResponse(
         decimal Latitude,

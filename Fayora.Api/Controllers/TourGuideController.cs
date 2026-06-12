@@ -8,10 +8,13 @@ using Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Commands.DeactivateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.DeleteGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.UpdateGuidePackage;
+using Fayora.Application.Features.TourGuideModule.Commands.UpdatePackageOccurrence;
+using Fayora.Application.Features.TourGuideModule.Commands.DeletePackageOccurrence;
 using Fayora.Application.Features.TourGuideModule.Commands.UpdateTourGuide;
-using Fayora.Contracts.TourGuideModule.UpdateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages;
+using Fayora.Application.Features.TourGuideModule.Queries.GetPackageAccommodation;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails;
+using Fayora.Application.Features.TourGuideModule.Queries.GetPackageOccurrenceDetails;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview;
 using Fayora.Application.Features.TourGuideModule.Queries.GetRecommendedGuides;
 using Fayora.Application.Features.TourGuideModule.Queries.GetRecommendedGuidesSeeAll;
@@ -23,8 +26,12 @@ using Fayora.Contracts.TourGuideModule.CreateTourCompany;
 using Fayora.Contracts.TourGuideModule.CreateTourGuide;
 using Fayora.Contracts.TourGuideModule.CreateWeeklySchedule;
 using Fayora.Contracts.TourGuideModule.GetMyPackages;
+using Fayora.Contracts.TourGuideModule.GetPackageAccommodation;
 using Fayora.Contracts.TourGuideModule.GetPackageDetails;
+using Fayora.Contracts.TourGuideModule.GetPackageOccurrenceDetails;
 using Fayora.Contracts.TourGuideModule.GetPackagePreview;
+using Fayora.Contracts.TourGuideModule.UpdateGuidePackage;
+using Fayora.Contracts.TourGuideModule.UpdatePackageOccurrence;
 using Fayora.Contracts.TourGuideModule.UpdateTourGuide;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
@@ -124,6 +131,8 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             request.Description,
             tourType,
             request.DurationHours,
+            request.NumOfDays,
+            request.Nights,
             request.Longitude,
             request.Latitude,
             transportType,
@@ -172,6 +181,8 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             request.Description,
             tourType,
             request.DurationHours,
+            request.NumOfDays,
+            request.Nights,
             request.Longitude,
             request.Latitude,
             transportType,
@@ -376,6 +387,69 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
         var result = await sender.Send(query, cancellationToken);
         return result.Match(
             value => Ok(value),
+            Problem);
+    }
+
+    [HttpGet("package-accommodations/{packageAccommodationId:guid}")]
+    public async Task<IActionResult> GetPackageAccommodation(
+    [FromRoute] Guid packageAccommodationId,
+    CancellationToken cancellationToken)
+    {
+        var query = new GetPackageAccommodationQuery(packageAccommodationId);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(mapper.Map<GetPackageAccommodationResponse>(value)),
+            Problem);
+    }
+
+    [HttpPut("{packageId:guid}/occurrences/{occurrenceId:guid}")]
+    public async Task<IActionResult> UpdateOccurrence(
+        [FromRoute] Guid packageId,
+        [FromRoute] Guid occurrenceId,
+        [FromBody] UpdatePackageOccurrenceRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdatePackageOccurrenceCommand(
+            packageId,
+            occurrenceId,
+            request.NewDate,
+            request.NewAvailableSeats
+        );
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            _ => NoContent(),
+            Problem
+        );
+    }
+
+    [HttpDelete("{packageId:guid}/occurrences/{occurrenceId:guid}")]
+    public async Task<IActionResult> DeleteOccurrence(
+        [FromRoute] Guid packageId,
+        [FromRoute] Guid occurrenceId,
+        CancellationToken cancellationToken)
+    {
+        var command = new DeletePackageOccurrenceCommand(packageId, occurrenceId);
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            _ => NoContent(),
+            Problem
+        );
+    }
+
+    [HttpGet("packages/{packageId:guid}/occurrences/{occurrenceId:guid}/details")]
+    public async Task<IActionResult> GetPackageOccurrenceDetails(
+        [FromRoute] Guid packageId,
+        [FromRoute] Guid occurrenceId,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetPackageOccurrenceDetailsQuery(packageId, occurrenceId);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(mapper.Map<PackageOccurrenceDetailsResponse>(value)),
             Problem);
     }
 }

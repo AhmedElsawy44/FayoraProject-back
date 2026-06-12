@@ -76,7 +76,11 @@ using Fayora.Application.Features.AdminModule.Commands.UpdateGuideDetails;
 using Fayora.Application.Features.AdminModule.Commands.DeleteCompany;
 using Fayora.Application.Features.AdminModule.Commands.DeleteGuide;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Fayora.Application.Features.ReviewModule.Commands.AdminDeleteReview;
+using Fayora.Application.Features.ReviewModule.Commands.ResolveReport;
+using Fayora.Application.Features.ReviewModule.Queries.GetPendingReports;
 
 namespace Fayora.Api.Controllers;
 
@@ -702,6 +706,26 @@ public class AdminController(ISender sender) : ApiController
         return result.Match(Ok, Problem);
     }
 
+    // ==================== Review & Report Management ====================
+
+    [HttpDelete("reviews/{reviewId:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AdminDeleteReviewAsync(Guid reviewId, CancellationToken cancellationToken)
+    {
+        var command = new AdminDeleteReviewCommand(reviewId);
+        var result = await sender.Send(command, cancellationToken);
+        return result.Match(_ => NoContent(), Problem);
+    }
+
+    [HttpGet("reviews/reports")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetPendingReportsAsync(CancellationToken cancellationToken)
+    {
+        var query = new GetPendingReportsQuery();
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(Ok, Problem);
+    }
+
     [HttpGet("accommodations/{id:guid}")]
     public async Task<IActionResult> GetAccommodationDetails(Guid id, CancellationToken ct)
     {
@@ -808,5 +832,14 @@ public class AdminController(ISender sender) : ApiController
         var query = new GetDetailedLocationQuery(id);
         var result = await sender.Send(query, ct);
         return result.Match(Ok, Problem);
+    }
+
+    [HttpPost("reviews/reports/{reportId:guid}/resolve")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> ResolveReportAsync(Guid reportId, CancellationToken cancellationToken)
+    {
+        var command = new ResolveReportCommand(reportId);
+        var result = await sender.Send(command, cancellationToken);
+        return result.Match(_ => NoContent(), Problem);
     }
 }

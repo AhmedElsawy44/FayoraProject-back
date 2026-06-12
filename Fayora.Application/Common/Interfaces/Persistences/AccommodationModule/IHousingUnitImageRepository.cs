@@ -4,5 +4,7 @@ namespace Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 
 public interface IHousingUnitImageRepository
 {
-    public void AddImages(IEnumerable<HousingUnitImage> images);
+    void AddImages(IEnumerable<HousingUnitImage> images);
+    Task<List<HousingUnitImage>> GetByUnitIdAsync(Guid unitId, CancellationToken cancellationToken = default);
+
 }

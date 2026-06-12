@@ -14,6 +14,7 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
     public class GetPackageDetailsQueryHandler(
         IPackageRepository packageRepository,
         ITourGuideRepository tourGuideRepository,
+        IPackageNightRepository packageNightRepository,
         IUserRepository userRepository,
         IDiscountOfferRepository discountOfferRepository)
         : IQueryHandler<GetPackageDetailsQuery, Result<PackageDetailsResult>>
@@ -27,6 +28,9 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
             if (package is null) return TourGuideErrors.PackageNotFound;
 
             var activities = await packageRepository.GetActivitiesByPackageIdAsync(
+                request.PackageId, cancellationToken);
+
+            var nights = await packageNightRepository.GetByPackageIdAsync(
                 request.PackageId, cancellationToken);
 
             var guide = await tourGuideRepository.GetGuideByIdAsync(
@@ -67,6 +71,8 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
                 discountedAdultPrice,
                 discountedChildPrice,
                 package.DurationHours,
+                package.NumOfDays,
+                package.NumOfNights,
                 package.MainImageUrl.Value,
                 package.ImageIds.Select(id => id.ToString()).ToList(),
                 package.IncludedItemIds.ToList(),
@@ -76,6 +82,12 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
                     a.ActivityTime,
                     a.IsOptional,
                     a.LocationId)).ToList(),
+                nights.Select(n => new PackageNightDetailsResult(
+                    n.Id,
+                    n.NightNumber,
+                    n.NightDate,
+                    n.HousingUnitId,
+                    n.PackageAccommodationId)).ToList(),
                 new GeoPointDetailsResult(
                     package.MeetingPoint.Latitude,
                     package.MeetingPoint.Longitude),

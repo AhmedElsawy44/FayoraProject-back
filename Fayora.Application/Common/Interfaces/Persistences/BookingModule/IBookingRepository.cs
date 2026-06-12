@@ -12,6 +12,8 @@ public interface IBookingRepository
     Task<bool> HasOverlapAsync(Guid serviceId, DateTime startDateTime, DateTime endDateTime, CancellationToken cancellationToken = default);
     Task<bool> HasBookingsForPackageAsync(Guid packageId, CancellationToken cancellationToken = default);
 
+    Task<bool> HasBookingsForOccurrenceAsync(Guid packageId, DateOnly date, CancellationToken cancellationToken = default);
+
     void RemoveBooking(Booking booking);
 
     //for expired pending bookings
@@ -36,4 +38,9 @@ public interface IBookingRepository
     Task<CombinedGmvDto> GetCompaniesGmvAsync(CancellationToken cancellationToken);
     Task<AvgCommissionDto> GetCompaniesAvgCommissionAsync(CancellationToken cancellationToken);
     Task<double> GetLocationsAvgOccupancyAsync(CancellationToken cancellationToken = default);
+
+    Task<List<Booking>> GetBookingsForOccurrenceAsync(
+        Guid packageId,
+        DateOnly date,
+        CancellationToken cancellationToken = default);
 }

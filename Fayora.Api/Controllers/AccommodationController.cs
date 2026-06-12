@@ -3,9 +3,10 @@ using Fayora.Application.Features.AccommodationModule.Commands.CreateUnit;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitCalendarBlock;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitOwner;
 using Fayora.Application.Features.AccommodationModule.Queries.GetRecommendedUnits;
-using Fayora.Application.Features.AccommodationModule.Queries.GetUnitsByType;
 using Fayora.Application.Features.AccommodationModule.Queries.GetRecommendedUnitsSeeAll;
 using Fayora.Application.Features.AccommodationModule.Queries.GetSimilarUnits;
+using Fayora.Application.Features.AccommodationModule.Queries.GetUnitById;
+using Fayora.Application.Features.AccommodationModule.Queries.GetUnits;
 using Fayora.Contracts.AccommodationModule.Requests;
 using Fayora.Contracts.AccommodationModule.Responses;
 using Fayora.Domain.Enums.AccommodationModule;
@@ -117,20 +118,18 @@ public class AccommodationController(ISender sender, IMapper mapper) : ApiContro
     }
 
 
-    //[HttpGet("housing-units/{id:guid}")]
-    //public async Task<IActionResult> GetUnitById(
-    //    [FromRoute] Guid id,
-    //    CancellationToken cancellationToken)
-    //{
-    //    var query = new GetUnitByIdQuery(id);
-
-    //    var result = await sender.Send(query, cancellationToken);
-
-    //    return result.Match(
-    //        value => Ok(value),
-    //        errors => Problem()
-    //    );
-    //}
+    [HttpGet("housing-units/{id:guid}")]
+    public async Task<IActionResult> GetUnitById(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetUnitByIdQuery(id);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(mapper.Map<GetUnitByIdResponse>(value)),
+            errors => Problem()
+        );
+    }
 
     //[HttpPost("housing-units/{id:guid}/views")]
     //public async Task<IActionResult> IncrementUnitViews(
@@ -149,15 +148,21 @@ public class AccommodationController(ISender sender, IMapper mapper) : ApiContro
 
 
 
-    [HttpGet("housing-units-ByType")]
-    public async Task<IActionResult> GetUnitsByTypeAsync(
-    [FromQuery] string type,
+    [HttpGet("housing-units")]
+    public async Task<IActionResult> GetUnitsAsync(
+    [FromQuery] string? type,
+    [FromQuery] string? searchTerm,
     CancellationToken cancellationToken)
     {
-        if (!Enum.TryParse<HousingType>(type, true, out var housingType))
-            return BadRequest("Invalid housing type. Valid values are: Apartment, Villa, Hotel.");
+        HousingType? housingType = null;
+        if (!string.IsNullOrWhiteSpace(type))
+        {
+            if (!Enum.TryParse<HousingType>(type, true, out var parsed))
+                return BadRequest("Invalid housing type. Valid values are: Apartment, Villa, Hotel.");
+            housingType = parsed;
+        }
 
-        var query = new GetUnitsByTypeQuery(housingType);
+        var query = new GetUnitsQuery(housingType, searchTerm);
 
         var result = await sender.Send(query, cancellationToken);
 

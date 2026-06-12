@@ -10,11 +10,14 @@ namespace Fayora.Contracts.TourGuideModule.GetPackageDetails
         decimal DiscountedAdultPrice,
         decimal DiscountedChildPrice,
         int DurationHours,
+        int NumOfDays,
+        int NumOfNights,
         string MainImageUrl,
         List<string> ImageUrls,
         List<int> IncludedItemIds,
         List<int>? ExcludedItemIds,
         List<PackageActivityDetailsResponse> Activities,
+        List<PackageNightDetailsResponse> Nights,
         GeoPointResponse MeetingPoint,
         GuideInfoResponse GuideInfo,
         string CancellationPolicy,
@@ -30,6 +33,14 @@ namespace Fayora.Contracts.TourGuideModule.GetPackageDetails
         TimeOnly ActivityTime,
         bool IsOptional,
         int? LocationId
+    );
+
+    public record PackageNightDetailsResponse(
+    Guid Id,
+    int NightNumber,
+    DateOnly NightDate,
+    Guid? HousingUnitId,
+    Guid? PackageAccommodationId
     );
 
     public record PackageOccurrenceResponse(

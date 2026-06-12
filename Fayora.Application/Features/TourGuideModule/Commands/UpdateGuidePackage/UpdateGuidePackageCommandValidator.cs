@@ -23,6 +23,13 @@ public class UpdateGuidePackageCommandValidator : AbstractValidator<UpdateGuideP
         RuleFor(x => x.DurationHours)
             .GreaterThan(0).WithMessage("Duration must be greater than zero.");
 
+        RuleFor(x => x.NumOfDays)
+           .GreaterThan(0).WithMessage("Number of days must be greater than zero.");
+
+        RuleFor(x => x.Nights)
+            .NotEmpty().WithMessage("Multi-day packages must include nights.")
+            .When(x => x.NumOfDays > 1);
+
         RuleFor(x => x.Longitude)
             .GreaterThanOrEqualTo(-180).LessThanOrEqualTo(180)
             .WithMessage("Longitude must be between -180 and 180.");

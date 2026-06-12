@@ -8,11 +8,14 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
         decimal DiscountedAdultPrice,
         decimal DiscountedChildPrice,
         int DurationHours,
+        int NumOfDays,
+        int NumOfNights,
         string MainImageUrl,
         List<string> ImageUrls,
         List<int> IncludedItemIds,
         List<int>? ExcludedItemIds,
         List<PackageActivityDetailsResult> Activities,
+        List<PackageNightDetailsResult> Nights,
         GeoPointDetailsResult MeetingPoint,
         GuideInfoDetailsResult GuideInfo,
         string CancellationPolicy,
@@ -29,6 +32,14 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
         bool IsOptional,
         int? LocationId
     );
+
+    public record PackageNightDetailsResult(
+    Guid Id,
+    int NightNumber,
+    DateOnly NightDate,
+    Guid? HousingUnitId,         // لو من الـ Accommodation System
+    Guid? PackageAccommodationId  // لو خارج الـ System التور جيد هو اللي عامل مكان الاقامه
+);
 
     public record GeoPointDetailsResult(
         decimal Latitude,
