@@ -197,6 +197,16 @@ public class UpdateGuidePackageCommandHandler(
                             }
                         }
 
+                        PackageMeals combinedMeals = PackageMeals.None;
+                        if (nightReq.NewAccommodation.Meals?.Any() == true)
+                        {
+                            foreach (var meal in nightReq.NewAccommodation.Meals)
+                            {
+                                if (Enum.TryParse<PackageMeals>(meal, out var mealValue))
+                                    combinedMeals |= mealValue;
+                            }
+                        }
+
                         var accommodationResult = PackageAccommodation.Create(
                             package.Id,
                             nightReq.NewAccommodation.Name,
@@ -208,6 +218,7 @@ public class UpdateGuidePackageCommandHandler(
                             nightReq.NewAccommodation.CheckInTime,
                             nightReq.NewAccommodation.CheckOutTime,
                             combinedAmenities,
+                            combinedMeals,
                             nightReq.NewAccommodation.GalleryImages);
 
                         if (accommodationResult.IsError) return accommodationResult.Errors;

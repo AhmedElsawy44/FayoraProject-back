@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.GuideModule;
+using Fayora.Domain.Entities.GuideModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -25,6 +25,9 @@ namespace Fayora.Infrastructure.Persistence.Configurations.GuideModule
                 .HasConversion<int>();
 
             builder.Property(x => x.Amenities)
+                .HasConversion<int>();
+
+            builder.Property(x => x.Meals)
                 .HasConversion<int>();
 
             builder.OwnsOne(x => x.MainImageUrl, nav =>

@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
@@ -148,6 +148,16 @@ public class CreateGuidePackageCommandHandler(
                             }
                         }
 
+                        PackageMeals combinedMeals = PackageMeals.None;
+                        if (nightReq.NewAccommodation.Meals?.Any() == true)
+                        {
+                            foreach (var meal in nightReq.NewAccommodation.Meals)
+                            {
+                                if (Enum.TryParse<PackageMeals>(meal, out var mealValue))
+                                    combinedMeals |= mealValue;
+                            }
+                        }
+
                         var accommodationResult = PackageAccommodation.Create(
                             package.Id,
                             nightReq.NewAccommodation.Name,
@@ -159,6 +169,7 @@ public class CreateGuidePackageCommandHandler(
                             nightReq.NewAccommodation.CheckInTime,
                             nightReq.NewAccommodation.CheckOutTime,
                             combinedAmenities,
+                            combinedMeals,
                             nightReq.NewAccommodation.GalleryImages);
 
                         if (accommodationResult.IsError) return accommodationResult.Errors;

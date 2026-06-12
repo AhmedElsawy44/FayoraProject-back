@@ -1,4 +1,4 @@
-﻿namespace Fayora.Contracts.TourGuideModule.CreateGuidePackage;
+namespace Fayora.Contracts.TourGuideModule.CreateGuidePackage;
 
 public record CreateGuidePackageRequest
 (
@@ -50,5 +50,6 @@ public record PackageAccommodationDto(
     decimal Longitude,
     TimeOnly CheckInTime,
     TimeOnly CheckOutTime,
-    List<string>? Amenities
+    List<string>? Amenities,
+    List<string>? Meals
 );
