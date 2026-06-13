@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.Booking;
+using Fayora.Domain.Entities.Booking;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -62,5 +62,16 @@ internal sealed class BookingConfigurations : IEntityTypeConfiguration<Booking>
 
         builder.Property(x => x.EndDate)
             .IsRequired();
+
+        builder.Property(x => x.AdultsCount)
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        builder.Property(x => x.ChildrenCount)
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        // SeatsCount هو Computed Property = AdultsCount + ChildrenCount، مش بيتخزن في الـ DB
+        builder.Ignore(x => x.SeatsCount);
     }
 }
