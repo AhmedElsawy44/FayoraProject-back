@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Common.Results;
 
 namespace Fayora.Application.Features.BookingModule.Common;
 
@@ -53,4 +53,9 @@ public static class BookingErrors
     "Booking.Cancelled",
     "This booking has been cancelled."
 );
+
+    public static readonly Error NotCashOnArrival = Error.Validation(
+        "Booking.NotCashOnArrival",
+        "This booking is not a cash-on-arrival booking."
+    );
 }
