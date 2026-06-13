@@ -50,7 +50,7 @@ public class CreatePackageBookingCommandHandler(
         var reserveResult = occurrence.ReserveSeats(requiredSpots);
         if (reserveResult.IsError) return reserveResult.Errors;
 
-        var totalPrice = package.CalculateBooking(request.Adults, request.Children);
+        var totalPrice = package.CalculateBooking(request.Adults, request.Children, request.SelectedOptionalActivityIds);
         if (totalPrice.IsError) return totalPrice.Errors;
 
 
@@ -94,7 +94,8 @@ public class CreatePackageBookingCommandHandler(
             request.BookingDate.ToDateTime(TimeOnly.MinValue).AddHours(package.DurationHours),
             request.IsCashOnArrival,
             appliedOfferId,
-            discountAmount);
+            discountAmount,
+            request.SelectedOptionalActivityIds);
         if (booking.IsError) return booking.Errors;
 
 

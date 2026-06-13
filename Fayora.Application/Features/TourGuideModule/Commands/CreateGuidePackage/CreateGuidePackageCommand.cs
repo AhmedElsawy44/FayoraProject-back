@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Contracts.TourGuideModule.CreateGuidePackage;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
@@ -29,5 +29,6 @@ public record CreateGuidePackageCommand
     string? GuestRequirements,
     CancellationPolicy CancellationPolicy,
     List<ActivityDto> Activities,
-    HashSet<int> LocationIds
+    HashSet<int> LocationIds,
+    List<OptionalActivityDto>? OptionalActivities
 ) : ICommand<Result<CreateGuidePackageResult>>;

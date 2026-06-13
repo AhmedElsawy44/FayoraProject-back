@@ -1,4 +1,4 @@
-﻿namespace Fayora.Contracts.TourGuideModule.CreateGuidePackage;
+namespace Fayora.Contracts.TourGuideModule.CreateGuidePackage;
 
 public record CreateGuidePackageRequest
 (
@@ -23,7 +23,14 @@ public record CreateGuidePackageRequest
     string CancellationPolicy,
     string? GuestRequirements,
     List<ActivityDto> Activities,
-    HashSet<int> LocationIds
+    HashSet<int> LocationIds,
+    List<OptionalActivityDto>? OptionalActivities
+);
+
+public record OptionalActivityDto(
+    string Description,
+    decimal AdditionalPrice,
+    string ImageUrl
 );
 
 public record ActivityDto(decimal Latitude,

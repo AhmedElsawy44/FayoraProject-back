@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
@@ -196,6 +196,17 @@ public class CreateGuidePackageCommandHandler(
 
         package.AddLocations(request.LocationIds);
 
+        var optionalActivities = new List<OptionalActivity>();
+        if (request.OptionalActivities?.Any() == true)
+        {
+            foreach (var optAct in request.OptionalActivities)
+            {
+                var optActResult = OptionalActivity.Create(optAct.Description, optAct.AdditionalPrice, optAct.ImageUrl);
+                if (optActResult.IsError) return optActResult.Errors;
+                optionalActivities.Add(optActResult.Value);
+            }
+        }
+        package.UpdateOptionalActivities(optionalActivities);
 
         packageRepository.AddPackage(package);
 

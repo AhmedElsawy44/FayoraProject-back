@@ -343,4 +343,24 @@ public class BookingRepository(ApplicationDbContext context) : IBookingRepositor
 
         return Math.Round(occupancyRate, 2);
     }
+
+    public Task<List<Booking>> GetUnpaidCompletedBookingsAsync(Guid providerId, CancellationToken cancellationToken = default)
+    {
+        return context.Bookings
+            .Where(b => b.ServiceProviderId == providerId &&
+                        b.BookingStatus == BookingStatus.Completed &&
+                        b.PaymentStatus == PaymentTransactionStatus.Paid &&
+                        !b.IsPayoutProcessed)
+            .ToListAsync(cancellationToken);
+    }
+
+    public Task<List<Booking>> GetEligibleBookingsForAutomaticPayoutAsync(DateTime thresholdDate, CancellationToken cancellationToken = default)
+    {
+        return context.Bookings
+            .Where(b => b.BookingStatus == BookingStatus.Completed &&
+                        b.PaymentStatus == PaymentTransactionStatus.Paid &&
+                        !b.IsPayoutProcessed &&
+                        b.EndDate <= thresholdDate)
+            .ToListAsync(cancellationToken);
+    }
 }

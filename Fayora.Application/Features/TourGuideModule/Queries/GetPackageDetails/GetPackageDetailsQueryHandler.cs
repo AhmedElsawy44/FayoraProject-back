@@ -6,6 +6,7 @@ using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
+using Fayora.Contracts.TourGuideModule.GetPackageDetails;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.ITourGuideRepository;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
@@ -107,7 +108,12 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
                 package.Occurrences.Select(o => new PackageOccurrenceResult(
                     o.Id,
                     o.Date,
-                    o.AvailableSeats)).ToList());
+                    o.AvailableSeats)).ToList(),
+                package.OptionalActivities.Select(a => new OptionalActivityResponse(
+                    a.Id,
+                    a.Description,
+                    a.AdditionalPrice,
+                    a.ImageUrl.Value)).ToList());
         }
     }
 }

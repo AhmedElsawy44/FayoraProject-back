@@ -4,6 +4,7 @@ using Fayora.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260610205359_AddOptionalActivitiesToGuidePackage")]
+    partial class AddOptionalActivitiesToGuidePackage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -216,11 +219,6 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsCashOnArrival")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsPayoutProcessed")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
                     b.Property<bool>("IsScanned")
                         .HasColumnType("bit");
 
@@ -268,8 +266,6 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.HasIndex("BookingStatus");
 
                     b.HasIndex("EndDate");
-
-                    b.HasIndex("IsPayoutProcessed");
 
                     b.HasIndex("PaymentStatus");
 
@@ -370,33 +366,6 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.HasIndex("Status");
 
                     b.ToTable("PaymentTransactions", (string)null);
-                });
-
-            modelBuilder.Entity("Fayora.Domain.Entities.Booking.ProviderPayout", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTimeOffset>("PayoutDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("ProviderId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PayoutDate");
-
-                    b.HasIndex("ProviderId");
-
-                    b.ToTable("ProviderPayouts", (string)null);
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.ChatModule.Chat", b =>

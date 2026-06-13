@@ -141,7 +141,8 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             request.GuestRequirements,
             cancellationPolicy,
             request.Activities,
-            request.LocationIds
+            request.LocationIds,
+            request.OptionalActivities
             );
 
         var result = await sender.Send(command, ct);
@@ -191,7 +192,8 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             request.GuestRequirements,
             cancellationPolicy,
             request.Activities,
-            request.LocationIds
+            request.LocationIds,
+            request.OptionalActivities
         );
 
         var result = await sender.Send(command, ct);

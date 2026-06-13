@@ -11,6 +11,7 @@ using Fayora.Contracts.TourGuideModule.GetPackageDetails;
 using Fayora.Contracts.TourGuideModule.GetPackagePreview;
 using Fayora.Contracts.TourGuideModule.GetTourGuideById;
 using Fayora.Domain.Entities.SharedModule;
+using Fayora.Domain.Entities.GuideModule;
 
 namespace Fayora.Application.Common.Mapper;
 
@@ -33,6 +34,7 @@ public class TourGuideMappingProfile : Profile
 
 
         CreateMap<PackageDetailsResult, PackageDetailsResponse>();
+        CreateMap<OptionalActivity, OptionalActivityResponse>();
         CreateMap<PackageActivityDetailsResult, PackageActivityDetailsResponse>();
         CreateMap<GeoPointDetailsResult, GeoPointResponse>();
         CreateMap<GuideInfoDetailsResult, GuideInfoResponse>();

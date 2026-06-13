@@ -623,7 +623,7 @@ public class AdminRepository(ApplicationDbContext context) : IAdminRepository
     public async Task<List<GetPendingPayoutsResponse>> GetPendingPayoutsAsync(CancellationToken ct)
     {
         var pendingBookings = await context.Bookings
-            .Where(b => b.BookingStatus == BookingStatus.Completed && b.PaymentStatus == PaymentTransactionStatus.Paid)
+            .Where(b => b.BookingStatus == BookingStatus.Completed && b.PaymentStatus == PaymentTransactionStatus.Paid && !b.IsPayoutProcessed)
             .GroupBy(b => b.ServiceProviderId)
             .Select(g => new
             {
@@ -772,7 +772,7 @@ public class AdminRepository(ApplicationDbContext context) : IAdminRepository
             .SumAsync(b => b.ServiceFee, ct);
 
         var pendingPayoutsTotal = await context.Bookings
-            .Where(b => b.BookingStatus == BookingStatus.Completed && b.PaymentStatus == PaymentTransactionStatus.Paid)
+            .Where(b => b.BookingStatus == BookingStatus.Completed && b.PaymentStatus == PaymentTransactionStatus.Paid && !b.IsPayoutProcessed)
             .SumAsync(b => b.PayoutAmount, ct);
 
         var refundedCount = await context.PaymentTransactions

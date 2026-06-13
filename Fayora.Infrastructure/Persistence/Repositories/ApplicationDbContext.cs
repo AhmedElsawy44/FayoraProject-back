@@ -55,6 +55,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     // Booking Module
     public DbSet<Booking> Bookings { get; set; }
     public DbSet<PaymentTransaction> PaymentTransactions { get; set; }
+    public DbSet<ProviderPayout> ProviderPayouts { get; set; }
 
 
     // Shared Module
@@ -118,6 +119,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Ignore<OptionalActivity>();
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
 }

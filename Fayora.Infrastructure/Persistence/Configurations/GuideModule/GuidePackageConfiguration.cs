@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.GuideModule;
+using Fayora.Domain.Entities.GuideModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -79,6 +79,14 @@ public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
                v => JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions?)null) ?? new List<Guid>())
            .Metadata.SetValueComparer(CreateGuidListComparer());
 
+        builder.Property<List<OptionalActivity>>("_optionalActivities")
+            .HasColumnName("OptionalActivities")
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                v => JsonSerializer.Deserialize<List<OptionalActivity>>(v, (JsonSerializerOptions?)null) ?? new List<OptionalActivity>())
+            .Metadata.SetValueComparer(CreateOptionalActivitiesComparer());
+
+
 
         builder.Property(x => x.TourTypes).HasConversion<int>();
 
@@ -110,6 +118,12 @@ public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
     private ValueComparer<List<Guid>> CreateGuidListComparer()
     {
         ValueComparer<List<Guid>> valueComparer = new((c1, c2) => c1!.SequenceEqual(c2!), c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())), c => c.ToList());
+        return valueComparer;
+    }
+
+    private ValueComparer<List<OptionalActivity>> CreateOptionalActivitiesComparer()
+    {
+        ValueComparer<List<OptionalActivity>> valueComparer = new((c1, c2) => c1!.SequenceEqual(c2!), c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())), c => c.ToList());
         return valueComparer;
     }
 }

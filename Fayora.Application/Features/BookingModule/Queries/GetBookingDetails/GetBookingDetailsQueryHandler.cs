@@ -40,6 +40,8 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
             string imageUrl = string.Empty;
             string? qrToken = null;
 
+            List<SelectedOptionalActivityResult>? selectedOptionalActivities = null;
+
             if (booking.ServiceType == ServiceType.GuidePackage)
             {
                 var package = await packageRepository.GetPackageByIdAsync(
@@ -50,6 +52,14 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
                 {
                     title = package.Title;
                     imageUrl = package.MainImageUrl.Value;
+
+                    if (booking.SelectedOptionalActivityIds is not null && booking.SelectedOptionalActivityIds.Count > 0)
+                    {
+                        selectedOptionalActivities = package.OptionalActivities
+                            .Where(a => booking.SelectedOptionalActivityIds.Contains(a.Id))
+                            .Select(a => new SelectedOptionalActivityResult(a.Id, a.Description, a.AdditionalPrice, a.ImageUrl.Value))
+                            .ToList();
+                    }
                 }
             }
             else if (booking.ServiceType == ServiceType.Accommodation)
@@ -110,7 +120,8 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
                 booking.EndDate,
                 booking.BookingStatus,
                 booking.ServiceType,
-                qrToken);
+                qrToken,
+                selectedOptionalActivities);
         }
     }
 }

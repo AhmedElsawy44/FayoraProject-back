@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
+using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Features.AdminModule.Queries.GetCalendarBookings;
 using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Enums.TourGuideModule;
@@ -62,5 +62,11 @@ public class PackageOccurrenceRepository(ApplicationDbContext context)
                                  cancellationToken);
 
         occurrence?.ReleaseSeats(count);
+    }
+
+    public Task<PackageOccurrence?> GetByIdAsync(Guid occurrenceId, CancellationToken cancellationToken)
+    {
+        return context.PackageOccurrences
+            .FirstOrDefaultAsync(x => x.Id == occurrenceId, cancellationToken);
     }
 }

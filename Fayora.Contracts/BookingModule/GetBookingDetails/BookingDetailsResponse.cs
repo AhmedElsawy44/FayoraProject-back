@@ -1,4 +1,4 @@
-﻿namespace Fayora.Contracts.BookingModule.GetBookingDetails
+namespace Fayora.Contracts.BookingModule.GetBookingDetails
 {
     public record BookingDetailsResponse(
         Guid BookingId,
@@ -12,6 +12,14 @@
         DateTime EndDate,
         string Status,
         string ServiceType,
-        string? QrToken
+        string? QrToken,
+        List<SelectedOptionalActivityResponse>? SelectedOptionalActivities
+    );
+
+    public record SelectedOptionalActivityResponse(
+        Guid Id,
+        string Description,
+        decimal AdditionalPrice,
+        string ImageUrl
     );
 }

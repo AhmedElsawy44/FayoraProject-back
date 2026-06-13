@@ -29,5 +29,6 @@ public record UpdateGuidePackageCommand(
     string? GuestRequirements,
     CancellationPolicy CancellationPolicy,
     List<ActivityDto> Activities,
-    HashSet<int> LocationIds
+    HashSet<int> LocationIds,
+    List<OptionalActivityDto>? OptionalActivities
 ) : ICommand<Result<Guid>>;

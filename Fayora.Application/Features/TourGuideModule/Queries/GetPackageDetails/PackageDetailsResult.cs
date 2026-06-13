@@ -1,3 +1,5 @@
+using Fayora.Contracts.TourGuideModule.GetPackageDetails;
+
 namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
 {
     public record PackageDetailsResult(
@@ -23,7 +25,8 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
         string? GuestRequirements,
         string? ArrivalNote,
         List<int> LocationIds,
-        List<PackageOccurrenceResult> Occurrences
+        List<PackageOccurrenceResult> Occurrences,
+        List<OptionalActivityResponse>? OptionalActivities
     );
 
     public record PackageActivityDetailsResult(

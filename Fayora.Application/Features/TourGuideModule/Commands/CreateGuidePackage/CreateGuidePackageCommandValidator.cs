@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 
 namespace Fayora.Application.Features.TourGuideModule.Commands.CreateGuidePackage;
 
@@ -73,6 +73,20 @@ public class CreateGuidePackageCommandValidator : AbstractValidator<CreateGuideP
                     .NotEmpty().WithMessage("Activity description is required.")
                     .MaximumLength(1000).WithMessage("Activity description cannot exceed 1000 characters.");
             });
+
+        RuleForEach(x => x.OptionalActivities)
+            .ChildRules(optAct =>
+            {
+                optAct.RuleFor(a => a.Description)
+                    .NotEmpty().WithMessage("Optional activity description is required.")
+                    .MaximumLength(1000).WithMessage("Optional activity description cannot exceed 1000 characters.");
+                optAct.RuleFor(a => a.AdditionalPrice)
+                    .GreaterThanOrEqualTo(0).WithMessage("Optional activity additional price cannot be negative.");
+                optAct.RuleFor(a => a.ImageUrl)
+                    .NotEmpty().WithMessage("Optional activity image URL is required.")
+                    .Must(BeValidFileUrl).WithMessage("Optional activity image URL must be a valid absolute URL that starts with http or https.");
+            })
+            .When(x => x.OptionalActivities != null);
     }
 
     private static bool BeValidFileUrl(string? url)

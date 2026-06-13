@@ -57,6 +57,10 @@ public class GuidePackage : AuditableEntity<Guid>
     private readonly List<PackageOccurrence> _occurrences = [];
     public IReadOnlyCollection<PackageOccurrence> Occurrences => _occurrences.AsReadOnly();
 
+    private readonly List<OptionalActivity> _optionalActivities = [];
+    public IReadOnlyCollection<OptionalActivity> OptionalActivities => _optionalActivities.AsReadOnly();
+
+
 
     private GuidePackage() { }
 
@@ -290,15 +294,31 @@ public class GuidePackage : AuditableEntity<Guid>
         return Result.Success;
     }
 
-    public Result<decimal> CalculateBooking(int numAdults, int numChildren)
+    public Result<decimal> CalculateBooking(int numAdults, int numChildren, List<Guid>? selectedOptionalActivityIds = null)
     {
         if (numAdults < 0 || numChildren < 0)
             return Error.Validation("Package.InvalidBooking", "Number of adults and children cannot be negative.");
         if (numAdults + numChildren > MaxCapacity)
             return Error.Validation("Package.OverCapacity", "Total number of guests exceeds package capacity.");
         var total = (AdultPrice * numAdults) + (ChildPrice * numChildren);
+
+        if (selectedOptionalActivityIds is not null && selectedOptionalActivityIds.Count > 0)
+        {
+            var totalGuests = numAdults + numChildren;
+            foreach (var activityId in selectedOptionalActivityIds)
+            {
+                var activity = _optionalActivities.FirstOrDefault(a => a.Id == activityId);
+                if (activity is null)
+                {
+                    return Error.Validation("Package.OptionalActivityNotFound", $"Optional activity with ID {activityId} not found in this package.");
+                }
+                total += activity.AdditionalPrice * totalGuests;
+            }
+        }
+
         return total;
     }
+
 
     public Result<Success> AddOccurrences(IEnumerable<(DateOnly Date, int AvailableSeats)> newOccurrences)
     {
@@ -400,6 +420,13 @@ public class GuidePackage : AuditableEntity<Guid>
     {
         _nightIds.Clear();
         _nightIds.AddRange(nightIds);
+        Updated();
+    }
+
+    public void UpdateOptionalActivities(IEnumerable<OptionalActivity> optionalActivities)
+    {
+        _optionalActivities.Clear();
+        _optionalActivities.AddRange(optionalActivities);
         Updated();
     }
 }

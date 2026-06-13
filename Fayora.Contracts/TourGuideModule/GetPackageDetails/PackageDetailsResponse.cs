@@ -25,7 +25,15 @@ namespace Fayora.Contracts.TourGuideModule.GetPackageDetails
         string? GuestRequirements,
         string? ArrivalNote,
         List<int> LocationIds,
-        List<PackageOccurrenceResponse> Occurrences
+        List<PackageOccurrenceResponse> Occurrences,
+        List<OptionalActivityResponse>? OptionalActivities
+    );
+
+    public record OptionalActivityResponse(
+        Guid Id,
+        string Description,
+        decimal AdditionalPrice,
+        string ImageUrl
     );
 
     public record PackageActivityDetailsResponse(

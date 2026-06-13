@@ -24,5 +24,6 @@ public record UpdateGuidePackageRequest(
     string CancellationPolicy,
     string? GuestRequirements,
     List<ActivityDto> Activities,
-    HashSet<int> LocationIds
+    HashSet<int> LocationIds,
+    List<OptionalActivityDto>? OptionalActivities
 );

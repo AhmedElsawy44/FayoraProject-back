@@ -24,6 +24,7 @@ public class Booking : BaseEntity<Guid>
     public DateTime EndDate { get; init; }
     public bool IsScanned { get; private set; }
     public DateTimeOffset? ScannedAt { get; private set; }
+    public bool IsPayoutProcessed { get; private set; }
 
     // for cash on arrival
     public bool IsCashOnArrival { get; private set; }
@@ -33,6 +34,8 @@ public class Booking : BaseEntity<Guid>
     public Guid? AppliedOfferId { get; private set; }
     public decimal DiscountAmount { get; private set; }
 
+    public List<Guid>? SelectedOptionalActivityIds { get; init; }
+
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
 
     public static Result<Booking> Create(
@@ -40,7 +43,8 @@ public class Booking : BaseEntity<Guid>
         decimal basePrice, decimal serviceFee, decimal payoutAmount,
         int seatsCount, CancellationPolicy policy, DateTime startDate,
         DateTime endDate, bool isCashOnArrival = false,
-        Guid? appliedOfferId = null, decimal discountAmount = 0)
+        Guid? appliedOfferId = null, decimal discountAmount = 0,
+        List<Guid>? selectedOptionalActivityIds = null)
     {
         if (endDate <= startDate)
             return Error.Validation();
@@ -78,6 +82,7 @@ public class Booking : BaseEntity<Guid>
             IsCashOnArrival = isCashOnArrival,
             DepositAmount = depositAmount,
             AppliedOfferId = appliedOfferId,
+            SelectedOptionalActivityIds = selectedOptionalActivityIds,
         };
     }
 
@@ -136,6 +141,15 @@ public class Booking : BaseEntity<Guid>
 
         IsScanned = true;
         ScannedAt = DateTimeOffset.UtcNow;
+        return Result.Success;
+    }
+
+    public Result<Success> MarkPayoutAsProcessed()
+    {
+        if (IsPayoutProcessed)
+            return Error.Validation("Booking.PayoutAlreadyProcessed", "Payout for this booking has already been processed.");
+
+        IsPayoutProcessed = true;
         return Result.Success;
     }
 

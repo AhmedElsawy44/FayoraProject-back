@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.BookingModule;
 
@@ -11,5 +11,6 @@ public record CreatePackageBookingCommand(
     int Children,
     PaymentMethodType PaymentMethodType,
     string? WalletNumber,
-    bool IsCashOnArrival
+    bool IsCashOnArrival,
+    List<Guid>? SelectedOptionalActivityIds
     ) : ICommand<Result<string>>;
