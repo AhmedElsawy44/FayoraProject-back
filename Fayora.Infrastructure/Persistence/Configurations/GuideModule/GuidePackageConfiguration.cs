@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.GuideModule;
+using Fayora.Domain.Entities.GuideModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -46,21 +46,21 @@ public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
             .HasColumnName("IncludedItemIds")
             .HasConversion(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                v => JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions?)null) ?? new List<int>())
+                v => string.IsNullOrWhiteSpace(v) ? new List<int>() : (JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions?)null) ?? new List<int>()))
             .Metadata.SetValueComparer(CreateIntListComparer());
 
         builder.Property<List<int>>("_excludedItemIds")
             .HasColumnName("ExcludedItemIds")
             .HasConversion(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                v => JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions?)null) ?? new List<int>())
+                v => string.IsNullOrWhiteSpace(v) ? new List<int>() : (JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions?)null) ?? new List<int>()))
             .Metadata.SetValueComparer(CreateIntListComparer());
 
         builder.Property<List<Guid>>("_imageIds")
             .HasColumnName("ImageIds")
             .HasConversion(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                v => JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions?)null) ?? new List<Guid>())
+                v => string.IsNullOrWhiteSpace(v) ? new List<Guid>() : (JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions?)null) ?? new List<Guid>()))
             .Metadata.SetValueComparer(CreateGuidListComparer());
 
         builder.Property(x => x.TourTypes).HasConversion<int>();
@@ -69,14 +69,14 @@ public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
             .HasColumnName("ActivityIds")
             .HasConversion(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                v => JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions?)null) ?? new List<Guid>())
+                v => string.IsNullOrWhiteSpace(v) ? new List<Guid>() : (JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions?)null) ?? new List<Guid>()))
             .Metadata.SetValueComparer(CreateGuidListComparer());
 
         builder.Property<List<Guid>>("_nightIds")
            .HasColumnName("NightIds")
            .HasConversion(
                v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-               v => JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions?)null) ?? new List<Guid>())
+               v => string.IsNullOrWhiteSpace(v) ? new List<Guid>() : (JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions?)null) ?? new List<Guid>()))
            .Metadata.SetValueComparer(CreateGuidListComparer());
 
 
@@ -96,7 +96,7 @@ public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
               .HasColumnName("LocationIds")
               .HasConversion(
               v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-              v => JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions?)null) ?? new List<int>())
+              v => string.IsNullOrWhiteSpace(v) ? new List<int>() : (JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions?)null) ?? new List<int>()))
              .Metadata.SetValueComparer(CreateIntListComparer());
 
     }

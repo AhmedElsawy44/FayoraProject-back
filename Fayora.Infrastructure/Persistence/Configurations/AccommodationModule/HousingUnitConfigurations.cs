@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.AccommodationModule;
+using Fayora.Domain.Entities.AccommodationModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Text.Json;
@@ -74,7 +74,7 @@ public class HousingUnitConfiguration : IEntityTypeConfiguration<HousingUnit>
                .HasColumnType("nvarchar(max)")
                .HasConversion(
                    ids => JsonSerializer.Serialize(ids, JsonSerializerOptions.Default),
-                   json => JsonSerializer.Deserialize<List<Guid>>(json, JsonSerializerOptions.Default)!);
+                   json => string.IsNullOrWhiteSpace(json) ? new List<Guid>() : (JsonSerializer.Deserialize<List<Guid>>(json, JsonSerializerOptions.Default)!));
 
 
     }

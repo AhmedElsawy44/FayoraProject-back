@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.GuideModule;
+using Fayora.Domain.Entities.GuideModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -28,7 +28,7 @@ public class TourCompanyConfiguration : IEntityTypeConfiguration<TourCompany>
             .HasColumnName("TourPackageIds")
             .HasConversion(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null!),
-                v => JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions)null!) ?? new List<Guid>())
+                v => string.IsNullOrWhiteSpace(v) ? new List<Guid>() : (JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions)null!) ?? new List<Guid>()))
             .Metadata.SetValueComparer(CreateGuidListComparer());
 
         builder.Property(x => x.CompanyName)
