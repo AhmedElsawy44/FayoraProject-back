@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Domain.Common.Results;
 using System;
@@ -31,7 +31,8 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageAccommod
                 accommodation.Location.Longitude,
                 accommodation.CheckInTime,
                 accommodation.CheckOutTime,
-                accommodation.Amenities.ToString());
+                accommodation.Amenities.ToString(),
+                accommodation.Meals.ToString());
         }
     }
 }

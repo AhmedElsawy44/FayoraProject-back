@@ -85,6 +85,11 @@ public class PackageRepository(ApplicationDbContext context) : IPackageRepositor
             query = query.AsNoTracking();
         }
 
+        if (options.IncludeOccurrences)
+        {
+            query = query.Include(p => p.Occurrences);
+        }
+
         return await query
             .FirstOrDefaultAsync(p => p.Id == packageId, cancellationToken);
     }

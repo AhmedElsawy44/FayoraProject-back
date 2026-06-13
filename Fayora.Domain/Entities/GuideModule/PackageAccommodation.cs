@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 using System;
@@ -18,6 +18,7 @@ namespace Fayora.Domain.Entities.GuideModule
         public TimeOnly CheckInTime { get; private set; }
         public TimeOnly CheckOutTime { get; private set; }
         public PackageAmenities Amenities { get; private set; } = PackageAmenities.None;
+        public PackageMeals Meals { get; private set; } = PackageMeals.None;
 
         private readonly List<FileUrl> _galleryImages = new();
         public IReadOnlyList<FileUrl> GalleryImages => _galleryImages.AsReadOnly();
@@ -33,6 +34,7 @@ namespace Fayora.Domain.Entities.GuideModule
             TimeOnly checkInTime,
             TimeOnly checkOutTime,
             PackageAmenities amenities = PackageAmenities.None,
+            PackageMeals meals = PackageMeals.None,
             List<string>? galleryImages = null)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -71,7 +73,8 @@ namespace Fayora.Domain.Entities.GuideModule
                 Location = locationResult.Value,
                 CheckInTime = checkInTime,
                 CheckOutTime = checkOutTime,
-                Amenities = amenities
+                Amenities = amenities,
+                Meals = meals
             };
 
             accommodation._galleryImages.AddRange(galleryUrls);

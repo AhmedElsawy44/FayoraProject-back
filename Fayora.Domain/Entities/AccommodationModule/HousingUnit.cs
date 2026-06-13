@@ -254,5 +254,33 @@ public class HousingUnit : BaseEntity<Guid>
         return new PricingResult(totalPrice, serviceFee, payoutAmount);
     }
 
+    public void AddReview(decimal newRating)
+    {
+        Rating = ((Rating * ReviewCount) + newRating) / (ReviewCount + 1);
+        ReviewCount++;
+    }
+
+    public void UpdateReview(decimal oldRating, decimal newRating)
+    {
+        if (ReviewCount > 0)
+        {
+            Rating = ((Rating * ReviewCount) - oldRating + newRating) / ReviewCount;
+        }
+    }
+
+    public void DeleteReview(decimal rating)
+    {
+        if (ReviewCount > 1)
+        {
+            Rating = ((Rating * ReviewCount) - rating) / (ReviewCount - 1);
+            ReviewCount--;
+        }
+        else
+        {
+            Rating = 0;
+            ReviewCount = 0;
+        }
+    }
+
     private HousingUnit() { }
 }

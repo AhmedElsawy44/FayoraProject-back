@@ -9,7 +9,9 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
         decimal BasePrice,       // السعر الأصلي قبل أي خصم  
         decimal DiscountAmount,  // قيمة الخصم اللي اتطبق  
         decimal TotalPrice,      // اللي المستخدم دفعه فعلاً  
-        int GuestsCount,
+        int GuestsCount,         // إجمالي عدد الضيوف (Adults + Children)
+        int AdultsCount,
+        int ChildrenCount,
         DateTime StartDate,
         DateTime EndDate,
         BookingStatus Status,

@@ -77,5 +77,16 @@ internal sealed class BookingConfigurations : IEntityTypeConfiguration<Booking>
                 v => v == null ? null : JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
                 v => string.IsNullOrEmpty(v) ? null : JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions?)null))
             .IsRequired(false);
+
+        builder.Property(x => x.AdultsCount)
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        builder.Property(x => x.ChildrenCount)
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        // SeatsCount هو Computed Property = AdultsCount + ChildrenCount، مش بيتخزن في الـ DB
+        builder.Ignore(x => x.SeatsCount);
     }
 }

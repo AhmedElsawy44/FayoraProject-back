@@ -38,6 +38,8 @@ public class GuidePackage : AuditableEntity<Guid>
     public string? ArrivalNote { get; private set; }
     public TransportType TransportType { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
+    public decimal AverageRating { get; private set; }
+    public int ReviewCount { get; private set; }
 
     private readonly List<int> _locationIds = [];
     public IReadOnlyCollection<int> LocationIds => _locationIds.AsReadOnly();
@@ -103,6 +105,8 @@ public class GuidePackage : AuditableEntity<Guid>
 
         IsActive = false;
         Views = 0;
+        AverageRating = 0m;
+        ReviewCount = 0;
 
         CancellationPolicy = cancellationPolicy;
         PackageStatus = ItemStatus.Pending;
@@ -110,7 +114,7 @@ public class GuidePackage : AuditableEntity<Guid>
 
     public static Result<GuidePackage> Create(
         Guid guideId, string title, string description,
-        TourType tourTypes, ProviderType providerType, int durationHours,int numOfDays,
+        TourType tourTypes, ProviderType providerType, int durationHours, int numOfDays,
         GeoPoint meetingPoint, TransportType transportType,
         int maxCapacity, decimal adultPrice, decimal childPrice,
         string? arrivalNote, FileUrl mainImageUrl,
@@ -428,5 +432,33 @@ public class GuidePackage : AuditableEntity<Guid>
         _optionalActivities.Clear();
         _optionalActivities.AddRange(optionalActivities);
         Updated();
+    }
+
+    public void AddReview(decimal newRating)
+    {
+        AverageRating = ((AverageRating * ReviewCount) + newRating) / (ReviewCount + 1);
+        ReviewCount++;
+    }
+
+    public void UpdateReview(decimal oldRating, decimal newRating)
+    {
+        if (ReviewCount > 0)
+        {
+            AverageRating = ((AverageRating * ReviewCount) - oldRating + newRating) / ReviewCount;
+        }
+    }
+
+    public void DeleteReview(decimal rating)
+    {
+        if (ReviewCount > 1)
+        {
+            AverageRating = ((AverageRating * ReviewCount) - rating) / (ReviewCount - 1);
+            ReviewCount--;
+        }
+        else
+        {
+            AverageRating = 0;
+            ReviewCount = 0;
+        }
     }
 }

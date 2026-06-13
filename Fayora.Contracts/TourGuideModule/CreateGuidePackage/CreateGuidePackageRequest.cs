@@ -57,5 +57,6 @@ public record PackageAccommodationDto(
     decimal Longitude,
     TimeOnly CheckInTime,
     TimeOnly CheckOutTime,
-    List<string>? Amenities
+    List<string>? Amenities,
+    List<string>? Meals
 );

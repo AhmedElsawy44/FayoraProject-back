@@ -58,4 +58,9 @@ public static class BookingErrors
         "Booking.NoUnpaidCompletedBookings",
         "You do not have any unpaid completed bookings to request a payout."
     );
+
+    public static readonly Error NotCashOnArrival = Error.Validation(
+        "Booking.NotCashOnArrival",
+        "This booking is not a cash-on-arrival booking."
+    );
 }

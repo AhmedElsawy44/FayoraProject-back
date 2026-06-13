@@ -187,6 +187,11 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("AdultsCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.Property<int>("AppliedCancelPolicy")
                         .HasColumnType("int");
 
@@ -198,6 +203,11 @@ namespace Fayora.Infrastructure.Persistence.Migrations
 
                     b.Property<int>("BookingStatus")
                         .HasColumnType("int");
+
+                    b.Property<int>("ChildrenCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
@@ -618,6 +628,9 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.Property<string>("ArrivalNote")
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<decimal>("AverageRating")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("CancellationPolicy")
                         .HasColumnType("int");
 
@@ -654,6 +667,9 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("ProviderType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReviewCount")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
@@ -819,6 +835,9 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("Meals")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1465,6 +1484,97 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PushCampaigns", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.ReviewModule.Review", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<decimal>("Rating")
+                        .HasColumnType("decimal(3,1)");
+
+                    b.Property<Guid>("ReviewerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TargetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("TargetType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId")
+                        .IsUnique();
+
+                    b.HasIndex("ReviewerId");
+
+                    b.HasIndex("TargetId", "TargetType");
+
+                    b.ToTable("Reviews", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.ReviewModule.ReviewReport", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AdditionalNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsResolved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("Reason")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ReporterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("ResolvedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("ReviewId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReporterId");
+
+                    b.HasIndex("ReviewId", "ReporterId")
+                        .IsUnique();
+
+                    b.ToTable("ReviewReports", (string)null);
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.SharedModule.City", b =>
@@ -2300,6 +2410,32 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                         .WithMany("VerificationCodes")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.ReviewModule.Review", b =>
+                {
+                    b.HasOne("Fayora.Domain.Entities.IdentityModule.User", "Reviewer")
+                        .WithMany()
+                        .HasForeignKey("ReviewerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Reviewer");
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.ReviewModule.ReviewReport", b =>
+                {
+                    b.HasOne("Fayora.Domain.Entities.IdentityModule.User", null)
+                        .WithMany()
+                        .HasForeignKey("ReporterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Fayora.Domain.Entities.ReviewModule.Review", null)
+                        .WithMany()
+                        .HasForeignKey("ReviewId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

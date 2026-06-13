@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -15,6 +15,7 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageAccommod
         decimal Longitude,
         TimeOnly CheckInTime,
         TimeOnly CheckOutTime,
-        string Amenities
+        string Amenities,
+        string Meals
     );
 }

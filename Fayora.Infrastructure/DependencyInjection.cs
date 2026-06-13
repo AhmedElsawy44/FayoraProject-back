@@ -5,6 +5,7 @@ using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
 using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Common.Interfaces.Persistences.ChatbotModule;
 using Fayora.Application.Common.Interfaces.Persistences.ChatModule;
+using Fayora.Application.Common.Interfaces.Persistences.ReviewModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Persistences.NotificationModule;
@@ -25,6 +26,7 @@ using Fayora.Infrastructure.Persistence.Repositories.AccommodationModule;
 using Fayora.Infrastructure.Persistence.Repositories.AdminModule;
 using Fayora.Infrastructure.Persistence.Repositories.BookingModule;
 using Fayora.Infrastructure.Persistence.Repositories.ChatModule;
+using Fayora.Infrastructure.Persistence.Repositories.ReviewModule;
 using Fayora.Infrastructure.Persistence.Repositories.DummyReposForChatbot;
 using Fayora.Infrastructure.Persistence.Repositories.GuideModule;
 using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
@@ -133,6 +135,9 @@ public static class DependencyInjection
         // Chat Module
         services.AddScoped<IChatRepository, ChatRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
+
+        // Review Module
+        services.AddScoped<IReviewRepository, ReviewRepository>();
 
         // Booking Module
         services.AddScoped<IBookingRepository, BookingRepository>();

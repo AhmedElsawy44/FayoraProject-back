@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
@@ -23,6 +23,7 @@ namespace Fayora.Application.Features.BookingModule.Commands.ConfirmCashReceived
                 request.BookingId, cancellationToken);
             if (booking is null) return BookingErrors.BookingNotFound;
             if (booking.ServiceProviderId != providerId) return BookingErrors.Unauthorized;
+            if (!booking.IsCashOnArrival) return BookingErrors.NotCashOnArrival;
 
             var result = booking.ConfirmCashReceived();
             if (result.IsError) return result.Errors;

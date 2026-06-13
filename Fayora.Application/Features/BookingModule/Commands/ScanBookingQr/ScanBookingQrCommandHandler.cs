@@ -100,6 +100,8 @@ namespace Fayora.Application.Features.BookingModule.Commands.ScanBookingQr
                 booking.ServiceType.ToString(),
                 booking.StartDate,
                 booking.SeatsCount,
+                booking.AdultsCount,
+                booking.ChildrenCount,
                 booking.BookingStatus.ToString(),
                 IsCashOnArrival: booking.IsCashOnArrival,
                 RemainingAmount: booking.IsCashOnArrival

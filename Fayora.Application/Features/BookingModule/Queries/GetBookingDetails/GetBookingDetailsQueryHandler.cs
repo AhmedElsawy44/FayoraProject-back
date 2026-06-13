@@ -94,9 +94,9 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
                 }
             }
 
-            bool canGenerateQr = booking.IsCashOnArrival
+            bool canGenerateQr = !booking.IsScanned && (booking.IsCashOnArrival
                 ? booking.PaymentStatus == PaymentTransactionStatus.PartiallyPaid || booking.PaymentStatus == PaymentTransactionStatus.Paid
-                : booking.PaymentStatus == PaymentTransactionStatus.Paid;
+                : booking.PaymentStatus == PaymentTransactionStatus.Paid);
 
             if (canGenerateQr)
             {
@@ -116,6 +116,8 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
                 booking.DiscountAmount,
                 booking.TotalPrice,
                 booking.SeatsCount,
+                booking.AdultsCount,
+                booking.ChildrenCount,
                 booking.StartDate,
                 booking.EndDate,
                 booking.BookingStatus,
