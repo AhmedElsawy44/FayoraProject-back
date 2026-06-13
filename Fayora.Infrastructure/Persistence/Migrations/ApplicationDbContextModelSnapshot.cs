@@ -243,9 +243,6 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("ScannedAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<int>("SeatsCount")
-                        .HasColumnType("int");
-
                     b.Property<string>("SelectedOptionalActivityIds")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("SelectedOptionalActivityIds");
