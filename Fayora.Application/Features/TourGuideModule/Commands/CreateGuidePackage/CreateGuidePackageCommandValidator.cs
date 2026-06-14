@@ -122,6 +122,18 @@ public class CreateGuidePackageCommandValidator : AbstractValidator<CreateGuideP
                     .Must(BeValidFileUrl).WithMessage("Optional activity image URL must be a valid absolute URL that starts with http or https.");
             })
             .When(x => x.OptionalActivities != null);
+
+        // Group discount validations
+        RuleFor(x => x.GroupDiscountMinPeople)
+            .NotNull().WithMessage("Group discount minimum people is required when group discount is enabled.")
+            .GreaterThan(0).WithMessage("Group discount minimum people must be greater than zero.")
+            .When(x => x.HasGroupDiscount);
+
+        RuleFor(x => x.GroupDiscountPercent)
+            .NotNull().WithMessage("Group discount percent is required when group discount is enabled.")
+            .GreaterThan(0).WithMessage("Group discount percent must be greater than zero.")
+            .LessThanOrEqualTo(100).WithMessage("Group discount percent cannot exceed 100.")
+            .When(x => x.HasGroupDiscount);
     }
 
     private static bool BeValidFileUrl(string? url)

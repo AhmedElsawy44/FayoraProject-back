@@ -40,7 +40,6 @@ public interface IBookingRepository
     Task<double> GetLocationsAvgOccupancyAsync(CancellationToken cancellationToken = default);
     Task<List<Booking>> GetUnpaidCompletedBookingsAsync(Guid providerId, CancellationToken cancellationToken = default);
     Task<List<Booking>> GetEligibleBookingsForAutomaticPayoutAsync(DateTime thresholdDate, CancellationToken cancellationToken = default);
-    Task<List<Booking>> GetBookingsByPackageAndDateAsync(Guid packageId, DateOnly date, CancellationToken cancellationToken = default);
 
     Task<List<Booking>> GetBookingsForOccurrenceAsync(
         Guid packageId,

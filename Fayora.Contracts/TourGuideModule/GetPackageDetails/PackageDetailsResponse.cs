@@ -29,7 +29,10 @@ namespace Fayora.Contracts.TourGuideModule.GetPackageDetails
         List<OptionalActivityResponse>? OptionalActivities,
         string TourType,
         int MaxCapacity,
-        string? VideoURL
+        string? VideoURL,
+        bool HasGroupDiscount,
+        int? GroupDiscountMinPeople,
+        decimal? GroupDiscountPercent
     );
 
     public record OptionalActivityResponse(

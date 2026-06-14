@@ -130,7 +130,10 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
                     a.ImageUrl.Value)).ToList(),
                 package.TourTypes.ToString(),
                 package.MaxCapacity,
-                package.MainVideoUrl?.Value);
+                package.MainVideoUrl?.Value,
+                package.HasGroupDiscount,
+                package.GroupDiscountMinPeople,
+                package.GroupDiscountPercent);
         }
     }
 }

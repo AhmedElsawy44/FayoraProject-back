@@ -76,7 +76,10 @@ public class CreateGuidePackageCommandHandler(
             mainImageUrlResult.Value,
             mainVideoUrl,
             request.GuestRequirements,
-            request.CancellationPolicy
+            request.CancellationPolicy,
+            request.HasGroupDiscount,
+            request.GroupDiscountMinPeople,
+            request.GroupDiscountPercent
         );
 
 

@@ -397,16 +397,4 @@ public class BookingRepository(ApplicationDbContext context) : IBookingRepositor
                 b.StartDate <= endOfDay)
             .ToListAsync(cancellationToken);
     }
-
-    public async Task<List<Booking>> GetBookingsByPackageAndDateAsync(Guid packageId, DateOnly date, CancellationToken cancellationToken = default)
-    {
-        var startOfDay = date.ToDateTime(TimeOnly.MinValue);
-        var endOfDay = date.ToDateTime(TimeOnly.MaxValue);
-
-        return await context.Bookings
-            .AsNoTracking()
-            .Where(b => b.ServiceId == packageId &&
-                        b.StartDate == startOfDay)
-            .ToListAsync(cancellationToken);
-    }
 }

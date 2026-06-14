@@ -4,6 +4,7 @@ using Fayora.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260614174308_AddGroupDiscountToGuidePackage")]
+    partial class AddGroupDiscountToGuidePackage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -242,9 +245,6 @@ namespace Fayora.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTimeOffset?>("ScannedAt")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("SelectedMeetingPointId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("SelectedOptionalActivityIds")
                         .HasColumnType("nvarchar(max)")
@@ -906,40 +906,6 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PackageImages", (string)null);
-                });
-
-            modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageMeetingPoint", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("MeetingPointName")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("Name");
-
-                    b.Property<Guid>("PackageId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Price")
-                        .ValueGeneratedOnAdd()
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)")
-                        .HasDefaultValue(0m);
-
-                    b.Property<TimeOnly>("Time")
-                        .HasColumnType("time");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PackageId");
-
-                    b.ToTable("PackageMeetingPoints", (string)null);
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageNight", b =>
@@ -2187,10 +2153,36 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                                 .HasForeignKey("GuidePackageId");
                         });
 
+                    b.OwnsOne("Fayora.Domain.ValueObjects.GeoPoint", "MeetingPoint", b1 =>
+                        {
+                            b1.Property<Guid>("GuidePackageId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Latitude")
+                                .HasPrecision(18, 6)
+                                .HasColumnType("decimal(18,6)")
+                                .HasColumnName("MeetingPointLatitude");
+
+                            b1.Property<decimal>("Longitude")
+                                .HasPrecision(18, 6)
+                                .HasColumnType("decimal(18,6)")
+                                .HasColumnName("MeetingPointLongitude");
+
+                            b1.HasKey("GuidePackageId");
+
+                            b1.ToTable("GuideTourPackages");
+
+                            b1.WithOwner()
+                                .HasForeignKey("GuidePackageId");
+                        });
+
                     b.Navigation("MainImageUrl")
                         .IsRequired();
 
                     b.Navigation("MainVideoUrl");
+
+                    b.Navigation("MeetingPoint")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.GuideRequest", b =>
@@ -2325,7 +2317,8 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                                 .HasForeignKey("PackageActivityId");
                         });
 
-                    b.Navigation("Place");
+                    b.Navigation("Place")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageImage", b =>
@@ -2350,41 +2343,6 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                         });
 
                     b.Navigation("ImageUrl")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageMeetingPoint", b =>
-                {
-                    b.HasOne("Fayora.Domain.Entities.GuideModule.GuidePackage", null)
-                        .WithMany("MeetingPoints")
-                        .HasForeignKey("PackageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.OwnsOne("Fayora.Domain.ValueObjects.GeoPoint", "MeetingPoint", b1 =>
-                        {
-                            b1.Property<Guid>("PackageMeetingPointId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<decimal>("Latitude")
-                                .HasPrecision(18, 10)
-                                .HasColumnType("decimal(18,10)")
-                                .HasColumnName("Latitude");
-
-                            b1.Property<decimal>("Longitude")
-                                .HasPrecision(18, 10)
-                                .HasColumnType("decimal(18,10)")
-                                .HasColumnName("Longitude");
-
-                            b1.HasKey("PackageMeetingPointId");
-
-                            b1.ToTable("PackageMeetingPoints");
-
-                            b1.WithOwner()
-                                .HasForeignKey("PackageMeetingPointId");
-                        });
-
-                    b.Navigation("MeetingPoint")
                         .IsRequired();
                 });
 
@@ -2653,8 +2611,6 @@ namespace Fayora.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.GuidePackage", b =>
                 {
-                    b.Navigation("MeetingPoints");
-
                     b.Navigation("Occurrences");
                 });
 

@@ -146,7 +146,10 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             cancellationPolicy,
             request.Activities,
             request.LocationIds,
-            request.OptionalActivities
+            request.OptionalActivities,
+            request.HasGroupDiscount,
+            request.GroupDiscountMinPeople,
+            request.GroupDiscountPercent
             );
 
         var result = await sender.Send(command, ct);
@@ -196,7 +199,10 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             cancellationPolicy,
             request.Activities,
             request.LocationIds,
-            request.OptionalActivities
+            request.OptionalActivities,
+            request.HasGroupDiscount,
+            request.GroupDiscountMinPeople,
+            request.GroupDiscountPercent
         );
 
         var result = await sender.Send(command, ct);

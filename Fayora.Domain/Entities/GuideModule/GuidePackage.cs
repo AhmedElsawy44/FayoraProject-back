@@ -21,6 +21,9 @@ public class GuidePackage : AuditableEntity<Guid>
     public int MaxCapacity { get; private set; }
     public decimal AdultPrice { get; private set; }
     public decimal ChildPrice { get; private set; }
+    public bool HasGroupDiscount { get; private set; }
+    public int? GroupDiscountMinPeople { get; private set; }
+    public decimal? GroupDiscountPercent { get; private set; }
     public bool IsActive { get; private set; }
     public int Views { get; private set; }
     public FileUrl MainImageUrl { get; private set; } = default!;
@@ -117,7 +120,8 @@ public class GuidePackage : AuditableEntity<Guid>
         TransportType transportType,
         int maxCapacity, decimal adultPrice, decimal childPrice,
         string? arrivalNote, FileUrl mainImageUrl,
-        FileUrl? mainVideoUrl = null, string? guestRequirements = null, CancellationPolicy cancellationPolicy = CancellationPolicy.NonRefundable)
+        FileUrl? mainVideoUrl = null, string? guestRequirements = null, CancellationPolicy cancellationPolicy = CancellationPolicy.NonRefundable,
+        bool hasGroupDiscount = false, int? groupDiscountMinPeople = null, decimal? groupDiscountPercent = null)
     {
         if (adultPrice <= 0)
             return Error.Validation("Package.InvalidPrice", "Adult price must be positive.");
@@ -131,10 +135,15 @@ public class GuidePackage : AuditableEntity<Guid>
         if (maxCapacity <= 0)
             return Error.Validation("Package.InvalidCapacity", "Max capacity must be greater than zero.");
 
-        return new GuidePackage(guideId, title, description, tourTypes, providerType,
+        var package = new GuidePackage(guideId, title, description, tourTypes, providerType,
             durationHours, numOfDays, transportType, maxCapacity,
             adultPrice, childPrice, arrivalNote, mainImageUrl,
             mainVideoUrl, guestRequirements, cancellationPolicy);
+
+        var discountResult = package.SetGroupDiscount(hasGroupDiscount, groupDiscountMinPeople, groupDiscountPercent);
+        if (discountResult.IsError) return discountResult.Errors;
+
+        return package;
     }
 
     public void AddIncludedItem(int id) => _includedItemIds.Add(id);
@@ -184,7 +193,10 @@ public class GuidePackage : AuditableEntity<Guid>
         string? guestRequirements,
         CancellationPolicy cancellationPolicy,
         FileUrl mainImageUrl,
-        FileUrl? mainVideoUrl)
+        FileUrl? mainVideoUrl,
+        bool hasGroupDiscount = false,
+        int? groupDiscountMinPeople = null,
+        decimal? groupDiscountPercent = null)
     {
         if (adultPrice <= 0)
             return Error.Validation("Package.InvalidPrice", "Adult price must be positive.");
@@ -197,6 +209,9 @@ public class GuidePackage : AuditableEntity<Guid>
 
         if (maxCapacity <= 0)
             return Error.Validation("Package.InvalidCapacity", "Max capacity must be greater than zero.");
+
+        var discountResult = SetGroupDiscount(hasGroupDiscount, groupDiscountMinPeople, groupDiscountPercent);
+        if (discountResult.IsError) return discountResult;
 
         Title = title;
         Description = description;
@@ -325,7 +340,35 @@ public class GuidePackage : AuditableEntity<Guid>
         }
         total += meetingPoint.Price;
 
+        // Apply group discount if enabled and guest count meets threshold
+        if (HasGroupDiscount && GroupDiscountMinPeople.HasValue && GroupDiscountPercent.HasValue)
+        {
+            var totalGuests = numAdults + numChildren;
+            if (totalGuests >= GroupDiscountMinPeople.Value)
+            {
+                var discountAmount = total * (GroupDiscountPercent.Value / 100m);
+                total -= discountAmount;
+            }
+        }
+
         return total;
+    }
+
+    private Result<Success> SetGroupDiscount(bool hasGroupDiscount, int? groupDiscountMinPeople, decimal? groupDiscountPercent)
+    {
+        if (hasGroupDiscount)
+        {
+            if (!groupDiscountMinPeople.HasValue || groupDiscountMinPeople.Value <= 0)
+                return Error.Validation("Package.InvalidGroupDiscountMinPeople", "Group discount minimum people must be greater than zero.");
+
+            if (!groupDiscountPercent.HasValue || groupDiscountPercent.Value <= 0 || groupDiscountPercent.Value > 100)
+                return Error.Validation("Package.InvalidGroupDiscountPercent", "Group discount percent must be between 0 and 100.");
+        }
+
+        HasGroupDiscount = hasGroupDiscount;
+        GroupDiscountMinPeople = hasGroupDiscount ? groupDiscountMinPeople : null;
+        GroupDiscountPercent = hasGroupDiscount ? groupDiscountPercent : null;
+        return Result.Success;
     }
 
 

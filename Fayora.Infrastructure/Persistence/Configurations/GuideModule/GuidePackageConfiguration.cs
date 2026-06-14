@@ -26,6 +26,10 @@ public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
         builder.Property(x => x.ArrivalNote)
             .HasColumnType("nvarchar(1000)");
 
+        builder.Property(x => x.HasGroupDiscount).HasDefaultValue(false);
+        builder.Property(x => x.GroupDiscountMinPeople).IsRequired(false);
+        builder.Property(x => x.GroupDiscountPercent).HasPrecision(18, 2).IsRequired(false);
+
         builder.OwnsOne(x => x.MainImageUrl, nav =>
         {
             nav.Property(f => f.Value).HasColumnName("MainImageUrl").HasMaxLength(2048);
