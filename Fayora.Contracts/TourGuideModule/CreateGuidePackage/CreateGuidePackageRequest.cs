@@ -8,8 +8,7 @@ public record CreateGuidePackageRequest
     int DurationHours,
     int NumOfDays,
     List<NightDto>? Nights,
-    decimal Longitude,
-    decimal Latitude,
+    List<MeetingPointDto> MeetingPoints,
     string TransportType,
     string? ArrivalNote,
     decimal AdultPrice,
@@ -36,8 +35,17 @@ public record OptionalActivityDto(
     string ImageUrl
 );
 
-public record ActivityDto(decimal Latitude,
+public record MeetingPointDto(
+    string MeetingPointName,
+    decimal Latitude,
     decimal Longitude,
+    TimeOnly Time,
+    decimal Price = 0,
+    string? Description = null
+);
+
+public record ActivityDto(decimal? Latitude,
+    decimal? Longitude,
     string Description,
     TimeOnly ActivityTime,
     bool IsOptional, 

@@ -36,11 +36,17 @@ public class CreatePackageBookingCommandHandler(
         var user = await userRepository.GetUserByIdAsync(userId, new UserQueryOptions { IsReadOnly = true }, cancellationToken);
         if (user is null) return AuthErrors.UserNotFound;
 
-        var package = await packageRepository.GetPackageByIdAsync(request.PackageId, new PackageQueryOptions { ReadOnly = true }, cancellationToken);
+        var package = await packageRepository.GetPackageByIdAsync(
+            request.PackageId,
+            new PackageQueryOptions { ReadOnly = true, IncludeMeetingPoints = true },
+            cancellationToken);
         if (package is null) return TourGuideErrors.PackageNotFound;
 
         if (package.PackageStatus != Fayora.Domain.Enums.TourGuideModule.ItemStatus.Active)
             return TourGuideErrors.PackageNotAvailable;
+
+        if (package.MeetingPoints.Any() && request.SelectedMeetingPointId is null)
+            return BookingErrors.MeetingPointRequired;
 
         var occurrence = await
             packageOccurrenceRepository.GetOccurrenceByPackageIdAndDate(request.PackageId, request.BookingDate, cancellationToken);
@@ -50,7 +56,7 @@ public class CreatePackageBookingCommandHandler(
         var reserveResult = occurrence.ReserveSeats(requiredSpots);
         if (reserveResult.IsError) return reserveResult.Errors;
 
-        var totalPrice = package.CalculateBooking(request.Adults, request.Children, request.SelectedOptionalActivityIds);
+        var totalPrice = package.CalculateBooking(request.Adults, request.Children, request.SelectedMeetingPointId!.Value, request.SelectedOptionalActivityIds);
         if (totalPrice.IsError) return totalPrice.Errors;
 
 
@@ -96,7 +102,8 @@ public class CreatePackageBookingCommandHandler(
             request.IsCashOnArrival,
             appliedOfferId,
             discountAmount,
-            request.SelectedOptionalActivityIds);
+            request.SelectedOptionalActivityIds,
+            request.SelectedMeetingPointId);
         if (booking.IsError) return booking.Errors;
 
 

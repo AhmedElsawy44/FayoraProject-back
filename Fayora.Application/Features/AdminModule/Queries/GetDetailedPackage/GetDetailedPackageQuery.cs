@@ -1,4 +1,5 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.ValueObjects;
 
@@ -23,7 +24,7 @@ public record GetDetailedPackageResult(
     string CancellationPolicy,
     List<int> IncluededItems,
     List<int> ExcludedItems,
-    GeoPoint MeetingPoint,
+    List<PackageMeetingPointResult> MeetingPoints,
     string? ArrivalNote,
     string TransportType,
     List<string> ImageUrls

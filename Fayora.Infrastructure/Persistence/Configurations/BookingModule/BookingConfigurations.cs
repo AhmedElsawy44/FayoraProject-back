@@ -78,6 +78,9 @@ internal sealed class BookingConfigurations : IEntityTypeConfiguration<Booking>
                 v => string.IsNullOrEmpty(v) ? null : JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions?)null))
             .IsRequired(false);
 
+        builder.Property(x => x.SelectedMeetingPointId)
+            .IsRequired(false);
+
         builder.Property(x => x.AdultsCount)
             .IsRequired()
             .HasDefaultValue(0);

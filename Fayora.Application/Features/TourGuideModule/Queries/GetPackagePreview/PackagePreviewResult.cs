@@ -1,3 +1,5 @@
+using Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails;
+
 namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
 {
     public record PackagePreviewResult(
@@ -16,7 +18,7 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
         List<int>? ExcludedItemIds,
         List<PackageActivityResult> Activities,
         List<PackageNightResult> Nights,
-        GeoPointResult MeetingPoint,
+        List<PackageMeetingPointResult> MeetingPoints,
         GuideInfoResult GuideInfo,
         List<int> LocationIds
     );
@@ -25,7 +27,9 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
         string Description,
         TimeOnly ActivityTime,
         bool IsOptional,
-        int? LocationId
+        int? LocationId,
+        decimal? Latitude,
+        decimal? Longitude
     );
 
     public record PackageNightResult(
@@ -36,10 +40,7 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
     Guid? PackageAccommodationId
 );
 
-    public record GeoPointResult(
-        decimal Latitude,
-        decimal Longitude
-    );
+
 
     public record GuideInfoResult(
         string FirstName,

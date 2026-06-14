@@ -28,6 +28,14 @@ public class PackageRepository(ApplicationDbContext context) : IPackageRepositor
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<bool> HasPackageCreatedTodayAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var todayStart = new DateTimeOffset(DateTime.UtcNow.Date, TimeSpan.Zero);
+        return await context.GuideTourPackages
+            .AsNoTracking()
+            .AnyAsync(p => p.UserId == userId && p.CreatedAt >= todayStart && p.DeletedAt == null, cancellationToken);
+    }
+
     public async Task<List<PackageActivity>> GetActivitiesByPackageIdAsync(
         Guid packageId,
         CancellationToken cancellationToken = default)
@@ -46,6 +54,39 @@ public class PackageRepository(ApplicationDbContext context) : IPackageRepositor
     public void RemovePackageActivities(IEnumerable<PackageActivity> activities)
     {
         context.PackageActivities.RemoveRange(activities);
+    }
+
+    public void AddPackageMeetingPoints(IEnumerable<PackageMeetingPoint> meetingPoints)
+    {
+        context.PackageMeetingPoints.AddRange(meetingPoints);
+    }
+
+    public void RemovePackageMeetingPoints(IEnumerable<PackageMeetingPoint> meetingPoints)
+    {
+        context.PackageMeetingPoints.RemoveRange(meetingPoints);
+    }
+
+    public async Task<List<PackageMeetingPoint>> GetMeetingPointsByPackageIdAsync(
+        Guid packageId,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.PackageMeetingPoints
+            .AsNoTracking()
+            .Where(mp => mp.PackageId == packageId)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<PackageMeetingPoint>> GetMeetingPointsByPackageIdsAsync(
+        List<Guid> packageIds,
+        CancellationToken cancellationToken = default)
+    {
+        if (packageIds == null || packageIds.Count == 0)
+            return [];
+
+        return await context.PackageMeetingPoints
+            .AsNoTracking()
+            .Where(mp => packageIds.Contains(mp.PackageId))
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<(List<GuidePackage> Items, int TotalCount)> GetMyPackagesAsync(
@@ -88,6 +129,11 @@ public class PackageRepository(ApplicationDbContext context) : IPackageRepositor
         if (options.IncludeOccurrences)
         {
             query = query.Include(p => p.Occurrences);
+        }
+
+        if (options.IncludeMeetingPoints)
+        {
+            query = query.Include(p => p.MeetingPoints);
         }
 
         return await query

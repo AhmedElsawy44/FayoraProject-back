@@ -41,6 +41,7 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
             string? qrToken = null;
 
             List<SelectedOptionalActivityResult>? selectedOptionalActivities = null;
+            BookingMeetingPointResult? selectedMeetingPoint = null;
 
             if (booking.ServiceType == ServiceType.GuidePackage)
             {
@@ -59,6 +60,23 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
                             .Where(a => booking.SelectedOptionalActivityIds.Contains(a.Id))
                             .Select(a => new SelectedOptionalActivityResult(a.Id, a.Description, a.AdditionalPrice, a.ImageUrl.Value))
                             .ToList();
+                    }
+
+                    var meetingPoints = await packageRepository.GetMeetingPointsByPackageIdAsync(package.Id, cancellationToken);
+                    if (booking.SelectedMeetingPointId.HasValue)
+                    {
+                        var mp = meetingPoints.FirstOrDefault(m => m.Id == booking.SelectedMeetingPointId.Value);
+                        if (mp is not null)
+                        {
+                            selectedMeetingPoint = new BookingMeetingPointResult(
+                                mp.Id,
+                                mp.MeetingPointName,
+                                mp.MeetingPoint.Latitude,
+                                mp.MeetingPoint.Longitude,
+                                mp.Time,
+                                mp.Price,
+                                mp.Description);
+                        }
                     }
                 }
             }
@@ -123,7 +141,8 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
                 booking.BookingStatus,
                 booking.ServiceType,
                 qrToken,
-                selectedOptionalActivities);
+                selectedOptionalActivities,
+                selectedMeetingPoint);
         }
     }
 }

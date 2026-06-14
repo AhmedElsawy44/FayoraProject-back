@@ -37,6 +37,7 @@ public class Booking : BaseEntity<Guid>
     public decimal DiscountAmount { get; private set; }
 
     public List<Guid>? SelectedOptionalActivityIds { get; init; }
+    public Guid? SelectedMeetingPointId { get; init; }
 
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
 
@@ -46,7 +47,8 @@ public class Booking : BaseEntity<Guid>
         int adultsCount, int childrenCount, CancellationPolicy policy, DateTime startDate,
         DateTime endDate, bool isCashOnArrival = false,
         Guid? appliedOfferId = null, decimal discountAmount = 0,
-        List<Guid>? selectedOptionalActivityIds = null)
+        List<Guid>? selectedOptionalActivityIds = null,
+        Guid? selectedMeetingPointId = null)
     {
         if (endDate <= startDate)
             return Error.Validation();
@@ -86,6 +88,7 @@ public class Booking : BaseEntity<Guid>
             DepositAmount = depositAmount,
             AppliedOfferId = appliedOfferId,
             SelectedOptionalActivityIds = selectedOptionalActivityIds,
+            SelectedMeetingPointId = selectedMeetingPointId,
         };
     }
 

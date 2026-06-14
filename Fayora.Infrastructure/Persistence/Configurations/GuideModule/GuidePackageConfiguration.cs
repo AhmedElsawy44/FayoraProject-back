@@ -40,11 +40,7 @@ public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
             nav.Property(f => f.Value).HasColumnName("MainVideoUrl").HasMaxLength(2048);
         });
 
-        builder.OwnsOne(x => x.MeetingPoint, geo =>
-        {
-            geo.Property(g => g.Latitude).HasColumnName("MeetingPointLatitude").HasPrecision(18, 6);
-            geo.Property(g => g.Longitude).HasColumnName("MeetingPointLongitude").HasPrecision(18, 6);
-        });
+
 
         builder.Property<List<int>>("_includedItemIds")
             .HasColumnName("IncludedItemIds")
@@ -100,6 +96,14 @@ public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
                .OnDelete(DeleteBehavior.Cascade);
 
         builder.Metadata.FindNavigation(nameof(GuidePackage.Occurrences))
+       ?.SetPropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.HasMany(p => p.MeetingPoints)
+               .WithOne()
+               .HasForeignKey(mp => mp.PackageId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Metadata.FindNavigation(nameof(GuidePackage.MeetingPoints))
        ?.SetPropertyAccessMode(PropertyAccessMode.Field);
 
 

@@ -12,5 +12,6 @@ public record CreatePackageBookingCommand(
     PaymentMethodType PaymentMethodType,
     string? WalletNumber,
     bool IsCashOnArrival,
-    List<Guid>? SelectedOptionalActivityIds
+    List<Guid>? SelectedOptionalActivityIds,
+    Guid? SelectedMeetingPointId
     ) : ICommand<Result<string>>;

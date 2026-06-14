@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 
 namespace Fayora.Application.Features.BookingModule.Commands.CreatePackageBooking;
 
@@ -24,5 +24,7 @@ public class CreatePackageBookingCommandValidator : AbstractValidator<CreatePack
 
         RuleFor(x => x.PaymentMethodType)
             .IsInEnum().WithMessage("Invalid payment method.");
+        RuleFor(x => x.SelectedMeetingPointId)
+            .NotEmpty().WithMessage("Selected meeting point is required.");
     }
 }
