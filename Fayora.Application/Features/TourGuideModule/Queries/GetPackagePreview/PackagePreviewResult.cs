@@ -1,4 +1,5 @@
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails;
+using Fayora.Contracts.TourGuideModule.GetPackageDetails;
 
 namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
 {
@@ -20,7 +21,15 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
         List<PackageNightResult> Nights,
         List<PackageMeetingPointResult> MeetingPoints,
         GuideInfoResult GuideInfo,
-        List<int> LocationIds
+        List<int> LocationIds,
+        string TourType,
+        string TransportType,
+        string CancellationPolicy,
+        int MaxCapacity,
+        string? ArrivalNote,
+        string? VideoURL,
+        string? GuestRequirements,
+        List<OptionalActivityResponse>? OptionalActivities
     );
 
     public record PackageActivityResult(
