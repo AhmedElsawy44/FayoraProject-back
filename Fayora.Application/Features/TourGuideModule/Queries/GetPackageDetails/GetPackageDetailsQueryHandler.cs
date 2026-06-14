@@ -113,7 +113,10 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
                     a.Id,
                     a.Description,
                     a.AdditionalPrice,
-                    a.ImageUrl.Value)).ToList());
+                    a.ImageUrl.Value)).ToList(),
+                package.HasGroupDiscount,
+                package.GroupDiscountMinPeople,
+                package.GroupDiscountPercent);
         }
     }
 }

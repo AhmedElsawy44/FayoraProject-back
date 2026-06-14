@@ -54,9 +54,6 @@ public interface IAdminRepository
     Task<List<RecentActivityDto>> GetRecentActivitiesAsync(CancellationToken ct);
 
     // Master Interests
-    Task<List<GetMasterInterestsResponse>> GetMasterInterestsAsync(CancellationToken ct);
-    Task<MasterInterest?> GetMasterInterestByIdAsync(int id, CancellationToken ct);
-    void AddMasterInterest(MasterInterest interest);
 
     // Chatbot Monitoring
     Task<List<GetChatbotSessionsResponse>> GetChatbotSessionsAsync(int pageNumber, int pageSize, Guid? userIdFilter, DateTime? fromDate, DateTime? toDate, CancellationToken ct);

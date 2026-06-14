@@ -24,7 +24,10 @@ public record CreateGuidePackageRequest
     string? GuestRequirements,
     List<ActivityDto> Activities,
     HashSet<int> LocationIds,
-    List<OptionalActivityDto>? OptionalActivities
+    List<OptionalActivityDto>? OptionalActivities,
+    bool HasGroupDiscount = false,
+    int? GroupDiscountMinPeople = null,
+    decimal? GroupDiscountPercent = null
 );
 
 public record OptionalActivityDto(

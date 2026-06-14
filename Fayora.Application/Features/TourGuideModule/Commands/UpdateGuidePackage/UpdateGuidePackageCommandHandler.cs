@@ -99,7 +99,10 @@ public class UpdateGuidePackageCommandHandler(
             request.GuestRequirements,
             request.CancellationPolicy,
             mainImageUrlResult.Value,
-            mainVideoUrl);
+            mainVideoUrl,
+            request.HasGroupDiscount,
+            request.GroupDiscountMinPeople,
+            request.GroupDiscountPercent);
 
         if (updateResult.IsError) return updateResult.Errors;
 

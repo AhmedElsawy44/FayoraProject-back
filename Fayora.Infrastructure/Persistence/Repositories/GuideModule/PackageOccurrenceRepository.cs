@@ -77,12 +77,6 @@ public class PackageOccurrenceRepository(ApplicationDbContext context)
         occurrence?.ReleaseSeats(count);
     }
 
-    public Task<PackageOccurrence?> GetByIdAsync(Guid occurrenceId, CancellationToken cancellationToken)
-    {
-        return context.PackageOccurrences
-            .FirstOrDefaultAsync(x => x.Id == occurrenceId, cancellationToken);
-    }
-
     public void Remove(PackageOccurrence occurrence)
     {
         context.PackageOccurrences.Remove(occurrence);
