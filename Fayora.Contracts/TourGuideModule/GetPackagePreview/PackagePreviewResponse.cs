@@ -25,7 +25,9 @@ namespace Fayora.Contracts.TourGuideModule.GetPackagePreview
         string Description,
         TimeOnly ActivityTime,
         bool IsOptional,
-        int? LocationId
+        int? LocationId,
+        decimal? Latitude,
+        decimal? Longitude
     );
 
     public record PackageNightResponse(

@@ -41,8 +41,8 @@ public record MeetingPointDto(
     string? Description = null
 );
 
-public record ActivityDto(decimal Latitude,
-    decimal Longitude,
+public record ActivityDto(decimal? Latitude,
+    decimal? Longitude,
     string Description,
     TimeOnly ActivityTime,
     bool IsOptional, 

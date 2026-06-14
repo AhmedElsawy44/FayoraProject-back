@@ -85,7 +85,9 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
                     a.Description,
                     a.ActivityTime,
                     a.IsOptional,
-                    a.LocationId)).ToList(),
+                    a.LocationId,
+                    a.Place?.Latitude,
+                    a.Place?.Longitude)).ToList(),
                 nights.Select(n => new PackageNightDetailsResult(
                     n.Id,
                     n.NightNumber,

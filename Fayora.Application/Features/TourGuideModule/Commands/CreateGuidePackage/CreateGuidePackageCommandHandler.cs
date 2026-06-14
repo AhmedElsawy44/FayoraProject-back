@@ -95,7 +95,14 @@ public class CreateGuidePackageCommandHandler(
         var actualActivities = new List<PackageActivity>();
         foreach (var actReq in request.Activities)
         {
-            var activityResult = PackageActivity.Create(package.Id, actReq.Latitude, actReq.Longitude, actReq.Description, actReq.ActivityTime, actReq.IsOptional, actReq.LocationId);
+            var activityResult = PackageActivity.Create(
+                package.Id,
+                actReq.Description,
+                actReq.ActivityTime,
+                actReq.IsOptional,
+                actReq.LocationId,
+                actReq.Latitude,
+                actReq.Longitude);
             if (activityResult.IsError) return activityResult.Errors;
             actualActivities.Add(activityResult.Value);
         }

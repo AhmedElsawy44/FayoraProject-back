@@ -115,12 +115,12 @@ public class UpdateGuidePackageCommandHandler(
         {
             var activityResult = PackageActivity.Create(
                 package.Id,
-                actReq.Latitude,
-                actReq.Longitude,
                 actReq.Description,
                 actReq.ActivityTime,
                 actReq.IsOptional,
-                actReq.LocationId);
+                actReq.LocationId,
+                actReq.Latitude,
+                actReq.Longitude);
 
             if (activityResult.IsError) return activityResult.Errors;
             newActivityIds.Add(activityResult.Value.Id);
