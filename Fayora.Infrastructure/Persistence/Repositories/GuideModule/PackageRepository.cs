@@ -28,6 +28,14 @@ public class PackageRepository(ApplicationDbContext context) : IPackageRepositor
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<bool> HasPackageCreatedTodayAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var todayStart = new DateTimeOffset(DateTime.UtcNow.Date, TimeSpan.Zero);
+        return await context.GuideTourPackages
+            .AsNoTracking()
+            .AnyAsync(p => p.UserId == userId && p.CreatedAt >= todayStart && p.DeletedAt == null, cancellationToken);
+    }
+
     public async Task<List<PackageActivity>> GetActivitiesByPackageIdAsync(
         Guid packageId,
         CancellationToken cancellationToken = default)

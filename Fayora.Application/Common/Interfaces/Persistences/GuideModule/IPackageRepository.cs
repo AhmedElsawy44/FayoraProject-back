@@ -43,6 +43,8 @@ public interface IPackageRepository
 
     Task<List<GuidePackage>> GetListByIdsAsync(List<Guid> packageIds, CancellationToken cancellationToken);
 
+    Task<bool> HasPackageCreatedTodayAsync(Guid userId, CancellationToken cancellationToken);
+
     Task<(List<GuidePackage> Items, int TotalCount)> GetActivePackagesAsync(
     string? search,
     int? locationId,

@@ -8,6 +8,8 @@ using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 
+using Fayora.Application.Features.TourGuideModule.Common;
+
 namespace Fayora.Application.Features.TourGuideModule.Commands.CreateGuidePackage;
 
 public class CreateGuidePackageCommandHandler(
@@ -25,6 +27,15 @@ public class CreateGuidePackageCommandHandler(
         var tourGuideId = clientContextProvider.GetContext().UserId;
 
         var providerType = clientContextProvider.GetContext().Roles.Contains("TourGuide") ? ProviderType.TourGuide : ProviderType.TourCompany;
+
+        if (providerType == ProviderType.TourGuide)
+        {
+            var hasCreatedToday = await packageRepository.HasPackageCreatedTodayAsync(tourGuideId, cancellationToken);
+            if (hasCreatedToday)
+            {
+                return TourGuideErrors.DailyPackageLimitExceeded;
+            }
+        }
 
         var mainImageUrlResult = FileUrl.Create(request.MainImageUrl);
         if (mainImageUrlResult.IsError) return mainImageUrlResult.Errors;
