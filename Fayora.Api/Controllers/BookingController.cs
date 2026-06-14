@@ -48,7 +48,8 @@ public class BookingController(ISender sender, IMapper mapper) : ApiController
             paymentMethod,
             request.WalletNumber,
             request.IsCashOnArrival,
-            request.SelectedOptionalActivityIds
+            request.SelectedOptionalActivityIds,
+            request.SelectedMeetingPointId
         );
 
         var result = await sender.Send(command, cancellationToken);

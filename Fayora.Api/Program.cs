@@ -95,7 +95,7 @@ public class Program
             await app.RunAsync();
         }
 
-        catch (Exception ex)
+        catch (Exception ex) when (ex.GetType().Name is not "HostAbortedException")
         {
             Log.Fatal(ex, "Application terminated unexpectedly.");
         }

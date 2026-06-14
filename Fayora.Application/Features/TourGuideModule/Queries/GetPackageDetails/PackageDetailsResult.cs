@@ -18,7 +18,7 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
         List<int>? ExcludedItemIds,
         List<PackageActivityDetailsResult> Activities,
         List<PackageNightDetailsResult> Nights,
-        GeoPointDetailsResult MeetingPoint,
+        List<PackageMeetingPointResult> MeetingPoints,
         GuideInfoDetailsResult GuideInfo,
         string CancellationPolicy,
         string TransportType,
@@ -44,9 +44,14 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
     Guid? PackageAccommodationId  // لو خارج الـ System التور جيد هو اللي عامل مكان الاقامه
 );
 
-    public record GeoPointDetailsResult(
+    public record PackageMeetingPointResult(
+        Guid Id,
+        string? MeetingPointName,
         decimal Latitude,
-        decimal Longitude
+        decimal Longitude,
+        TimeOnly Time,
+        decimal Price,
+        string? Description
     );
 
     public record GuideInfoDetailsResult(

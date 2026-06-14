@@ -47,10 +47,6 @@ public class UpdateGuidePackageCommandHandler(
             return GuideErrors.PackageHasActiveBookings;
 
 
-        var meetingPointResult = GeoPoint.Create(request.Latitude, request.Longitude);
-        if (meetingPointResult.IsError) return meetingPointResult.Errors;
-
-
         var mainImageUrlResult = FileUrl.Create(request.MainImageUrl);
         if (mainImageUrlResult.IsError) return mainImageUrlResult.Errors;
 
@@ -93,7 +89,6 @@ public class UpdateGuidePackageCommandHandler(
             request.ChildPrice,
             request.TourType,
             request.MaxCapacity,
-            meetingPointResult.Value,
             request.ArrivalNote,
             request.TransportType,
             request.GuestRequirements,
@@ -273,6 +268,35 @@ public class UpdateGuidePackageCommandHandler(
             }
         }
         package.UpdateOptionalActivities(optionalActivities);
+
+        // update meeting points
+        var existingMeetingPoints = await packageRepository.GetMeetingPointsByPackageIdAsync(package.Id, cancellationToken);
+        if (existingMeetingPoints.Any())
+            packageRepository.RemovePackageMeetingPoints(existingMeetingPoints);
+
+        var meetingPoints = new List<PackageMeetingPoint>();
+        if (request.MeetingPoints?.Any() == true)
+        {
+            foreach (var mpDto in request.MeetingPoints)
+            {
+                var mpResult = PackageMeetingPoint.Create(
+                    package.Id,
+                    mpDto.MeetingPointName,
+                    mpDto.Latitude,
+                    mpDto.Longitude,
+                    mpDto.Time,
+                    mpDto.Price,
+                    mpDto.Description);
+                if (mpResult.IsError) return mpResult.Errors;
+                meetingPoints.Add(mpResult.Value);
+            }
+            package.UpdateMeetingPoints(meetingPoints);
+            packageRepository.AddPackageMeetingPoints(meetingPoints);
+        }
+        else
+        {
+            package.UpdateMeetingPoints([]);
+        }
 
         await unitOfWork.CommitChangesAsync(cancellationToken);
 

@@ -29,14 +29,23 @@ public class UpdateGuidePackageCommandValidator : AbstractValidator<UpdateGuideP
         RuleFor(x => x.Nights)
             .NotEmpty().WithMessage("Multi-day packages must include nights.")
             .When(x => x.NumOfDays > 1);
+        RuleFor(x => x.MeetingPoints)
+            .NotEmpty().WithMessage("At least one meeting point is required.");
 
-        RuleFor(x => x.Longitude)
-            .GreaterThanOrEqualTo(-180).LessThanOrEqualTo(180)
-            .WithMessage("Longitude must be between -180 and 180.");
-
-        RuleFor(x => x.Latitude)
-            .GreaterThanOrEqualTo(-90).LessThanOrEqualTo(90)
-            .WithMessage("Latitude must be between -90 and 90.");
+        RuleForEach(x => x.MeetingPoints)
+            .ChildRules(mp =>
+            {
+                mp.RuleFor(a => a.MeetingPointName)
+                    .NotEmpty().WithMessage("Meeting point name is required.");
+                mp.RuleFor(a => a.Latitude)
+                    .GreaterThanOrEqualTo(-90).LessThanOrEqualTo(90).WithMessage("Latitude must be between -90 and 90.");
+                mp.RuleFor(a => a.Longitude)
+                    .GreaterThanOrEqualTo(-180).LessThanOrEqualTo(180).WithMessage("Longitude must be between -180 and 180.");
+                mp.RuleFor(a => a.Time)
+                    .Must(t => t != default).WithMessage("Meeting point time is required.");
+                mp.RuleFor(a => a.Price)
+                    .GreaterThanOrEqualTo(0).WithMessage("Meeting point price cannot be negative.");
+            });
 
         RuleFor(x => x.TransportType)
             .IsInEnum().WithMessage("Invalid transport type.");

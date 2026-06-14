@@ -18,7 +18,7 @@ namespace Fayora.Contracts.TourGuideModule.GetPackageDetails
         List<int>? ExcludedItemIds,
         List<PackageActivityDetailsResponse> Activities,
         List<PackageNightDetailsResponse> Nights,
-        GeoPointResponse MeetingPoint,
+        List<PackageMeetingPointResponse> MeetingPoints,
         GuideInfoResponse GuideInfo,
         string CancellationPolicy,
         string TransportType,
@@ -34,6 +34,16 @@ namespace Fayora.Contracts.TourGuideModule.GetPackageDetails
         string Description,
         decimal AdditionalPrice,
         string ImageUrl
+    );
+
+    public record PackageMeetingPointResponse(
+        Guid Id,
+        string? MeetingPointName,
+        decimal Latitude,
+        decimal Longitude,
+        TimeOnly Time,
+        decimal Price,
+        string? Description
     );
 
     public record PackageActivityDetailsResponse(

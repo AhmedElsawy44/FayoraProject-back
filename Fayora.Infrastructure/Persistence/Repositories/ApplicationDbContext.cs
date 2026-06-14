@@ -52,6 +52,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<GuideWeeklySchedule> GuideWeeklySchedules { get; set; }
     public DbSet<PackageAccommodation> PackageAccommodations { get; set; }
     public DbSet<PackageNight> PackageNights { get; set; }
+    public DbSet<PackageMeetingPoint> PackageMeetingPoints { get; set; }
 
     // Booking Module
     public DbSet<Booking> Bookings { get; set; }

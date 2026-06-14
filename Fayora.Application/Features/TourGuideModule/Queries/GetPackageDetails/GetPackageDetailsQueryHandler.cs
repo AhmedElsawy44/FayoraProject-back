@@ -34,6 +34,9 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
             var nights = await packageNightRepository.GetByPackageIdAsync(
                 request.PackageId, cancellationToken);
 
+            var meetingPoints = await packageRepository.GetMeetingPointsByPackageIdAsync(
+                 request.PackageId, cancellationToken);
+
             var guide = await tourGuideRepository.GetGuideByIdAsync(
                 package.UserId,
                 new GuideQueryOptions(ReadOnly: true),
@@ -89,9 +92,14 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
                     n.NightDate,
                     n.HousingUnitId,
                     n.PackageAccommodationId)).ToList(),
-                new GeoPointDetailsResult(
-                    package.MeetingPoint.Latitude,
-                    package.MeetingPoint.Longitude),
+                meetingPoints.Select(mp => new PackageMeetingPointResult(
+                    mp.Id,
+                    mp.MeetingPointName,
+                    mp.MeetingPoint.Latitude,
+                    mp.MeetingPoint.Longitude,
+                    mp.Time,
+                    mp.Price,
+                    mp.Description)).ToList(),
                 new GuideInfoDetailsResult(
                     guide.UserId,
                     user.FirstName,

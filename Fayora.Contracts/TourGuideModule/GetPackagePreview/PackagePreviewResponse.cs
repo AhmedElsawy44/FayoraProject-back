@@ -17,7 +17,7 @@ namespace Fayora.Contracts.TourGuideModule.GetPackagePreview
         List<PackageActivityResponse> Activities,
         List<PackageNightResponse> Nights,
         List<int> LocationIds,
-        GeoPointResponse MeetingPoint,
+        List<PackageMeetingPointResponse> MeetingPoints,
         GuideInfoResponse GuideInfo
     );
 
@@ -39,6 +39,16 @@ namespace Fayora.Contracts.TourGuideModule.GetPackagePreview
     public record GeoPointResponse(
         decimal Latitude,
         decimal Longitude
+    );
+
+    public record PackageMeetingPointResponse(
+        Guid Id,
+        string? MeetingPointName,
+        decimal Latitude,
+        decimal Longitude,
+        TimeOnly Time,
+        decimal Price,
+        string? Description
     );
 
     public record GuideInfoResponse(

@@ -14,6 +14,9 @@ using Fayora.Contracts.TourGuideModule.GetPackagePreview;
 using Fayora.Contracts.TourGuideModule.GetTourGuideById;
 using Fayora.Domain.Entities.SharedModule;
 using Fayora.Domain.Entities.GuideModule;
+using Fayora.Application.Features.AdminModule.Queries.GetDetailedPackage;
+using DetailsMeetingPointResponse = Fayora.Contracts.TourGuideModule.GetPackageDetails.PackageMeetingPointResponse;
+using PreviewMeetingPointResponse = Fayora.Contracts.TourGuideModule.GetPackagePreview.PackageMeetingPointResponse;
 
 namespace Fayora.Application.Common.Mapper;
 
@@ -31,14 +34,15 @@ public class TourGuideMappingProfile : Profile
 
         CreateMap<PackagePreviewResult, PackagePreviewResponse>();
         CreateMap<PackageActivityResult, PackageActivityResponse>();
-        CreateMap<GeoPointResult, GeoPointResponse>();
+        // GeoPointResult تم استبداله بـ PackageMeetingPointResult
         CreateMap<GuideInfoResult, GuideInfoResponse>();
 
 
         CreateMap<PackageDetailsResult, PackageDetailsResponse>();
         CreateMap<OptionalActivity, OptionalActivityResponse>();
         CreateMap<PackageActivityDetailsResult, PackageActivityDetailsResponse>();
-        CreateMap<GeoPointDetailsResult, GeoPointResponse>();
+        CreateMap<PackageMeetingPointResult, DetailsMeetingPointResponse>();
+        CreateMap<PackageMeetingPointResult, PreviewMeetingPointResponse>();
         CreateMap<GuideInfoDetailsResult, GuideInfoResponse>();
         CreateMap<PackageOccurrenceResult, PackageOccurrenceResponse>();
 

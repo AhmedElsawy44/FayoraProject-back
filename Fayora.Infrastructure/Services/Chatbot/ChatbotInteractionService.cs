@@ -292,8 +292,14 @@ public class ChatbotInteractionService(
                         p.DurationHours,
                         p.MaxCapacity,
                         MainImageUrl = p.MainImageUrl != null ? p.MainImageUrl.Value : null,
-                        Latitude = p.MeetingPoint != null ? (decimal?)p.MeetingPoint.Latitude : null,
-                        Longitude = p.MeetingPoint != null ? (decimal?)p.MeetingPoint.Longitude : null
+                        Latitude = context.PackageMeetingPoints
+                            .Where(mp => mp.PackageId == p.Id)
+                            .Select(mp => (decimal?)mp.MeetingPoint.Latitude)
+                            .FirstOrDefault(),
+                        Longitude = context.PackageMeetingPoints
+                            .Where(mp => mp.PackageId == p.Id)
+                            .Select(mp => (decimal?)mp.MeetingPoint.Longitude)
+                            .FirstOrDefault()
                     })
                     .ToListAsync(cancellationToken);
 

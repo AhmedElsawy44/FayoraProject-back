@@ -34,7 +34,8 @@ public class GuidePackage : AuditableEntity<Guid>
 
     private readonly List<int>? _excludedItemIds = [];
     public IReadOnlyCollection<int> ExcludedItemIds => _excludedItemIds!.AsReadOnly();
-    public GeoPoint MeetingPoint { get; private set; } = null!;
+    private readonly List<PackageMeetingPoint> _meetingPoints = [];
+    public IReadOnlyCollection<PackageMeetingPoint> MeetingPoints => _meetingPoints.AsReadOnly();
     public string? ArrivalNote { get; private set; }
     public TransportType TransportType { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
@@ -74,7 +75,6 @@ public class GuidePackage : AuditableEntity<Guid>
         ProviderType providerType,
         int durationHours,
         int numOfDays,
-        GeoPoint meetingPoint,
         TransportType transportType,
         int maxCapacity,
         decimal adultPrice,
@@ -93,7 +93,6 @@ public class GuidePackage : AuditableEntity<Guid>
         ProviderType = providerType;
         DurationHours = durationHours;
         NumOfDays = numOfDays;
-        MeetingPoint = meetingPoint;
         TransportType = transportType;
         MaxCapacity = maxCapacity;
         AdultPrice = adultPrice;
@@ -115,7 +114,7 @@ public class GuidePackage : AuditableEntity<Guid>
     public static Result<GuidePackage> Create(
         Guid guideId, string title, string description,
         TourType tourTypes, ProviderType providerType, int durationHours, int numOfDays,
-        GeoPoint meetingPoint, TransportType transportType,
+        TransportType transportType,
         int maxCapacity, decimal adultPrice, decimal childPrice,
         string? arrivalNote, FileUrl mainImageUrl,
         FileUrl? mainVideoUrl = null, string? guestRequirements = null, CancellationPolicy cancellationPolicy = CancellationPolicy.NonRefundable)
@@ -133,7 +132,7 @@ public class GuidePackage : AuditableEntity<Guid>
             return Error.Validation("Package.InvalidCapacity", "Max capacity must be greater than zero.");
 
         return new GuidePackage(guideId, title, description, tourTypes, providerType,
-            durationHours, numOfDays, meetingPoint, transportType, maxCapacity,
+            durationHours, numOfDays, transportType, maxCapacity,
             adultPrice, childPrice, arrivalNote, mainImageUrl,
             mainVideoUrl, guestRequirements, cancellationPolicy);
     }
@@ -180,7 +179,6 @@ public class GuidePackage : AuditableEntity<Guid>
         decimal childPrice,
         TourType tourTypes,
         int maxCapacity,
-        GeoPoint meetingPoint,
         string? arrivalNote,
         TransportType transportType,
         string? guestRequirements,
@@ -208,7 +206,6 @@ public class GuidePackage : AuditableEntity<Guid>
         ChildPrice = childPrice;
         TourTypes = tourTypes;
         MaxCapacity = maxCapacity;
-        MeetingPoint = meetingPoint;
         ArrivalNote = arrivalNote;
         TransportType = transportType;
         GuestRequirements = guestRequirements;
@@ -267,9 +264,10 @@ public class GuidePackage : AuditableEntity<Guid>
         foreach (var id in ids) _excludedItemIds!.Add(id);
     }
 
-    public void UpdateMeetingPoint(GeoPoint newMeetingPoint)
+    public void UpdateMeetingPoints(IEnumerable<PackageMeetingPoint> meetingPoints)
     {
-        MeetingPoint = newMeetingPoint;
+        _meetingPoints.Clear();
+        _meetingPoints.AddRange(meetingPoints);
         Updated();
     }
 
@@ -298,7 +296,7 @@ public class GuidePackage : AuditableEntity<Guid>
         return Result.Success;
     }
 
-    public Result<decimal> CalculateBooking(int numAdults, int numChildren, List<Guid>? selectedOptionalActivityIds = null)
+    public Result<decimal> CalculateBooking(int numAdults, int numChildren, Guid selectedMeetingPointId, List<Guid>? selectedOptionalActivityIds = null)
     {
         if (numAdults < 0 || numChildren < 0)
             return Error.Validation("Package.InvalidBooking", "Number of adults and children cannot be negative.");
@@ -319,6 +317,13 @@ public class GuidePackage : AuditableEntity<Guid>
                 total += activity.AdditionalPrice * totalGuests;
             }
         }
+
+        var meetingPoint = _meetingPoints.FirstOrDefault(mp => mp.Id == selectedMeetingPointId);
+        if (meetingPoint is null)
+        {
+            return Error.Validation("Package.MeetingPointNotFound", $"Meeting point with ID {selectedMeetingPointId} not found in this package.");
+        }
+        total += meetingPoint.Price;
 
         return total;
     }

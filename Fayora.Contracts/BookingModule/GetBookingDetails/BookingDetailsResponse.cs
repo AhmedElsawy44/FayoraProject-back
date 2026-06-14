@@ -13,7 +13,8 @@ namespace Fayora.Contracts.BookingModule.GetBookingDetails
         string Status,
         string ServiceType,
         string? QrToken,
-        List<SelectedOptionalActivityResponse>? SelectedOptionalActivities
+        List<SelectedOptionalActivityResponse>? SelectedOptionalActivities,
+        BookingMeetingPointResponse? SelectedMeetingPoint
     );
 
     public record SelectedOptionalActivityResponse(
@@ -21,5 +22,15 @@ namespace Fayora.Contracts.BookingModule.GetBookingDetails
         string Description,
         decimal AdditionalPrice,
         string ImageUrl
+    );
+
+    public record BookingMeetingPointResponse(
+        Guid Id,
+        string? MeetingPointName,
+        decimal Latitude,
+        decimal Longitude,
+        TimeOnly Time,
+        decimal Price,
+        string? Description
     );
 }

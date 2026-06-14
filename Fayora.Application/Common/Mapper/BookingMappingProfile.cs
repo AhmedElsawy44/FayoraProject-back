@@ -14,6 +14,7 @@ namespace Fayora.Application.Common.Mapper
                .ForMember(dest => dest.ServiceType, opt => opt.MapFrom(src => src.ServiceType.ToString()));
 
             CreateMap<SelectedOptionalActivityResult, SelectedOptionalActivityResponse>();
+            CreateMap<BookingMeetingPointResult, BookingMeetingPointResponse>();
         }
     }
 }

@@ -8,5 +8,6 @@ public sealed record CreatePackageBookingRequest
     string PaymentMethodType,
     string? WalletNumber,
     bool IsCashOnArrival,
-    List<Guid>? SelectedOptionalActivityIds
+    List<Guid>? SelectedOptionalActivityIds,
+    Guid? SelectedMeetingPointId
 );

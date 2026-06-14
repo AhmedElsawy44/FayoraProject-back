@@ -26,10 +26,6 @@ public class CreateGuidePackageCommandHandler(
 
         var providerType = clientContextProvider.GetContext().Roles.Contains("TourGuide") ? ProviderType.TourGuide : ProviderType.TourCompany;
 
-        var meetingPointResult = GeoPoint.Create(request.Latitude, request.Longitude);
-        if (meetingPointResult.IsError) return meetingPointResult.Errors;
-        var meetingPoint = meetingPointResult.Value;
-
         var mainImageUrlResult = FileUrl.Create(request.MainImageUrl);
         if (mainImageUrlResult.IsError) return mainImageUrlResult.Errors;
 
@@ -61,7 +57,6 @@ public class CreateGuidePackageCommandHandler(
             providerType,
             request.DurationHours,
             request.NumOfDays,
-            meetingPoint,
             request.TransportType,
             request.MaxCapacity,
             request.AdultPrice,
@@ -77,15 +72,36 @@ public class CreateGuidePackageCommandHandler(
         if (packageResult.IsError) return packageResult.Errors;
         var package = packageResult.Value;
 
-        var actualActivities = new List<Guid>();
+        var meetingPoints = new List<PackageMeetingPoint>();
+        if (request.MeetingPoints?.Any() == true)
+        {
+            foreach (var mpDto in request.MeetingPoints)
+            {
+                var mpResult = PackageMeetingPoint.Create(
+                    package.Id,
+                    mpDto.MeetingPointName,
+                    mpDto.Latitude,
+                    mpDto.Longitude,
+                    mpDto.Time,
+                    mpDto.Price,
+                    mpDto.Description);
+                if (mpResult.IsError) return mpResult.Errors;
+                meetingPoints.Add(mpResult.Value);
+            }
+            package.UpdateMeetingPoints(meetingPoints);
+            packageRepository.AddPackageMeetingPoints(meetingPoints);
+        }
+
+        var actualActivities = new List<PackageActivity>();
         foreach (var actReq in request.Activities)
         {
             var activityResult = PackageActivity.Create(package.Id, actReq.Latitude, actReq.Longitude, actReq.Description, actReq.ActivityTime, actReq.IsOptional, actReq.LocationId);
             if (activityResult.IsError) return activityResult.Errors;
-            actualActivities.Add(activityResult.Value.Id);
+            actualActivities.Add(activityResult.Value);
         }
 
-        package.AddActivities(actualActivities);
+        package.AddActivities(actualActivities.Select(a => a.Id));
+        packageRepository.AddPackageActivities(actualActivities);
 
         if (request.IncludedIds?.Any() == true) package.AddIncludedItems(request.IncludedIds);
         if (request.ExcludedIds?.Any() == true) package.AddExcludedItems(request.ExcludedIds);

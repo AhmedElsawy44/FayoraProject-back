@@ -16,5 +16,7 @@ public record OccurrenceAttendeeResult(
     string FullName,
     string? ProfileImageUrl,
     int SeatsCount,
-    string PaymentStatus
+    string PaymentStatus,
+    string? MeetingPointName,
+    TimeOnly? MeetingPointTime
 );

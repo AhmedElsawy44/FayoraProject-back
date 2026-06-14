@@ -80,7 +80,7 @@ public static class DependencyInjection
             options.Configuration = redisConnectionString;
         });
 
-        services.AddSingleton<IConnectionMultiplexer>(
+        services.AddSingleton<IConnectionMultiplexer>(sp =>
             ConnectionMultiplexer.Connect(redisConnectionString!)
         );
 

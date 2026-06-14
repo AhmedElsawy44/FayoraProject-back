@@ -24,6 +24,11 @@ public interface IPackageRepository
     void AddPackageActivities(IEnumerable<PackageActivity> activities);
     void RemovePackageActivities(IEnumerable<PackageActivity> activities);
 
+    void AddPackageMeetingPoints(IEnumerable<PackageMeetingPoint> meetingPoints);
+    void RemovePackageMeetingPoints(IEnumerable<PackageMeetingPoint> meetingPoints);
+    Task<List<PackageMeetingPoint>> GetMeetingPointsByPackageIdAsync(Guid packageId, CancellationToken cancellationToken = default);
+    Task<List<PackageMeetingPoint>> GetMeetingPointsByPackageIdsAsync(List<Guid> packageIds, CancellationToken cancellationToken = default);
+
     //for tourist's point of view
     Task<GuidePackage?> GetPackageWithOccurrencesAsync(
      Guid packageId,
@@ -32,7 +37,8 @@ public interface IPackageRepository
 
     public record PackageQueryOptions(
         bool ReadOnly = true,
-        bool IncludeOccurrences = false
+        bool IncludeOccurrences = false,
+        bool IncludeMeetingPoints = false
     );
 
     Task<List<GuidePackage>> GetListByIdsAsync(List<Guid> packageIds, CancellationToken cancellationToken);

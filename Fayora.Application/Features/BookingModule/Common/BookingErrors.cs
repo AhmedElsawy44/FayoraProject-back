@@ -63,4 +63,9 @@ public static class BookingErrors
         "Booking.NotCashOnArrival",
         "This booking is not a cash-on-arrival booking."
     );
+
+    public static readonly Error MeetingPointRequired = Error.Validation(
+        "Booking.MeetingPointRequired",
+        "A meeting point must be selected for this package."
+    );
 }
