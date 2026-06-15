@@ -37,7 +37,7 @@ namespace Fayora.Application.Features.TouristModule.Queries.GetAllActivePackages
                 p.AdultPrice,
                 p.AdultPrice,
                 p.DurationHours,
-                p.MainImageUrl.Value,
+                p.MainImageUrl?.Value ?? "",
                 p.TourTypes.ToString(),
                 0m,
                 p.Views)).ToList();
