@@ -67,6 +67,9 @@ using Microsoft.AspNetCore.Mvc;
 using Fayora.Application.Features.ReviewModule.Commands.AdminDeleteReview;
 using Fayora.Application.Features.ReviewModule.Commands.ResolveReport;
 using Fayora.Application.Features.ReviewModule.Queries.GetPendingReports;
+using Fayora.Contracts.AdminModule.CreateMasterAmenity;
+using Fayora.Application.Features.AdminModule.Commands.CreateMasterAmenity;
+using Fayora.Application.Features.AdminModule.Commands.Delete;
 
 namespace Fayora.Api.Controllers;
 
@@ -701,6 +704,51 @@ public class AdminController(ISender sender) : ApiController
     {
         var command = new ResolveReportCommand(reportId);
         var result = await sender.Send(command, cancellationToken);
+        return result.Match(_ => NoContent(), Problem);
+    }
+
+    [HttpPost("amenities")]
+    public async Task<IActionResult> CreateMasterAmenity(
+        [FromBody] CreateMasterAmenityRequest request,
+        CancellationToken cancellationToken)
+    {
+        var (parseSuccess, parsedCategory) = EnumParser.TryParseEnum<Fayora.Domain.Enums.AccommodationModule.AmenityCategory>(request.Category.ToString());
+
+        if (!parseSuccess)
+        {
+            return BadRequest(new { Message = "Invalid Amenity Category value provided." });
+        }
+
+        var command = new CreateMasterAmenityCommand(
+            request.Name,
+            parsedCategory,
+            request.IconUrl
+        );
+
+        var executionResult = await sender.Send(command, cancellationToken);
+
+        return executionResult.Match(value => Ok(value), Problem);
+    }
+
+    [HttpPut("amenities/{id:int}/toggle")]
+    public async Task<IActionResult> ToggleMasterAmenity(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        var command = new ToggleMasterAmenityCommand(id);
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(_ => NoContent(), Problem);
+    }
+
+    [HttpDelete("amenities/{id:guid}")]
+    public async Task<IActionResult> DeleteMasterAmenity(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        var command = new DeleteMasterAmenityCommand(id);
+        var result = await sender.Send(command, cancellationToken);
+
         return result.Match(_ => NoContent(), Problem);
     }
 }

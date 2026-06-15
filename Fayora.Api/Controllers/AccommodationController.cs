@@ -2,6 +2,7 @@ using AutoMapper;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnit;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitCalendarBlock;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitOwner;
+using Fayora.Application.Features.AccommodationModule.Queries.GetAllAmenities;
 using Fayora.Application.Features.AccommodationModule.Queries.GetRecommendedUnits;
 using Fayora.Application.Features.AccommodationModule.Queries.GetUnitById;
 using Fayora.Application.Features.AccommodationModule.Queries.GetUnits;
@@ -18,6 +19,18 @@ namespace Fayora.Api.Controllers;
 [ApiController]
 public class AccommodationController(ISender sender, IMapper mapper) : ApiController
 {
+    [HttpGet("amenities")]
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    {
+        var query = new GetAllAmenitiesQuery();
+        var result = await sender.Send(query, cancellationToken);
+
+        return result.Match(
+            amenities => Ok(mapper.Map<List<Amenity>>(amenities)),
+            error => Problem(error)
+        );
+    }
+
     [HttpPost("owner-profile")]
     public async Task<IActionResult> CreateUnitOwnerProfileAsync(
     [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
@@ -47,16 +60,6 @@ public class AccommodationController(ISender sender, IMapper mapper) : ApiContro
     [FromBody] CreateUnitRequest request,
     CancellationToken cancellationToken)
     {
-        var amenities = new HashSet<Amenities>();
-
-        foreach (var amenity in request.Amenities)
-        {
-            var (amenityOk, amenityValue) = EnumParser.TryParseEnum<Amenities>(amenity);
-            if (amenityOk)
-            {
-                amenities.Add(amenityValue);
-            }
-        }
         var command = new CreateUnitCommand(
             request.Title,
             request.Description,
@@ -76,7 +79,7 @@ public class AccommodationController(ISender sender, IMapper mapper) : ApiContro
             request.MainImageUrl,
             request.VerificationRequestId,
             request.ImageUrls,
-            amenities
+            [.. request.AmenityIds]
         );
 
         var result = await sender.Send(command, cancellationToken);
