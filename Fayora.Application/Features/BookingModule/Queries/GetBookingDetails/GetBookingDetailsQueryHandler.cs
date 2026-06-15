@@ -40,6 +40,9 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
             string imageUrl = string.Empty;
             string? qrToken = null;
 
+            List<SelectedOptionalActivityResult>? selectedOptionalActivities = null;
+            BookingMeetingPointResult? selectedMeetingPoint = null;
+
             if (booking.ServiceType == ServiceType.GuidePackage)
             {
                 var package = await packageRepository.GetPackageByIdAsync(
@@ -50,6 +53,31 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
                 {
                     title = package.Title;
                     imageUrl = package.MainImageUrl.Value;
+
+                    if (booking.SelectedOptionalActivityIds is not null && booking.SelectedOptionalActivityIds.Count > 0)
+                    {
+                        selectedOptionalActivities = package.OptionalActivities
+                            .Where(a => booking.SelectedOptionalActivityIds.Contains(a.Id))
+                            .Select(a => new SelectedOptionalActivityResult(a.Id, a.Description, a.AdditionalPrice, a.ImageUrl.Value))
+                            .ToList();
+                    }
+
+                    var meetingPoints = await packageRepository.GetMeetingPointsByPackageIdAsync(package.Id, cancellationToken);
+                    if (booking.SelectedMeetingPointId.HasValue)
+                    {
+                        var mp = meetingPoints.FirstOrDefault(m => m.Id == booking.SelectedMeetingPointId.Value);
+                        if (mp is not null)
+                        {
+                            selectedMeetingPoint = new BookingMeetingPointResult(
+                                mp.Id,
+                                mp.MeetingPointName,
+                                mp.MeetingPoint.Latitude,
+                                mp.MeetingPoint.Longitude,
+                                mp.Time,
+                                mp.Price,
+                                mp.Description);
+                        }
+                    }
                 }
             }
             else if (booking.ServiceType == ServiceType.Accommodation)
@@ -84,9 +112,9 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
                 }
             }
 
-            bool canGenerateQr = booking.IsCashOnArrival
+            bool canGenerateQr = !booking.IsScanned && (booking.IsCashOnArrival
                 ? booking.PaymentStatus == PaymentTransactionStatus.PartiallyPaid || booking.PaymentStatus == PaymentTransactionStatus.Paid
-                : booking.PaymentStatus == PaymentTransactionStatus.Paid;
+                : booking.PaymentStatus == PaymentTransactionStatus.Paid);
 
             if (canGenerateQr)
             {
@@ -106,11 +134,15 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
                 booking.DiscountAmount,
                 booking.TotalPrice,
                 booking.SeatsCount,
+                booking.AdultsCount,
+                booking.ChildrenCount,
                 booking.StartDate,
                 booking.EndDate,
                 booking.BookingStatus,
                 booking.ServiceType,
-                qrToken);
+                qrToken,
+                selectedOptionalActivities,
+                selectedMeetingPoint);
         }
     }
 }

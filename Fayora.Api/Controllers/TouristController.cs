@@ -238,4 +238,3 @@ public class TouristController(ISender sender, IMapper mapper) : ApiController
             Problem);
     }
 }
-

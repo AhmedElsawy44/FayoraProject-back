@@ -14,8 +14,7 @@ public record UpdateGuidePackageCommand(
     int DurationHours,
     int NumOfDays,
     List<NightDto>? Nights,
-    decimal Longitude,
-    decimal Latitude,
+    List<MeetingPointDto> MeetingPoints,
     TransportType TransportType,
     string? ArrivalNote,
     decimal AdultPrice,
@@ -29,5 +28,9 @@ public record UpdateGuidePackageCommand(
     string? GuestRequirements,
     CancellationPolicy CancellationPolicy,
     List<ActivityDto> Activities,
-    HashSet<int> LocationIds
+    HashSet<int> LocationIds,
+    List<OptionalActivityDto>? OptionalActivities,
+    bool HasGroupDiscount = false,
+    int? GroupDiscountMinPeople = null,
+    decimal? GroupDiscountPercent = null
 ) : ICommand<Result<Guid>>;

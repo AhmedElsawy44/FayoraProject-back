@@ -28,7 +28,7 @@ public class GetPackageOccurrenceDetailsQueryHandler(
 
         var package = await packageRepository.GetPackageByIdAsync(
             request.PackageId,
-            new PackageQueryOptions(ReadOnly: true, IncludeOccurrences: true),
+            new PackageQueryOptions(ReadOnly: true, IncludeOccurrences: true, IncludeMeetingPoints: true),
             cancellationToken);
 
         if (package is null)
@@ -68,12 +68,18 @@ public class GetPackageOccurrenceDetailsQueryHandler(
         var attendees = paidBookings.Select(b =>
         {
             userMap.TryGetValue(b.UserId, out var user);
+            var selectedMeetingPoint = b.SelectedMeetingPointId.HasValue
+                ? package.MeetingPoints.FirstOrDefault(mp => mp.Id == b.SelectedMeetingPointId.Value)
+                : null;
+
             return new OccurrenceAttendeeResult(
                 UserId: b.UserId,
                 FullName: user is not null ? $"{user.FirstName} {user.LastName}" : "Unknown",
                 ProfileImageUrl: user?.ProfileImageUrl?.Value,
                 SeatsCount: b.SeatsCount,
-                PaymentStatus: b.PaymentStatus.ToString()
+                PaymentStatus: b.PaymentStatus.ToString(),
+                MeetingPointName: selectedMeetingPoint?.MeetingPointName,
+                MeetingPointTime: selectedMeetingPoint?.Time
             );
         }).ToList();
 

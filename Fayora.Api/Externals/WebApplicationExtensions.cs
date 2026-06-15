@@ -105,6 +105,12 @@ END";
                 job => job.ExecuteAsync(CancellationToken.None),
                 Cron.Daily());
 
+        app.Services.GetRequiredService<IRecurringJobManager>()
+            .AddOrUpdate<ProcessAutomaticPayoutsJob>(
+                "process-automatic-payouts",
+                job => job.ExecuteAsync(CancellationToken.None),
+                Cron.Daily());
+
         return app;
     }
 }

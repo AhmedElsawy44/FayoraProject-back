@@ -56,6 +56,10 @@ public class GetMyBookingsQueryHandler(
             ? await packageRepository.GetListByIdsAsync(packageIds, cancellationToken)
             : [];
 
+        var meetingPoints = packageIds.Any()
+            ? await packageRepository.GetMeetingPointsByPackageIdsAsync(packageIds, cancellationToken)
+            : [];
+
         var accommodations = accommodationIds.Any()
             ? await housingUnitRepository.GetUnitsByIdsAsync(accommodationIds, cancellationToken)
             : [];
@@ -82,10 +86,16 @@ public class GetMyBookingsQueryHandler(
             {
                 if (packagesDict.TryGetValue(booking.ServiceId, out var package))
                 {
+                    var mps = meetingPoints.Where(mp => mp.PackageId == package.Id).ToList();
+                    var selectedMp = booking.SelectedMeetingPointId.HasValue
+                        ? mps.FirstOrDefault(mp => mp.Id == booking.SelectedMeetingPointId.Value)
+                        : null;
+                    var location = selectedMp?.MeetingPoint ?? mps.FirstOrDefault()?.MeetingPoint ?? GeoPoint.Create(0, 0).Value;
+
                     responseItems.Add(new BookingResponse(
                         booking.Id,
                         package.Title,
-                        package.MeetingPoint,
+                        location,
                         booking.StartDate,
                         booking.BookingStatus,
                         package.MainImageUrl.Value));

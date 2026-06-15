@@ -5,6 +5,7 @@ using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails;
+using Fayora.Contracts.TourGuideModule.GetPackageDetails;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.IPackageRepository;
@@ -18,7 +19,8 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
         ITourGuideRepository tourGuideRepository,
         IPackageNightRepository packageNightRepository,
         IUserRepository userRepository,
-        IDiscountOfferRepository discountOfferRepository)
+        IDiscountOfferRepository discountOfferRepository,
+        IPackageImageRepository packageImageRepository)
     : IQueryHandler<GetPackagePreviewQuery, Result<PackagePreviewResult>>
     {
         public async Task<Result<PackagePreviewResult>> Handle(
@@ -36,6 +38,12 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
 
             var nights = await packageNightRepository.GetByPackageIdAsync(
                request.PackageId, cancellationToken);
+
+            var meetingPoints = await packageRepository.GetMeetingPointsByPackageIdAsync(
+                request.PackageId, cancellationToken);
+
+            var packageImages = await packageImageRepository.GetPackageImages(
+                package.Id, cancellationToken);
 
             var guide = await tourGuideRepository.GetGuideByIdAsync(
                 package.UserId,
@@ -78,23 +86,30 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
                 package.NumOfDays,
                 package.NumOfNights,
                 package.MainImageUrl.Value,
-                package.ImageIds.Select(id => id.ToString()).ToList(),
+                packageImages.Select(img => img.ImageUrl.Value).ToList(),
                 package.IncludedItemIds.ToList(),
                 package.ExcludedItemIds?.ToList(),
                 activities.Select(a => new PackageActivityResult(
                     a.Description,
                     a.ActivityTime,
                     a.IsOptional,
-                    a.LocationId)).ToList(),
+                    a.LocationId,
+                    a.Place?.Latitude,
+                    a.Place?.Longitude)).ToList(),
                 nights.Select(n => new PackageNightResult(
                     n.Id,
                     n.NightNumber,
                     n.NightDate,
                     n.HousingUnitId,
                     n.PackageAccommodationId)).ToList(),
-                new GeoPointResult(
-                    package.MeetingPoint.Latitude,
-                    package.MeetingPoint.Longitude),
+                meetingPoints.Select(mp => new PackageMeetingPointResult(
+                    mp.Id,
+                    mp.MeetingPointName,
+                    mp.MeetingPoint.Latitude,
+                    mp.MeetingPoint.Longitude,
+                    mp.Time,
+                    mp.Price,
+                    mp.Description)).ToList(),
                 new GuideInfoResult(
                     user.Id,
                     user.FirstName,
@@ -103,7 +118,19 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
                     guide.AverageRating,
                     guide.ReviewCount,
                     guide.CompletedToursCount),
-                package.LocationIds.ToList());
+                package.LocationIds.ToList(),
+                package.TourTypes.ToString(),
+                package.TransportType.ToString(),
+                package.CancellationPolicy.ToString(),
+                package.MaxCapacity,
+                package.ArrivalNote,
+                package.MainVideoUrl?.Value,
+                package.GuestRequirements,
+                package.OptionalActivities.Select(a => new OptionalActivityResponse(
+                    a.Id,
+                    a.Description,
+                    a.AdditionalPrice,
+                    a.ImageUrl.Value)).ToList());
         }
     }
 }

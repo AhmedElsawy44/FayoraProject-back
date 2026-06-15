@@ -26,6 +26,10 @@ public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
         builder.Property(x => x.ArrivalNote)
             .HasColumnType("nvarchar(1000)");
 
+        builder.Property(x => x.HasGroupDiscount).HasDefaultValue(false);
+        builder.Property(x => x.GroupDiscountMinPeople).IsRequired(false);
+        builder.Property(x => x.GroupDiscountPercent).HasPrecision(18, 2).IsRequired(false);
+
         builder.OwnsOne(x => x.MainImageUrl, nav =>
         {
             nav.Property(f => f.Value).HasColumnName("MainImageUrl").HasMaxLength(2048);
@@ -36,11 +40,7 @@ public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
             nav.Property(f => f.Value).HasColumnName("MainVideoUrl").HasMaxLength(2048);
         });
 
-        builder.OwnsOne(x => x.MeetingPoint, geo =>
-        {
-            geo.Property(g => g.Latitude).HasColumnName("MeetingPointLatitude").HasPrecision(18, 6);
-            geo.Property(g => g.Longitude).HasColumnName("MeetingPointLongitude").HasPrecision(18, 6);
-        });
+
 
         builder.Property<List<int>>("_includedItemIds")
             .HasColumnName("IncludedItemIds")
@@ -79,6 +79,14 @@ public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
                v => string.IsNullOrWhiteSpace(v) ? new List<Guid>() : (JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions?)null) ?? new List<Guid>()))
            .Metadata.SetValueComparer(CreateGuidListComparer());
 
+        builder.Property<List<OptionalActivity>>("_optionalActivities")
+            .HasColumnName("OptionalActivities")
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                v => JsonSerializer.Deserialize<List<OptionalActivity>>(v, (JsonSerializerOptions?)null) ?? new List<OptionalActivity>())
+            .Metadata.SetValueComparer(CreateOptionalActivitiesComparer());
+
+
 
         builder.Property(x => x.TourTypes).HasConversion<int>();
 
@@ -88,6 +96,14 @@ public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
                .OnDelete(DeleteBehavior.Cascade);
 
         builder.Metadata.FindNavigation(nameof(GuidePackage.Occurrences))
+       ?.SetPropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.HasMany(p => p.MeetingPoints)
+               .WithOne()
+               .HasForeignKey(mp => mp.PackageId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Metadata.FindNavigation(nameof(GuidePackage.MeetingPoints))
        ?.SetPropertyAccessMode(PropertyAccessMode.Field);
 
 
@@ -110,6 +126,12 @@ public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
     private ValueComparer<List<Guid>> CreateGuidListComparer()
     {
         ValueComparer<List<Guid>> valueComparer = new((c1, c2) => c1!.SequenceEqual(c2!), c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())), c => c.ToList());
+        return valueComparer;
+    }
+
+    private ValueComparer<List<OptionalActivity>> CreateOptionalActivitiesComparer()
+    {
+        ValueComparer<List<OptionalActivity>> valueComparer = new((c1, c2) => c1!.SequenceEqual(c2!), c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())), c => c.ToList());
         return valueComparer;
     }
 }

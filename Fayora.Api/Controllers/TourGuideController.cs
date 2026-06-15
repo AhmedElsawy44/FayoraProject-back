@@ -133,8 +133,7 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             request.DurationHours,
             request.NumOfDays,
             request.Nights,
-            request.Longitude,
-            request.Latitude,
+            request.MeetingPoints,
             transportType,
             request.ArrivalNote,
             request.AdultPrice,
@@ -148,7 +147,11 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             request.GuestRequirements,
             cancellationPolicy,
             request.Activities,
-            request.LocationIds
+            request.LocationIds,
+            request.OptionalActivities,
+            request.HasGroupDiscount,
+            request.GroupDiscountMinPeople,
+            request.GroupDiscountPercent
             );
 
         var result = await sender.Send(command, ct);
@@ -183,8 +186,7 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             request.DurationHours,
             request.NumOfDays,
             request.Nights,
-            request.Longitude,
-            request.Latitude,
+            request.MeetingPoints,
             transportType,
             request.ArrivalNote,
             request.AdultPrice,
@@ -198,7 +200,11 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             request.GuestRequirements,
             cancellationPolicy,
             request.Activities,
-            request.LocationIds
+            request.LocationIds,
+            request.OptionalActivities,
+            request.HasGroupDiscount,
+            request.GroupDiscountMinPeople,
+            request.GroupDiscountPercent
         );
 
         var result = await sender.Send(command, ct);

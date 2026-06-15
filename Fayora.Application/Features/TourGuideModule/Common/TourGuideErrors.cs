@@ -108,4 +108,9 @@ public static class TourGuideErrors
         "TourGuide.OccurrenceHasActiveBookings",
         "Cannot modify this occurrence because it has active bookings."
     );
+
+    public static readonly Error DailyPackageLimitExceeded = Error.Validation(
+        "TourGuide.DailyPackageLimitExceeded",
+        "A tour guide can only create one package per day."
+    );
 }

@@ -24,6 +24,7 @@ public static class CardBuilder
 
     public static ChatbotCard FromGuidePackage(GuidePackage item)
     {
+        var firstMeetingPoint = item.MeetingPoints.FirstOrDefault();
         return new ChatbotCard(
             Id: item.Id.ToString(),
             ItemType: "guide_package",
@@ -32,7 +33,7 @@ public static class CardBuilder
             PriceLabel: $"{item.AdultPrice:F0} جنيه/شخص",
             Rating: 5.0, // Default rating as individual package rating is not directly exposed
             ImageUrl: item.MainImageUrl?.Value,
-            MapLink: item.MeetingPoint != null ? $"https://www.google.com/maps/search/?api=1&query={item.MeetingPoint.Latitude},{item.MeetingPoint.Longitude}" : null
+            MapLink: firstMeetingPoint != null ? $"https://www.google.com/maps/search/?api=1&query={firstMeetingPoint.MeetingPoint.Latitude},{firstMeetingPoint.MeetingPoint.Longitude}" : null
         );
     }
 

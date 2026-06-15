@@ -80,7 +80,7 @@ public static class DependencyInjection
             options.Configuration = redisConnectionString;
         });
 
-        services.AddSingleton<IConnectionMultiplexer>(
+        services.AddSingleton<IConnectionMultiplexer>(sp =>
             ConnectionMultiplexer.Connect(redisConnectionString!)
         );
 
@@ -145,6 +145,7 @@ public static class DependencyInjection
         // Booking Module
         services.AddScoped<IBookingRepository, BookingRepository>();
         services.AddScoped<IPaymentTransactionRepository, PaymentTransactionRepository>();
+        services.AddScoped<IProviderPayoutRepository, ProviderPayoutRepository>();
         services.AddScoped<IQrTokenService, QrTokenService>();
 
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());

@@ -47,10 +47,6 @@ public class UpdateGuidePackageCommandHandler(
             return GuideErrors.PackageHasActiveBookings;
 
 
-        var meetingPointResult = GeoPoint.Create(request.Latitude, request.Longitude);
-        if (meetingPointResult.IsError) return meetingPointResult.Errors;
-
-
         var mainImageUrlResult = FileUrl.Create(request.MainImageUrl);
         if (mainImageUrlResult.IsError) return mainImageUrlResult.Errors;
 
@@ -93,13 +89,15 @@ public class UpdateGuidePackageCommandHandler(
             request.ChildPrice,
             request.TourType,
             request.MaxCapacity,
-            meetingPointResult.Value,
             request.ArrivalNote,
             request.TransportType,
             request.GuestRequirements,
             request.CancellationPolicy,
             mainImageUrlResult.Value,
-            mainVideoUrl);
+            mainVideoUrl,
+            request.HasGroupDiscount,
+            request.GroupDiscountMinPeople,
+            request.GroupDiscountPercent);
 
         if (updateResult.IsError) return updateResult.Errors;
 
@@ -120,12 +118,12 @@ public class UpdateGuidePackageCommandHandler(
         {
             var activityResult = PackageActivity.Create(
                 package.Id,
-                actReq.Latitude,
-                actReq.Longitude,
                 actReq.Description,
                 actReq.ActivityTime,
                 actReq.IsOptional,
-                actReq.LocationId);
+                actReq.LocationId,
+                actReq.Latitude,
+                actReq.Longitude);
 
             if (activityResult.IsError) return activityResult.Errors;
             newActivityIds.Add(activityResult.Value.Id);
@@ -262,6 +260,46 @@ public class UpdateGuidePackageCommandHandler(
 
         package.UpdateImages(newImageIds);
 
+        var optionalActivities = new List<OptionalActivity>();
+        if (request.OptionalActivities?.Any() == true)
+        {
+            foreach (var optAct in request.OptionalActivities)
+            {
+                var optActResult = OptionalActivity.Create(optAct.Description, optAct.AdditionalPrice, optAct.ImageUrl);
+                if (optActResult.IsError) return optActResult.Errors;
+                optionalActivities.Add(optActResult.Value);
+            }
+        }
+        package.UpdateOptionalActivities(optionalActivities);
+
+        // update meeting points
+        var existingMeetingPoints = await packageRepository.GetMeetingPointsByPackageIdAsync(package.Id, cancellationToken);
+        if (existingMeetingPoints.Any())
+            packageRepository.RemovePackageMeetingPoints(existingMeetingPoints);
+
+        var meetingPoints = new List<PackageMeetingPoint>();
+        if (request.MeetingPoints?.Any() == true)
+        {
+            foreach (var mpDto in request.MeetingPoints)
+            {
+                var mpResult = PackageMeetingPoint.Create(
+                    package.Id,
+                    mpDto.MeetingPointName,
+                    mpDto.Latitude,
+                    mpDto.Longitude,
+                    mpDto.Time,
+                    mpDto.Price,
+                    mpDto.Description);
+                if (mpResult.IsError) return mpResult.Errors;
+                meetingPoints.Add(mpResult.Value);
+            }
+            package.UpdateMeetingPoints(meetingPoints);
+            packageRepository.AddPackageMeetingPoints(meetingPoints);
+        }
+        else
+        {
+            package.UpdateMeetingPoints([]);
+        }
 
         await unitOfWork.CommitChangesAsync(cancellationToken);
 

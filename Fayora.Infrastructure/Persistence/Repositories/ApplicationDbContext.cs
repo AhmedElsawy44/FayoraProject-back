@@ -52,10 +52,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<GuideWeeklySchedule> GuideWeeklySchedules { get; set; }
     public DbSet<PackageAccommodation> PackageAccommodations { get; set; }
     public DbSet<PackageNight> PackageNights { get; set; }
+    public DbSet<PackageMeetingPoint> PackageMeetingPoints { get; set; }
 
     // Booking Module
     public DbSet<Booking> Bookings { get; set; }
     public DbSet<PaymentTransaction> PaymentTransactions { get; set; }
+    public DbSet<ProviderPayout> ProviderPayouts { get; set; }
 
     // Review Module
     public DbSet<Review> Reviews { get; set; }
@@ -123,6 +125,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Ignore<OptionalActivity>();
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
 }

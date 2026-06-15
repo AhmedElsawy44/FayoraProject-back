@@ -10,6 +10,7 @@ using Fayora.Application.Features.AdminModule.Commands.CreateMasterInterest;
 using Fayora.Application.Features.AdminModule.Commands.CreatePushCampaign;
 using Fayora.Application.Features.AdminModule.Commands.CreateUser;
 using Fayora.Application.Features.AdminModule.Commands.DeleteLocation;
+using Fayora.Application.Features.AdminModule.Commands.DeleteMasterInterest;
 using Fayora.Application.Features.AdminModule.Commands.RefundTransaction;
 using Fayora.Application.Features.AdminModule.Commands.SendTestNotification;
 using Fayora.Application.Features.AdminModule.Commands.ToggleMasterInterest;
@@ -507,6 +508,14 @@ public class AdminController(ISender sender) : ApiController
     public async Task<IActionResult> ToggleMasterInterest(int id, CancellationToken cancellationToken)
     {
         var command = new ToggleMasterInterestCommand(id);
+        var result = await sender.Send(command, cancellationToken);
+        return result.Match(_ => NoContent(), Problem);
+    }
+
+    [HttpDelete("master-interests/{id:int}")]
+    public async Task<IActionResult> DeleteMasterInterest(int id, CancellationToken cancellationToken)
+    {
+        var command = new DeleteMasterInterestCommand(id);
         var result = await sender.Send(command, cancellationToken);
         return result.Match(_ => NoContent(), Problem);
     }

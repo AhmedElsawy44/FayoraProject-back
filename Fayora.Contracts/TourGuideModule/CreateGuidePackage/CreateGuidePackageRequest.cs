@@ -8,8 +8,7 @@ public record CreateGuidePackageRequest
     int DurationHours,
     int NumOfDays,
     List<NightDto>? Nights,
-    decimal Longitude,
-    decimal Latitude,
+    List<MeetingPointDto> MeetingPoints,
     string TransportType,
     string? ArrivalNote,
     decimal AdultPrice,
@@ -23,11 +22,30 @@ public record CreateGuidePackageRequest
     string CancellationPolicy,
     string? GuestRequirements,
     List<ActivityDto> Activities,
-    HashSet<int> LocationIds
+    HashSet<int> LocationIds,
+    List<OptionalActivityDto>? OptionalActivities,
+    bool HasGroupDiscount = false,
+    int? GroupDiscountMinPeople = null,
+    decimal? GroupDiscountPercent = null
 );
 
-public record ActivityDto(decimal Latitude,
+public record OptionalActivityDto(
+    string Description,
+    decimal AdditionalPrice,
+    string ImageUrl
+);
+
+public record MeetingPointDto(
+    string MeetingPointName,
+    decimal Latitude,
     decimal Longitude,
+    TimeOnly Time,
+    decimal Price = 0,
+    string? Description = null
+);
+
+public record ActivityDto(decimal? Latitude,
+    decimal? Longitude,
     string Description,
     TimeOnly ActivityTime,
     bool IsOptional, 

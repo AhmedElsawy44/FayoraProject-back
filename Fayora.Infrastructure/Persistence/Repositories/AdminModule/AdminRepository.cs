@@ -481,26 +481,6 @@ public class AdminRepository(ApplicationDbContext context) : IAdminRepository
     }
 
     // ==================== Master Interests ====================
-    public async Task<List<GetMasterInterestsResponse>> GetMasterInterestsAsync(CancellationToken ct)
-    {
-        var interests = await context.MasterInterests
-            .OrderBy(i => i.SortOrder)
-            .ToListAsync(ct);
-
-        return interests.Select(i => new GetMasterInterestsResponse(
-            i.Id, i.Code, i.Name, i.IconUrl, i.SortOrder, i.IsActive, i.CreateAt
-        )).ToList();
-    }
-
-    public async Task<MasterInterest?> GetMasterInterestByIdAsync(int id, CancellationToken ct)
-    {
-        return await context.MasterInterests.FirstOrDefaultAsync(i => i.Id == id, ct);
-    }
-
-    public void AddMasterInterest(MasterInterest interest)
-    {
-        context.MasterInterests.Add(interest);
-    }
 
     // ==================== Chatbot Monitoring ====================
     public async Task<List<GetChatbotSessionsResponse>> GetChatbotSessionsAsync(int pageNumber, int pageSize, Guid? userIdFilter, DateTime? fromDate, DateTime? toDate, CancellationToken ct)
@@ -625,7 +605,7 @@ public class AdminRepository(ApplicationDbContext context) : IAdminRepository
     public async Task<List<GetPendingPayoutsResponse>> GetPendingPayoutsAsync(CancellationToken ct)
     {
         var pendingBookings = await context.Bookings
-            .Where(b => b.BookingStatus == BookingStatus.Completed && b.PaymentStatus == PaymentTransactionStatus.Paid)
+            .Where(b => b.BookingStatus == BookingStatus.Completed && b.PaymentStatus == PaymentTransactionStatus.Paid && !b.IsPayoutProcessed)
             .GroupBy(b => b.ServiceProviderId)
             .Select(g => new
             {
@@ -774,7 +754,7 @@ public class AdminRepository(ApplicationDbContext context) : IAdminRepository
             .SumAsync(b => b.ServiceFee, ct);
 
         var pendingPayoutsTotal = await context.Bookings
-            .Where(b => b.BookingStatus == BookingStatus.Completed && b.PaymentStatus == PaymentTransactionStatus.Paid)
+            .Where(b => b.BookingStatus == BookingStatus.Completed && b.PaymentStatus == PaymentTransactionStatus.Paid && !b.IsPayoutProcessed)
             .SumAsync(b => b.PayoutAmount, ct);
 
         var refundedCount = await context.PaymentTransactions

@@ -6,6 +6,7 @@ using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
+using Fayora.Contracts.TourGuideModule.GetPackageDetails;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.ITourGuideRepository;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
@@ -16,7 +17,8 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
         ITourGuideRepository tourGuideRepository,
         IPackageNightRepository packageNightRepository,
         IUserRepository userRepository,
-        IDiscountOfferRepository discountOfferRepository)
+        IDiscountOfferRepository discountOfferRepository,
+        IPackageImageRepository packageImageRepository)
         : IQueryHandler<GetPackageDetailsQuery, Result<PackageDetailsResult>>
     {
         public async Task<Result<PackageDetailsResult>> Handle(
@@ -32,6 +34,12 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
 
             var nights = await packageNightRepository.GetByPackageIdAsync(
                 request.PackageId, cancellationToken);
+
+            var meetingPoints = await packageRepository.GetMeetingPointsByPackageIdAsync(
+                 request.PackageId, cancellationToken);
+
+            var packageImages = await packageImageRepository.GetPackageImages(
+                package.Id, cancellationToken);
 
             var guide = await tourGuideRepository.GetGuideByIdAsync(
                 package.UserId,
@@ -74,23 +82,30 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
                 package.NumOfDays,
                 package.NumOfNights,
                 package.MainImageUrl.Value,
-                package.ImageIds.Select(id => id.ToString()).ToList(),
+                packageImages.Select(img => img.ImageUrl.Value).ToList(),
                 package.IncludedItemIds.ToList(),
                 package.ExcludedItemIds?.ToList(),
                 activities.Select(a => new PackageActivityDetailsResult(
                     a.Description,
                     a.ActivityTime,
                     a.IsOptional,
-                    a.LocationId)).ToList(),
+                    a.LocationId,
+                    a.Place?.Latitude,
+                    a.Place?.Longitude)).ToList(),
                 nights.Select(n => new PackageNightDetailsResult(
                     n.Id,
                     n.NightNumber,
                     n.NightDate,
                     n.HousingUnitId,
                     n.PackageAccommodationId)).ToList(),
-                new GeoPointDetailsResult(
-                    package.MeetingPoint.Latitude,
-                    package.MeetingPoint.Longitude),
+                meetingPoints.Select(mp => new PackageMeetingPointResult(
+                    mp.Id,
+                    mp.MeetingPointName,
+                    mp.MeetingPoint.Latitude,
+                    mp.MeetingPoint.Longitude,
+                    mp.Time,
+                    mp.Price,
+                    mp.Description)).ToList(),
                 new GuideInfoDetailsResult(
                     guide.UserId,
                     user.FirstName,
@@ -107,7 +122,18 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
                 package.Occurrences.Select(o => new PackageOccurrenceResult(
                     o.Id,
                     o.Date,
-                    o.AvailableSeats)).ToList());
+                    o.AvailableSeats)).ToList(),
+                package.OptionalActivities.Select(a => new OptionalActivityResponse(
+                    a.Id,
+                    a.Description,
+                    a.AdditionalPrice,
+                    a.ImageUrl.Value)).ToList(),
+                package.TourTypes.ToString(),
+                package.MaxCapacity,
+                package.MainVideoUrl?.Value,
+                package.HasGroupDiscount,
+                package.GroupDiscountMinPeople,
+                package.GroupDiscountPercent);
         }
     }
 }

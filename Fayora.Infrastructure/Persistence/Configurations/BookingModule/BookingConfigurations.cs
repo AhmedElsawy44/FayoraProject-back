@@ -1,6 +1,10 @@
-﻿using Fayora.Domain.Entities.Booking;
+using Fayora.Domain.Entities.Booking;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
+using System.Collections.Generic;
+using System.Text.Json;
+
 
 namespace Fayora.Infrastructure.Persistence.Configurations.BookingModule;
 
@@ -21,6 +25,10 @@ internal sealed class BookingConfigurations : IEntityTypeConfiguration<Booking>
         builder.HasIndex(x => x.StartDate);
         builder.HasIndex(x => x.EndDate);
         builder.HasIndex(x => x.AppliedOfferId);  // ✅ مفيد للـ analytics
+        builder.HasIndex(x => x.IsPayoutProcessed);
+
+        builder.Property(x => x.IsPayoutProcessed)
+            .HasDefaultValue(false);
 
         builder.Property(x => x.ServiceType)
             .HasConversion<int>();
@@ -62,5 +70,26 @@ internal sealed class BookingConfigurations : IEntityTypeConfiguration<Booking>
 
         builder.Property(x => x.EndDate)
             .IsRequired();
+
+        builder.Property(x => x.SelectedOptionalActivityIds)
+            .HasColumnName("SelectedOptionalActivityIds")
+            .HasConversion(
+                v => v == null ? null : JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                v => string.IsNullOrEmpty(v) ? null : JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions?)null))
+            .IsRequired(false);
+
+        builder.Property(x => x.SelectedMeetingPointId)
+            .IsRequired(false);
+
+        builder.Property(x => x.AdultsCount)
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        builder.Property(x => x.ChildrenCount)
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        // SeatsCount هو Computed Property = AdultsCount + ChildrenCount، مش بيتخزن في الـ DB
+        builder.Ignore(x => x.SeatsCount);
     }
 }

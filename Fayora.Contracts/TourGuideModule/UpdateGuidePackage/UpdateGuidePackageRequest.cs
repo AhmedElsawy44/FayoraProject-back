@@ -9,8 +9,7 @@ public record UpdateGuidePackageRequest(
     int DurationHours,
     int NumOfDays,   
     List<NightDto>? Nights,
-    decimal Longitude,
-    decimal Latitude,
+    List<MeetingPointDto> MeetingPoints,
     string TransportType,
     string? ArrivalNote,
     decimal AdultPrice,
@@ -24,5 +23,9 @@ public record UpdateGuidePackageRequest(
     string CancellationPolicy,
     string? GuestRequirements,
     List<ActivityDto> Activities,
-    HashSet<int> LocationIds
+    HashSet<int> LocationIds,
+    List<OptionalActivityDto>? OptionalActivities,
+    bool HasGroupDiscount = false,
+    int? GroupDiscountMinPeople = null,
+    decimal? GroupDiscountPercent = null
 );

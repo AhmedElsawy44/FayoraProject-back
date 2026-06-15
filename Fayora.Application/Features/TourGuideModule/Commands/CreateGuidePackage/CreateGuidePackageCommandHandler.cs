@@ -8,6 +8,8 @@ using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
 
+using Fayora.Application.Features.TourGuideModule.Common;
+
 namespace Fayora.Application.Features.TourGuideModule.Commands.CreateGuidePackage;
 
 public class CreateGuidePackageCommandHandler(
@@ -26,9 +28,14 @@ public class CreateGuidePackageCommandHandler(
 
         var providerType = clientContextProvider.GetContext().Roles.Contains("TourGuide") ? ProviderType.TourGuide : ProviderType.TourCompany;
 
-        var meetingPointResult = GeoPoint.Create(request.Latitude, request.Longitude);
-        if (meetingPointResult.IsError) return meetingPointResult.Errors;
-        var meetingPoint = meetingPointResult.Value;
+        if (providerType == ProviderType.TourGuide)
+        {
+            var hasCreatedToday = await packageRepository.HasPackageCreatedTodayAsync(tourGuideId, cancellationToken);
+            if (hasCreatedToday)
+            {
+                return TourGuideErrors.DailyPackageLimitExceeded;
+            }
+        }
 
         var mainImageUrlResult = FileUrl.Create(request.MainImageUrl);
         if (mainImageUrlResult.IsError) return mainImageUrlResult.Errors;
@@ -61,7 +68,6 @@ public class CreateGuidePackageCommandHandler(
             providerType,
             request.DurationHours,
             request.NumOfDays,
-            meetingPoint,
             request.TransportType,
             request.MaxCapacity,
             request.AdultPrice,
@@ -70,22 +76,53 @@ public class CreateGuidePackageCommandHandler(
             mainImageUrlResult.Value,
             mainVideoUrl,
             request.GuestRequirements,
-            request.CancellationPolicy
+            request.CancellationPolicy,
+            request.HasGroupDiscount,
+            request.GroupDiscountMinPeople,
+            request.GroupDiscountPercent
         );
 
 
         if (packageResult.IsError) return packageResult.Errors;
         var package = packageResult.Value;
 
-        var actualActivities = new List<Guid>();
-        foreach (var actReq in request.Activities)
+        var meetingPoints = new List<PackageMeetingPoint>();
+        if (request.MeetingPoints?.Any() == true)
         {
-            var activityResult = PackageActivity.Create(package.Id, actReq.Latitude, actReq.Longitude, actReq.Description, actReq.ActivityTime, actReq.IsOptional, actReq.LocationId);
-            if (activityResult.IsError) return activityResult.Errors;
-            actualActivities.Add(activityResult.Value.Id);
+            foreach (var mpDto in request.MeetingPoints)
+            {
+                var mpResult = PackageMeetingPoint.Create(
+                    package.Id,
+                    mpDto.MeetingPointName,
+                    mpDto.Latitude,
+                    mpDto.Longitude,
+                    mpDto.Time,
+                    mpDto.Price,
+                    mpDto.Description);
+                if (mpResult.IsError) return mpResult.Errors;
+                meetingPoints.Add(mpResult.Value);
+            }
+            package.UpdateMeetingPoints(meetingPoints);
+            packageRepository.AddPackageMeetingPoints(meetingPoints);
         }
 
-        package.AddActivities(actualActivities);
+        var actualActivities = new List<PackageActivity>();
+        foreach (var actReq in request.Activities)
+        {
+            var activityResult = PackageActivity.Create(
+                package.Id,
+                actReq.Description,
+                actReq.ActivityTime,
+                actReq.IsOptional,
+                actReq.LocationId,
+                actReq.Latitude,
+                actReq.Longitude);
+            if (activityResult.IsError) return activityResult.Errors;
+            actualActivities.Add(activityResult.Value);
+        }
+
+        package.AddActivities(actualActivities.Select(a => a.Id));
+        packageRepository.AddPackageActivities(actualActivities);
 
         if (request.IncludedIds?.Any() == true) package.AddIncludedItems(request.IncludedIds);
         if (request.ExcludedIds?.Any() == true) package.AddExcludedItems(request.ExcludedIds);
@@ -207,6 +244,17 @@ public class CreateGuidePackageCommandHandler(
 
         package.AddLocations(request.LocationIds);
 
+        var optionalActivities = new List<OptionalActivity>();
+        if (request.OptionalActivities?.Any() == true)
+        {
+            foreach (var optAct in request.OptionalActivities)
+            {
+                var optActResult = OptionalActivity.Create(optAct.Description, optAct.AdditionalPrice, optAct.ImageUrl);
+                if (optActResult.IsError) return optActResult.Errors;
+                optionalActivities.Add(optActResult.Value);
+            }
+        }
+        package.UpdateOptionalActivities(optionalActivities);
 
         packageRepository.AddPackage(package);
 

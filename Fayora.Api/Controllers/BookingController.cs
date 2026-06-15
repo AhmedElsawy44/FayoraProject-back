@@ -16,6 +16,7 @@ using Fayora.Contracts.BookingModule.GetBookingDetails;
 using Fayora.Application.Features.BookingModule.Commands.CancelBooking;
 using Fayora.Contracts.BookingModule.ScanBookingQr;
 using Fayora.Domain.Enums.BookingModule;
+using Fayora.Application.Features.BookingModule.Commands.CreateProviderPayout;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -46,7 +47,9 @@ public class BookingController(ISender sender, IMapper mapper) : ApiController
             request.Children,
             paymentMethod,
             request.WalletNumber,
-            request.IsCashOnArrival
+            request.IsCashOnArrival,
+            request.SelectedOptionalActivityIds,
+            request.SelectedMeetingPointId
         );
 
         var result = await sender.Send(command, cancellationToken);
@@ -200,5 +203,13 @@ public class BookingController(ISender sender, IMapper mapper) : ApiController
         return result.Match(
             value => Ok(value),
             Problem);
+    }
+
+    [HttpPost("provider/payout")]
+    public async Task<IActionResult> RequestPayout(CancellationToken cancellationToken)
+    {
+        var command = new CreateProviderPayoutCommand();
+        var result = await sender.Send(command, cancellationToken);
+        return result.Match(value => Ok(value), Problem);
     }
 }
