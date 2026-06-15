@@ -27,6 +27,9 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
         List<int> LocationIds,
         List<PackageOccurrenceResult> Occurrences,
         List<OptionalActivityResponse>? OptionalActivities,
+        string TourType,
+        int MaxCapacity,
+        string? VideoURL,
         bool HasGroupDiscount,
         int? GroupDiscountMinPeople,
         decimal? GroupDiscountPercent

@@ -19,6 +19,14 @@ public class CreateGuidePackageCommandValidator : AbstractValidator<CreateGuideP
 
         RuleFor(x => x.DurationHours)
             .GreaterThan(0).WithMessage("Duration must be greater than zero.");
+
+        RuleFor(x => x.NumOfDays)
+           .GreaterThan(0).WithMessage("Number of days must be greater than zero.");
+
+        RuleFor(x => x.Nights)
+            .NotEmpty().WithMessage("Multi-day packages must include nights.")
+            .When(x => x.NumOfDays > 1);
+
         RuleFor(x => x.MeetingPoints)
             .NotEmpty().WithMessage("At least one meeting point is required.");
 

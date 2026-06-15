@@ -1,3 +1,5 @@
+using Fayora.Contracts.TourGuideModule.GetPackageDetails;
+
 namespace Fayora.Contracts.TourGuideModule.GetPackagePreview
 {
     public record PackagePreviewResponse(
@@ -18,7 +20,15 @@ namespace Fayora.Contracts.TourGuideModule.GetPackagePreview
         List<PackageNightResponse> Nights,
         List<int> LocationIds,
         List<PackageMeetingPointResponse> MeetingPoints,
-        GuideInfoResponse GuideInfo
+        GuideInfoResponse GuideInfo,
+        string TourType,
+        string TransportType,
+        string CancellationPolicy,
+        int MaxCapacity,
+        string? ArrivalNote,
+        string? VideoURL,
+        string? GuestRequirements,
+        List<OptionalActivityResponse>? OptionalActivities
     );
 
     public record PackageActivityResponse(

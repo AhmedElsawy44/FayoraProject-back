@@ -12,10 +12,7 @@ public class PackageActivity : BaseEntity<Guid>
     public TimeOnly ActivityTime { get; private set; }
     public bool IsOptional { get; private set; }
 
-    /// <summary>
-    /// إنشاء نشاط جديد للباقة السياحية.
-    /// يجب تحديد إما LocationId أو الإحداثيات (latitude و longitude) على الأقل.
-    /// </summary>
+
     public static Result<PackageActivity> Create(
         Guid packageId,
         string description,

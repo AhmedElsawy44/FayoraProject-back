@@ -17,7 +17,8 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
         ITourGuideRepository tourGuideRepository,
         IPackageNightRepository packageNightRepository,
         IUserRepository userRepository,
-        IDiscountOfferRepository discountOfferRepository)
+        IDiscountOfferRepository discountOfferRepository,
+        IPackageImageRepository packageImageRepository)
         : IQueryHandler<GetPackageDetailsQuery, Result<PackageDetailsResult>>
     {
         public async Task<Result<PackageDetailsResult>> Handle(
@@ -36,6 +37,9 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
 
             var meetingPoints = await packageRepository.GetMeetingPointsByPackageIdAsync(
                  request.PackageId, cancellationToken);
+
+            var packageImages = await packageImageRepository.GetPackageImages(
+                package.Id, cancellationToken);
 
             var guide = await tourGuideRepository.GetGuideByIdAsync(
                 package.UserId,
@@ -78,7 +82,7 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
                 package.NumOfDays,
                 package.NumOfNights,
                 package.MainImageUrl.Value,
-                package.ImageIds.Select(id => id.ToString()).ToList(),
+                packageImages.Select(img => img.ImageUrl.Value).ToList(),
                 package.IncludedItemIds.ToList(),
                 package.ExcludedItemIds?.ToList(),
                 activities.Select(a => new PackageActivityDetailsResult(
@@ -124,6 +128,9 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
                     a.Description,
                     a.AdditionalPrice,
                     a.ImageUrl.Value)).ToList(),
+                package.TourTypes.ToString(),
+                package.MaxCapacity,
+                package.MainVideoUrl?.Value,
                 package.HasGroupDiscount,
                 package.GroupDiscountMinPeople,
                 package.GroupDiscountPercent);
