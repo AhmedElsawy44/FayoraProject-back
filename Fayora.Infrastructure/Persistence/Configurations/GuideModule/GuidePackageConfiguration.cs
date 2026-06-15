@@ -83,7 +83,7 @@ public class GuidePackageConfiguration : IEntityTypeConfiguration<GuidePackage>
             .HasColumnName("OptionalActivities")
             .HasConversion(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                v => JsonSerializer.Deserialize<List<OptionalActivity>>(v, (JsonSerializerOptions?)null) ?? new List<OptionalActivity>())
+                v => string.IsNullOrWhiteSpace(v) ? new List<OptionalActivity>() : (JsonSerializer.Deserialize<List<OptionalActivity>>(v, (JsonSerializerOptions?)null) ?? new List<OptionalActivity>()))
             .Metadata.SetValueComparer(CreateOptionalActivitiesComparer());
 
 
