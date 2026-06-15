@@ -32,11 +32,11 @@ public class GuidePackage : AuditableEntity<Guid>
     public CancellationPolicy CancellationPolicy { get; private set; }
     public ItemStatus PackageStatus { get; private set; }
 
-    private readonly List<int> _includedItemIds = [];
-    public IReadOnlyCollection<int> IncludedItemIds => _includedItemIds.AsReadOnly();
+    private List<int> _includedItemIds = [];
+    public IReadOnlyCollection<int> IncludedItemIds => (_includedItemIds ??= new List<int>()).AsReadOnly();
 
-    private readonly List<int>? _excludedItemIds = [];
-    public IReadOnlyCollection<int> ExcludedItemIds => _excludedItemIds!.AsReadOnly();
+    private List<int>? _excludedItemIds = [];
+    public IReadOnlyCollection<int> ExcludedItemIds => (_excludedItemIds ??= new List<int>()).AsReadOnly();
     private readonly List<PackageMeetingPoint> _meetingPoints = [];
     public IReadOnlyCollection<PackageMeetingPoint> MeetingPoints => _meetingPoints.AsReadOnly();
     public string? ArrivalNote { get; private set; }
@@ -45,20 +45,20 @@ public class GuidePackage : AuditableEntity<Guid>
     public decimal AverageRating { get; private set; }
     public int ReviewCount { get; private set; }
 
-    private readonly List<int> _locationIds = [];
-    public IReadOnlyCollection<int> LocationIds => _locationIds.AsReadOnly();
+    private List<int> _locationIds = [];
+    public IReadOnlyCollection<int> LocationIds => (_locationIds ??= new List<int>()).AsReadOnly();
 
     public string? AdminNotes { get; private set; }
 
-    private readonly List<Guid> _imageIds = [];
-    public IReadOnlyCollection<Guid> ImageIds => _imageIds.AsReadOnly();
-    public IReadOnlyCollection<Guid> ImageURLs => _imageIds.ToList().AsReadOnly();
+    private List<Guid> _imageIds = [];
+    public IReadOnlyCollection<Guid> ImageIds => (_imageIds ??= new List<Guid>()).AsReadOnly();
+    public IReadOnlyCollection<Guid> ImageURLs => (_imageIds ??= new List<Guid>()).ToList().AsReadOnly();
 
-    private readonly List<Guid> _activityIds = [];
-    public IReadOnlyCollection<Guid> ActivityIds => _activityIds.AsReadOnly();
+    private List<Guid> _activityIds = [];
+    public IReadOnlyCollection<Guid> ActivityIds => (_activityIds ??= new List<Guid>()).AsReadOnly();
 
-    private readonly List<Guid> _nightIds = [];
-    public IReadOnlyCollection<Guid> NightIds => _nightIds.AsReadOnly();
+    private List<Guid> _nightIds = [];
+    public IReadOnlyCollection<Guid> NightIds => (_nightIds ??= new List<Guid>()).AsReadOnly();
 
     private readonly List<PackageOccurrence> _occurrences = [];
     public IReadOnlyCollection<PackageOccurrence> Occurrences => _occurrences.AsReadOnly();
@@ -146,15 +146,25 @@ public class GuidePackage : AuditableEntity<Guid>
         return package;
     }
 
-    public void AddIncludedItem(int id) => _includedItemIds.Add(id);
-    public void AddExcludedItem(int id) => _excludedItemIds!.Add(id);
+    public void AddIncludedItem(int id)
+    {
+        _includedItemIds ??= new List<int>();
+        _includedItemIds.Add(id);
+    }
+    public void AddExcludedItem(int id)
+    {
+        _excludedItemIds ??= new List<int>();
+        _excludedItemIds.Add(id);
+    }
     public void AddImage(Guid imageId)
     {
+        _imageIds ??= new List<Guid>();
         _imageIds.Add(imageId);
     }
 
     public void AddImages(IEnumerable<Guid> imageIds)
     {
+        _imageIds ??= new List<Guid>();
         foreach (var id in imageIds) AddImage(id);
     }
 
@@ -233,6 +243,7 @@ public class GuidePackage : AuditableEntity<Guid>
 
     public void UpdateIncludedItems(IEnumerable<int> ids)
     {
+        _includedItemIds ??= new List<int>();
         _includedItemIds.Clear();
         _includedItemIds.AddRange(ids);
         Updated();
@@ -240,13 +251,15 @@ public class GuidePackage : AuditableEntity<Guid>
 
     public void UpdateExcludedItems(IEnumerable<int> ids)
     {
-        _excludedItemIds!.Clear();
+        _excludedItemIds ??= new List<int>();
+        _excludedItemIds.Clear();
         _excludedItemIds.AddRange(ids);
         Updated();
     }
 
     public void UpdateLocations(IEnumerable<int> locationIds)
     {
+        _locationIds ??= new List<int>();
         _locationIds.Clear();
         _locationIds.AddRange(locationIds);
         Updated();
@@ -254,6 +267,7 @@ public class GuidePackage : AuditableEntity<Guid>
 
     public void UpdateImages(IEnumerable<Guid> imageIds)
     {
+        _imageIds ??= new List<Guid>();
         _imageIds.Clear();
         _imageIds.AddRange(imageIds);
         Updated();
@@ -261,22 +275,33 @@ public class GuidePackage : AuditableEntity<Guid>
 
     public void UpdateActivities(IEnumerable<Guid> activityIds)
     {
+        _activityIds ??= new List<Guid>();
         _activityIds.Clear();
         _activityIds.AddRange(activityIds);
         Updated();
     }
 
-    public void AddLocation(int locationId) => _locationIds.Add(locationId);
-    public void AddLocations(IEnumerable<int> locationIds) => _locationIds.AddRange(locationIds);
+    public void AddLocation(int locationId)
+    {
+        _locationIds ??= new List<int>();
+        _locationIds.Add(locationId);
+    }
+    public void AddLocations(IEnumerable<int> locationIds)
+    {
+        _locationIds ??= new List<int>();
+        _locationIds.AddRange(locationIds);
+    }
 
     public void AddIncludedItems(IEnumerable<int> ids)
     {
+        _includedItemIds ??= new List<int>();
         foreach (var id in ids) _includedItemIds.Add(id);
     }
 
     public void AddExcludedItems(IEnumerable<int> ids)
     {
-        foreach (var id in ids) _excludedItemIds!.Add(id);
+        _excludedItemIds ??= new List<int>();
+        foreach (var id in ids) _excludedItemIds.Add(id);
     }
 
     public void UpdateMeetingPoints(IEnumerable<PackageMeetingPoint> meetingPoints)
@@ -288,6 +313,7 @@ public class GuidePackage : AuditableEntity<Guid>
 
     public void AddActivities(IEnumerable<Guid> activityIds)
     {
+        _activityIds ??= new List<Guid>();
         foreach (var id in activityIds) _activityIds.Add(id);
     }
 
@@ -465,11 +491,20 @@ public class GuidePackage : AuditableEntity<Guid>
         Updated();
     }
 
-    public void AddNight(Guid nightId) => _nightIds.Add(nightId);
-    public void AddNights(IEnumerable<Guid> nightIds) => _nightIds.AddRange(nightIds);
+    public void AddNight(Guid nightId)
+    {
+        _nightIds ??= new List<Guid>();
+        _nightIds.Add(nightId);
+    }
+    public void AddNights(IEnumerable<Guid> nightIds)
+    {
+        _nightIds ??= new List<Guid>();
+        _nightIds.AddRange(nightIds);
+    }
 
     public void UpdateNights(IEnumerable<Guid> nightIds)
     {
+        _nightIds ??= new List<Guid>();
         _nightIds.Clear();
         _nightIds.AddRange(nightIds);
         Updated();

@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Domain.Common.Results;
@@ -44,8 +44,8 @@ namespace Fayora.Application.Features.TouristModule.Queries.GetLocationDetails
                 location.Description,
                 location.Rating,
                 location.Category.ToString(),
-                location.MainImageUrl.Value,
-                images.Select(i => i.ImageUrl.Value).ToList(),
+                location.MainImageUrl?.Value ?? "",
+                images.Select(i => i.ImageUrl?.Value ?? "").ToList(),
                 location.Coordinates?.Latitude,
                 location.Coordinates?.Longitude,
                 packages.Select(p => new LocationPackageSummaryResult(
@@ -53,7 +53,7 @@ namespace Fayora.Application.Features.TouristModule.Queries.GetLocationDetails
                     p.Title,
                     p.AdultPrice,
                     p.DurationHours,
-                    p.MainImageUrl.Value,
+                    p.MainImageUrl?.Value ?? "",
                     p.TourTypes.ToString(),
                     p.Views)).ToList());
         }
