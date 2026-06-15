@@ -1,4 +1,4 @@
-using Fayora.Domain.Entities.AccommodationModule;
+using Fayora.Contracts.AccommodationModule.Responses;
 using Fayora.Domain.Enums.AccommodationModule;
 using Fayora.Domain.ValueObjects;
 
@@ -27,7 +27,6 @@ public record GetUnitByIdResult(
     int Views,
     string? MainImageUrl,
     List<string> ImageUrls,
-    List<string> Amenities,
+    List<Amenity> Amenities,
     DateTimeOffset CreatedAt
 );
-

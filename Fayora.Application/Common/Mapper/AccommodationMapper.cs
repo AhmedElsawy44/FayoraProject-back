@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitOwner;
+using Fayora.Application.Features.AccommodationModule.Queries.GetAllAmenities;
 using Fayora.Application.Features.AccommodationModule.Queries.GetUnitById;
 using Fayora.Contracts.AccommodationModule.Responses;
 using Fayora.Domain.Entities.AccommodationModule;
@@ -10,6 +11,7 @@ public class AccommodationMapper : Profile
 {
     public AccommodationMapper()
     {
+        CreateMap<AmenityResponse, Amenity>();
         CreateMap<CreateUnitOwnerOwnerResult, CreateUnitOwnerProfileResponse>();
 
         CreateMap<GetUnitByIdResult, GetUnitByIdResponse>()
@@ -22,9 +24,7 @@ public class AccommodationMapper : Profile
             .ForMember(dest => dest.CheckOutTime,
                 opt => opt.MapFrom(src => src.CheckOutTime.ToString(@"hh\:mm")))
             .ForMember(dest => dest.Amenities,
-                opt => opt.MapFrom(src => src.Amenities
-                    .Select(name => new Amenity(name, string.Empty, string.Empty))
-                    .ToList()));
+                opt => opt.MapFrom(src => src.Amenities));
 
         CreateMap<HousingUnit, GetAllUnitsByTypeResponse>()
             .ForMember(dest => dest.MainImageUrl,

@@ -1,6 +1,7 @@
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Features.AccommodationModule.Common;
+using Fayora.Contracts.AccommodationModule.Responses;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 using MediatR;
@@ -17,7 +18,7 @@ public class GetUnitByIdQueryHandler(
         GetUnitByIdQuery request,
         CancellationToken cancellationToken)
     {
-        var options = new IHousingUnitRepository.UnitQueryOptions(IsReadOnly: true);
+        var options = new IHousingUnitRepository.UnitQueryOptions(IsReadOnly: true, IncludeAmenties: true);
 
         var unit = await housingUnitRepository.GetUnitByIdAsync(
             request.UnitId, options, cancellationToken);
@@ -31,11 +32,13 @@ public class GetUnitByIdQueryHandler(
 
         var imageUrls = images.Select(i => i.ImageUrl.Value).ToList();
 
-
-        var amenities = Enum.GetValues<Fayora.Domain.Enums.AccommodationModule.Amenities>()
-            .Where(a => a != Fayora.Domain.Enums.AccommodationModule.Amenities.None
-                     && unit.Amenities.HasFlag(a))
-            .Select(a => a.ToString())
+        var amenitiesResult = unit.Amenities
+            .Select(a => new Amenity(
+                a.Id,
+                a.Name,
+                a.Icon.Value,
+                a.Category.ToString()
+            ))
             .ToList();
 
 
@@ -73,7 +76,7 @@ public class GetUnitByIdQueryHandler(
             unit.Views,
             unit.MainImageUrl.Value,
             imageUrls,
-            amenities,
+            amenitiesResult,
             unit.CreatedAt
         );
     }

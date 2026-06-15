@@ -19,6 +19,7 @@ public interface IHousingUnitRepository
     Task<int> GetPendingReviewStatsAsync(CancellationToken cancellationToken = default);
 
     public record UnitQueryOptions(
-        bool IsReadOnly = true
+        bool IsReadOnly = true,
+        bool IncludeAmenties = false
     );
 }

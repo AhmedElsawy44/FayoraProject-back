@@ -23,4 +23,4 @@ public record CreateUnitCommand(
     string MainImageUrl,
     Guid VerificationRequestId,
     HashSet<string> ImageUrls,
-    HashSet<Amenities> Amenities) : ICommand<Result<Success>>;
+    List<int> AmenityIds) : ICommand<Result<Guid>>;

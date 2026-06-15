@@ -1,11 +1,5 @@
 namespace Fayora.Contracts.AccommodationModule.Responses;
 
-public record Amenity(
-    string Name,
-    string IconUrl,
-    string Category
-);
-
 public record GetUnitByIdResponse(
     Guid UnitId,
     Guid OwnerId,

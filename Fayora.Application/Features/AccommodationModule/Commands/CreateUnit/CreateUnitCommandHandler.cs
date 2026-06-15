@@ -4,19 +4,19 @@ using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.AccommodationModule;
-using Fayora.Domain.Enums.AccommodationModule;
 using Fayora.Domain.ValueObjects;
 
 namespace Fayora.Application.Features.AccommodationModule.Commands.CreateUnit;
 
 public class CreateUnitCommandHandler(
+    IMasterAmenityRepository masterAmenityRepository,
     IClientContextProvider clientContextProvider,
     IHousingUnitRepository housingUnitRepository,
     IHousingUnitImageRepository housingUnitImageRepository,
     IUnitOfWork unitOfWork)
-    : ICommandHandler<CreateUnitCommand, Result<Success>>
+    : ICommandHandler<CreateUnitCommand, Result<Guid>>
 {
-    public async Task<Result<Success>> Handle(CreateUnitCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(CreateUnitCommand request, CancellationToken cancellationToken)
     {
         var ownerId = clientContextProvider.GetContext().UserId;
 
@@ -30,6 +30,12 @@ public class CreateUnitCommandHandler(
         var failedImage = imageResults.FirstOrDefault(r => r.IsError);
         if (failedImage is not null) return failedImage.Errors;
 
+        var amenities = await masterAmenityRepository.GetByIdsAsync(request.AmenityIds, cancellationToken);
+
+        if (amenities.Count != request.AmenityIds.Count)
+        {
+            return Error.Validation("HousingUnit.Amenities", "One or more of the selected amenities are invalid or inactive.");
+        }
 
         var housingUnitResult = HousingUnit.Create(
             ownerId,
@@ -47,21 +53,12 @@ public class CreateUnitCommandHandler(
             request.MaxGuests,
             request.CheckInTime,
             request.CheckOutTime,
-            mainImageResult.Value);
+            mainImageResult.Value,
+            amenities);
 
         if (housingUnitResult.IsError) return housingUnitResult.Errors;
         var housingUnit = housingUnitResult.Value;
 
-
-        Amenities combinedAmenities = Amenities.None;
-        if (request.Amenities != null)
-        {
-            foreach (var amenity in request.Amenities)
-            {
-                combinedAmenities |= amenity;
-            }
-            housingUnit.AddAmenities(combinedAmenities);
-        }
         var unitImages = imageResults.Select(r => new HousingUnitImage(housingUnit.Id, r.Value)).ToList();
 
         housingUnit.AddImages(unitImages.Select(image => image.Id));
@@ -72,6 +69,6 @@ public class CreateUnitCommandHandler(
 
         await unitOfWork.CommitChangesAsync(cancellationToken);
 
-        return new Success();
+        return housingUnit.Id;
     }
 }
