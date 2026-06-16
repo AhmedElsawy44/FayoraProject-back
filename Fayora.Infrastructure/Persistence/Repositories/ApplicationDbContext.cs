@@ -16,8 +16,21 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Fayora.Infrastructure.Persistence.Repositories;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor, IPublisher publisher) : DbContext(options), IUnitOfWork
+public class ApplicationDbContext : DbContext, IUnitOfWork
 {
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IPublisher _publisher;
+
+    public ApplicationDbContext(
+        DbContextOptions<ApplicationDbContext> options,
+        IHttpContextAccessor httpContextAccessor,
+        IPublisher publisher) : base(options)
+    {
+        _httpContextAccessor = httpContextAccessor;
+        _publisher = publisher;
+        ChangeTracker.Tracked += OnEntityTracked;
+    }
+
     // Identity Module
     public DbSet<User> Users { get; set; }
     public DbSet<UserIdentity> UserIdentities { get; set; }
@@ -94,7 +107,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         }
         else
         {
-            await PublishDomainEvents(publisher, domainEvents);
+            await PublishDomainEvents(_publisher, domainEvents);
         }
 
         await SaveChangesAsync(cancellationToken);
@@ -108,28 +121,22 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         }
     }
 
-    private bool IsUserWaitingOnline() => httpContextAccessor.HttpContext is not null;
+    private bool IsUserWaitingOnline() => _httpContextAccessor.HttpContext is not null;
 
     private void AddDomainEventsToOfflineProcessingQueue(List<IDomainEvent> domainEvents)
     {
-        var domainEventsQueue = httpContextAccessor.HttpContext!.Items
+        var domainEventsQueue = _httpContextAccessor.HttpContext!.Items
             .TryGetValue("DomainEventsQueue", out var value) && value is Queue<IDomainEvent> existingDomainEvents
                 ? existingDomainEvents
                 : new Queue<IDomainEvent>();
 
         domainEvents.ForEach(domainEventsQueue.Enqueue);
 
-        httpContextAccessor.HttpContext!.Items["DomainEventsQueue"] = domainEventsQueue;
+        _httpContextAccessor.HttpContext!.Items["DomainEventsQueue"] = domainEventsQueue;
     }
 
     [DbFunction("DIFFERENCE", IsBuiltIn = true)]
     public static int Difference(string stringValue1, string stringValue2) => throw new NotImplementedException();
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        base.OnConfiguring(optionsBuilder);
-        ChangeTracker.Tracked += OnEntityTracked;
-    }
 
     private void OnEntityTracked(object? sender, EntityTrackedEventArgs e)
     {
