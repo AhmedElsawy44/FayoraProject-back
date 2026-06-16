@@ -7,6 +7,8 @@ using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Contracts.TourGuideModule.GetPackageDetails;
+using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Domain.Enums.TourGuideModule;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.ITourGuideRepository;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
@@ -18,16 +20,26 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
         IPackageNightRepository packageNightRepository,
         IUserRepository userRepository,
         IDiscountOfferRepository discountOfferRepository,
-        IPackageImageRepository packageImageRepository)
+        IPackageImageRepository packageImageRepository,
+        IClientContextProvider clientContextProvider)
         : IQueryHandler<GetPackageDetailsQuery, Result<PackageDetailsResult>>
     {
         public async Task<Result<PackageDetailsResult>> Handle(
             GetPackageDetailsQuery request,
             CancellationToken cancellationToken)
         {
-            var package = await packageRepository.GetPackageWithOccurrencesAsync(
-                request.PackageId, cancellationToken);
+            var package = await packageRepository.GetPackageByIdAsync(
+                request.PackageId,
+                new IPackageRepository.PackageQueryOptions(ReadOnly: true, IncludeOccurrences: true),
+                cancellationToken);
+
             if (package is null) return TourGuideErrors.PackageNotFound;
+
+            var currentUserId = clientContextProvider.GetContext().UserId;
+            if (package.UserId != currentUserId && package.PackageStatus != ItemStatus.Active)
+            {
+                return TourGuideErrors.PackageNotFound;
+            }
 
             var activities = await packageRepository.GetActivitiesByPackageIdAsync(
                 request.PackageId, cancellationToken);
@@ -119,10 +131,12 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
                 package.GuestRequirements,
                 package.ArrivalNote,
                 package.LocationIds.ToList(),
-                package.Occurrences.Select(o => new PackageOccurrenceResult(
-                    o.Id,
-                    o.Date,
-                    o.AvailableSeats)).ToList(),
+                package.Occurrences
+                    .Where(o => package.UserId == currentUserId || (o.Date >= DateOnly.FromDateTime(DateTime.UtcNow) && o.AvailableSeats > 0))
+                    .Select(o => new PackageOccurrenceResult(
+                        o.Id,
+                        o.Date,
+                        o.AvailableSeats)).ToList(),
                 package.OptionalActivities.Select(a => new OptionalActivityResponse(
                     a.Id,
                     a.Description,
