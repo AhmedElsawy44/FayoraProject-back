@@ -1,11 +1,14 @@
-﻿using FluentValidation;
+using FluentValidation;
 
-namespace Fayora.Application.Features.AccommodationModule.Commands.CreateUnit;
+namespace Fayora.Application.Features.AccommodationModule.Commands.UpdateUnit;
 
-public class CreateUnitCommandValidator : AbstractValidator<CreateUnitCommand>
+public class UpdateUnitCommandValidator : AbstractValidator<UpdateUnitCommand>
 {
-    public CreateUnitCommandValidator()
+    public UpdateUnitCommandValidator()
     {
+        RuleFor(x => x.UnitId)
+            .NotEmpty().WithMessage("Unit ID is required.");
+
         RuleFor(x => x.Title)
             .NotEmpty().WithMessage("Title is required.")
             .MaximumLength(100).WithMessage("Title must not exceed 100 characters.");
@@ -47,9 +50,6 @@ public class CreateUnitCommandValidator : AbstractValidator<CreateUnitCommand>
         RuleFor(x => x.MainImageUrl)
             .NotEmpty().WithMessage("Main image URL is required.")
             .MaximumLength(2048).WithMessage("Main image URL must not exceed 2048 characters.");
-
-        RuleFor(x => x.VerificationRequestId)
-            .NotEmpty().WithMessage("Verification request ID is required.");
 
         RuleFor(x => x.ImageUrls)
             .NotEmpty().WithMessage("At least one additional image URL must be provided.");

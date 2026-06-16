@@ -1,7 +1,10 @@
 using AutoMapper;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnit;
+using Fayora.Application.Features.AccommodationModule.Commands.UpdateUnit;
+using Fayora.Application.Features.AccommodationModule.Commands.DeleteUnit;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitCalendarBlock;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitOwner;
+using Fayora.Application.Features.AccommodationModule.Queries.GetAllAmenities;
 using Fayora.Application.Features.AccommodationModule.Queries.GetRecommendedUnits;
 using Fayora.Application.Features.AccommodationModule.Queries.GetRecommendedUnitsSeeAll;
 using Fayora.Application.Features.AccommodationModule.Queries.GetSimilarUnits;
@@ -20,6 +23,18 @@ namespace Fayora.Api.Controllers;
 [ApiController]
 public class AccommodationController(ISender sender, IMapper mapper) : ApiController
 {
+    [HttpGet("amenities")]
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    {
+        var query = new GetAllAmenitiesQuery();
+        var result = await sender.Send(query, cancellationToken);
+
+        return result.Match(
+            amenities => Ok(mapper.Map<List<Amenity>>(amenities)),
+            error => Problem(error)
+        );
+    }
+
     [HttpPost("owner-profile")]
     public async Task<IActionResult> CreateUnitOwnerProfileAsync(
     [FromHeader(Name = AppHeaders.DeviceId)] string deviceId,
@@ -49,16 +64,6 @@ public class AccommodationController(ISender sender, IMapper mapper) : ApiContro
     [FromBody] CreateUnitRequest request,
     CancellationToken cancellationToken)
     {
-        var amenities = new HashSet<Amenities>();
-
-        foreach (var amenity in request.Amenities)
-        {
-            var (amenityOk, amenityValue) = EnumParser.TryParseEnum<Amenities>(amenity);
-            if (amenityOk)
-            {
-                amenities.Add(amenityValue);
-            }
-        }
         var command = new CreateUnitCommand(
             request.Title,
             request.Description,
@@ -78,14 +83,69 @@ public class AccommodationController(ISender sender, IMapper mapper) : ApiContro
             request.MainImageUrl,
             request.VerificationRequestId,
             request.ImageUrls,
-            amenities
+            [.. request.AmenityIds]
         );
 
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
             value => Ok(value),
-            errors => Problem()
+            errors => Problem(errors)
+        );
+    }
+
+    [HttpPut("housing-units/{id:guid}")]
+    public async Task<IActionResult> UpdateUnit(
+        [FromRoute] Guid id,
+        [FromBody] UpdateUnitRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!Enum.TryParse<HousingType>(request.Type, true, out var housingType))
+        {
+            return BadRequest("Invalid housing type.");
+        }
+
+        var command = new UpdateUnitCommand(
+            id,
+            request.Title,
+            request.Description,
+            request.LocationId,
+            request.AddressDetails,
+            request.Latitude,
+            request.Longitude,
+            housingType,
+            request.PricePerNight,
+            request.NumberOfRooms,
+            request.BedRooms,
+            request.BathRooms,
+            request.NumberOfBeds,
+            request.MaxGuests,
+            request.CheckInTime,
+            request.CheckOutTime,
+            request.MainImageUrl,
+            request.ImageUrls,
+            [.. request.AmenityIds]
+        );
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            value => Ok(value),
+            errors => Problem(errors)
+        );
+    }
+
+    [HttpDelete("housing-units/{id:guid}")]
+    public async Task<IActionResult> DeleteUnit(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var command = new DeleteUnitCommand(id);
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            _ => NoContent(),
+            errors => Problem(errors)
         );
     }
 

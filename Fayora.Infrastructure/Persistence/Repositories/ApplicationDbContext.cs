@@ -37,6 +37,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<UnitOwner> UnitOwners { get; set; }
     public DbSet<HousingUnitImage> HousingUnitImages { get; set; }
     public DbSet<CalendarBlock> CalendarBlocks { get; set; }
+    public DbSet<MasterAmenity> MasterAmenities { get; set; }
 
 
     // Guide Module

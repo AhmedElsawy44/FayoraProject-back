@@ -1,10 +1,11 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.AccommodationModule;
 
-namespace Fayora.Application.Features.AccommodationModule.Commands.CreateUnit;
+namespace Fayora.Application.Features.AccommodationModule.Commands.UpdateUnit;
 
-public record CreateUnitCommand(
+public record UpdateUnitCommand(
+    Guid UnitId,
     string Title,
     string? Description,
     int LocationId,
@@ -21,6 +22,5 @@ public record CreateUnitCommand(
     TimeSpan CheckInTime,
     TimeSpan CheckOutTime,
     string MainImageUrl,
-    Guid VerificationRequestId,
     HashSet<string> ImageUrls,
     List<int> AmenityIds) : ICommand<Result<Guid>>;

@@ -29,7 +29,6 @@ public class HousingUnit : BaseEntity<Guid>
 
     public decimal PricePerNight { get; private set; }
     public decimal CommissionRate { get; private set; }
-    public Amenities Amenities { get; private set; } = default!;
     public CancellationPolicy CancellationPolicy { get; private set; }
     public ItemStatus Status { get; private set; }
     public decimal Rating { get; private set; }
@@ -40,11 +39,12 @@ public class HousingUnit : BaseEntity<Guid>
 
     private readonly List<Guid> _imageIds = [];
     public IReadOnlyCollection<Guid> ImageIds => _imageIds.AsReadOnly();
+    private readonly List<MasterAmenity> _amenities = [];
+    public IReadOnlyCollection<MasterAmenity> Amenities => _amenities.AsReadOnly();
 
     public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
 
     public string? AdminNotes { get; private set; }
-
 
     private HousingUnit(
         Guid ownerId,
@@ -62,7 +62,8 @@ public class HousingUnit : BaseEntity<Guid>
         int maxGuests,
         TimeSpan checkInTime,
         TimeSpan checkOutTime,
-        FileUrl mainImageUrl)
+        FileUrl mainImageUrl,
+        List<MasterAmenity> amenities)
     {
         OwnerId = ownerId;
         Title = title;
@@ -85,25 +86,27 @@ public class HousingUnit : BaseEntity<Guid>
         Rating = 0m;
         ReviewCount = 0;
         Views = 0;
+        AddAmenities(amenities);
     }
 
     public static Result<HousingUnit> Create(
-    Guid ownerId,
-    string title,
-    string? description,
-    int locationId,
-    string addressDetails,
-    GeoPoint coordinates,
-    HousingType type,
-    decimal pricePerNight,
-    int numberOfRooms,
-    int bedRooms,
-    int bathRooms,
-    int numberOfBeds,
-    int maxGuests,
-    TimeSpan checkInTime,
-    TimeSpan checkOutTime,
-    FileUrl mainImageUrl)
+        Guid ownerId,
+        string title,
+        string? description,
+        int locationId,
+        string addressDetails,
+        GeoPoint coordinates,
+        HousingType type,
+        decimal pricePerNight,
+        int numberOfRooms,
+        int bedRooms,
+        int bathRooms,
+        int numberOfBeds,
+        int maxGuests,
+        TimeSpan checkInTime,
+        TimeSpan checkOutTime,
+        FileUrl mainImageUrl,
+        List<MasterAmenity> amenities)
     {
         if (ownerId == Guid.Empty)
             return Error.Validation("HousingUnit.OwnerId", "Owner ID is required.");
@@ -132,11 +135,16 @@ public class HousingUnit : BaseEntity<Guid>
         if (maxGuests <= 0)
             return Error.Validation("HousingUnit.MaxGuests", "Max guests must be greater than zero.");
 
+        if (type == HousingType.Villa && maxGuests != 1)
+            return Error.Validation("HousingUnit.MaxGuests", "Villa type housing units must accommodate equal to 1 guest.");
+
         if (checkInTime >= checkOutTime)
             return Error.Validation("HousingUnit.CheckInTime", "Check-in time must be before check-out time.");
 
         if (string.IsNullOrWhiteSpace(addressDetails))
             return Error.Validation("HousingUnit.AddressDetails", "Address details are required.");
+
+        amenities ??= [];
 
         return new HousingUnit(
             ownerId,
@@ -154,7 +162,8 @@ public class HousingUnit : BaseEntity<Guid>
             maxGuests,
             checkInTime,
             checkOutTime,
-            mainImageUrl);
+            mainImageUrl,
+            amenities);
     }
 
     public Result<Success> Approve()
@@ -179,20 +188,7 @@ public class HousingUnit : BaseEntity<Guid>
 
     public void RemoveImage(Guid imageId) => _imageIds.Remove(imageId);
 
-    public void AddAmenity(Amenities amenity)
-    {
-        Amenities |= amenity;
-    }
-
-    public void AddAmenities(Amenities amenities)
-    {
-        Amenities |= amenities;
-    }
-
-    public void RemoveAmenity(Amenities amenity)
-    {
-        Amenities &= ~amenity;
-    }
+    public void ClearImages() => _imageIds.Clear();
 
     public Result<Success> Reject(string adminNotes)
     {
@@ -202,6 +198,31 @@ public class HousingUnit : BaseEntity<Guid>
         Status = ItemStatus.Rejected;
         AdminNotes = adminNotes;
         return Result.Success;
+    }
+
+    public void AddAmenity(MasterAmenity amenity)
+    {
+        if (!_amenities.Any(a => a.Id == amenity.Id))
+        {
+            _amenities.Add(amenity);
+        }
+    }
+
+    public void AddAmenities(IEnumerable<MasterAmenity> amenities)
+    {
+        foreach (var amenity in amenities)
+        {
+            AddAmenity(amenity);
+        }
+    }
+
+    public void RemoveAmenity(int amenityId)
+    {
+        var amenity = _amenities.FirstOrDefault(a => a.Id == amenityId);
+        if (amenity is not null)
+        {
+            _amenities.Remove(amenity);
+        }
     }
 
     public void AdminUpdate(

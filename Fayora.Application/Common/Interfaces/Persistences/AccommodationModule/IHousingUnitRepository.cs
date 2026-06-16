@@ -6,6 +6,7 @@ namespace Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 public interface IHousingUnitRepository
 {
     void AddUnit(HousingUnit housingUnit);
+    void RemoveUnit(HousingUnit housingUnit);
     Task<HousingUnit?> GetUnitByIdAsync(Guid unitId, UnitQueryOptions? options = null, CancellationToken cancellationToken = default);
 
     Task<List<HousingUnit>> GetUnitsByTypeAsync(HousingType type, CancellationToken cancellationToken = default);
@@ -19,6 +20,7 @@ public interface IHousingUnitRepository
     Task<int> GetPendingReviewStatsAsync(CancellationToken cancellationToken = default);
 
     public record UnitQueryOptions(
-        bool IsReadOnly = true
+        bool IsReadOnly = true,
+        bool IncludeAmenties = false
     );
 }
