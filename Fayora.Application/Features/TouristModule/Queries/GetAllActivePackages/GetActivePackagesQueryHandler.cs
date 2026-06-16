@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Domain.Common.Results;
 
@@ -34,7 +34,7 @@ namespace Fayora.Application.Features.TouristModule.Queries.GetAllActivePackages
                     p.Title,
                     p.AdultPrice,
                     p.DurationHours,
-                    p.MainImageUrl.Value,
+                    p.MainImageUrl?.Value ?? "",
                     p.TourTypes.ToString(),
                     0m,
                     p.Views)).ToList(),

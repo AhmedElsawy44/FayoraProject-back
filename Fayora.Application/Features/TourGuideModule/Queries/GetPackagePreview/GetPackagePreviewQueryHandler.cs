@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Features.AuthModule.Common;
@@ -47,7 +47,7 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
                 package.AdultPrice,
                 package.ChildPrice,
                 package.DurationHours,
-                package.MainImageUrl.Value,
+                package.MainImageUrl?.Value ?? "",
                 package.ImageIds.Select(id => id.ToString()).ToList(),
                 package.IncludedItemIds.ToList(),
                 package.ExcludedItemIds?.ToList(),
