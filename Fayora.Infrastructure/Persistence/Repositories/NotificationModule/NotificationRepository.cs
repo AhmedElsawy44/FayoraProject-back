@@ -123,14 +123,6 @@ public class NotificationRepository(ApplicationDbContext context) : INotificatio
             .CountAsync(n => n.UserId == userId && !n.IsRead, ct);
     }
 
-    public async Task<List<string>> GetTokensByUserIdAsync(Guid userId, CancellationToken ct)
-    {
-        return await context.DeviceTokens
-            .Where(dt => dt.UserId == userId)
-            .Select(dt => dt.Token)
-            .ToListAsync(ct);
-    }
-
     public async Task<List<InAppNotification>> GetUnreadNotificationsByUserIdAsync(Guid userId, CancellationToken ct)
     {
         return await context.InAppNotifications
