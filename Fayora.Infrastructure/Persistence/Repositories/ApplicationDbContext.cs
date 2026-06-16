@@ -78,6 +78,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     // Notification Module
     public DbSet<Fayora.Domain.Entities.NotificationModule.DeviceToken> DeviceTokens { get; set; }
     public DbSet<Fayora.Domain.Entities.NotificationModule.PushCampaign> PushCampaigns { get; set; }
+    public DbSet<Fayora.Domain.Entities.NotificationModule.InAppNotification> InAppNotifications { get; set; }
 
 
     public async Task CommitChangesAsync(CancellationToken cancellationToken = default)

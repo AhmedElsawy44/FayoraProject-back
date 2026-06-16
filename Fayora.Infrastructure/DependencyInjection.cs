@@ -52,8 +52,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using System.Text;
-
-
+using Fayora.Application.Common.Interfaces.Persistences.ExploreModule;
+using Fayora.Infrastructure.Persistence.Repositories.ExploreModule;
 namespace Fayora.Infrastructure;
 
 public static class DependencyInjection
@@ -132,6 +132,9 @@ public static class DependencyInjection
         services.AddScoped<ILocationRepository, LocationRepository>();
         services.AddScoped<ILocationImageRepository, LocationImageRepository>();
         services.AddScoped<IDiscountOfferRepository, DiscountOfferRepository>();
+
+        // Explore Module
+        services.AddScoped<IExploreRepository, ExploreRepository>();
 
         // Explore Module
         services.AddScoped<IExploreRepository, ExploreRepository>();

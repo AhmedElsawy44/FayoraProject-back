@@ -30,6 +30,17 @@ public class Program
 
             var builder = WebApplication.CreateBuilder(args);
             {
+                builder.Services.AddCors(options =>
+                {
+                    options.AddPolicy("AllowAll", policy =>
+                    {
+                        policy.AllowAnyHeader()
+                              .AllowAnyMethod()
+                              .SetIsOriginAllowed(_ => true)
+                              .AllowCredentials();
+                    });
+                });
+
                 builder.Services
                     .AddPresentation()
                     .AddApplication()
@@ -80,6 +91,8 @@ public class Program
             app.UseStaticFiles();
 
             app.UseHttpsRedirection();
+
+            app.UseCors("AllowAll");
 
             app.UseSerilogRequestLogging();
 
