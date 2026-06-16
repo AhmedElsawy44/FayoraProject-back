@@ -5,7 +5,7 @@ public record GetMessagesResponse(
 );
 
 public record Message(
-    Guid Id,
+    long Id,
     Guid ChatId,
     Guid SenderId,
     string Content,

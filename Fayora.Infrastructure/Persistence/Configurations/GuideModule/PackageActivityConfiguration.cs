@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.GuideModule;
+using Fayora.Domain.Entities.GuideModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -23,13 +23,14 @@ internal class PackageActivityConfiguration : IEntityTypeConfiguration<PackageAc
         {
             placeBuilder.Property(p => p.Latitude)
                         .HasColumnName("Latitude")
-                        .HasPrecision(18, 10)
-                        .IsRequired();
+                        .HasPrecision(18, 10);
 
             placeBuilder.Property(p => p.Longitude)
                         .HasColumnName("Longitude")
-                        .HasPrecision(18, 10)
-                        .IsRequired();
+                        .HasPrecision(18, 10);
         });
+
+        builder.Property(a => a.LocationId)
+       .IsRequired(false);
     }
 }

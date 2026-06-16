@@ -7,7 +7,10 @@ using Fayora.Application.Features.TouristModule.Queries.GetRecommendedPackages;
 using Fayora.Application.Features.TourGuideModule.Queries.GetRecommendedGuides;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TouristModule;
-
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text.Json.Serialization;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 
 namespace Fayora.Infrastructure.Services.RecommendationModule;
@@ -25,6 +28,8 @@ namespace Fayora.Infrastructure.Services.RecommendationModule;
 public class RecommendationEngine(
     IRecommendationRepository repository,
     ICacheService cache,
+    HttpClient httpClient,
+    IOptions<Fayora.Infrastructure.Settings.RecommendationSettings> settings,
     ILogger<RecommendationEngine> logger) : IRecommendationService
 {
     // ── Scoring Weights ──────────────────────────────────────────────────────
@@ -69,8 +74,49 @@ public class RecommendationEngine(
     {
         logger.LogInformation("Generating personalized recommendations for user {UserId}", userId);
 
+        try
+        {
+            var baseUrl = settings.Value.BaseUrl;
+            var url = $"{baseUrl}/v2/recommendations/{userId}/packages?size={count}";
+            var response = await httpClient.GetAsync(url, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                var items = await response.Content.ReadFromJsonAsync<List<PythonPackageItem>>(cancellationToken: cancellationToken);
+                if (items != null && items.Any())
+                {
+                    var packageIds = items.Select(i => Guid.Parse(i.PackageId)).ToHashSet();
+                    var candidates = await repository.GetCandidatePackagesAsync(cancellationToken);
+                    
+                    var results = candidates
+                        .Where(p => packageIds.Contains(p.Id))
+                        .Select((p, index) => new RecommendedPackageResult(
+                            p.Id,
+                            p.Title,
+                            p.AdultPrice,
+                            p.DurationHours,
+                            p.MainImageUrl,
+                            p.TourTypes.ToString(),
+                            p.Views,
+                            1.0 - (index * 0.05),
+                            "✨ Recommended by AI"
+                        ))
+                        .ToList();
+
+                    if (results.Any())
+                    {
+                        logger.LogInformation("Successfully fetched {Count} personalized recommendations from Python recommender", results.Count);
+                        return results;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to fetch personalized packages from python recommender, falling back to local scoring");
+        }
+
         // 1. Load all data sequentially
-        var candidates = await repository.GetCandidatePackagesAsync(cancellationToken);
+        var candidatesFallback = await repository.GetCandidatePackagesAsync(cancellationToken);
         var userInterests = await repository.GetUserInterestIdsAsync(userId, cancellationToken);
         var userProfile = await repository.GetUserProfileDataAsync(userId, cancellationToken);
         var interactions = await repository.GetUserInteractionsAsync(userId, ScoringWindowDays, cancellationToken);
@@ -95,7 +141,7 @@ public class RecommendationEngine(
         var collaborativeCandidates = GetCollaborativeCandidates(bookedIds, coOccurrence);
 
         // 5. Compute normalization denominators
-        var maxViews = candidates.Count > 0 ? candidates.Max(c => c.Views) : 1;
+        var maxViews = candidatesFallback.Count > 0 ? candidatesFallback.Max(c => c.Views) : 1;
         var maxPopularity = popularity.Count > 0
             ? popularity.Values.Max(p => p.ViewCount + p.BookingCount * 5)
             : 1;
@@ -103,7 +149,7 @@ public class RecommendationEngine(
         // 6. Score each candidate
         var scoredPackages = new List<(PackageScoringData Package, double Score, string Reason)>();
 
-        foreach (var pkg in candidates)
+        foreach (var pkg in candidatesFallback)
         {
             // Skip already-booked packages
             if (bookedIds.Contains(pkg.Id))
@@ -133,11 +179,11 @@ public class RecommendationEngine(
         }
 
         // 7. Sort and take top N, ensuring diversity
-        var results = ApplyDiversityAndSelect(scoredPackages, count);
+        var resultsFallback = ApplyDiversityAndSelect(scoredPackages, count);
 
-        logger.LogInformation("Generated {Count} personalized recommendations for user {UserId}", results.Count, userId);
+        logger.LogInformation("Generated {Count} personalized recommendations for user {UserId} (local scoring)", resultsFallback.Count, userId);
 
-        return results;
+        return resultsFallback;
     }
 
     public async Task<List<RecommendedPackageResult>> GetTrendingAsync(
@@ -145,14 +191,55 @@ public class RecommendationEngine(
     {
         logger.LogInformation("Generating trending recommendations (anonymous/cold-start)");
 
-        var candidates = await repository.GetCandidatePackagesAsync(cancellationToken);
+        try
+        {
+            var baseUrl = settings.Value.BaseUrl;
+            var url = $"{baseUrl}/v2/trending?size={count}";
+            var response = await httpClient.GetAsync(url, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                var trending = await response.Content.ReadFromJsonAsync<PythonTrendingResponse>(cancellationToken: cancellationToken);
+                if (trending?.Packages != null && trending.Packages.Any())
+                {
+                    var packageIds = trending.Packages.Select(i => Guid.Parse(i.PackageId)).ToHashSet();
+                    var candidates = await repository.GetCandidatePackagesAsync(cancellationToken);
+                    
+                    var results = candidates
+                        .Where(p => packageIds.Contains(p.Id))
+                        .Select((p, index) => new RecommendedPackageResult(
+                            p.Id,
+                            p.Title,
+                            p.AdultPrice,
+                            p.DurationHours,
+                            p.MainImageUrl,
+                            p.TourTypes.ToString(),
+                            p.Views,
+                            1.0 - (index * 0.05),
+                            "🔥 Trending package"
+                        ))
+                        .ToList();
+
+                    if (results.Any())
+                    {
+                        logger.LogInformation("Successfully fetched {Count} trending recommendations from Python recommender", results.Count);
+                        return results;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to fetch trending packages from python recommender, falling back to local scoring");
+        }
+
+        var candidatesFallback = await repository.GetCandidatePackagesAsync(cancellationToken);
         var popularity = await repository.GetPopularityStatsAsync(ScoringWindowDays, cancellationToken);
 
         var maxPopularity = popularity.Count > 0
             ? popularity.Values.Max(p => p.ViewCount + p.BookingCount * 5)
             : 1;
 
-        var scored = candidates.Select(pkg =>
+        var scored = candidatesFallback.Select(pkg =>
         {
             var popScore = ScorePopularity(pkg.Id, popularity, maxPopularity);
             var recScore = ScoreRecency(pkg.CreatedAt);
@@ -161,11 +248,11 @@ public class RecommendationEngine(
             return (Package: pkg, Score: finalScore, Reason: "🔥 Trending in Fayoum");
         }).ToList();
 
-        var results = ApplyDiversityAndSelect(scored, count);
+        var resultsFallback = ApplyDiversityAndSelect(scored, count);
 
-        logger.LogInformation("Generated {Count} trending recommendations", results.Count);
+        logger.LogInformation("Generated {Count} trending recommendations (local scoring)", resultsFallback.Count);
 
-        return results;
+        return resultsFallback;
     }
 
     // ═════════════════════════════════════════════════════════════════════════
@@ -647,8 +734,49 @@ public class RecommendationEngine(
     {
         logger.LogInformation("Generating personalized unit recommendations for user {UserId}", userId);
 
+        try
+        {
+            var baseUrl = settings.Value.BaseUrl;
+            var url = $"{baseUrl}/v2/recommendations/{userId}/housing?size={count}";
+            var response = await httpClient.GetAsync(url, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                var items = await response.Content.ReadFromJsonAsync<List<PythonHousingItem>>(cancellationToken: cancellationToken);
+                if (items != null && items.Any())
+                {
+                    var unitIds = items.Select(i => Guid.Parse(i.UnitId)).ToHashSet();
+                    var candidates = await repository.GetCandidateUnitsAsync(cancellationToken);
+                    
+                    var results = candidates
+                        .Where(u => unitIds.Contains(u.Id))
+                        .Select((u, index) => new RecommendedUnitResult(
+                            u.Id,
+                            u.Title,
+                            u.PricePerNight,
+                            u.MainImageUrl,
+                            u.AddressDetails,
+                            u.Rating,
+                            u.Views,
+                            1.0 - (index * 0.05),
+                            "🏨 Matched stay recommended by AI"
+                        ))
+                        .ToList();
+
+                    if (results.Any())
+                    {
+                        logger.LogInformation("Successfully fetched {Count} personalized housing recommendations from Python recommender", results.Count);
+                        return results;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to fetch personalized units from python recommender, falling back to local scoring");
+        }
+
         // 1. Load all data sequentially
-        var candidates = await repository.GetCandidateUnitsAsync(cancellationToken);
+        var candidatesFallback = await repository.GetCandidateUnitsAsync(cancellationToken);
         var userProfile = await repository.GetUserProfileDataAsync(userId, cancellationToken);
         var interactions = await repository.GetUserUnitInteractionsAsync(userId, ScoringWindowDays, cancellationToken);
         var bookedIds = (await repository.GetUserBookedUnitIdsAsync(userId, cancellationToken)).ToHashSet();
@@ -671,7 +799,7 @@ public class RecommendationEngine(
         var collaborativeCandidates = GetCollaborativeCandidates(bookedIds, coOccurrence);
 
         // 5. Compute normalization denominators
-        var maxViews = candidates.Count > 0 ? candidates.Max(c => c.Views) : 1;
+        var maxViews = candidatesFallback.Count > 0 ? candidatesFallback.Max(c => c.Views) : 1;
         var maxPopularity = popularity.Count > 0
             ? popularity.Values.Max(p => p.ViewCount + p.BookingCount * 5)
             : 1;
@@ -679,7 +807,7 @@ public class RecommendationEngine(
         // 6. Score each candidate
         var scoredUnits = new List<(HousingUnitScoringData Unit, double Score, string Reason)>();
 
-        foreach (var unit in candidates)
+        foreach (var unit in candidatesFallback)
         {
             // Skip already-booked units
             if (bookedIds.Contains(unit.Id))
@@ -708,7 +836,7 @@ public class RecommendationEngine(
         }
 
         // 7. Sort and select top N
-        var results = scoredUnits
+        var resultsFallback = scoredUnits
             .OrderByDescending(s => s.Score)
             .Take(count)
             .Select(s => new RecommendedUnitResult(
@@ -723,9 +851,9 @@ public class RecommendationEngine(
                 s.Reason))
             .ToList();
 
-        logger.LogInformation("Generated {Count} personalized unit recommendations for user {UserId}", results.Count, userId);
+        logger.LogInformation("Generated {Count} personalized unit recommendations for user {UserId} (local scoring)", resultsFallback.Count, userId);
 
-        return results;
+        return resultsFallback;
     }
 
     public async Task<List<RecommendedUnitResult>> GetTrendingUnitsAsync(
@@ -733,14 +861,55 @@ public class RecommendationEngine(
     {
         logger.LogInformation("Generating trending unit recommendations (anonymous/cold-start)");
 
-        var candidates = await repository.GetCandidateUnitsAsync(cancellationToken);
+        try
+        {
+            var baseUrl = settings.Value.BaseUrl;
+            var url = $"{baseUrl}/v2/trending?size={count}";
+            var response = await httpClient.GetAsync(url, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                var trending = await response.Content.ReadFromJsonAsync<PythonTrendingResponse>(cancellationToken: cancellationToken);
+                if (trending?.Housing != null && trending.Housing.Any())
+                {
+                    var unitIds = trending.Housing.Select(i => Guid.Parse(i.UnitId)).ToHashSet();
+                    var candidates = await repository.GetCandidateUnitsAsync(cancellationToken);
+                    
+                    var results = candidates
+                        .Where(u => unitIds.Contains(u.Id))
+                        .Select((u, index) => new RecommendedUnitResult(
+                            u.Id,
+                            u.Title,
+                            u.PricePerNight,
+                            u.MainImageUrl,
+                            u.AddressDetails,
+                            u.Rating,
+                            u.Views,
+                            1.0 - (index * 0.05),
+                            "🔥 Popular choice this month"
+                        ))
+                        .ToList();
+
+                    if (results.Any())
+                    {
+                        logger.LogInformation("Successfully fetched {Count} trending housing recommendations from Python recommender", results.Count);
+                        return results;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to fetch trending units from python recommender, falling back to local scoring");
+        }
+
+        var candidatesFallback = await repository.GetCandidateUnitsAsync(cancellationToken);
         var popularity = await repository.GetUnitPopularityStatsAsync(ScoringWindowDays, cancellationToken);
 
         var maxPopularity = popularity.Count > 0
             ? popularity.Values.Max(p => p.ViewCount + p.BookingCount * 5)
             : 1;
 
-        var scored = candidates.Select(unit =>
+        var scored = candidatesFallback.Select(unit =>
         {
             var popScore = ScorePopularity(unit.Id, popularity, maxPopularity);
             var recScore = ScoreRecency(unit.CreatedAt);
@@ -749,7 +918,7 @@ public class RecommendationEngine(
             return (Unit: unit, Score: finalScore, Reason: "🔥 Popular choice this month");
         }).ToList();
 
-        var results = scored
+        var resultsFallback = scored
             .OrderByDescending(s => s.Score)
             .Take(count)
             .Select(s => new RecommendedUnitResult(
@@ -764,9 +933,9 @@ public class RecommendationEngine(
                 s.Reason))
             .ToList();
 
-        logger.LogInformation("Generated {Count} trending unit recommendations", results.Count);
+        logger.LogInformation("Generated {Count} trending unit recommendations (local scoring)", resultsFallback.Count);
 
-        return results;
+        return resultsFallback;
     }
 
     private static (double Score, string Reason) ScoreUnitContentBased(
@@ -897,8 +1066,51 @@ public class RecommendationEngine(
     {
         logger.LogInformation("Generating personalized tour guide recommendations for user {UserId}", userId);
 
+        try
+        {
+            var baseUrl = settings.Value.BaseUrl;
+            var url = $"{baseUrl}/v2/recommendations/{userId}/guides?size={count}";
+            var response = await httpClient.GetAsync(url, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                var items = await response.Content.ReadFromJsonAsync<List<PythonGuideItem>>(cancellationToken: cancellationToken);
+                if (items != null && items.Any())
+                {
+                    var guideIds = items.Select(i => Guid.Parse(i.GuideId)).ToHashSet();
+                    var candidates = await repository.GetCandidateGuidesAsync(cancellationToken);
+                    
+                    var results = candidates
+                        .Where(g => guideIds.Contains(g.UserId))
+                        .Select((g, index) => new RecommendedGuideResult(
+                            g.UserId,
+                            g.FullName,
+                            g.ProfileImageUrl,
+                            g.BaseRate,
+                            g.YearsOfExperience,
+                            g.IsSuperGuide,
+                            g.AverageRating,
+                            g.ReviewCount,
+                            g.Views,
+                            1.0 - (index * 0.05),
+                            "👑 AI Recommended Guide"
+                        ))
+                        .ToList();
+
+                    if (results.Any())
+                    {
+                        logger.LogInformation("Successfully fetched {Count} personalized guide recommendations from Python recommender", results.Count);
+                        return results;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to fetch personalized guides from python recommender, falling back to local scoring");
+        }
+
         // 1. Load all data sequentially
-        var candidates = await repository.GetCandidateGuidesAsync(cancellationToken);
+        var candidatesFallback = await repository.GetCandidateGuidesAsync(cancellationToken);
         var userInterests = await repository.GetUserInterestIdsAsync(userId, cancellationToken);
         var userProfile = await repository.GetUserProfileDataAsync(userId, cancellationToken);
         var interactions = await repository.GetUserGuideInteractionsAsync(userId, ScoringWindowDays, cancellationToken);
@@ -923,7 +1135,7 @@ public class RecommendationEngine(
         var collaborativeCandidates = GetCollaborativeCandidates(bookedIds, coOccurrence);
 
         // 5. Compute normalization denominators
-        var maxViews = candidates.Count > 0 ? candidates.Max(c => c.Views) : 1;
+        var maxViews = candidatesFallback.Count > 0 ? candidatesFallback.Max(c => c.Views) : 1;
         var maxPopularity = popularity.Count > 0
             ? popularity.Values.Max(p => p.ViewCount + p.BookingCount * 5)
             : 1;
@@ -931,7 +1143,7 @@ public class RecommendationEngine(
         // 6. Score each candidate
         var scoredGuides = new List<(GuideScoringData Guide, double Score, string Reason)>();
 
-        foreach (var guide in candidates)
+        foreach (var guide in candidatesFallback)
         {
             // Skip already-booked guides
             if (bookedIds.Contains(guide.UserId))
@@ -960,7 +1172,7 @@ public class RecommendationEngine(
         }
 
         // 7. Sort and select top N
-        var results = scoredGuides
+        var resultsFallback = scoredGuides
             .OrderByDescending(s => s.Score)
             .Take(count)
             .Select(s => new RecommendedGuideResult(
@@ -977,9 +1189,9 @@ public class RecommendationEngine(
                 s.Reason))
             .ToList();
 
-        logger.LogInformation("Generated {Count} personalized tour guide recommendations for user {UserId}", results.Count, userId);
+        logger.LogInformation("Generated {Count} personalized tour guide recommendations for user {UserId} (local scoring)", resultsFallback.Count, userId);
 
-        return results;
+        return resultsFallback;
     }
 
     public async Task<List<RecommendedGuideResult>> GetTrendingGuidesAsync(
@@ -987,14 +1199,57 @@ public class RecommendationEngine(
     {
         logger.LogInformation("Generating trending tour guide recommendations (anonymous/cold-start)");
 
-        var candidates = await repository.GetCandidateGuidesAsync(cancellationToken);
+        try
+        {
+            var baseUrl = settings.Value.BaseUrl;
+            var url = $"{baseUrl}/v2/trending?size={count}";
+            var response = await httpClient.GetAsync(url, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                var trending = await response.Content.ReadFromJsonAsync<PythonTrendingResponse>(cancellationToken: cancellationToken);
+                if (trending?.Guides != null && trending.Guides.Any())
+                {
+                    var guideIds = trending.Guides.Select(i => Guid.Parse(i.GuideId)).ToHashSet();
+                    var candidates = await repository.GetCandidateGuidesAsync(cancellationToken);
+                    
+                    var results = candidates
+                        .Where(g => guideIds.Contains(g.UserId))
+                        .Select((g, index) => new RecommendedGuideResult(
+                            g.UserId,
+                            g.FullName,
+                            g.ProfileImageUrl,
+                            g.BaseRate,
+                            g.YearsOfExperience,
+                            g.IsSuperGuide,
+                            g.AverageRating,
+                            g.ReviewCount,
+                            g.Views,
+                            1.0 - (index * 0.05),
+                            "🔥 Highly requested guide"
+                        ))
+                        .ToList();
+
+                    if (results.Any())
+                    {
+                        logger.LogInformation("Successfully fetched {Count} trending guide recommendations from Python recommender", results.Count);
+                        return results;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to fetch trending guides from python recommender, falling back to local scoring");
+        }
+
+        var candidatesFallback = await repository.GetCandidateGuidesAsync(cancellationToken);
         var popularity = await repository.GetGuidePopularityStatsAsync(ScoringWindowDays, cancellationToken);
 
         var maxPopularity = popularity.Count > 0
             ? popularity.Values.Max(p => p.ViewCount + p.BookingCount * 5)
             : 1;
 
-        var scored = candidates.Select(guide =>
+        var scored = candidatesFallback.Select(guide =>
         {
             var popScore = ScorePopularity(guide.UserId, popularity, maxPopularity);
             var recScore = ScoreRecency(guide.CreatedAt);
@@ -1003,7 +1258,7 @@ public class RecommendationEngine(
             return (Guide: guide, Score: finalScore, Reason: "🔥 Highly requested guide");
         }).ToList();
 
-        var results = scored
+        var resultsFallback = scored
             .OrderByDescending(s => s.Score)
             .Take(count)
             .Select(s => new RecommendedGuideResult(
@@ -1020,9 +1275,414 @@ public class RecommendationEngine(
                 s.Reason))
             .ToList();
 
-        logger.LogInformation("Generated {Count} trending tour guide recommendations", results.Count);
+        logger.LogInformation("Generated {Count} trending tour guide recommendations (local scoring)", resultsFallback.Count);
 
-        return results;
+        return resultsFallback;
+    }
+
+    public async Task<AllRecommendationsResult> GetAllRecommendationsAsync(
+        Guid userId, int count, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Generating combined recommendations for user {UserId}", userId);
+        try
+        {
+            var baseUrl = settings.Value.BaseUrl;
+            var url = $"{baseUrl}/v2/recommendations/{userId}/all?size={count}";
+            var response = await httpClient.GetAsync(url, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                var allRecs = await response.Content.ReadFromJsonAsync<PythonAllRecommendationsResponse>(cancellationToken: cancellationToken);
+                if (allRecs != null)
+                {
+                    // Enrich Housing
+                    List<RecommendedUnitResult> housingResults = new();
+                    if (allRecs.Housing.Any())
+                    {
+                        var unitIds = allRecs.Housing.Select(i => Guid.Parse(i.UnitId)).ToHashSet();
+                        var candidates = await repository.GetCandidateUnitsAsync(cancellationToken);
+                        housingResults = candidates
+                            .Where(u => unitIds.Contains(u.Id))
+                            .Select((u, index) => new RecommendedUnitResult(
+                                u.Id, u.Title, u.PricePerNight, u.MainImageUrl, u.AddressDetails, u.Rating, u.Views,
+                                1.0 - (index * 0.05), "🏨 Stay recommended by AI"
+                            )).ToList();
+                    }
+
+                    // Enrich Guides
+                    List<RecommendedGuideResult> guideResults = new();
+                    if (allRecs.Guides.Any())
+                    {
+                        var guideIds = allRecs.Guides.Select(i => Guid.Parse(i.GuideId)).ToHashSet();
+                        var candidates = await repository.GetCandidateGuidesAsync(cancellationToken);
+                        guideResults = candidates
+                            .Where(g => guideIds.Contains(g.UserId))
+                            .Select((g, index) => new RecommendedGuideResult(
+                                g.UserId, g.FullName, g.ProfileImageUrl, g.BaseRate, g.YearsOfExperience, g.IsSuperGuide,
+                                g.AverageRating, g.ReviewCount, g.Views, 1.0 - (index * 0.05), "👑 AI Recommended Guide"
+                            )).ToList();
+                    }
+
+                    // Enrich Packages
+                    List<RecommendedPackageResult> packageResults = new();
+                    if (allRecs.Packages.Any())
+                    {
+                        var packageIds = allRecs.Packages.Select(i => Guid.Parse(i.PackageId)).ToHashSet();
+                        var candidates = await repository.GetCandidatePackagesAsync(cancellationToken);
+                        packageResults = candidates
+                            .Where(p => packageIds.Contains(p.Id))
+                            .Select((p, index) => new RecommendedPackageResult(
+                                p.Id, p.Title, p.AdultPrice, p.DurationHours, p.MainImageUrl, p.TourTypes.ToString(),
+                                p.Views, 1.0 - (index * 0.05), "✨ Recommended by AI"
+                            )).ToList();
+                    }
+
+                    return new AllRecommendationsResult(housingResults, guideResults, packageResults);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to fetch combined recommendations from Python recommender, falling back to local scoring");
+        }
+
+        // Fallback: fetch separately
+        var packages = await GetPersonalizedAsync(userId, count, cancellationToken);
+        var units = await GetPersonalizedUnitsAsync(userId, count, cancellationToken);
+        var guides = await GetPersonalizedGuidesAsync(userId, count, cancellationToken);
+
+        return new AllRecommendationsResult(units, guides, packages);
+    }
+
+    public async Task<List<RecommendedPackageResult>> GetPackagesSeeAllAsync(
+        Guid userId, int page, int size, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Generating see-all package recommendations for user {UserId}, page {Page}", userId, page);
+        try
+        {
+            var baseUrl = settings.Value.BaseUrl;
+            var url = $"{baseUrl}/v2/recommendations/{userId}/packages/see-all?page={page}&size={size}";
+            var response = await httpClient.GetAsync(url, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                var items = await response.Content.ReadFromJsonAsync<List<PythonPackageItem>>(cancellationToken: cancellationToken);
+                if (items != null && items.Any())
+                {
+                    var packageIds = items.Select(i => Guid.Parse(i.PackageId)).ToHashSet();
+                    var candidates = await repository.GetCandidatePackagesAsync(cancellationToken);
+                    
+                    return candidates
+                        .Where(p => packageIds.Contains(p.Id))
+                        .Select((p, index) => new RecommendedPackageResult(
+                            p.Id, p.Title, p.AdultPrice, p.DurationHours, p.MainImageUrl, p.TourTypes.ToString(),
+                            p.Views, 1.0 - (((page - 1) * size + index) * 0.02), "✨ Recommended by AI"
+                        )).ToList();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to fetch see-all packages from Python recommender, falling back to local pagination");
+        }
+
+        var allPackages = await GetPersonalizedAsync(userId, page * size, cancellationToken);
+        return allPackages.Skip((page - 1) * size).Take(size).ToList();
+    }
+
+    public async Task<List<RecommendedUnitResult>> GetUnitsSeeAllAsync(
+        Guid userId, int page, int size, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Generating see-all housing recommendations for user {UserId}, page {Page}", userId, page);
+        try
+        {
+            var baseUrl = settings.Value.BaseUrl;
+            var url = $"{baseUrl}/v2/recommendations/{userId}/housing/see-all?page={page}&size={size}";
+            var response = await httpClient.GetAsync(url, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                var items = await response.Content.ReadFromJsonAsync<List<PythonHousingItem>>(cancellationToken: cancellationToken);
+                if (items != null && items.Any())
+                {
+                    var unitIds = items.Select(i => Guid.Parse(i.UnitId)).ToHashSet();
+                    var candidates = await repository.GetCandidateUnitsAsync(cancellationToken);
+                    
+                    return candidates
+                        .Where(u => unitIds.Contains(u.Id))
+                        .Select((u, index) => new RecommendedUnitResult(
+                           u.Id, u.Title, u.PricePerNight, u.MainImageUrl, u.AddressDetails, u.Rating, u.Views,
+                           1.0 - (((page - 1) * size + index) * 0.02), "🏨 Stay recommended by AI"
+                        )).ToList();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to fetch see-all units from Python recommender, falling back to local pagination");
+        }
+
+        var allUnits = await GetPersonalizedUnitsAsync(userId, page * size, cancellationToken);
+        return allUnits.Skip((page - 1) * size).Take(size).ToList();
+    }
+
+    public async Task<List<RecommendedGuideResult>> GetGuidesSeeAllAsync(
+        Guid userId, int page, int size, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Generating see-all guide recommendations for user {UserId}, page {Page}", userId, page);
+        try
+        {
+            var baseUrl = settings.Value.BaseUrl;
+            var url = $"{baseUrl}/v2/recommendations/{userId}/guides/see-all?page={page}&size={size}";
+            var response = await httpClient.GetAsync(url, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                var items = await response.Content.ReadFromJsonAsync<List<PythonGuideItem>>(cancellationToken: cancellationToken);
+                if (items != null && items.Any())
+                {
+                    var guideIds = items.Select(i => Guid.Parse(i.GuideId)).ToHashSet();
+                    var candidates = await repository.GetCandidateGuidesAsync(cancellationToken);
+                    
+                    return candidates
+                        .Where(g => guideIds.Contains(g.UserId))
+                        .Select((g, index) => new RecommendedGuideResult(
+                           g.UserId, g.FullName, g.ProfileImageUrl, g.BaseRate, g.YearsOfExperience, g.IsSuperGuide,
+                           g.AverageRating, g.ReviewCount, g.Views, 1.0 - (((page - 1) * size + index) * 0.02), "👑 AI Recommended Guide"
+                        )).ToList();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to fetch see-all guides from Python recommender, falling back to local pagination");
+        }
+
+        var allGuides = await GetPersonalizedGuidesAsync(userId, page * size, cancellationToken);
+        return allGuides.Skip((page - 1) * size).Take(size).ToList();
+    }
+
+    public async Task<List<RecommendedUnitResult>> GetSimilarUnitsAsync(
+        Guid unitId, int count, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Generating similar housing recommendations for Unit {UnitId}", unitId);
+        try
+        {
+            var baseUrl = settings.Value.BaseUrl;
+            var url = $"{baseUrl}/v2/similar/housing/{unitId}?size={count}";
+            var response = await httpClient.GetAsync(url, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                var items = await response.Content.ReadFromJsonAsync<List<PythonHousingItem>>(cancellationToken: cancellationToken);
+                if (items != null && items.Any())
+                {
+                    var unitIds = items.Select(i => Guid.Parse(i.UnitId)).ToHashSet();
+                    var candidates = await repository.GetCandidateUnitsAsync(cancellationToken);
+                    
+                    return candidates
+                        .Where(u => unitIds.Contains(u.Id))
+                        .Select((u, index) => new RecommendedUnitResult(
+                            u.Id, u.Title, u.PricePerNight, u.MainImageUrl, u.AddressDetails, u.Rating, u.Views,
+                            1.0 - (index * 0.05), "🏨 Similar stay"
+                        )).ToList();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to fetch similar units from Python recommender, falling back to local similarity");
+        }
+
+        var candidatesFallback = await repository.GetCandidateUnitsAsync(cancellationToken);
+        var source = candidatesFallback.FirstOrDefault(u => u.Id == unitId);
+        if (source == null)
+        {
+            return candidatesFallback
+                .Where(u => u.Id != unitId)
+                .OrderByDescending(u => u.Rating)
+                .Take(count)
+                .Select((u, idx) => new RecommendedUnitResult(u.Id, u.Title, u.PricePerNight, u.MainImageUrl, u.AddressDetails, u.Rating, u.Views, 1.0 - (idx * 0.05), "🏨 Recommended stay"))
+                .ToList();
+        }
+
+        return candidatesFallback
+            .Where(u => u.Id != unitId)
+            .Select(u => {
+                double score = 0.0;
+                if (u.LocationId == source.LocationId) score += 0.5;
+                double priceDiff = (double)Math.Abs(u.PricePerNight - source.PricePerNight);
+                double pScore = Math.Max(0.0, 1.0 - (priceDiff / (double)source.PricePerNight));
+                score += 0.5 * pScore;
+                return (Unit: u, Score: score);
+            })
+            .OrderByDescending(x => x.Score)
+            .ThenByDescending(x => x.Unit.Rating)
+            .Take(count)
+            .Select((x, idx) => new RecommendedUnitResult(
+                x.Unit.Id, x.Unit.Title, x.Unit.PricePerNight, x.Unit.MainImageUrl, x.Unit.AddressDetails, x.Unit.Rating, x.Unit.Views,
+                Math.Round(x.Score, 4), "🏨 Similar stay"
+            )).ToList();
+    }
+
+    public async Task<List<RecommendedPackageResult>> GetSimilarPackagesAsync(
+        Guid packageId, int count, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Generating similar packages for Package {PackageId}", packageId);
+        try
+        {
+            var baseUrl = settings.Value.BaseUrl;
+            var url = $"{baseUrl}/v2/similar/package/{packageId}?size={count}";
+            var response = await httpClient.GetAsync(url, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                var items = await response.Content.ReadFromJsonAsync<List<PythonPackageItem>>(cancellationToken: cancellationToken);
+                if (items != null && items.Any())
+                {
+                    var packageIds = items.Select(i => Guid.Parse(i.PackageId)).ToHashSet();
+                    var candidates = await repository.GetCandidatePackagesAsync(cancellationToken);
+                    
+                    return candidates
+                        .Where(p => packageIds.Contains(p.Id))
+                        .Select((p, index) => new RecommendedPackageResult(
+                            p.Id, p.Title, p.AdultPrice, p.DurationHours, p.MainImageUrl, p.TourTypes.ToString(),
+                            p.Views, 1.0 - (index * 0.05), "✨ Similar package"
+                        )).ToList();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to fetch similar packages from Python recommender, falling back to local similarity");
+        }
+
+        var candidatesFallback = await repository.GetCandidatePackagesAsync(cancellationToken);
+        var source = candidatesFallback.FirstOrDefault(p => p.Id == packageId);
+        if (source == null)
+        {
+            return candidatesFallback
+                .Where(p => p.Id != packageId)
+                .OrderByDescending(p => p.Views)
+                .Take(count)
+                .Select((p, idx) => new RecommendedPackageResult(p.Id, p.Title, p.AdultPrice, p.DurationHours, p.MainImageUrl, p.TourTypes.ToString(), p.Views, 1.0 - (idx * 0.05), "✨ Recommended package"))
+                .ToList();
+        }
+
+        return candidatesFallback
+            .Where(p => p.Id != packageId)
+            .Select(p => {
+                double score = 0.0;
+                var sourceTypes = DecomposeTourTypes(source.TourTypes);
+                var pTypes = DecomposeTourTypes(p.TourTypes);
+                var intersect = sourceTypes.Intersect(pTypes).Count();
+                var union = sourceTypes.Union(pTypes).Count();
+                double ttScore = union > 0 ? (double)intersect / union : 0.0;
+                score += 0.6 * ttScore;
+
+                if (source.LocationIds.Any() && p.LocationIds.Any())
+                {
+                    var locIntersect = source.LocationIds.Intersect(p.LocationIds).Count();
+                    if (locIntersect > 0) score += 0.4;
+                }
+
+                return (Package: p, Score: score);
+            })
+            .OrderByDescending(x => x.Score)
+            .ThenByDescending(x => x.Package.Views)
+            .Take(count)
+            .Select((x, idx) => new RecommendedPackageResult(
+                x.Package.Id, x.Package.Title, x.Package.AdultPrice, x.Package.DurationHours, x.Package.MainImageUrl, x.Package.TourTypes.ToString(), x.Package.Views,
+                Math.Round(x.Score, 4), "✨ Similar package"
+            )).ToList();
+    }
+
+    public async Task<List<RecommendedGuideResult>> GetSimilarGuidesAsync(
+        Guid guideId, int count, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Generating similar guides for Guide {GuideId}", guideId);
+        try
+        {
+            var baseUrl = settings.Value.BaseUrl;
+            var url = $"{baseUrl}/v2/similar/guide/{guideId}?size={count}";
+            var response = await httpClient.GetAsync(url, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                var items = await response.Content.ReadFromJsonAsync<List<PythonGuideItem>>(cancellationToken: cancellationToken);
+                if (items != null && items.Any())
+                {
+                    var guideIds = items.Select(i => Guid.Parse(i.GuideId)).ToHashSet();
+                    var candidates = await repository.GetCandidateGuidesAsync(cancellationToken);
+                    
+                    return candidates
+                       .Where(g => guideIds.Contains(g.UserId))
+                       .Select((g, index) => new RecommendedGuideResult(
+                           g.UserId, g.FullName, g.ProfileImageUrl, g.BaseRate, g.YearsOfExperience, g.IsSuperGuide,
+                           g.AverageRating, g.ReviewCount, g.Views, 1.0 - (index * 0.05), "👑 Similar guide"
+                       )).ToList();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to fetch similar guides from Python recommender, falling back to local similarity");
+        }
+
+        var candidatesFallback = await repository.GetCandidateGuidesAsync(cancellationToken);
+        var source = candidatesFallback.FirstOrDefault(g => g.UserId == guideId);
+        if (source == null)
+        {
+            return candidatesFallback
+                .Where(g => g.UserId != guideId)
+                .OrderByDescending(g => g.AverageRating)
+                .Take(count)
+                .Select((g, idx) => new RecommendedGuideResult(g.UserId, g.FullName, g.ProfileImageUrl, g.BaseRate, g.YearsOfExperience, g.IsSuperGuide, g.AverageRating, g.ReviewCount, g.Views, 1.0 - (idx * 0.05), "👑 Recommended guide"))
+                .ToList();
+        }
+
+        return candidatesFallback
+            .Where(g => g.UserId != guideId)
+            .Select(g => {
+                double score = 0.0;
+                var sourceTypes = DecomposeTourTypes(source.TourTypes);
+                var gTypes = DecomposeTourTypes(g.TourTypes);
+                var intersect = sourceTypes.Intersect(gTypes).Count();
+                var union = sourceTypes.Union(gTypes).Count();
+                double ttScore = union > 0 ? (double)intersect / union : 0.0;
+                score += 0.6 * ttScore;
+
+                if (source.BaseRate.HasValue && g.BaseRate.HasValue && source.BaseRate.Value > 0)
+                {
+                    double rateDiff = (double)Math.Abs(g.BaseRate.Value - source.BaseRate.Value);
+                    double rScore = Math.Max(0.0, 1.0 - (rateDiff / (double)source.BaseRate.Value));
+                    score += 0.4 * rScore;
+                }
+
+                return (Guide: g, Score: score);
+            })
+            .OrderByDescending(x => x.Score)
+            .ThenByDescending(x => x.Guide.AverageRating)
+            .Take(count)
+            .Select((x, idx) => new RecommendedGuideResult(
+                x.Guide.UserId, x.Guide.FullName, x.Guide.ProfileImageUrl, x.Guide.BaseRate, x.Guide.YearsOfExperience, x.Guide.IsSuperGuide, x.Guide.AverageRating, x.Guide.ReviewCount, x.Guide.Views,
+                Math.Round(x.Score, 4), "👑 Similar guide"
+            )).ToList();
+    }
+
+    public async Task<PythonRefreshResult> RefreshAsync(CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Requesting Python recommender model refresh");
+        var baseUrl = settings.Value.BaseUrl;
+        var url = $"{baseUrl}/v2/admin/refresh";
+        var response = await httpClient.PostAsync(url, null, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<PythonRefreshResult>(cancellationToken: cancellationToken);
+        return result ?? throw new InvalidOperationException("Failed to parse refresh response");
+    }
+
+    public async Task<object> EvaluateAsync(int topN, string cutoffDate, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Requesting Python recommender model evaluation");
+        var baseUrl = settings.Value.BaseUrl;
+        var url = $"{baseUrl}/v2/admin/evaluate?top_n={topN}&cutoff_date={cutoffDate}";
+        var response = await httpClient.GetAsync(url, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<object>(cancellationToken: cancellationToken);
+        return result ?? throw new InvalidOperationException("Failed to parse evaluation response");
     }
 
     private static (double Score, string Reason) ScoreGuideContentBased(
@@ -1134,5 +1794,85 @@ public class RecommendationEngine(
         }
 
         return coOccurrence;
+    }
+
+    // --- Python Recommender DTOs ---
+
+    private class PythonHousingItem
+    {
+        [JsonPropertyName("UnitId")]
+        public string UnitId { get; set; } = null!;
+
+        [JsonPropertyName("Title")]
+        public string Title { get; set; } = null!;
+
+        [JsonPropertyName("Type")]
+        public string? Type { get; set; }
+
+        [JsonPropertyName("PricePerNight")]
+        public decimal? PricePerNight { get; set; }
+
+        [JsonPropertyName("Rating")]
+        public decimal? Rating { get; set; }
+    }
+
+    private class PythonGuideItem
+    {
+        [JsonPropertyName("GuideId")]
+        public string GuideId { get; set; } = null!;
+
+        [JsonPropertyName("BaseRate")]
+        public decimal? BaseRate { get; set; }
+
+        [JsonPropertyName("PricingUnit")]
+        public string? PricingUnit { get; set; }
+
+        [JsonPropertyName("ResponseRate")]
+        public decimal? ResponseRate { get; set; }
+
+        [JsonPropertyName("TourTypes")]
+        public string? TourTypes { get; set; }
+    }
+
+    private class PythonPackageItem
+    {
+        [JsonPropertyName("PackageId")]
+        public string PackageId { get; set; } = null!;
+
+        [JsonPropertyName("Title")]
+        public string Title { get; set; } = null!;
+
+        [JsonPropertyName("Description")]
+        public string? Description { get; set; }
+
+        [JsonPropertyName("TourType")]
+        public string? TourType { get; set; }
+    }
+
+    private class PythonTrendingResponse
+    {
+        [JsonPropertyName("housing")]
+        public List<PythonHousingItem> Housing { get; set; } = new();
+
+        [JsonPropertyName("guides")]
+        public List<PythonGuideItem> Guides { get; set; } = new();
+
+        [JsonPropertyName("packages")]
+        public List<PythonPackageItem> Packages { get; set; } = new();
+    }
+
+    private class PythonAllRecommendationsResponse
+    {
+        [JsonPropertyName("user_id")]
+        public string UserId { get; set; } = null!;
+
+        [JsonPropertyName("housing")]
+        public List<PythonHousingItem> Housing { get; set; } = new();
+
+        [JsonPropertyName("guides")]
+        public List<PythonGuideItem> Guides { get; set; } = new();
+
+        [JsonPropertyName("packages")]
+        public List<PythonPackageItem> Packages { get; set; } = new();
     }
 }

@@ -1,30 +1,66 @@
-﻿namespace Fayora.Contracts.TourGuideModule.GetPackagePreview
+using Fayora.Contracts.TourGuideModule.GetPackageDetails;
+
+namespace Fayora.Contracts.TourGuideModule.GetPackagePreview
 {
     public record PackagePreviewResponse(
         string Title,
         string Description,
         decimal AdultPrice,
         decimal ChildPrice,
+        decimal DiscountedAdultPrice,
+        decimal DiscountedChildPrice,
         int DurationHours,
+        int NumOfDays,
+        int NumOfNights,
         string MainImageUrl,
         List<string> ImageUrls,
         List<int> IncludedItemIds,
         List<int>? ExcludedItemIds,
         List<PackageActivityResponse> Activities,
+        List<PackageNightResponse> Nights,
         List<int> LocationIds,
-        GeoPointResponse MeetingPoint,
-        GuideInfoResponse GuideInfo
+        List<PackageMeetingPointResponse> MeetingPoints,
+        GuideInfoResponse GuideInfo,
+        string TourType,
+        string TransportType,
+        string CancellationPolicy,
+        int MaxCapacity,
+        string? ArrivalNote,
+        string? VideoURL,
+        string? GuestRequirements,
+        List<OptionalActivityResponse>? OptionalActivities
     );
 
     public record PackageActivityResponse(
         string Description,
         TimeOnly ActivityTime,
-        bool IsOptional
+        bool IsOptional,
+        int? LocationId,
+        decimal? Latitude,
+        decimal? Longitude
     );
+
+    public record PackageNightResponse(
+    Guid Id,
+    int NightNumber,
+    DateOnly NightDate,
+    Guid? HousingUnitId,
+    Guid? PackageAccommodationId
+);
 
     public record GeoPointResponse(
         decimal Latitude,
         decimal Longitude
+    );
+
+    public record PackageMeetingPointResponse(
+        Guid Id,
+        string? MeetingPointName,
+        decimal Latitude,
+        decimal Longitude,
+        TimeOnly Time,
+        decimal Price,
+        string? Description
     );
 
     public record GuideInfoResponse(

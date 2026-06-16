@@ -1,5 +1,7 @@
 using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
 using Fayora.Application.Features.AdminModule.Commands.CancelBooking;
+using Fayora.Application.Features.AdminModule.Commands.RefreshRecommendations;
+using Fayora.Application.Features.AdminModule.Queries.EvaluateRecommendations;
 using Fayora.Application.Features.AdminModule.Commands.CancelPushCampaign;
 using Fayora.Application.Features.AdminModule.Commands.ChangeUserStatus;
 using Fayora.Application.Features.AdminModule.Commands.CreateCity;
@@ -8,6 +10,7 @@ using Fayora.Application.Features.AdminModule.Commands.CreateMasterInterest;
 using Fayora.Application.Features.AdminModule.Commands.CreatePushCampaign;
 using Fayora.Application.Features.AdminModule.Commands.CreateUser;
 using Fayora.Application.Features.AdminModule.Commands.DeleteLocation;
+using Fayora.Application.Features.AdminModule.Commands.DeleteMasterInterest;
 using Fayora.Application.Features.AdminModule.Commands.RefundTransaction;
 using Fayora.Application.Features.AdminModule.Commands.SendTestNotification;
 using Fayora.Application.Features.AdminModule.Commands.ToggleMasterInterest;
@@ -58,10 +61,27 @@ using Fayora.Contracts.AdminModule.UpdateLocation;
 using Fayora.Contracts.AdminModule.UpdateTourPackage;
 using Fayora.Contracts.AdminModule.UpdateUser;
 using Fayora.Contracts.AdminModule.VerifyContent;
+using Fayora.Contracts.AdminModule.GetUsers;
 using Fayora.Domain.Enums.IdentityModule;
 using Fayora.Domain.Enums.SharedModule;
+using Fayora.Application.Features.AdminModule.Queries.GetDetailedAccommodation;
+using Fayora.Application.Features.AdminModule.Queries.GetUnitOwnerVerificationDetails;
+using Fayora.Application.Features.AdminModule.Queries.GetProviders;
+using Fayora.Application.Features.AdminModule.Commands.DeleteAccommodation;
+using Fayora.Application.Features.AdminModule.Commands.DeleteTourPackage;
+using Fayora.Application.Features.AdminModule.Queries.GetDetailedCompany;
+using Fayora.Application.Features.AdminModule.Queries.GetDetailedGuide;
+using Fayora.Application.Features.AdminModule.Queries.GetDetailedLocation;
+using Fayora.Application.Features.AdminModule.Commands.UpdateCompanyDetails;
+using Fayora.Application.Features.AdminModule.Commands.UpdateGuideDetails;
+using Fayora.Application.Features.AdminModule.Commands.DeleteCompany;
+using Fayora.Application.Features.AdminModule.Commands.DeleteGuide;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Fayora.Application.Features.ReviewModule.Commands.AdminDeleteReview;
+using Fayora.Application.Features.ReviewModule.Commands.ResolveReport;
+using Fayora.Application.Features.ReviewModule.Queries.GetPendingReports;
 
 namespace Fayora.Api.Controllers;
 
@@ -492,6 +512,14 @@ public class AdminController(ISender sender) : ApiController
         return result.Match(_ => NoContent(), Problem);
     }
 
+    [HttpDelete("master-interests/{id:int}")]
+    public async Task<IActionResult> DeleteMasterInterest(int id, CancellationToken cancellationToken)
+    {
+        var command = new DeleteMasterInterestCommand(id);
+        var result = await sender.Send(command, cancellationToken);
+        return result.Match(_ => NoContent(), Problem);
+    }
+
     // ==================== Chatbot Monitoring ====================
 
     [HttpGet("chatbot/sessions")]
@@ -636,7 +664,13 @@ public class AdminController(ISender sender) : ApiController
             request.Body,
             request.ImageUrl,
             request.TargetAudience,
-            request.ScheduledAt);
+            request.ScheduledAt,
+            request.IsRecurring,
+            request.ScheduleType,
+            request.DaysOfWeek,
+            request.DayOfMonth,
+            request.PreferredTime,
+            request.CronExpression);
 
         var result = await sender.Send(command, ct);
         return result.Match(
@@ -660,5 +694,161 @@ public class AdminController(ISender sender) : ApiController
         var command = new SendTestNotificationCommand(request.Token);
         var result = await sender.Send(command, ct);
         return result.Match(_ => Ok(new { message = "Test notification sent successfully." }), Problem);
+    }
+
+    [HttpPost("recommendations/refresh")]
+    public async Task<IActionResult> RefreshRecommendations(CancellationToken cancellationToken)
+    {
+        var command = new RefreshRecommendationsCommand();
+        var result = await sender.Send(command, cancellationToken);
+        return result.Match(Ok, Problem);
+    }
+
+    [HttpGet("recommendations/evaluate")]
+    public async Task<IActionResult> EvaluateRecommendations(
+        [FromQuery] int topN = 10,
+        [FromQuery] string cutoffDate = "2025-01-01",
+        CancellationToken cancellationToken = default)
+    {
+        var query = new EvaluateRecommendationsQuery(topN, cutoffDate);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(Ok, Problem);
+    }
+
+    // ==================== Review & Report Management ====================
+
+    [HttpDelete("reviews/{reviewId:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AdminDeleteReviewAsync(Guid reviewId, CancellationToken cancellationToken)
+    {
+        var command = new AdminDeleteReviewCommand(reviewId);
+        var result = await sender.Send(command, cancellationToken);
+        return result.Match(_ => NoContent(), Problem);
+    }
+
+    [HttpGet("reviews/reports")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetPendingReportsAsync(CancellationToken cancellationToken)
+    {
+        var query = new GetPendingReportsQuery();
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(Ok, Problem);
+    }
+
+    [HttpGet("accommodations/{id:guid}")]
+    public async Task<IActionResult> GetAccommodationDetails(Guid id, CancellationToken ct)
+    {
+        var query = new GetDetailedAccommodationQuery(id);
+        var result = await sender.Send(query, ct);
+        return result.Match(Ok, Problem);
+    }
+
+    [HttpDelete("accommodations/{id:guid}")]
+    public async Task<IActionResult> DeleteAccommodation(Guid id, CancellationToken ct)
+    {
+        var command = new DeleteAccommodationCommand(id);
+        var result = await sender.Send(command, ct);
+        return result.Match(_ => NoContent(), Problem);
+    }
+
+    [HttpDelete("tour-packages/{id:guid}")]
+    public async Task<IActionResult> DeleteTourPackage(Guid id, CancellationToken ct)
+    {
+        var command = new DeleteTourPackageCommand(id);
+        var result = await sender.Send(command, ct);
+        return result.Match(_ => NoContent(), Problem);
+    }
+
+    [HttpGet("verification-queue/unit-owner/{id:guid}")]
+    public async Task<IActionResult> GetUnitOwnerVerificationDetails(Guid id, CancellationToken ct)
+    {
+        var query = new GetUnitOwnerVerificationDetailsQuery(id);
+        var result = await sender.Send(query, ct);
+        return result.Match(Ok, Problem);
+    }
+
+    [HttpGet("providers/{type}")]
+    public async Task<IActionResult> GetProviders(
+        string type,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? searchQuery = null,
+        CancellationToken ct = default)
+    {
+        if (!type.Equals("guides", StringComparison.OrdinalIgnoreCase) &&
+            !type.Equals("companies", StringComparison.OrdinalIgnoreCase) &&
+            !type.Equals("owners", StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest("Invalid provider type. Valid values: guides, companies, owners.");
+        }
+
+        var query = new GetProvidersQuery(type, pageNumber, pageSize, searchQuery);
+        var result = await sender.Send(query, ct);
+        return result.Match(Ok, Problem);
+    }
+
+    [HttpGet("companies/{id:guid}")]
+    public async Task<IActionResult> GetCompanyDetails(Guid id, CancellationToken ct)
+    {
+        var query = new GetDetailedCompanyQuery(id);
+        var result = await sender.Send(query, ct);
+        return result.Match(Ok, Problem);
+    }
+
+    [HttpPut("companies/{id:guid}")]
+    public async Task<IActionResult> UpdateCompanyDetails(Guid id, [FromBody] UpdateCompanyDetailsRequest request, CancellationToken ct)
+    {
+        var command = new UpdateCompanyDetailsCommand(id, request);
+        var result = await sender.Send(command, ct);
+        return result.Match(_ => NoContent(), Problem);
+    }
+
+    [HttpDelete("companies/{id:guid}")]
+    public async Task<IActionResult> DeleteCompany(Guid id, CancellationToken ct)
+    {
+        var command = new DeleteCompanyCommand(id);
+        var result = await sender.Send(command, ct);
+        return result.Match(_ => NoContent(), Problem);
+    }
+
+    [HttpGet("guides/{id:guid}")]
+    public async Task<IActionResult> GetGuideDetails(Guid id, CancellationToken ct)
+    {
+        var query = new GetDetailedGuideQuery(id);
+        var result = await sender.Send(query, ct);
+        return result.Match(Ok, Problem);
+    }
+
+    [HttpPut("guides/{id:guid}")]
+    public async Task<IActionResult> UpdateGuideDetails(Guid id, [FromBody] UpdateGuideDetailsRequest request, CancellationToken ct)
+    {
+        var command = new UpdateGuideDetailsCommand(id, request);
+        var result = await sender.Send(command, ct);
+        return result.Match(_ => NoContent(), Problem);
+    }
+
+    [HttpDelete("guides/{id:guid}")]
+    public async Task<IActionResult> DeleteGuide(Guid id, CancellationToken ct)
+    {
+        var command = new DeleteGuideCommand(id);
+        var result = await sender.Send(command, ct);
+        return result.Match(_ => NoContent(), Problem);
+    }
+
+    [HttpGet("locations/{id:int}")]
+    public async Task<IActionResult> GetLocationDetails(int id, CancellationToken ct)
+    {
+        var query = new GetDetailedLocationQuery(id);
+        var result = await sender.Send(query, ct);
+        return result.Match(Ok, Problem);
+    }
+
+    [HttpPost("reviews/reports/{reportId:guid}/resolve")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> ResolveReportAsync(Guid reportId, CancellationToken cancellationToken)
+    {
+        var command = new ResolveReportCommand(reportId);
+        var result = await sender.Send(command, cancellationToken);
+        return result.Match(_ => NoContent(), Problem);
     }
 }

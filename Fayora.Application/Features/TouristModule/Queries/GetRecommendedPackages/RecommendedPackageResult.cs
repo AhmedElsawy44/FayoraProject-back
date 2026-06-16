@@ -13,4 +13,5 @@ public record RecommendedPackageResult(
     string TourTypes,
     int Views,
     double RecommendationScore,
-    string RecommendationReason);
+    string RecommendationReason,
+    decimal DiscountedAdultPrice = 0);

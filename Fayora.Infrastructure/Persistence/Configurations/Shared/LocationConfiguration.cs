@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.SharedModule;
+using Fayora.Domain.Entities.SharedModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -47,7 +47,7 @@ namespace Fayora.Infrastructure.Persistence.Configurations.Shared
                  .HasColumnName("ImageIds")
                  .HasConversion(
                  v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                 v => JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions?)null) ?? new List<Guid>())
+                 v => string.IsNullOrWhiteSpace(v) ? new List<Guid>() : (JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions?)null) ?? new List<Guid>()))
                  .Metadata.SetValueComparer(new ValueComparer<List<Guid>>(
                  (c1, c2) => c1!.SequenceEqual(c2!),
                  c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),

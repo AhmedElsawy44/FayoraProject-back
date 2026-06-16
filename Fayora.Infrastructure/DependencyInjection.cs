@@ -4,12 +4,14 @@ using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
 using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Common.Interfaces.Persistences.ChatModule;
+using Fayora.Application.Common.Interfaces.Persistences.ReviewModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Persistences.NotificationModule;
 using Fayora.Application.Common.Interfaces.Persistences.RecommendationModule;
 using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Common.Interfaces.Persistences.TouristModule;
+using Fayora.Application.Common.Interfaces.Persistences.ExploreModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Interfaces.Services.BookingModule;
 using Fayora.Application.Common.Interfaces.Services.ChatbotModule;
@@ -24,11 +26,13 @@ using Fayora.Infrastructure.Persistence.Repositories.AccommodationModule;
 using Fayora.Infrastructure.Persistence.Repositories.AdminModule;
 using Fayora.Infrastructure.Persistence.Repositories.BookingModule;
 using Fayora.Infrastructure.Persistence.Repositories.ChatModule;
+using Fayora.Infrastructure.Persistence.Repositories.ReviewModule;
 using Fayora.Infrastructure.Persistence.Repositories.GuideModule;
 using Fayora.Infrastructure.Persistence.Repositories.IdentityModule;
 using Fayora.Infrastructure.Persistence.Repositories.NotificationModule;
 using Fayora.Infrastructure.Persistence.Repositories.SharedModule;
 using Fayora.Infrastructure.Persistence.Repositories.TouristModule;
+using Fayora.Infrastructure.Persistence.Repositories.ExploreModule;
 using Fayora.Infrastructure.Services.AdminModule;
 using Fayora.Infrastructure.Services.Authentication;
 using Fayora.Infrastructure.Services.AuthModule;
@@ -76,7 +80,7 @@ public static class DependencyInjection
             options.Configuration = redisConnectionString;
         });
 
-        services.AddSingleton<IConnectionMultiplexer>(
+        services.AddSingleton<IConnectionMultiplexer>(sp =>
             ConnectionMultiplexer.Connect(redisConnectionString!)
         );
 
@@ -119,11 +123,17 @@ public static class DependencyInjection
         services.AddScoped<IPackageImageRepository, PackageImageRepository>();
         services.AddScoped<IPackageOccurrenceRepository, PackageOccurrenceRepository>();
         services.AddScoped<IGuideWeeklyScheduleRepository, GuideWeeklyScheduleRepository>();
+        services.AddScoped<IPackageAccommodationRepository, PackageAccommodationRepository>();
+        services.AddScoped<IPackageNightRepository, PackageNightRepository>();
 
         // Shared Module
         services.AddScoped<ICityRepository, CityRepository>();
         services.AddScoped<ILocationRepository, LocationRepository>();
         services.AddScoped<ILocationImageRepository, LocationImageRepository>();
+        services.AddScoped<IDiscountOfferRepository, DiscountOfferRepository>();
+
+        // Explore Module
+        services.AddScoped<IExploreRepository, ExploreRepository>();
 
         // Explore Module
         services.AddScoped<IExploreRepository, ExploreRepository>();
@@ -132,14 +142,17 @@ public static class DependencyInjection
         services.AddScoped<IChatRepository, ChatRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
 
+        // Review Module
+        services.AddScoped<IReviewRepository, ReviewRepository>();
+
         // Booking Module
         services.AddScoped<IBookingRepository, BookingRepository>();
         services.AddScoped<IPaymentTransactionRepository, PaymentTransactionRepository>();
+        services.AddScoped<IProviderPayoutRepository, ProviderPayoutRepository>();
         services.AddScoped<IQrTokenService, QrTokenService>();
 
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
         services.AddSingleton<ICacheService, CacheService>();
-
 
         return services;
     }
@@ -192,21 +205,19 @@ public static class DependencyInjection
 
         services.AddScoped<IInventoryModerationService, InventoryModerationService>();
 
-        services.AddHttpClient<IPaymentService, PaymobPaymentService>();
+        services.AddHttpClient<IPaymentService, PaymobPaymentService>(client =>
+        {
+            client.BaseAddress = new Uri("https://accept.paymob.com/api/");
+        });
 
         // Chatbot Module
-        services.Configure<GeminiSettings>(configuration.GetSection(GeminiSettings.SectionName));
-        services.Configure<OpenAISettings>(configuration.GetSection(OpenAISettings.SectionName));
         services.Configure<OpenRouterSettings>(configuration.GetSection(OpenRouterSettings.SectionName));
-        services.AddHttpClient<GeminiChatbotService>();
-        services.AddHttpClient<OpenAIChatbotService>();
         services.AddHttpClient<OpenRouterChatbotService>();
-        services.AddScoped<IChatbotServiceFactory, ChatbotServiceFactory>();
         services.AddScoped<IChatbotInteractionService, ChatbotInteractionService>();
 
         // Recommendation Module
-        services.AddScoped<IRecommendationService, RecommendationEngine>();
-
+        services.Configure<RecommendationSettings>(configuration.GetSection(RecommendationSettings.SectionName));
+        services.AddHttpClient<IRecommendationService, RecommendationEngine>();
 
         return services;
     }

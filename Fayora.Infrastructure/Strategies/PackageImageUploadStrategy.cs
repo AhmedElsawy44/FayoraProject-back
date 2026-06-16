@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Models;
 using Fayora.Application.Common.Strategies;
 using Fayora.Domain.Common.Results;
@@ -17,8 +17,8 @@ IClientContextProvider clientContextProvider)
 
     protected override UploadLimits Limits => new(
         MaxFileCountPerRequest: 10,
-        MaxFileSizeInBytes: 5 * 1024 * 1024,
-        AllowedExtensions: [".jpg", ".jpeg", ".png", ".webp"],
+        MaxFileSizeInBytes: 100 * 1024 * 1024, // 100MB to accommodate video files
+        AllowedExtensions: [".jpg", ".jpeg", ".png", ".webp", ".mp4", ".mov", ".avi", ".mkv", ".webm"],
         MaxFilesPerDay: 40
     );
 

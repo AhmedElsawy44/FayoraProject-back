@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Common.Results;
 
 namespace Fayora.Application.Features.TourGuideModule.Common;
 
@@ -92,5 +92,25 @@ public static class TourGuideErrors
     public static readonly Error GuideRateNotSet = Error.Validation(
         "TourGuide.GuideRateNotSet",
         "The tour guide has not set their rate yet."
+    );
+
+    public static readonly Error PackageNotAvailable = Error.Validation(
+        "TourGuide.PackageNotAvailable",
+        "The package is not available for booking."
+    );
+
+    public static readonly Error OccurrenceNotFound = Error.NotFound(
+        "TourGuide.OccurrenceNotFound",
+        "The specified occurrence was not found for this package."
+    );
+
+    public static readonly Error OccurrenceHasActiveBookings = Error.Conflict(
+        "TourGuide.OccurrenceHasActiveBookings",
+        "Cannot modify this occurrence because it has active bookings."
+    );
+
+    public static readonly Error DailyPackageLimitExceeded = Error.Validation(
+        "TourGuide.DailyPackageLimitExceeded",
+        "A tour guide can only create one package per day."
     );
 }

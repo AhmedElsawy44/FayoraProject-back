@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.GuideModule;
+using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Enums.TourGuideModule;
 
 namespace Fayora.Application.Common.Interfaces.Persistences.GuideModule;
@@ -21,6 +21,13 @@ public interface IPackageRepository
     Guid packageId,
     CancellationToken cancellationToken = default);
 
+    void AddPackageActivities(IEnumerable<PackageActivity> activities);
+    void RemovePackageActivities(IEnumerable<PackageActivity> activities);
+
+    void AddPackageMeetingPoints(IEnumerable<PackageMeetingPoint> meetingPoints);
+    void RemovePackageMeetingPoints(IEnumerable<PackageMeetingPoint> meetingPoints);
+    Task<List<PackageMeetingPoint>> GetMeetingPointsByPackageIdAsync(Guid packageId, CancellationToken cancellationToken = default);
+    Task<List<PackageMeetingPoint>> GetMeetingPointsByPackageIdsAsync(List<Guid> packageIds, CancellationToken cancellationToken = default);
 
     //for tourist's point of view
     Task<GuidePackage?> GetPackageWithOccurrencesAsync(
@@ -30,10 +37,13 @@ public interface IPackageRepository
 
     public record PackageQueryOptions(
         bool ReadOnly = true,
-        bool IncludeOccurrences = false
+        bool IncludeOccurrences = false,
+        bool IncludeMeetingPoints = false
     );
 
     Task<List<GuidePackage>> GetListByIdsAsync(List<Guid> packageIds, CancellationToken cancellationToken);
+
+    Task<bool> HasPackageCreatedTodayAsync(Guid userId, CancellationToken cancellationToken);
 
     Task<(List<GuidePackage> Items, int TotalCount)> GetActivePackagesAsync(
     string? search,

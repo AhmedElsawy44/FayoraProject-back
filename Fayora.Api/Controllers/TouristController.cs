@@ -8,6 +8,9 @@ using Fayora.Application.Features.TouristModule.Queries.GetInterests;
 using Fayora.Application.Features.TouristModule.Queries.GetLocationDetails;
 using Fayora.Application.Features.TouristModule.Queries.GetRecommendedLocations;
 using Fayora.Application.Features.TouristModule.Queries.GetRecommendedPackages;
+using Fayora.Application.Features.TouristModule.Queries.GetAllRecommendations;
+using Fayora.Application.Features.TouristModule.Queries.GetRecommendedPackagesSeeAll;
+using Fayora.Application.Features.TouristModule.Queries.GetSimilarPackages;
 using Fayora.Contracts.AdminModule.CreateLocation;
 using Fayora.Contracts.TouristModule;
 using Fayora.Domain.Enums.SharedModule;
@@ -196,5 +199,42 @@ public class TouristController(ISender sender, IMapper mapper) : ApiController
             errors => Problem()
         );
     }
-}
 
+    [HttpGet("recommended/all")]
+    public async Task<IActionResult> GetAllRecommendations(
+        [FromQuery] int count = 5,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetAllRecommendationsQuery(count);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(value),
+            Problem);
+    }
+
+    [HttpGet("recommended-packages/see-all")]
+    public async Task<IActionResult> GetRecommendedPackagesSeeAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int size = 10,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetRecommendedPackagesSeeAllQuery(page, size);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(value),
+            Problem);
+    }
+
+    [HttpGet("packages/{id:guid}/similar")]
+    public async Task<IActionResult> GetSimilarPackages(
+        [FromRoute] Guid id,
+        [FromQuery] int count = 5,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetSimilarPackagesQuery(id, count);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(value),
+            Problem);
+    }
+}

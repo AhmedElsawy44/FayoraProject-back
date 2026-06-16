@@ -3,14 +3,18 @@ using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Interfaces.Services.BookingModule;
 using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.Booking;
+using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Enums.BookingModule;
+using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
+using MediatR;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.ITourGuideRepository;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
@@ -23,6 +27,7 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking
         IBookingRepository bookingRepository,
         IPaymentTransactionRepository paymentTransactionRepository,
         ICalendarBlockRepository calendarBlockRepository,
+        IDiscountOfferRepository discountOfferRepository,
         IClientContextProvider clientContextProvider,
         IPaymentService paymentService,
         IUnitOfWork unitOfWork
@@ -83,6 +88,28 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking
             decimal serviceFee = totalPrice * 0.2m; //a 20% service fee (20% عمولة الشركه)
             decimal payoutAmount = totalPrice - serviceFee;
 
+
+            Guid? appliedOfferId = null;
+            decimal discountAmount = 0;
+
+            var activeOffers = await discountOfferRepository.GetActiveByTargetAsync(
+                guide.UserId, OfferTargetType.TourGuide, cancellationToken);
+
+            var offer = activeOffers.FirstOrDefault();
+            if (offer is not null)
+            {
+                var discountResult = offer.ApplyTo(totalPrice);
+                if (!discountResult.IsError)
+                {
+                    discountAmount = totalPrice - discountResult.Value;
+                    appliedOfferId = offer.Id;
+
+                    var discountedBasePrice = discountResult.Value;
+                    serviceFee = discountedBasePrice * 0.2m;
+                    payoutAmount = discountedBasePrice - serviceFee;
+                }
+            }
+
             // create the booking
             var booking = Booking.Create(
                 userId,
@@ -92,11 +119,14 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking
                 totalPrice,
                 serviceFee,
                 payoutAmount,
-                request.Adults + request.Children,
+                request.Adults,
+                request.Children,
                 guide.CancellationPolicy,
                 startDateTime,
                 endDateTime,
-                request.IsCashOnArrival);
+                request.IsCashOnArrival,
+                appliedOfferId,
+                discountAmount);
             if (booking.IsError) return booking.Errors;
 
             // CalendarBlock for tour guide booking
@@ -140,7 +170,7 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking
             paymentTransactionRepository.AddPaymentTransaction(new PaymentTransaction(
                 booking.Value.Id,
                 paymentResult.Value.GatewayOrderId,
-                totalPrice,
+                amountToPay, 
                 request.PaymentMethodType));
             await unitOfWork.CommitChangesAsync(cancellationToken);
 

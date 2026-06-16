@@ -15,4 +15,5 @@ public record RecommendedGuideResult(
     int ReviewCount,
     int Views,
     double RecommendationScore,
-    string RecommendationReason);
+    string RecommendationReason,
+    decimal? DiscountedBaseRate = null);

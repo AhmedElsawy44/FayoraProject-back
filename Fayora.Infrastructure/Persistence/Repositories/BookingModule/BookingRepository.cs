@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
+using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Features.AdminModule.Queries.GetFinancialStats;
 using Fayora.Application.Features.AdminModule.Queries.GetTourGuidesStat;
 using Fayora.Application.Features.AdminModule.Queries.GetTravelAgenciesStats;
@@ -80,6 +80,31 @@ public class BookingRepository(ApplicationDbContext context) : IBookingRepositor
     public void RemoveBooking(Booking booking)
     {
         context.Bookings.Remove(booking);
+    }
+
+    public Task<bool> HasBookingsForPackageAsync(Guid packageId, CancellationToken cancellationToken = default)
+    {
+        return context.Bookings
+            .AsNoTracking()
+            .AnyAsync(
+                b => b.ServiceId == packageId
+                     && b.BookingStatus != BookingStatus.Cancelled,
+                cancellationToken);
+    }
+
+    public Task<bool> HasBookingsForOccurrenceAsync(Guid packageId, DateOnly date, CancellationToken cancellationToken = default)
+    {
+        var startOfDay = date.ToDateTime(TimeOnly.MinValue);
+        var endOfDay = date.ToDateTime(TimeOnly.MaxValue);
+
+        return context.Bookings
+            .AsNoTracking()
+            .AnyAsync(
+                b => b.ServiceId == packageId
+                     && b.BookingStatus != BookingStatus.Cancelled
+                     && b.StartDate >= startOfDay
+                     && b.StartDate <= endOfDay,
+                cancellationToken);
     }
 
     public async Task<FinancialSummary> GetFinancialSummaryAsync(
@@ -325,12 +350,51 @@ public class BookingRepository(ApplicationDbContext context) : IBookingRepositor
             .Where(b => b.ServiceType == ServiceType.Accommodation
                      && (b.BookingStatus == BookingStatus.Completed)
                      && b.CreatedAt >= firstDayOfCurrentMonth)
-            .Select(b => b.SeatsCount)
+            .Select(b => b.ServiceId)
             .Distinct()
             .CountAsync(cancellationToken);
 
         double occupancyRate = ((double)bookedUnitsCount / totalHousingUnits) * 100;
 
         return Math.Round(occupancyRate, 2);
+    }
+
+    public Task<List<Booking>> GetUnpaidCompletedBookingsAsync(Guid providerId, CancellationToken cancellationToken = default)
+    {
+        return context.Bookings
+            .Where(b => b.ServiceProviderId == providerId &&
+                        b.BookingStatus == BookingStatus.Completed &&
+                        b.PaymentStatus == PaymentTransactionStatus.Paid &&
+                        !b.IsPayoutProcessed)
+            .ToListAsync(cancellationToken);
+    }
+
+    public Task<List<Booking>> GetEligibleBookingsForAutomaticPayoutAsync(DateTime thresholdDate, CancellationToken cancellationToken = default)
+    {
+        return context.Bookings
+            .Where(b => b.BookingStatus == BookingStatus.Completed &&
+                        b.PaymentStatus == PaymentTransactionStatus.Paid &&
+                        !b.IsPayoutProcessed &&
+                        b.EndDate <= thresholdDate)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<Booking>> GetBookingsForOccurrenceAsync(
+        Guid packageId,
+        DateOnly date,
+        CancellationToken cancellationToken = default)
+    {
+        var startOfDay = date.ToDateTime(TimeOnly.MinValue);
+        var endOfDay = date.ToDateTime(TimeOnly.MaxValue);
+
+        return await context.Bookings
+            .AsNoTracking()
+            .Where(b =>
+                b.ServiceId == packageId &&
+                b.ServiceType == ServiceType.GuidePackage &&
+                b.BookingStatus != BookingStatus.Cancelled &&
+                b.StartDate >= startOfDay &&
+                b.StartDate <= endOfDay)
+            .ToListAsync(cancellationToken);
     }
 }

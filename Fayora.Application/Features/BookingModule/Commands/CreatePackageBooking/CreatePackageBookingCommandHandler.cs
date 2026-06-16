@@ -2,6 +2,7 @@ using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Interfaces.Services.BookingModule;
 using Fayora.Application.Features.AuthModule.Common;
@@ -10,6 +11,7 @@ using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.Booking;
 using Fayora.Domain.Enums.BookingModule;
+using Fayora.Domain.Enums.SharedModule;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.IPackageRepository;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
@@ -20,6 +22,7 @@ public class CreatePackageBookingCommandHandler(
     IBookingRepository bookingRepository,
     IPackageRepository packageRepository,
     IPackageOccurrenceRepository packageOccurrenceRepository,
+    IDiscountOfferRepository discountOfferRepository,
     IPaymentTransactionRepository paymentTransactionRepository,
     IClientContextProvider clientContextProvider,
     IPaymentService paymentService,
@@ -33,8 +36,17 @@ public class CreatePackageBookingCommandHandler(
         var user = await userRepository.GetUserByIdAsync(userId, new UserQueryOptions { IsReadOnly = true }, cancellationToken);
         if (user is null) return AuthErrors.UserNotFound;
 
-        var package = await packageRepository.GetPackageByIdAsync(request.PackageId, new PackageQueryOptions { ReadOnly = true }, cancellationToken);
+        var package = await packageRepository.GetPackageByIdAsync(
+            request.PackageId,
+            new PackageQueryOptions { ReadOnly = true, IncludeMeetingPoints = true },
+            cancellationToken);
         if (package is null) return TourGuideErrors.PackageNotFound;
+
+        if (package.PackageStatus != Fayora.Domain.Enums.TourGuideModule.ItemStatus.Active)
+            return TourGuideErrors.PackageNotAvailable;
+
+        if (package.MeetingPoints.Any() && request.SelectedMeetingPointId is null)
+            return BookingErrors.MeetingPointRequired;
 
         var occurrence = await
             packageOccurrenceRepository.GetOccurrenceByPackageIdAndDate(request.PackageId, request.BookingDate, cancellationToken);
@@ -44,9 +56,35 @@ public class CreatePackageBookingCommandHandler(
         var reserveResult = occurrence.ReserveSeats(requiredSpots);
         if (reserveResult.IsError) return reserveResult.Errors;
 
-        var totalPrice = package.CalculateBooking(request.Adults, request.Children);
+        var totalPrice = package.CalculateBooking(request.Adults, request.Children, request.SelectedMeetingPointId!.Value, request.SelectedOptionalActivityIds);
         if (totalPrice.IsError) return totalPrice.Errors;
 
+
+        decimal serviceFee = totalPrice.Value * 0m; // = 0% service fee, can be changed later if needed
+        decimal payoutAmount = totalPrice.Value - serviceFee;
+
+
+
+        Guid? appliedOfferId = null;
+        decimal discountAmount = 0;
+
+        var activeOffers = await discountOfferRepository.GetActiveByTargetAsync(
+            package.Id, OfferTargetType.GuidePackage, cancellationToken);
+
+        var offer = activeOffers.FirstOrDefault();
+        if (offer is not null)
+        {
+            var discountResult = offer.ApplyTo(totalPrice.Value);
+            if (!discountResult.IsError)
+            {
+                discountAmount = totalPrice.Value - discountResult.Value;
+                appliedOfferId = offer.Id;
+
+                var discountedBasePrice = discountResult.Value;
+                serviceFee = discountedBasePrice * 0m;
+                payoutAmount = discountedBasePrice - serviceFee;
+            }
+        }
 
         var booking = Booking.Create(
             userId,
@@ -54,13 +92,18 @@ public class CreatePackageBookingCommandHandler(
             ServiceType.GuidePackage,
             package.Id,
             totalPrice.Value,
-            0m,
-            totalPrice.Value,
-            requiredSpots,
+            serviceFee,
+            payoutAmount,
+            request.Adults,
+            request.Children,
             package.CancellationPolicy,
             request.BookingDate.ToDateTime(TimeOnly.MinValue),
             request.BookingDate.ToDateTime(TimeOnly.MinValue).AddHours(package.DurationHours),
-            request.IsCashOnArrival);
+            request.IsCashOnArrival,
+            appliedOfferId,
+            discountAmount,
+            request.SelectedOptionalActivityIds,
+            request.SelectedMeetingPointId);
         if (booking.IsError) return booking.Errors;
 
 
@@ -94,7 +137,7 @@ public class CreatePackageBookingCommandHandler(
         paymentTransactionRepository.AddPaymentTransaction(new PaymentTransaction(
             booking.Value.Id,
             paymentResult.Value.GatewayOrderId,
-            totalPrice.Value,
+            amountToPay,
             request.PaymentMethodType));
         await unitOfWork.CommitChangesAsync(cancellationToken);
 

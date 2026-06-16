@@ -1,7 +1,8 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Features.TourGuideModule.Common;
+using Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails;
 using Fayora.Domain.Common.Results;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.IPackageRepository;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
@@ -34,6 +35,8 @@ public class GetDetailedPackageQueryHandler(
 
         var imageUrls = await packageImageRepository.GetPackageImages(request.PackageId, cancellationToken);
 
+        var meetingPoints = await packageRepository.GetMeetingPointsByPackageIdAsync(package.Id, cancellationToken);
+
         return new GetDetailedPackageResult
         (
             package.Id,
@@ -52,7 +55,14 @@ public class GetDetailedPackageQueryHandler(
             package.CancellationPolicy.ToString(),
             package.IncludedItemIds.ToList(),
             package.ExcludedItemIds.ToList(),
-            package.MeetingPoint,
+            meetingPoints.Select(mp => new PackageMeetingPointResult(
+                mp.Id,
+                mp.MeetingPointName,
+                mp.MeetingPoint.Latitude,
+                mp.MeetingPoint.Longitude,
+                mp.Time,
+                mp.Price,
+                mp.Description)).ToList(),
             package.ArrivalNote,
             package.TransportType.ToString(),
             imageUrls.Select(x => x.ImageUrl.Value).ToList()

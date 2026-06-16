@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Features.AdminModule.Queries.GetFinancialStats;
+using Fayora.Application.Features.AdminModule.Queries.GetFinancialStats;
 using Fayora.Application.Features.AdminModule.Queries.GetTourGuidesStat;
 using Fayora.Application.Features.AdminModule.Queries.GetTravelAgenciesStats;
 using Fayora.Domain.Entities.Booking;
@@ -10,6 +10,9 @@ public interface IBookingRepository
     void AddBooking(Booking booking);
     Task<Booking?> GetBookingByIdAsync(Guid bookingId, CancellationToken cancellationToken = default);
     Task<bool> HasOverlapAsync(Guid serviceId, DateTime startDateTime, DateTime endDateTime, CancellationToken cancellationToken = default);
+    Task<bool> HasBookingsForPackageAsync(Guid packageId, CancellationToken cancellationToken = default);
+
+    Task<bool> HasBookingsForOccurrenceAsync(Guid packageId, DateOnly date, CancellationToken cancellationToken = default);
 
     void RemoveBooking(Booking booking);
 
@@ -35,4 +38,11 @@ public interface IBookingRepository
     Task<CombinedGmvDto> GetCompaniesGmvAsync(CancellationToken cancellationToken);
     Task<AvgCommissionDto> GetCompaniesAvgCommissionAsync(CancellationToken cancellationToken);
     Task<double> GetLocationsAvgOccupancyAsync(CancellationToken cancellationToken = default);
+    Task<List<Booking>> GetUnpaidCompletedBookingsAsync(Guid providerId, CancellationToken cancellationToken = default);
+    Task<List<Booking>> GetEligibleBookingsForAutomaticPayoutAsync(DateTime thresholdDate, CancellationToken cancellationToken = default);
+
+    Task<List<Booking>> GetBookingsForOccurrenceAsync(
+        Guid packageId,
+        DateOnly date,
+        CancellationToken cancellationToken = default);
 }

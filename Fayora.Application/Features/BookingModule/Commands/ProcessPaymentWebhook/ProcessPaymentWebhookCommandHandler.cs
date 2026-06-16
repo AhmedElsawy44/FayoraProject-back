@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
+using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
@@ -21,11 +21,7 @@ public class ProcessPaymentWebhookCommandHandler(
 {
     public async Task<Result<Unit>> Handle(ProcessPaymentWebhookCommand request, CancellationToken cancellationToken)
     {
-        var webHookData = JsonSerializer.Deserialize<IDictionary<string, string>>(request.JsonPayload)?.AsReadOnly();
-
-        if (webHookData is null) return BookingErrors.InvalidPaymentWebhook;
-
-        var validationResult = paymentService.ValidateAndParseWebhook(webHookData, request.ReceivedHmac);
+        var validationResult = paymentService.ValidateAndParseWebhook(request.JsonPayload, request.ReceivedHmac);
 
         if (validationResult.IsError) return validationResult.Errors;
 
@@ -56,7 +52,7 @@ public class ProcessPaymentWebhookCommandHandler(
         }
         else
         {
-            var cancelResult = booking.Cancel("Payment Failed");
+            var cancelResult = booking.Cancel("Payment Failed", bypassPolicies: true);
             if (cancelResult.IsError) return cancelResult.Errors;
             paymentTransaction.MarkAsFailed("Payment Failed", paymentInfo.GatewayOrderId);
 

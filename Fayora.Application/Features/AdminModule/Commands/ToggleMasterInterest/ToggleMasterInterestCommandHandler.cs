@@ -1,17 +1,17 @@
 using Fayora.Application.Common.Abstractions.Messaging;
-using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
+using Fayora.Application.Common.Interfaces.Persistences.TouristModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Domain.Common.Results;
 
 namespace Fayora.Application.Features.AdminModule.Commands.ToggleMasterInterest;
 
 public class ToggleMasterInterestCommandHandler(
-    IAdminRepository adminRepository,
+    IMasterInterestRepository masterInterestRepository,
     IUnitOfWork unitOfWork) : ICommandHandler<ToggleMasterInterestCommand, Result<Success>>
 {
     public async Task<Result<Success>> Handle(ToggleMasterInterestCommand request, CancellationToken cancellationToken)
     {
-        var interest = await adminRepository.GetMasterInterestByIdAsync(request.Id, cancellationToken);
+        var interest = await masterInterestRepository.GetByIdAsync(request.Id, cancellationToken);
         if (interest is null)
             return Error.NotFound("MasterInterest.NotFound", "Master interest not found.");
 
@@ -21,3 +21,4 @@ public class ToggleMasterInterestCommandHandler(
         return Result.Success;
     }
 }
+

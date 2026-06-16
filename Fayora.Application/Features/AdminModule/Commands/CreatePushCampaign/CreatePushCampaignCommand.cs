@@ -8,4 +8,10 @@ public record CreatePushCampaignCommand(
     string Body,
     string? ImageUrl,
     string TargetAudience,
-    DateTimeOffset? ScheduledAt) : ICommand<Result<Guid>>;
+    DateTimeOffset? ScheduledAt,
+    bool IsRecurring = false,
+    string? ScheduleType = null,
+    string? DaysOfWeek = null,
+    int? DayOfMonth = null,
+    TimeSpan? PreferredTime = null,
+    string? CronExpression = null) : ICommand<Result<Guid>>;

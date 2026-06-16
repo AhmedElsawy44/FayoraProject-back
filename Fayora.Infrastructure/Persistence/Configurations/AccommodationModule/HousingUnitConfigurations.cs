@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.AccommodationModule;
+using Fayora.Domain.Entities.AccommodationModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Text.Json;
@@ -54,7 +54,9 @@ public class HousingUnitConfiguration : IEntityTypeConfiguration<HousingUnit>
         builder.Property(h => h.Rating).HasColumnType("decimal(3,2)");
 
         builder.Property(h => h.Type)
-               .HasConversion<string>()
+               .HasConversion(
+                   v => v.ToString(),
+                   v => ParseHousingType(v))
                .HasMaxLength(50);
 
         builder.Property(x => x.AdminNotes)
@@ -74,8 +76,13 @@ public class HousingUnitConfiguration : IEntityTypeConfiguration<HousingUnit>
                .HasColumnType("nvarchar(max)")
                .HasConversion(
                    ids => JsonSerializer.Serialize(ids, JsonSerializerOptions.Default),
-                   json => JsonSerializer.Deserialize<List<Guid>>(json, JsonSerializerOptions.Default)!);
+                   json => string.IsNullOrWhiteSpace(json) ? new List<Guid>() : (JsonSerializer.Deserialize<List<Guid>>(json, JsonSerializerOptions.Default)!));
 
 
+    }
+
+    private static Fayora.Domain.Enums.AccommodationModule.HousingType ParseHousingType(string v)
+    {
+        return System.Enum.TryParse<Fayora.Domain.Enums.AccommodationModule.HousingType>(v, true, out var result) ? result : Fayora.Domain.Enums.AccommodationModule.HousingType.Hotel;
     }
 }

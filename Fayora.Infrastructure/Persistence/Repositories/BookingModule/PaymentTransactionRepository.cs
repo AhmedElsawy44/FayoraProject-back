@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
+using Fayora.Application.Common.Interfaces.Persistences.BookingModule;
 using Fayora.Domain.Entities.Booking;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +14,11 @@ public class PaymentTransactionRepository(ApplicationDbContext context) : IPayme
     public Task<PaymentTransaction?> GetByBookingGatewayOrderIdAsync(string gatewayOrderId, CancellationToken cancellationToken = default)
     {
         return context.PaymentTransactions.FirstOrDefaultAsync(x => x.GatewayOrderId == gatewayOrderId, cancellationToken);
+    }
+
+    public Task<PaymentTransaction?> GetByBookingIdAsync(Guid bookingId, CancellationToken cancellationToken = default)
+    {
+        return context.PaymentTransactions.FirstOrDefaultAsync(x => x.BookingId == bookingId, cancellationToken);
     }
 }
 

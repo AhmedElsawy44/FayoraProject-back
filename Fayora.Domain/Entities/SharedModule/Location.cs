@@ -14,8 +14,8 @@ namespace Fayora.Domain.Entities.SharedModule
         public int ReviewCount { get; private set; }
         public FileUrl MainImageUrl { get; private set; } = null!;
 
-        private readonly List<Guid> _imageIds = [];
-        public IReadOnlyCollection<Guid> ImageIds => _imageIds.AsReadOnly();
+        private List<Guid> _imageIds = [];
+        public IReadOnlyCollection<Guid> ImageIds => (_imageIds ??= new List<Guid>()).AsReadOnly();
 
         private Location() { }
 
@@ -55,8 +55,16 @@ namespace Fayora.Domain.Entities.SharedModule
             return new Location(name, description, rating, coordinates.Value, mainImageUrl, category);
         }
 
-        public void AddImage(Guid imageId) => _imageIds.Add(imageId);
-        public void AddImages(IEnumerable<Guid> imageIds) => _imageIds.AddRange(imageIds);
+        public void AddImage(Guid imageId)
+        {
+            _imageIds ??= new List<Guid>();
+            _imageIds.Add(imageId);
+        }
+        public void AddImages(IEnumerable<Guid> imageIds)
+        {
+            _imageIds ??= new List<Guid>();
+            _imageIds.AddRange(imageIds);
+        }
 
         public void Update(
             string name,

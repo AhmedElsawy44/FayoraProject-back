@@ -38,5 +38,14 @@ public class PushCampaignConfiguration : IEntityTypeConfiguration<PushCampaign>
 
         builder.Property(pc => pc.FailureCount)
             .HasDefaultValue(0);
+
+        builder.Property(pc => pc.IsRecurring)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(pc => pc.CronExpression)
+            .HasMaxLength(100);
+
+        builder.Property(pc => pc.LastRunAt);
     }
 }

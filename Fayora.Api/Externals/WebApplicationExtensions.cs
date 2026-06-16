@@ -15,6 +15,36 @@ public static class WebApplicationExtensions
         await using var scope = app.Services.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
+        try
+        {
+            if (await dbContext.Database.CanConnectAsync(cancellationToken))
+            {
+                var checkAndBaselineSql = @"
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'Bookings')
+BEGIN
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = '__EFMigrationsHistory')
+    BEGIN
+        CREATE TABLE [__EFMigrationsHistory] (
+            [MigrationId] nvarchar(150) NOT NULL CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY,
+            [ProductVersion] nvarchar(32) NOT NULL
+        );
+    END
+    
+    IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = '20260601085713_AddOffersSystem')
+    BEGIN
+        INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+        VALUES ('20260601085713_AddOffersSystem', '10.0.0');
+    END
+END";
+
+                await dbContext.Database.ExecuteSqlRawAsync(checkAndBaselineSql, cancellationToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Warning: Failed to execute migration baseline check: {ex.Message}");
+        }
+
         await dbContext.Database.MigrateAsync(cancellationToken);
 
         // Seed Chatbot User if not exists
@@ -68,6 +98,18 @@ public static class WebApplicationExtensions
                 "expire-pending-bookings",
                 job => job.ExecuteAsync(CancellationToken.None),
                 "*/5 * * * *");
+
+        app.Services.GetRequiredService<IRecurringJobManager>()
+            .AddOrUpdate<CleanupDiscountOffersJob>(
+                "cleanup-expired-cancelled-offers",
+                job => job.ExecuteAsync(CancellationToken.None),
+                Cron.Daily());
+
+        app.Services.GetRequiredService<IRecurringJobManager>()
+            .AddOrUpdate<ProcessAutomaticPayoutsJob>(
+                "process-automatic-payouts",
+                job => job.ExecuteAsync(CancellationToken.None),
+                Cron.Daily());
 
         return app;
     }

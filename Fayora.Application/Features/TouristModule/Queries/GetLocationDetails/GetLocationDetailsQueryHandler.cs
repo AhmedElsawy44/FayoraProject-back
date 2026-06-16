@@ -45,7 +45,7 @@ namespace Fayora.Application.Features.TouristModule.Queries.GetLocationDetails
                 location.Rating,
                 location.Category.ToString(),
                 location.MainImageUrl?.Value ?? "",
-                images.Select(i => i.ImageUrl.Value).ToList(),
+                images.Select(i => i.ImageUrl?.Value ?? "").ToList(),
                 location.Coordinates?.Latitude,
                 location.Coordinates?.Longitude,
                 packages.Select(p => new LocationPackageSummaryResult(

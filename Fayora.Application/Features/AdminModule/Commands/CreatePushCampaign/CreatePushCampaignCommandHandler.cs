@@ -1,4 +1,5 @@
 using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Helpers;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Persistences.NotificationModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
@@ -24,27 +25,58 @@ public class CreatePushCampaignCommandHandler(
 
         try
         {
-            var campaign = PushCampaign.Create(
-                request.Title,
-                request.Body,
-                request.ImageUrl,
-                request.TargetAudience,
-                request.ScheduledAt,
-                clientContext.UserId);
-
-            await notificationRepository.AddPushCampaignAsync(campaign, cancellationToken);
-
-            string jobId;
-            if (request.ScheduledAt.HasValue && request.ScheduledAt.Value > DateTimeOffset.UtcNow)
+            PushCampaign campaign;
+            if (request.IsRecurring)
             {
-                jobId = notificationScheduler.ScheduleCampaign(campaign.Id, request.ScheduledAt.Value);
+                var cronExpression = CronExpressionHelper.GenerateCron(
+                    request.ScheduleType ?? "Daily",
+                    request.PreferredTime,
+                    request.DaysOfWeek,
+                    request.DayOfMonth,
+                    request.CronExpression);
+
+                if (string.IsNullOrWhiteSpace(cronExpression))
+                {
+                    return Error.Validation("Campaign.CronError", "Could not generate cron expression for recurring campaign.");
+                }
+
+                campaign = PushCampaign.CreateRecurring(
+                    request.Title,
+                    request.Body,
+                    request.ImageUrl,
+                    request.TargetAudience,
+                    cronExpression,
+                    clientContext.UserId);
+
+                await notificationRepository.AddPushCampaignAsync(campaign, cancellationToken);
+
+                notificationScheduler.ScheduleRecurringCampaign(campaign.Id, cronExpression);
+                campaign.UpdateJobId($"campaign-{campaign.Id}");
             }
             else
             {
-                jobId = notificationScheduler.EnqueueCampaign(campaign.Id);
-            }
+                campaign = PushCampaign.Create(
+                    request.Title,
+                    request.Body,
+                    request.ImageUrl,
+                    request.TargetAudience,
+                    request.ScheduledAt,
+                    clientContext.UserId);
 
-            campaign.UpdateJobId(jobId);
+                await notificationRepository.AddPushCampaignAsync(campaign, cancellationToken);
+
+                string jobId;
+                if (request.ScheduledAt.HasValue && request.ScheduledAt.Value > DateTimeOffset.UtcNow)
+                {
+                    jobId = notificationScheduler.ScheduleCampaign(campaign.Id, request.ScheduledAt.Value);
+                }
+                else
+                {
+                    jobId = notificationScheduler.EnqueueCampaign(campaign.Id);
+                }
+
+                campaign.UpdateJobId(jobId);
+            }
 
             await unitOfWork.CommitChangesAsync(cancellationToken);
 

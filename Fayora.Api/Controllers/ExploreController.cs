@@ -1,9 +1,6 @@
-using Fayora.Application.Features.ExploreModule.Queries.GetExploreFeed;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
+using Fayora.Application.Features.ExploreModule.Queries.GetExploreItems;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading;
-using System.Threading.Tasks;
+using MediatR;
 
 namespace Fayora.Api.Controllers;
 
@@ -11,17 +8,18 @@ namespace Fayora.Api.Controllers;
 [ApiController]
 public class ExploreController(ISender sender) : ApiController
 {
-    [AllowAnonymous]
     [HttpGet]
-    public async Task<IActionResult> GetExploreFeed(
+    public async Task<IActionResult> GetExploreItems(
         [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 20,
-        [FromQuery] string? search = null,
-        [FromQuery] string? type = null,
-        CancellationToken ct = default)
+        [FromQuery] int pageSize = 10,
+        CancellationToken cancellationToken = default)
     {
-        var query = new GetExploreFeedQuery(pageNumber, pageSize, search, type);
-        var result = await sender.Send(query, ct);
-        return result.Match(Ok, Problem);
+        var query = new GetExploreItemsQuery(pageNumber, pageSize);
+        var result = await sender.Send(query, cancellationToken);
+
+        return result.Match(
+            Ok,
+            Problem
+        );
     }
 }

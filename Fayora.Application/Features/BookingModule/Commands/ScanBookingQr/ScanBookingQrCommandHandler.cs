@@ -63,6 +63,12 @@ namespace Fayora.Application.Features.BookingModule.Commands.ScanBookingQr
                         cancellationToken)
                     .ContinueWith(t => t.Result?.Title ?? "Unknown"),
 
+                ServiceType.TourGuide => await userRepository
+                    .GetUserByIdAsync(booking.ServiceId,
+                        new UserQueryOptions { IsReadOnly = true },
+                        cancellationToken)
+                    .ContinueWith(t => t.Result is not null ? $"{t.Result.FirstName} {t.Result.LastName}" : "Unknown"),
+
                 _ => "Unknown"
             };
 
@@ -94,6 +100,8 @@ namespace Fayora.Application.Features.BookingModule.Commands.ScanBookingQr
                 booking.ServiceType.ToString(),
                 booking.StartDate,
                 booking.SeatsCount,
+                booking.AdultsCount,
+                booking.ChildrenCount,
                 booking.BookingStatus.ToString(),
                 IsCashOnArrival: booking.IsCashOnArrival,
                 RemainingAmount: booking.IsCashOnArrival

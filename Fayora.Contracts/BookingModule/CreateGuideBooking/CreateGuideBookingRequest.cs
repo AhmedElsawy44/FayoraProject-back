@@ -1,8 +1,7 @@
-﻿namespace Fayora.Contracts.BookingModule.CreateGuideBooking
+namespace Fayora.Contracts.BookingModule.CreateGuideBooking
 {
     public record CreateGuideBookingRequest(
         DateOnly BookingDate,
-        TimeSpan StartTime,
         int Adults,
         int Children,
         string PaymentMethodType,

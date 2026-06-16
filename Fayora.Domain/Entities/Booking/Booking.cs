@@ -16,7 +16,9 @@ public class Booking : BaseEntity<Guid>
     public decimal ServiceFee { get; init; }
     public decimal PayoutAmount { get; init; }
     public decimal TotalPrice { get; init; }
-    public int SeatsCount { get; init; }
+    public int SeatsCount => AdultsCount + ChildrenCount;
+    public int AdultsCount { get; init; }
+    public int ChildrenCount { get; init; }
     public CancellationPolicy AppliedCancelPolicy { get; init; }
     public BookingStatus BookingStatus { get; private set; }
     public PaymentTransactionStatus PaymentStatus { get; private set; }
@@ -24,23 +26,44 @@ public class Booking : BaseEntity<Guid>
     public DateTime EndDate { get; init; }
     public bool IsScanned { get; private set; }
     public DateTimeOffset? ScannedAt { get; private set; }
+    public bool IsPayoutProcessed { get; private set; }
 
+    // for cash on arrival
     public bool IsCashOnArrival { get; private set; }
     public decimal DepositAmount { get; private set; }
 
-    public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
+    // Discount details (if any)
+    public Guid? AppliedOfferId { get; private set; }
+    public decimal DiscountAmount { get; private set; }
 
+    public List<Guid>? SelectedOptionalActivityIds { get; init; }
+    public Guid? SelectedMeetingPointId { get; init; }
+
+    public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
 
     public static Result<Booking> Create(
         Guid userId, Guid providerId, ServiceType type, Guid serviceId,
         decimal basePrice, decimal serviceFee, decimal payoutAmount,
-        int seatsCount, CancellationPolicy policy, DateTime startDate,
-        DateTime endDate, bool isCashOnArrival = false)
+        int adultsCount, int childrenCount, CancellationPolicy policy, DateTime startDate,
+        DateTime endDate, bool isCashOnArrival = false,
+        Guid? appliedOfferId = null, decimal discountAmount = 0,
+        List<Guid>? selectedOptionalActivityIds = null,
+        Guid? selectedMeetingPointId = null)
     {
         if (endDate <= startDate)
             return Error.Validation();
 
-        decimal depositAmount = isCashOnArrival ? basePrice * BookingConstants.CashOnArrivalDepositRate : 0;
+        if (discountAmount < 0)
+            return Error.Validation("Booking.InvalidDiscount", "Discount amount cannot be negative.");
+
+        if (discountAmount > basePrice)
+            return Error.Validation("Booking.InvalidDiscount", "Discount amount cannot exceed base price.");
+
+        var priceAfterDiscount = basePrice - discountAmount;
+
+        var depositAmount = isCashOnArrival
+            ? priceAfterDiscount * BookingConstants.CashOnArrivalDepositRate
+            : 0;
 
         var booking = new Booking
         {
@@ -50,17 +73,22 @@ public class Booking : BaseEntity<Guid>
             ServiceType = type,
             ServiceId = serviceId,
             BasePrice = basePrice,
+            DiscountAmount = discountAmount,
             ServiceFee = serviceFee,
-            TotalPrice = basePrice + serviceFee,
+            TotalPrice = priceAfterDiscount + serviceFee,
             PayoutAmount = payoutAmount,
-            SeatsCount = seatsCount,
+            AdultsCount = adultsCount,
+            ChildrenCount = childrenCount,
             AppliedCancelPolicy = policy,
             BookingStatus = BookingStatus.Pending,
             PaymentStatus = PaymentTransactionStatus.Pending,
             StartDate = startDate,
             EndDate = endDate,
             IsCashOnArrival = isCashOnArrival,
-            DepositAmount = depositAmount
+            DepositAmount = depositAmount,
+            AppliedOfferId = appliedOfferId,
+            SelectedOptionalActivityIds = selectedOptionalActivityIds,
+            SelectedMeetingPointId = selectedMeetingPointId,
         };
 
         booking.RaiseDomainEvent(new BookingCreatedEvent(booking.Id));
@@ -81,7 +109,6 @@ public class Booking : BaseEntity<Guid>
         return Result.Success;
     }
 
-
     public Result<Success> MarkDepositAsPaid()
     {
         if (!IsCashOnArrival)
@@ -96,6 +123,7 @@ public class Booking : BaseEntity<Guid>
 
         return Result.Success;
     }
+
     public Result<Success> MarkAsRefunded()
     {
         if (BookingStatus == BookingStatus.Refunded)
@@ -113,6 +141,12 @@ public class Booking : BaseEntity<Guid>
 
         if (BookingStatus == BookingStatus.Completed)
             return Error.Validation("Booking.AlreadyCompleted", "Booking is already completed.");
+
+        if (BookingStatus == BookingStatus.Cancelled || BookingStatus == BookingStatus.Refunded)
+            return Error.Validation("Booking.CannotConfirmForNonPending", "Cannot confirm cash received for cancelled or refunded bookings.");
+
+        if (PaymentStatus != PaymentTransactionStatus.PartiallyPaid)
+            return Error.Validation("Booking.DepositNotPaid", "Deposit must be paid first before confirming cash receipt.");
 
         if (!IsScanned)
             return Error.Validation("Booking.NotScanned", "QR code must be scanned first.");
@@ -135,8 +169,16 @@ public class Booking : BaseEntity<Guid>
         return Result.Success;
     }
 
-    // we need to handle it by domain event to apply cancellation policy and calculate refund amount
-    public Result<Success> Cancel(string reason)
+    public Result<Success> MarkPayoutAsProcessed()
+    {
+        if (IsPayoutProcessed)
+            return Error.Validation("Booking.PayoutAlreadyProcessed", "Payout for this booking has already been processed.");
+
+        IsPayoutProcessed = true;
+        return Result.Success;
+    }
+
+    public Result<Success> Cancel(string reason, bool bypassPolicies = false)
     {
         if (BookingStatus == BookingStatus.Completed)
             return Error.Validation("Cannot cancel a completed booking.");
@@ -144,18 +186,20 @@ public class Booking : BaseEntity<Guid>
         if (BookingStatus == BookingStatus.Cancelled)
             return Error.Validation("Booking is already cancelled.");
 
-
-        if (AppliedCancelPolicy == CancellationPolicy.FreeCancellation48Hours)
+        if (!bypassPolicies)
         {
-            var hoursUntilStart = (StartDate - DateTime.UtcNow).TotalHours;
-            if (hoursUntilStart < 48)
-                return Error.Validation("Booking.CancellationWindowPassed",
-                    "Cannot cancel. Cancellation is only allowed 48 hours before the trip.");
-        }
-        else if (AppliedCancelPolicy == CancellationPolicy.NonRefundable)
-        {
-            return Error.Validation("Booking.NonRefundable",
-                "This booking is non-refundable and cannot be cancelled.");
+            if (AppliedCancelPolicy == CancellationPolicy.FreeCancellation48Hours)
+            {
+                var hoursUntilStart = (StartDate - DateTime.UtcNow).TotalHours;
+                if (hoursUntilStart < 48)
+                    return Error.Validation("Booking.CancellationWindowPassed",
+                        "Cannot cancel. Cancellation is only allowed 48 hours before the trip.");
+            }
+            else if (AppliedCancelPolicy == CancellationPolicy.NonRefundable)
+            {
+                return Error.Validation("Booking.NonRefundable",
+                    "This booking is non-refundable and cannot be cancelled.");
+            }
         }
 
         BookingStatus = BookingStatus.Cancelled;

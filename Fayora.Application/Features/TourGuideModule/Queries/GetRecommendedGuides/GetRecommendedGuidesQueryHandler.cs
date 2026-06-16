@@ -1,7 +1,9 @@
 using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Interfaces.Services.RecommendationModule;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.SharedModule;
 
 namespace Fayora.Application.Features.TourGuideModule.Queries.GetRecommendedGuides;
 
@@ -12,7 +14,8 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetRecommendedGuid
 /// </summary>
 public class GetRecommendedGuidesQueryHandler(
     IRecommendationService recommendationService,
-    IClientContextProvider clientContextProvider)
+    IClientContextProvider clientContextProvider,
+    IDiscountOfferRepository discountOfferRepository)
     : IQueryHandler<GetRecommendedGuidesQuery, Result<List<RecommendedGuideResult>>>
 {
     public async Task<Result<List<RecommendedGuideResult>>> Handle(
@@ -49,6 +52,27 @@ public class GetRecommendedGuidesQueryHandler(
             // Anonymous user -> trending only
             recommendations = await recommendationService.GetTrendingGuidesAsync(
                 count, cancellationToken);
+        }
+
+        for (int i = 0; i < recommendations.Count; i++)
+        {
+            var item = recommendations[i];
+            decimal? discountedRate = item.BaseRate;
+            if (item.BaseRate.HasValue)
+            {
+                var activeOffers = await discountOfferRepository.GetActiveByTargetAsync(
+                    item.UserId, OfferTargetType.TourGuide, cancellationToken);
+                var offer = activeOffers.FirstOrDefault();
+                if (offer is not null)
+                {
+                    var discountResult = offer.ApplyTo(item.BaseRate.Value);
+                    if (!discountResult.IsError)
+                    {
+                        discountedRate = discountResult.Value;
+                    }
+                }
+            }
+            recommendations[i] = item with { DiscountedBaseRate = discountedRate };
         }
 
         return recommendations;

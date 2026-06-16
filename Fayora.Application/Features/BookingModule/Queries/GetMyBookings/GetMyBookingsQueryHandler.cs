@@ -56,6 +56,10 @@ public class GetMyBookingsQueryHandler(
             ? await packageRepository.GetListByIdsAsync(packageIds, cancellationToken)
             : [];
 
+        var meetingPoints = packageIds.Any()
+            ? await packageRepository.GetMeetingPointsByPackageIdsAsync(packageIds, cancellationToken)
+            : [];
+
         var accommodations = accommodationIds.Any()
             ? await housingUnitRepository.GetUnitsByIdsAsync(accommodationIds, cancellationToken)
             : [];
@@ -64,9 +68,15 @@ public class GetMyBookingsQueryHandler(
             ? await userRepository.GetUsersByIdsAsync(guideIds, new IUserRepository.UserQueryOptions { IsReadOnly = true }, cancellationToken)
             : [];
 
+        var guides = guideIds.Any()
+            ? await tourGuideRepository.GetGuidesByIdsAsync(guideIds, new ITourGuideRepository.GuideQueryOptions(ReadOnly: true), cancellationToken)
+            : [];
+
+
         var packagesDict = packages.ToDictionary(p => p.Id);
         var accommodationsDict = accommodations.ToDictionary(a => a.Id);
         var guideUsersDict = guideUsers.ToDictionary(u => u.Id);
+        var guidesDict = guides.ToDictionary(g => g.UserId);
 
         var responseItems = new List<BookingResponse>();
 
@@ -76,10 +86,16 @@ public class GetMyBookingsQueryHandler(
             {
                 if (packagesDict.TryGetValue(booking.ServiceId, out var package))
                 {
+                    var mps = meetingPoints.Where(mp => mp.PackageId == package.Id).ToList();
+                    var selectedMp = booking.SelectedMeetingPointId.HasValue
+                        ? mps.FirstOrDefault(mp => mp.Id == booking.SelectedMeetingPointId.Value)
+                        : null;
+                    var location = selectedMp?.MeetingPoint ?? mps.FirstOrDefault()?.MeetingPoint ?? GeoPoint.Create(0, 0).Value;
+
                     responseItems.Add(new BookingResponse(
                         booking.Id,
                         package.Title,
-                        package.MeetingPoint,
+                        location,
                         booking.StartDate,
                         booking.BookingStatus,
                         package.MainImageUrl.Value));
@@ -102,11 +118,7 @@ public class GetMyBookingsQueryHandler(
             {
                 if (guideUsersDict.TryGetValue(booking.ServiceId, out var guideUser))
                 {
-                    var guide = await tourGuideRepository.GetGuideByIdAsync(
-                        booking.ServiceId,
-                        new ITourGuideRepository.GuideQueryOptions(ReadOnly: true),
-                        cancellationToken);
-
+                    guidesDict.TryGetValue(booking.ServiceId, out var guide);
                     var location = guide?.LastLocation ?? GeoPoint.Create(0, 0).Value;
 
                     responseItems.Add(new BookingResponse(

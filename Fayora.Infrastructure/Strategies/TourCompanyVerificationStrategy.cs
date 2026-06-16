@@ -1,11 +1,20 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
+using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
+using Fayora.Application.Common.Interfaces.Persistences.NotificationModule;
+using Fayora.Application.Common.Interfaces.Services.SharedModule;
 using Fayora.Application.Common.Strategies;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.IdentityModule;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.ITourGuideRepository;
+using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Infrastructure.Strategies;
 
-public class TourCompanyVerificationStrategy(ITourCompanyRepository tourCompanyRepository) : IVerificationStrategy
+public class TourCompanyVerificationStrategy(
+    ITourCompanyRepository tourCompanyRepository,
+    IUserRepository userRepository,
+    INotificationRepository notificationRepository,
+    IFirebaseNotificationService firebaseNotificationService) : IVerificationStrategy
 {
     private static readonly string EntityType = nameof(Domain.Entities.GuideModule.TourCompany);
 
@@ -24,12 +33,32 @@ public class TourCompanyVerificationStrategy(ITourCompanyRepository tourCompanyR
             var approvalResult = tourCompany.Approve();
             if (approvalResult.IsError)
                 return approvalResult;
+
+            var user = await userRepository.GetUserByIdAsync(tourCompany.UserId, new UserQueryOptions { IsReadOnly = false }, ct);
+            user?.AddRole(Role.TourCompany);
         }
         else
         {
             var rejectionResult = tourCompany.Reject(adminNotes);
             if (rejectionResult.IsError)
                 return rejectionResult;
+        }
+
+        var tokens = await notificationRepository.GetTokensByUserIdAsync(tourCompany.UserId, ct);
+        if (tokens.Any())
+        {
+            var user = await userRepository.GetUserByIdAsync(tourCompany.UserId, new UserQueryOptions { IsReadOnly = true }, ct);
+            bool isArabic = user?.PreferredLanguage == Language.Arabic;
+
+            string title = isApproved 
+                ? (isArabic ? "تم قبول طلب التحقق!" : "Verification Approved!") 
+                : (isArabic ? "تم رفض طلب التحقق" : "Verification Rejected");
+
+            string body = isApproved 
+                ? (isArabic ? "تهانينا! تم قبول طلب تسجيل شركتك السياحية." : "Congratulations! Your request to register your Tour Company has been approved.") 
+                : (isArabic ? $"تم رفض طلب التحقق لشركتك. السبب: {adminNotes}" : $"Your company verification request was rejected. Reason: {adminNotes}");
+
+            await firebaseNotificationService.SendBroadcastAsync(title, body, null, tokens, ct);
         }
 
         return Result.Success;

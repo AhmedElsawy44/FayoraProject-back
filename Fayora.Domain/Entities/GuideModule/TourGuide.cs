@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using Fayora.Domain.ValueObjects;
@@ -85,6 +85,28 @@ public class TourGuide : GuideAccountBase
         ReviewCount++;
     }
 
+    public void UpdateReview(decimal oldRating, decimal newRating)
+    {
+        if (ReviewCount > 0)
+        {
+            AverageRating = ((AverageRating * ReviewCount) - oldRating + newRating) / ReviewCount;
+        }
+    }
+
+    public void DeleteReview(decimal rating)
+    {
+        if (ReviewCount > 1)
+        {
+            AverageRating = ((AverageRating * ReviewCount) - rating) / (ReviewCount - 1);
+            ReviewCount--;
+        }
+        else
+        {
+            AverageRating = 0;
+            ReviewCount = 0;
+        }
+    }
+
     public void MarkTourCompleted()
     {
         CompletedToursCount++;
@@ -115,5 +137,33 @@ public class TourGuide : GuideAccountBase
         var citiesToAdd = newCities.Where(c => !existingCityIds.Contains(c.CityId));
 
         _guideCities.AddRange(citiesToAdd);
+    }
+
+    public void AdminUpdate(
+        decimal? baseRate,
+        PricingUnit? pricingUnit,
+        int? yearsOfExperience,
+        string? licenseNumber,
+        DateOnly? licenseExpiryDate,
+        bool isSuperGuide,
+        decimal averageRating,
+        int reviewCount,
+        int completedToursCount,
+        bool isAvailableForBooking,
+        decimal responseRate,
+        decimal cancellationRate)
+    {
+        BaseRate = baseRate;
+        PricingUnit = pricingUnit;
+        YearsOfExperience = yearsOfExperience;
+        LicenseNumber = licenseNumber;
+        LicenseExpiryDate = licenseExpiryDate;
+        IsSuperGuide = isSuperGuide;
+        AverageRating = averageRating;
+        ReviewCount = reviewCount;
+        CompletedToursCount = completedToursCount;
+        IsAvailableForBooking = isAvailableForBooking;
+        ResponseRate = responseRate;
+        CancellationRate = cancellationRate;
     }
 }

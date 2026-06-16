@@ -6,6 +6,7 @@ using Fayora.Domain.Entities.ChatbotModule;
 using Fayora.Domain.Entities.ChatModule;
 using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Entities.IdentityModule;
+using Fayora.Domain.Entities.ReviewModule;
 using Fayora.Domain.Entities.SharedModule;
 using Fayora.Domain.Entities.TouristModule;
 using MediatR;
@@ -49,17 +50,25 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<PackageImage> PackageImages { get; set; }
     public DbSet<PackageOccurrence> PackageOccurrences { get; set; }
     public DbSet<GuideWeeklySchedule> GuideWeeklySchedules { get; set; }
-
+    public DbSet<PackageAccommodation> PackageAccommodations { get; set; }
+    public DbSet<PackageNight> PackageNights { get; set; }
+    public DbSet<PackageMeetingPoint> PackageMeetingPoints { get; set; }
 
     // Booking Module
     public DbSet<Booking> Bookings { get; set; }
     public DbSet<PaymentTransaction> PaymentTransactions { get; set; }
+    public DbSet<ProviderPayout> ProviderPayouts { get; set; }
+
+    // Review Module
+    public DbSet<Review> Reviews { get; set; }
+    public DbSet<ReviewReport> ReviewReports { get; set; }
 
 
     // Shared Module
     public DbSet<City> Cities { get; set; }
     public DbSet<Location> Locations { get; set; }
     public DbSet<LocationImage> LocationImages { get; set; }
+    public DbSet<DiscountOffer> DiscountOffers { get; set; }
 
     // Chatbot Module
     public DbSet<ChatbotSession> ChatbotSessions { get; set; }
@@ -117,6 +126,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Ignore<OptionalActivity>();
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
 }

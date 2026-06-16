@@ -4,6 +4,7 @@ using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 
 namespace Fayora.Application.Features.AdminModule.Queries.GetTravelAgenciesStats;
 
+
 public class GetTravelAgenciesStatsHandler(
     ITourCompanyRepository tourCompanyRepository,
     IBookingRepository bookingRepository

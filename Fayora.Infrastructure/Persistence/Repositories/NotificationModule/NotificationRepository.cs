@@ -18,6 +18,14 @@ public class NotificationRepository(ApplicationDbContext context) : INotificatio
         return await context.DeviceTokens.FirstOrDefaultAsync(d => d.Token == token, ct);
     }
 
+    public async Task<List<string>> GetTokensByUserIdAsync(Guid userId, CancellationToken ct)
+    {
+        return await context.DeviceTokens
+            .Where(dt => dt.UserId == userId)
+            .Select(dt => dt.Token)
+            .ToListAsync(ct);
+    }
+
     public async Task<List<string>> GetTokensByAudienceAsync(string targetAudience, CancellationToken ct)
     {
         if (string.Equals(targetAudience, "All", StringComparison.OrdinalIgnoreCase))

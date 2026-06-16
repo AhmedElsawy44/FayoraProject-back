@@ -2,7 +2,9 @@ using Fayora.Api.Externals;
 using Fayora.Api.Hubs;
 using Fayora.Application;
 using Fayora.Infrastructure;
+using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Scalar.AspNetCore;
 using Serilog;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -71,13 +73,19 @@ public class Program
 
             if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
             {
+                app.MapOpenApi();
+                app.MapScalarApiReference(options => options
+                    .WithTitle("Fayora API V1")
+                    .WithTheme(ScalarTheme.Saturn)
+                    .EnableDarkMode());
+
                 app.UseSwagger();
+                app.UseDeveloperExceptionPage();
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Fayora API V1");
                     c.RoutePrefix = "swagger";
                 });
-                app.MapOpenApi();
             }
 
             app.UseStaticFiles();
@@ -100,7 +108,7 @@ public class Program
             await app.RunAsync();
         }
 
-        catch (Exception ex)
+        catch (Exception ex) when (ex.GetType().Name is not "HostAbortedException")
         {
             Log.Fatal(ex, "Application terminated unexpectedly.");
         }
@@ -108,7 +116,6 @@ public class Program
         {
             Log.CloseAndFlush();
         }
-
     }
 }
 

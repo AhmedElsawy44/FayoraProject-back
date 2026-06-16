@@ -67,4 +67,13 @@ public abstract class GuideAccountBase
         return Result.Success;
     }
 
+    public void SetAdminStatusAndNotes(ItemStatus status, string? adminNotes)
+    {
+        Status = status;
+        AdminNotes = adminNotes;
+        if (status != ItemStatus.Active)
+        {
+            IsAvailableForBooking = false;
+        }
+    }
 }

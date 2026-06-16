@@ -7,11 +7,18 @@ using Fayora.Application.Features.TourGuideModule.Commands.CreateTourCompany;
 using Fayora.Application.Features.TourGuideModule.Commands.CreateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Commands.DeactivateGuidePackage;
 using Fayora.Application.Features.TourGuideModule.Commands.DeleteGuidePackage;
+using Fayora.Application.Features.TourGuideModule.Commands.UpdateGuidePackage;
+using Fayora.Application.Features.TourGuideModule.Commands.UpdatePackageOccurrence;
+using Fayora.Application.Features.TourGuideModule.Commands.DeletePackageOccurrence;
 using Fayora.Application.Features.TourGuideModule.Commands.UpdateTourGuide;
 using Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages;
+using Fayora.Application.Features.TourGuideModule.Queries.GetPackageAccommodation;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails;
+using Fayora.Application.Features.TourGuideModule.Queries.GetPackageOccurrenceDetails;
 using Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview;
 using Fayora.Application.Features.TourGuideModule.Queries.GetRecommendedGuides;
+using Fayora.Application.Features.TourGuideModule.Queries.GetRecommendedGuidesSeeAll;
+using Fayora.Application.Features.TourGuideModule.Queries.GetSimilarGuides;
 using Fayora.Application.Features.TouristModule.Queries.GetRecommendedPackages;
 using Fayora.Contracts.TourGuideModule.CreateGuidePackage;
 using Fayora.Contracts.TourGuideModule.CreatePackageOccurrences;
@@ -19,8 +26,12 @@ using Fayora.Contracts.TourGuideModule.CreateTourCompany;
 using Fayora.Contracts.TourGuideModule.CreateTourGuide;
 using Fayora.Contracts.TourGuideModule.CreateWeeklySchedule;
 using Fayora.Contracts.TourGuideModule.GetMyPackages;
+using Fayora.Contracts.TourGuideModule.GetPackageAccommodation;
 using Fayora.Contracts.TourGuideModule.GetPackageDetails;
+using Fayora.Contracts.TourGuideModule.GetPackageOccurrenceDetails;
 using Fayora.Contracts.TourGuideModule.GetPackagePreview;
+using Fayora.Contracts.TourGuideModule.UpdateGuidePackage;
+using Fayora.Contracts.TourGuideModule.UpdatePackageOccurrence;
 using Fayora.Contracts.TourGuideModule.UpdateTourGuide;
 using Fayora.Domain.Enums.SharedModule;
 using Fayora.Domain.Enums.TourGuideModule;
@@ -120,8 +131,9 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             request.Description,
             tourType,
             request.DurationHours,
-            request.Longitude,
-            request.Latitude,
+            request.NumOfDays,
+            request.Nights,
+            request.MeetingPoints,
             transportType,
             request.ArrivalNote,
             request.AdultPrice,
@@ -135,7 +147,11 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             request.GuestRequirements,
             cancellationPolicy,
             request.Activities,
-            request.LocationIds
+            request.LocationIds,
+            request.OptionalActivities,
+            request.HasGroupDiscount,
+            request.GroupDiscountMinPeople,
+            request.GroupDiscountPercent
             );
 
         var result = await sender.Send(command, ct);
@@ -143,6 +159,58 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
         return result.Match(Ok, Problem);
     }
 
+
+    [HttpPut("package/{packageId:guid}")]
+    public async Task<IActionResult> UpdateGuidePackage(
+        [FromRoute] Guid packageId,
+        [FromBody] UpdateGuidePackageRequest request,
+        CancellationToken ct)
+    {
+        var (tourTypeOk, tourType) = EnumParser.TryParseEnum<TourType>(request.TourType);
+        if (!tourTypeOk)
+            return BadRequest("Invalid Tour Type");
+
+        var (transportTypeOk, transportType) = EnumParser.TryParseEnum<TransportType>(request.TransportType);
+        if (!transportTypeOk)
+            return BadRequest("Invalid Transport Type");
+
+        var (cancellationPolicyOk, cancellationPolicy) = EnumParser.TryParseEnum<CancellationPolicy>(request.CancellationPolicy);
+        if (!cancellationPolicyOk)
+            return BadRequest("Invalid Cancellation Policy");
+
+        var command = new UpdateGuidePackageCommand(
+            packageId,
+            request.Title,
+            request.Description,
+            tourType,
+            request.DurationHours,
+            request.NumOfDays,
+            request.Nights,
+            request.MeetingPoints,
+            transportType,
+            request.ArrivalNote,
+            request.AdultPrice,
+            request.ChildPrice,
+            request.MaxCapacity,
+            request.IncludedIds,
+            request.ExcludedIds,
+            request.MainImageUrl,
+            request.VideoURL,
+            request.ImageURLs,
+            request.GuestRequirements,
+            cancellationPolicy,
+            request.Activities,
+            request.LocationIds,
+            request.OptionalActivities,
+            request.HasGroupDiscount,
+            request.GroupDiscountMinPeople,
+            request.GroupDiscountPercent
+        );
+
+        var result = await sender.Send(command, ct);
+
+        return result.Match(value => Ok(new { packageId = value }), Problem);
+    }
 
     [HttpPatch("package/{PackageId:guid}/activate")]
     public async Task<IActionResult> ActivatePackage(Guid PackageId, CancellationToken cancellationToken)
@@ -299,6 +367,95 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
         var result = await sender.Send(query, cancellationToken);
         return result.Match(
             value => Ok(value),
+            Problem);
+    }
+
+    [HttpGet("recommended-guides/see-all")]
+    public async Task<IActionResult> GetRecommendedGuidesSeeAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int size = 10,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetRecommendedGuidesSeeAllQuery(page, size);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(value),
+            Problem);
+    }
+
+    [HttpGet("{id:guid}/similar")]
+    public async Task<IActionResult> GetSimilarGuides(
+        [FromRoute] Guid id,
+        [FromQuery] int count = 5,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetSimilarGuidesQuery(id, count);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(value),
+            Problem);
+    }
+
+    [HttpGet("package-accommodations/{packageAccommodationId:guid}")]
+    public async Task<IActionResult> GetPackageAccommodation(
+    [FromRoute] Guid packageAccommodationId,
+    CancellationToken cancellationToken)
+    {
+        var query = new GetPackageAccommodationQuery(packageAccommodationId);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(mapper.Map<GetPackageAccommodationResponse>(value)),
+            Problem);
+    }
+
+    [HttpPut("{packageId:guid}/occurrences/{occurrenceId:guid}")]
+    public async Task<IActionResult> UpdateOccurrence(
+        [FromRoute] Guid packageId,
+        [FromRoute] Guid occurrenceId,
+        [FromBody] UpdatePackageOccurrenceRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdatePackageOccurrenceCommand(
+            packageId,
+            occurrenceId,
+            request.NewDate,
+            request.NewAvailableSeats
+        );
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            _ => NoContent(),
+            Problem
+        );
+    }
+
+    [HttpDelete("{packageId:guid}/occurrences/{occurrenceId:guid}")]
+    public async Task<IActionResult> DeleteOccurrence(
+        [FromRoute] Guid packageId,
+        [FromRoute] Guid occurrenceId,
+        CancellationToken cancellationToken)
+    {
+        var command = new DeletePackageOccurrenceCommand(packageId, occurrenceId);
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            _ => NoContent(),
+            Problem
+        );
+    }
+
+    [HttpGet("packages/{packageId:guid}/occurrences/{occurrenceId:guid}/details")]
+    public async Task<IActionResult> GetPackageOccurrenceDetails(
+        [FromRoute] Guid packageId,
+        [FromRoute] Guid occurrenceId,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetPackageOccurrenceDetailsQuery(packageId, occurrenceId);
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(mapper.Map<PackageOccurrenceDetailsResponse>(value)),
             Problem);
     }
 }

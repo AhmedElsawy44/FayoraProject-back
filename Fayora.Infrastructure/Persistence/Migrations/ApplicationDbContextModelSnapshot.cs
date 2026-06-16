@@ -187,8 +187,16 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("AdultsCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.Property<int>("AppliedCancelPolicy")
                         .HasColumnType("int");
+
+                    b.Property<Guid?>("AppliedOfferId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("BasePrice")
                         .HasColumnType("decimal(18,2)");
@@ -196,17 +204,32 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.Property<int>("BookingStatus")
                         .HasColumnType("int");
 
+                    b.Property<int>("ChildrenCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<decimal>("DepositAmount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal>("DiscountAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
+
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsCashOnArrival")
                         .HasColumnType("bit");
+
+                    b.Property<bool>("IsPayoutProcessed")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsScanned")
                         .HasColumnType("bit");
@@ -220,8 +243,12 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("ScannedAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<int>("SeatsCount")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("SelectedMeetingPointId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SelectedOptionalActivityIds")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("SelectedOptionalActivityIds");
 
                     b.Property<decimal>("ServiceFee")
                         .HasColumnType("decimal(18,2)");
@@ -246,9 +273,13 @@ namespace Fayora.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AppliedOfferId");
+
                     b.HasIndex("BookingStatus");
 
                     b.HasIndex("EndDate");
+
+                    b.HasIndex("IsPayoutProcessed");
 
                     b.HasIndex("PaymentStatus");
 
@@ -349,6 +380,33 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.HasIndex("Status");
 
                     b.ToTable("PaymentTransactions", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.Booking.ProviderPayout", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTimeOffset>("PayoutDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("ProviderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PayoutDate");
+
+                    b.HasIndex("ProviderId");
+
+                    b.ToTable("ProviderPayouts", (string)null);
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.ChatModule.Chat", b =>
@@ -570,6 +628,9 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.Property<string>("ArrivalNote")
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<decimal>("AverageRating")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("CancellationPolicy")
                         .HasColumnType("int");
 
@@ -590,8 +651,20 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.Property<int>("DurationHours")
                         .HasColumnType("int");
 
+                    b.Property<int?>("GroupDiscountMinPeople")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("GroupDiscountPercent")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("GuestRequirements")
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("HasGroupDiscount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -606,6 +679,9 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("ProviderType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReviewCount")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
@@ -650,6 +726,16 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("LocationIds");
+
+                    b.Property<string>("_nightIds")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("NightIds");
+
+                    b.Property<string>("_optionalActivities")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("OptionalActivities");
 
                     b.HasKey("Id");
 
@@ -743,6 +829,44 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.ToTable("GuideWeeklySchedules", (string)null);
                 });
 
+            modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageAccommodation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Amenities")
+                        .HasColumnType("int");
+
+                    b.Property<TimeOnly>("CheckInTime")
+                        .HasColumnType("time");
+
+                    b.Property<TimeOnly>("CheckOutTime")
+                        .HasColumnType("time");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("Meals")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("PackageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PackageAccommodations", (string)null);
+                });
+
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageActivity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -758,6 +882,9 @@ namespace Fayora.Infrastructure.Persistence.Migrations
 
                     b.Property<bool>("IsOptional")
                         .HasColumnType("bit");
+
+                    b.Property<int?>("LocationId")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("PackageId")
                         .HasColumnType("uniqueidentifier");
@@ -779,6 +906,66 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PackageImages", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageMeetingPoint", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("MeetingPointName")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("Name");
+
+                    b.Property<Guid>("PackageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Price")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<TimeOnly>("Time")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PackageId");
+
+                    b.ToTable("PackageMeetingPoints", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageNight", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("HousingUnitId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("NightDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("NightNumber")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("PackageAccommodationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PackageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PackageNights", (string)null);
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageOccurrence", b =>
@@ -1298,6 +1485,10 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("CreatedByAdminId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("CronExpression")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<int>("FailureCount")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
@@ -1310,6 +1501,14 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
+
+                    b.Property<bool>("IsRecurring")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTimeOffset?>("LastRunAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset?>("ScheduledAt")
                         .HasColumnType("datetimeoffset");
@@ -1345,6 +1544,97 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.ToTable("PushCampaigns", (string)null);
                 });
 
+            modelBuilder.Entity("Fayora.Domain.Entities.ReviewModule.Review", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<decimal>("Rating")
+                        .HasColumnType("decimal(3,1)");
+
+                    b.Property<Guid>("ReviewerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TargetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("TargetType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId")
+                        .IsUnique();
+
+                    b.HasIndex("ReviewerId");
+
+                    b.HasIndex("TargetId", "TargetType");
+
+                    b.ToTable("Reviews", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.ReviewModule.ReviewReport", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AdditionalNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsResolved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("Reason")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ReporterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("ResolvedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("ReviewId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReporterId");
+
+                    b.HasIndex("ReviewId", "ReporterId")
+                        .IsUnique();
+
+                    b.ToTable("ReviewReports", (string)null);
+                });
+
             modelBuilder.Entity("Fayora.Domain.Entities.SharedModule.City", b =>
                 {
                     b.Property<int>("Id")
@@ -1366,6 +1656,68 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Cities", (string)null);
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.SharedModule.DiscountOffer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("DiscountType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal>("DiscountValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTimeOffset>("EndDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("StartDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("TargetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("TargetId");
+
+                    b.HasIndex("TargetId", "TargetType", "Status");
+
+                    b.ToTable("DiscountOffers", (string)null);
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.SharedModule.Location", b =>
@@ -1847,36 +2199,10 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                                 .HasForeignKey("GuidePackageId");
                         });
 
-                    b.OwnsOne("Fayora.Domain.ValueObjects.GeoPoint", "MeetingPoint", b1 =>
-                        {
-                            b1.Property<Guid>("GuidePackageId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<decimal>("Latitude")
-                                .HasPrecision(18, 6)
-                                .HasColumnType("decimal(18,6)")
-                                .HasColumnName("MeetingPointLatitude");
-
-                            b1.Property<decimal>("Longitude")
-                                .HasPrecision(18, 6)
-                                .HasColumnType("decimal(18,6)")
-                                .HasColumnName("MeetingPointLongitude");
-
-                            b1.HasKey("GuidePackageId");
-
-                            b1.ToTable("GuideTourPackages");
-
-                            b1.WithOwner()
-                                .HasForeignKey("GuidePackageId");
-                        });
-
                     b.Navigation("MainImageUrl")
                         .IsRequired();
 
                     b.Navigation("MainVideoUrl");
-
-                    b.Navigation("MeetingPoint")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.GuideRequest", b =>
@@ -1908,6 +2234,84 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageAccommodation", b =>
+                {
+                    b.OwnsMany("Fayora.Domain.ValueObjects.FileUrl", "GalleryImages", b1 =>
+                        {
+                            b1.Property<Guid>("PackageAccommodationId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(2048)
+                                .HasColumnType("nvarchar(2048)")
+                                .HasColumnName("Url");
+
+                            b1.HasKey("PackageAccommodationId", "Id");
+
+                            b1.ToTable("PackageAccommodationGalleryImages", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("PackageAccommodationId");
+                        });
+
+                    b.OwnsOne("Fayora.Domain.ValueObjects.GeoPoint", "Location", b1 =>
+                        {
+                            b1.Property<Guid>("PackageAccommodationId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Latitude")
+                                .HasPrecision(18, 6)
+                                .HasColumnType("decimal(18,6)")
+                                .HasColumnName("Latitude");
+
+                            b1.Property<decimal>("Longitude")
+                                .HasPrecision(18, 6)
+                                .HasColumnType("decimal(18,6)")
+                                .HasColumnName("Longitude");
+
+                            b1.HasKey("PackageAccommodationId");
+
+                            b1.ToTable("PackageAccommodations");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PackageAccommodationId");
+                        });
+
+                    b.OwnsOne("Fayora.Domain.ValueObjects.FileUrl", "MainImageUrl", b1 =>
+                        {
+                            b1.Property<Guid>("PackageAccommodationId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(2048)
+                                .HasColumnType("nvarchar(2048)")
+                                .HasColumnName("MainImageUrl");
+
+                            b1.HasKey("PackageAccommodationId");
+
+                            b1.ToTable("PackageAccommodations");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PackageAccommodationId");
+                        });
+
+                    b.Navigation("GalleryImages");
+
+                    b.Navigation("Location")
+                        .IsRequired();
+
+                    b.Navigation("MainImageUrl")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageActivity", b =>
                 {
                     b.OwnsOne("Fayora.Domain.ValueObjects.GeoPoint", "Place", b1 =>
@@ -1933,8 +2337,7 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                                 .HasForeignKey("PackageActivityId");
                         });
 
-                    b.Navigation("Place")
-                        .IsRequired();
+                    b.Navigation("Place");
                 });
 
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageImage", b =>
@@ -1959,6 +2362,41 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                         });
 
                     b.Navigation("ImageUrl")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.PackageMeetingPoint", b =>
+                {
+                    b.HasOne("Fayora.Domain.Entities.GuideModule.GuidePackage", null)
+                        .WithMany("MeetingPoints")
+                        .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("Fayora.Domain.ValueObjects.GeoPoint", "MeetingPoint", b1 =>
+                        {
+                            b1.Property<Guid>("PackageMeetingPointId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Latitude")
+                                .HasPrecision(18, 10)
+                                .HasColumnType("decimal(18,10)")
+                                .HasColumnName("Latitude");
+
+                            b1.Property<decimal>("Longitude")
+                                .HasPrecision(18, 10)
+                                .HasColumnType("decimal(18,10)")
+                                .HasColumnName("Longitude");
+
+                            b1.HasKey("PackageMeetingPointId");
+
+                            b1.ToTable("PackageMeetingPoints");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PackageMeetingPointId");
+                        });
+
+                    b.Navigation("MeetingPoint")
                         .IsRequired();
                 });
 
@@ -2038,6 +2476,32 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                         .WithMany("VerificationCodes")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.ReviewModule.Review", b =>
+                {
+                    b.HasOne("Fayora.Domain.Entities.IdentityModule.User", "Reviewer")
+                        .WithMany()
+                        .HasForeignKey("ReviewerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Reviewer");
+                });
+
+            modelBuilder.Entity("Fayora.Domain.Entities.ReviewModule.ReviewReport", b =>
+                {
+                    b.HasOne("Fayora.Domain.Entities.IdentityModule.User", null)
+                        .WithMany()
+                        .HasForeignKey("ReporterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Fayora.Domain.Entities.ReviewModule.Review", null)
+                        .WithMany()
+                        .HasForeignKey("ReviewId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
@@ -2201,6 +2665,8 @@ namespace Fayora.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Fayora.Domain.Entities.GuideModule.GuidePackage", b =>
                 {
+                    b.Navigation("MeetingPoints");
+
                     b.Navigation("Occurrences");
                 });
 

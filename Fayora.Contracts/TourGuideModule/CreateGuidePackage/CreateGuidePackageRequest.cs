@@ -1,4 +1,4 @@
-﻿namespace Fayora.Contracts.TourGuideModule.CreateGuidePackage;
+namespace Fayora.Contracts.TourGuideModule.CreateGuidePackage;
 
 public record CreateGuidePackageRequest
 (
@@ -6,8 +6,9 @@ public record CreateGuidePackageRequest
     string Description,
     string TourType,
     int DurationHours,
-    decimal Longitude,
-    decimal Latitude,
+    int NumOfDays,
+    List<NightDto>? Nights,
+    List<MeetingPointDto> MeetingPoints,
     string TransportType,
     string? ArrivalNote,
     decimal AdultPrice,
@@ -21,7 +22,52 @@ public record CreateGuidePackageRequest
     string CancellationPolicy,
     string? GuestRequirements,
     List<ActivityDto> Activities,
-    HashSet<int> LocationIds
+    HashSet<int> LocationIds,
+    List<OptionalActivityDto>? OptionalActivities,
+    bool HasGroupDiscount = false,
+    int? GroupDiscountMinPeople = null,
+    decimal? GroupDiscountPercent = null
 );
 
-public record ActivityDto(decimal Latitude, decimal Longitude, string Description, TimeOnly ActivityTime, bool IsOptional);
+public record OptionalActivityDto(
+    string Description,
+    decimal AdditionalPrice,
+    string ImageUrl
+);
+
+public record MeetingPointDto(
+    string MeetingPointName,
+    decimal Latitude,
+    decimal Longitude,
+    TimeOnly Time,
+    decimal Price = 0,
+    string? Description = null
+);
+
+public record ActivityDto(decimal? Latitude,
+    decimal? Longitude,
+    string Description,
+    TimeOnly ActivityTime,
+    bool IsOptional, 
+    int? LocationId);
+
+public record NightDto(
+    int NightNumber,
+    DateOnly NightDate,
+    Guid? HousingUnitId,
+    PackageAccommodationDto? NewAccommodation
+);
+
+public record PackageAccommodationDto(
+    string Name,
+    string? Description,
+    string Type,
+    string MainImageUrl,
+    List<string>? GalleryImages,
+    decimal Latitude,
+    decimal Longitude,
+    TimeOnly CheckInTime,
+    TimeOnly CheckOutTime,
+    List<string>? Amenities,
+    List<string>? Meals
+);

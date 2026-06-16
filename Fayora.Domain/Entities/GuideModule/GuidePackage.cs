@@ -16,9 +16,14 @@ public class GuidePackage : AuditableEntity<Guid>
     public ProviderType ProviderType { get; private set; }
     public int DurationHours { get; private set; }
     public int NumOfDays { get; private set; }
+    public int NumOfNights => NumOfDays > 1 ? NumOfDays - 1 : 0;
+
     public int MaxCapacity { get; private set; }
     public decimal AdultPrice { get; private set; }
     public decimal ChildPrice { get; private set; }
+    public bool HasGroupDiscount { get; private set; }
+    public int? GroupDiscountMinPeople { get; private set; }
+    public decimal? GroupDiscountPercent { get; private set; }
     public bool IsActive { get; private set; }
     public int Views { get; private set; }
     public FileUrl MainImageUrl { get; private set; } = default!;
@@ -27,30 +32,40 @@ public class GuidePackage : AuditableEntity<Guid>
     public CancellationPolicy CancellationPolicy { get; private set; }
     public ItemStatus PackageStatus { get; private set; }
 
-    private readonly List<int> _includedItemIds = [];
-    public IReadOnlyCollection<int> IncludedItemIds => _includedItemIds.AsReadOnly();
+    private List<int> _includedItemIds = [];
+    public IReadOnlyCollection<int> IncludedItemIds => (_includedItemIds ??= new List<int>()).AsReadOnly();
 
-    private readonly List<int>? _excludedItemIds = [];
-    public IReadOnlyCollection<int> ExcludedItemIds => _excludedItemIds!.AsReadOnly();
-    public GeoPoint MeetingPoint { get; private set; } = null!;
+    private List<int>? _excludedItemIds = [];
+    public IReadOnlyCollection<int> ExcludedItemIds => (_excludedItemIds ??= new List<int>()).AsReadOnly();
+    private readonly List<PackageMeetingPoint> _meetingPoints = [];
+    public IReadOnlyCollection<PackageMeetingPoint> MeetingPoints => _meetingPoints.AsReadOnly();
     public string? ArrivalNote { get; private set; }
     public TransportType TransportType { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
+    public decimal AverageRating { get; private set; }
+    public int ReviewCount { get; private set; }
 
-    private readonly List<int> _locationIds = [];
-    public IReadOnlyCollection<int> LocationIds => _locationIds.AsReadOnly();
+    private List<int> _locationIds = [];
+    public IReadOnlyCollection<int> LocationIds => (_locationIds ??= new List<int>()).AsReadOnly();
 
     public string? AdminNotes { get; private set; }
 
-    private readonly List<Guid> _imageIds = [];
-    public IReadOnlyCollection<Guid> ImageIds => _imageIds.AsReadOnly();
-    public IReadOnlyCollection<Guid> ImageURLs => _imageIds.ToList().AsReadOnly();
+    private List<Guid> _imageIds = [];
+    public IReadOnlyCollection<Guid> ImageIds => (_imageIds ??= new List<Guid>()).AsReadOnly();
+    public IReadOnlyCollection<Guid> ImageURLs => (_imageIds ??= new List<Guid>()).ToList().AsReadOnly();
 
-    private readonly List<Guid> _activityIds = [];
-    public IReadOnlyCollection<Guid> ActivityIds => _activityIds.AsReadOnly();
+    private List<Guid> _activityIds = [];
+    public IReadOnlyCollection<Guid> ActivityIds => (_activityIds ??= new List<Guid>()).AsReadOnly();
+
+    private List<Guid> _nightIds = [];
+    public IReadOnlyCollection<Guid> NightIds => (_nightIds ??= new List<Guid>()).AsReadOnly();
 
     private readonly List<PackageOccurrence> _occurrences = [];
     public IReadOnlyCollection<PackageOccurrence> Occurrences => _occurrences.AsReadOnly();
+
+    private readonly List<OptionalActivity> _optionalActivities = [];
+    public IReadOnlyCollection<OptionalActivity> OptionalActivities => _optionalActivities.AsReadOnly();
+
 
 
     private GuidePackage() { }
@@ -62,7 +77,7 @@ public class GuidePackage : AuditableEntity<Guid>
         TourType tourTypes,
         ProviderType providerType,
         int durationHours,
-        GeoPoint meetingPoint,
+        int numOfDays,
         TransportType transportType,
         int maxCapacity,
         decimal adultPrice,
@@ -80,7 +95,7 @@ public class GuidePackage : AuditableEntity<Guid>
         TourTypes = tourTypes;
         ProviderType = providerType;
         DurationHours = durationHours;
-        MeetingPoint = meetingPoint;
+        NumOfDays = numOfDays;
         TransportType = transportType;
         MaxCapacity = maxCapacity;
         AdultPrice = adultPrice;
@@ -92,6 +107,8 @@ public class GuidePackage : AuditableEntity<Guid>
 
         IsActive = false;
         Views = 0;
+        AverageRating = 0m;
+        ReviewCount = 0;
 
         CancellationPolicy = cancellationPolicy;
         PackageStatus = ItemStatus.Pending;
@@ -99,11 +116,12 @@ public class GuidePackage : AuditableEntity<Guid>
 
     public static Result<GuidePackage> Create(
         Guid guideId, string title, string description,
-        TourType tourTypes, ProviderType providerType, int durationHours,
-        GeoPoint meetingPoint, TransportType transportType,
+        TourType tourTypes, ProviderType providerType, int durationHours, int numOfDays,
+        TransportType transportType,
         int maxCapacity, decimal adultPrice, decimal childPrice,
         string? arrivalNote, FileUrl mainImageUrl,
-        FileUrl? mainVideoUrl = null, string? guestRequirements = null, CancellationPolicy cancellationPolicy = CancellationPolicy.NonRefundable)
+        FileUrl? mainVideoUrl = null, string? guestRequirements = null, CancellationPolicy cancellationPolicy = CancellationPolicy.NonRefundable,
+        bool hasGroupDiscount = false, int? groupDiscountMinPeople = null, decimal? groupDiscountPercent = null)
     {
         if (adultPrice <= 0)
             return Error.Validation("Package.InvalidPrice", "Adult price must be positive.");
@@ -111,24 +129,42 @@ public class GuidePackage : AuditableEntity<Guid>
         if (durationHours <= 0)
             return Error.Validation("Package.InvalidDuration", "Duration must be greater than zero.");
 
+        if (numOfDays <= 0)
+            return Error.Validation("Package.InvalidNumOfDays", "Number of days must be greater than zero.");
+
         if (maxCapacity <= 0)
             return Error.Validation("Package.InvalidCapacity", "Max capacity must be greater than zero.");
 
-        return new GuidePackage(guideId, title, description, tourTypes, providerType,
-            durationHours, meetingPoint, transportType, maxCapacity,
+        var package = new GuidePackage(guideId, title, description, tourTypes, providerType,
+            durationHours, numOfDays, transportType, maxCapacity,
             adultPrice, childPrice, arrivalNote, mainImageUrl,
             mainVideoUrl, guestRequirements, cancellationPolicy);
+
+        var discountResult = package.SetGroupDiscount(hasGroupDiscount, groupDiscountMinPeople, groupDiscountPercent);
+        if (discountResult.IsError) return discountResult.Errors;
+
+        return package;
     }
 
-    public void AddIncludedItem(int id) => _includedItemIds.Add(id);
-    public void AddExcludedItem(int id) => _excludedItemIds!.Add(id);
+    public void AddIncludedItem(int id)
+    {
+        _includedItemIds ??= new List<int>();
+        _includedItemIds.Add(id);
+    }
+    public void AddExcludedItem(int id)
+    {
+        _excludedItemIds ??= new List<int>();
+        _excludedItemIds.Add(id);
+    }
     public void AddImage(Guid imageId)
     {
+        _imageIds ??= new List<Guid>();
         _imageIds.Add(imageId);
     }
 
     public void AddImages(IEnumerable<Guid> imageIds)
     {
+        _imageIds ??= new List<Guid>();
         foreach (var id in imageIds) AddImage(id);
     }
 
@@ -153,44 +189,131 @@ public class GuidePackage : AuditableEntity<Guid>
 
     public void IncrementViews() => Views++;
 
-    public void UpdateDetails(
+    public Result<Success> UpdateDetails(
         string title,
         string description,
         int durationHours,
+        int numOfDays,
         decimal adultPrice,
         decimal childPrice,
-        TourType tourTypes)
+        TourType tourTypes,
+        int maxCapacity,
+        string? arrivalNote,
+        TransportType transportType,
+        string? guestRequirements,
+        CancellationPolicy cancellationPolicy,
+        FileUrl mainImageUrl,
+        FileUrl? mainVideoUrl,
+        bool hasGroupDiscount = false,
+        int? groupDiscountMinPeople = null,
+        decimal? groupDiscountPercent = null)
     {
+        if (adultPrice <= 0)
+            return Error.Validation("Package.InvalidPrice", "Adult price must be positive.");
+
+        if (durationHours <= 0)
+            return Error.Validation("Package.InvalidDuration", "Duration must be greater than zero.");
+
+        if (numOfDays <= 0)
+            return Error.Validation("Package.InvalidNumOfDays", "Number of days must be greater than zero.");
+
+        if (maxCapacity <= 0)
+            return Error.Validation("Package.InvalidCapacity", "Max capacity must be greater than zero.");
+
+        var discountResult = SetGroupDiscount(hasGroupDiscount, groupDiscountMinPeople, groupDiscountPercent);
+        if (discountResult.IsError) return discountResult;
+
         Title = title;
         Description = description;
         DurationHours = durationHours;
+        NumOfDays = numOfDays;
         AdultPrice = adultPrice;
         ChildPrice = childPrice;
         TourTypes = tourTypes;
+        MaxCapacity = maxCapacity;
+        ArrivalNote = arrivalNote;
+        TransportType = transportType;
+        GuestRequirements = guestRequirements;
+        CancellationPolicy = cancellationPolicy;
+        MainImageUrl = mainImageUrl;
+        MainVideoUrl = mainVideoUrl;
+        Updated();
+        return Result.Success;
+    }
+
+    public void UpdateIncludedItems(IEnumerable<int> ids)
+    {
+        _includedItemIds ??= new List<int>();
+        _includedItemIds.Clear();
+        _includedItemIds.AddRange(ids);
         Updated();
     }
 
-    public void AddLocation(int locationId) => _locationIds.Add(locationId);
-    public void AddLocations(IEnumerable<int> locationIds) => _locationIds.AddRange(locationIds);
+    public void UpdateExcludedItems(IEnumerable<int> ids)
+    {
+        _excludedItemIds ??= new List<int>();
+        _excludedItemIds.Clear();
+        _excludedItemIds.AddRange(ids);
+        Updated();
+    }
+
+    public void UpdateLocations(IEnumerable<int> locationIds)
+    {
+        _locationIds ??= new List<int>();
+        _locationIds.Clear();
+        _locationIds.AddRange(locationIds);
+        Updated();
+    }
+
+    public void UpdateImages(IEnumerable<Guid> imageIds)
+    {
+        _imageIds ??= new List<Guid>();
+        _imageIds.Clear();
+        _imageIds.AddRange(imageIds);
+        Updated();
+    }
+
+    public void UpdateActivities(IEnumerable<Guid> activityIds)
+    {
+        _activityIds ??= new List<Guid>();
+        _activityIds.Clear();
+        _activityIds.AddRange(activityIds);
+        Updated();
+    }
+
+    public void AddLocation(int locationId)
+    {
+        _locationIds ??= new List<int>();
+        _locationIds.Add(locationId);
+    }
+    public void AddLocations(IEnumerable<int> locationIds)
+    {
+        _locationIds ??= new List<int>();
+        _locationIds.AddRange(locationIds);
+    }
 
     public void AddIncludedItems(IEnumerable<int> ids)
     {
+        _includedItemIds ??= new List<int>();
         foreach (var id in ids) _includedItemIds.Add(id);
     }
 
     public void AddExcludedItems(IEnumerable<int> ids)
     {
-        foreach (var id in ids) _excludedItemIds!.Add(id);
+        _excludedItemIds ??= new List<int>();
+        foreach (var id in ids) _excludedItemIds.Add(id);
     }
 
-    public void UpdateMeetingPoint(GeoPoint newMeetingPoint)
+    public void UpdateMeetingPoints(IEnumerable<PackageMeetingPoint> meetingPoints)
     {
-        MeetingPoint = newMeetingPoint;
+        _meetingPoints.Clear();
+        _meetingPoints.AddRange(meetingPoints);
         Updated();
     }
 
     public void AddActivities(IEnumerable<Guid> activityIds)
     {
+        _activityIds ??= new List<Guid>();
         foreach (var id in activityIds) _activityIds.Add(id);
     }
 
@@ -214,15 +337,66 @@ public class GuidePackage : AuditableEntity<Guid>
         return Result.Success;
     }
 
-    public Result<decimal> CalculateBooking(int numAdults, int numChildren)
+    public Result<decimal> CalculateBooking(int numAdults, int numChildren, Guid selectedMeetingPointId, List<Guid>? selectedOptionalActivityIds = null)
     {
         if (numAdults < 0 || numChildren < 0)
             return Error.Validation("Package.InvalidBooking", "Number of adults and children cannot be negative.");
         if (numAdults + numChildren > MaxCapacity)
             return Error.Validation("Package.OverCapacity", "Total number of guests exceeds package capacity.");
         var total = (AdultPrice * numAdults) + (ChildPrice * numChildren);
+
+        if (selectedOptionalActivityIds is not null && selectedOptionalActivityIds.Count > 0)
+        {
+            var totalGuests = numAdults + numChildren;
+            foreach (var activityId in selectedOptionalActivityIds)
+            {
+                var activity = _optionalActivities.FirstOrDefault(a => a.Id == activityId);
+                if (activity is null)
+                {
+                    return Error.Validation("Package.OptionalActivityNotFound", $"Optional activity with ID {activityId} not found in this package.");
+                }
+                total += activity.AdditionalPrice * totalGuests;
+            }
+        }
+
+        var meetingPoint = _meetingPoints.FirstOrDefault(mp => mp.Id == selectedMeetingPointId);
+        if (meetingPoint is null)
+        {
+            return Error.Validation("Package.MeetingPointNotFound", $"Meeting point with ID {selectedMeetingPointId} not found in this package.");
+        }
+        total += meetingPoint.Price;
+
+        // Apply group discount if enabled and guest count meets threshold
+        if (HasGroupDiscount && GroupDiscountMinPeople.HasValue && GroupDiscountPercent.HasValue)
+        {
+            var totalGuests = numAdults + numChildren;
+            if (totalGuests >= GroupDiscountMinPeople.Value)
+            {
+                var discountAmount = total * (GroupDiscountPercent.Value / 100m);
+                total -= discountAmount;
+            }
+        }
+
         return total;
     }
+
+    private Result<Success> SetGroupDiscount(bool hasGroupDiscount, int? groupDiscountMinPeople, decimal? groupDiscountPercent)
+    {
+        if (hasGroupDiscount)
+        {
+            if (!groupDiscountMinPeople.HasValue || groupDiscountMinPeople.Value <= 0)
+                return Error.Validation("Package.InvalidGroupDiscountMinPeople", "Group discount minimum people must be greater than zero.");
+
+            if (!groupDiscountPercent.HasValue || groupDiscountPercent.Value <= 0 || groupDiscountPercent.Value > 100)
+                return Error.Validation("Package.InvalidGroupDiscountPercent", "Group discount percent must be between 0 and 100.");
+        }
+
+        HasGroupDiscount = hasGroupDiscount;
+        GroupDiscountMinPeople = hasGroupDiscount ? groupDiscountMinPeople : null;
+        GroupDiscountPercent = hasGroupDiscount ? groupDiscountPercent : null;
+        return Result.Success;
+    }
+
 
     public Result<Success> AddOccurrences(IEnumerable<(DateOnly Date, int AvailableSeats)> newOccurrences)
     {
@@ -315,5 +489,59 @@ public class GuidePackage : AuditableEntity<Guid>
         TourTypes = tourTypes;
         PackageStatus = status;
         Updated();
+    }
+
+    public void AddNight(Guid nightId)
+    {
+        _nightIds ??= new List<Guid>();
+        _nightIds.Add(nightId);
+    }
+    public void AddNights(IEnumerable<Guid> nightIds)
+    {
+        _nightIds ??= new List<Guid>();
+        _nightIds.AddRange(nightIds);
+    }
+
+    public void UpdateNights(IEnumerable<Guid> nightIds)
+    {
+        _nightIds ??= new List<Guid>();
+        _nightIds.Clear();
+        _nightIds.AddRange(nightIds);
+        Updated();
+    }
+
+    public void UpdateOptionalActivities(IEnumerable<OptionalActivity> optionalActivities)
+    {
+        _optionalActivities.Clear();
+        _optionalActivities.AddRange(optionalActivities);
+        Updated();
+    }
+
+    public void AddReview(decimal newRating)
+    {
+        AverageRating = ((AverageRating * ReviewCount) + newRating) / (ReviewCount + 1);
+        ReviewCount++;
+    }
+
+    public void UpdateReview(decimal oldRating, decimal newRating)
+    {
+        if (ReviewCount > 0)
+        {
+            AverageRating = ((AverageRating * ReviewCount) - oldRating + newRating) / ReviewCount;
+        }
+    }
+
+    public void DeleteReview(decimal rating)
+    {
+        if (ReviewCount > 1)
+        {
+            AverageRating = ((AverageRating * ReviewCount) - rating) / (ReviewCount - 1);
+            ReviewCount--;
+        }
+        else
+        {
+            AverageRating = 0;
+            ReviewCount = 0;
+        }
     }
 }

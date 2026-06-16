@@ -22,7 +22,7 @@ public class PushCampaignJob(
             return;
         }
 
-        if (campaign.Status != "Scheduled" && campaign.Status != "Draft" && campaign.Status != "Sending")
+        if (campaign.Status != "Scheduled" && campaign.Status != "Draft" && campaign.Status != "Sending" && campaign.Status != "Recurring")
         {
             logger.LogWarning("Push campaign {CampaignId} has invalid status '{Status}' for execution. Skipping.", campaignId, campaign.Status);
             return;
@@ -30,8 +30,11 @@ public class PushCampaignJob(
 
         try
         {
-            campaign.MarkAsSending();
-            await unitOfWork.CommitChangesAsync(cancellationToken);
+            if (!campaign.IsRecurring)
+            {
+                campaign.MarkAsSending();
+                await unitOfWork.CommitChangesAsync(cancellationToken);
+            }
 
             logger.LogInformation("Fetching device tokens for audience: {Audience}", campaign.TargetAudience);
             var tokens = await notificationRepository.GetTokensByAudienceAsync(campaign.TargetAudience, cancellationToken);
@@ -45,7 +48,14 @@ public class PushCampaignJob(
                 tokens,
                 cancellationToken);
 
-            campaign.MarkAsSent(successCount, failureCount);
+            if (campaign.IsRecurring)
+            {
+                campaign.RecordRecurringRun(successCount, failureCount);
+            }
+            else
+            {
+                campaign.MarkAsSent(successCount, failureCount);
+            }
             await unitOfWork.CommitChangesAsync(cancellationToken);
 
             logger.LogInformation("Push campaign {CampaignId} execution completed. Success: {Success}, Failure: {Failure}", campaignId, successCount, failureCount);

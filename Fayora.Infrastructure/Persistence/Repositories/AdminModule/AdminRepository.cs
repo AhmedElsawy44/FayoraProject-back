@@ -1,5 +1,6 @@
 using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
 using Fayora.Application.Features.AdminModule.Queries.GetUserDetails;
+using Fayora.Application.Features.AdminModule.Queries.GetUnitOwnerVerificationDetails;
 using Fayora.Contracts.AdminModule.ChatbotMonitoring;
 using Fayora.Contracts.AdminModule.Cities;
 using Fayora.Contracts.AdminModule.FinancialTransactions;
@@ -20,6 +21,7 @@ using Fayora.Domain.Entities.TouristModule;
 using Fayora.Domain.Enums.BookingModule;
 using Fayora.Domain.Enums.IdentityModule;
 using Fayora.Domain.Enums.TourGuideModule;
+using Fayora.Domain.Enums.AccommodationModule;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fayora.Infrastructure.Persistence.Repositories.AdminModule;
@@ -479,26 +481,6 @@ public class AdminRepository(ApplicationDbContext context) : IAdminRepository
     }
 
     // ==================== Master Interests ====================
-    public async Task<List<GetMasterInterestsResponse>> GetMasterInterestsAsync(CancellationToken ct)
-    {
-        var interests = await context.MasterInterests
-            .OrderBy(i => i.SortOrder)
-            .ToListAsync(ct);
-
-        return interests.Select(i => new GetMasterInterestsResponse(
-            i.Id, i.Code, i.Name, i.IconUrl, i.SortOrder, i.IsActive, i.CreateAt
-        )).ToList();
-    }
-
-    public async Task<MasterInterest?> GetMasterInterestByIdAsync(int id, CancellationToken ct)
-    {
-        return await context.MasterInterests.FirstOrDefaultAsync(i => i.Id == id, ct);
-    }
-
-    public void AddMasterInterest(MasterInterest interest)
-    {
-        context.MasterInterests.Add(interest);
-    }
 
     // ==================== Chatbot Monitoring ====================
     public async Task<List<GetChatbotSessionsResponse>> GetChatbotSessionsAsync(int pageNumber, int pageSize, Guid? userIdFilter, DateTime? fromDate, DateTime? toDate, CancellationToken ct)
@@ -623,7 +605,7 @@ public class AdminRepository(ApplicationDbContext context) : IAdminRepository
     public async Task<List<GetPendingPayoutsResponse>> GetPendingPayoutsAsync(CancellationToken ct)
     {
         var pendingBookings = await context.Bookings
-            .Where(b => b.BookingStatus == BookingStatus.Completed && b.PaymentStatus == PaymentTransactionStatus.Paid)
+            .Where(b => b.BookingStatus == BookingStatus.Completed && b.PaymentStatus == PaymentTransactionStatus.Paid && !b.IsPayoutProcessed)
             .GroupBy(b => b.ServiceProviderId)
             .Select(g => new
             {
@@ -772,7 +754,7 @@ public class AdminRepository(ApplicationDbContext context) : IAdminRepository
             .SumAsync(b => b.ServiceFee, ct);
 
         var pendingPayoutsTotal = await context.Bookings
-            .Where(b => b.BookingStatus == BookingStatus.Completed && b.PaymentStatus == PaymentTransactionStatus.Paid)
+            .Where(b => b.BookingStatus == BookingStatus.Completed && b.PaymentStatus == PaymentTransactionStatus.Paid && !b.IsPayoutProcessed)
             .SumAsync(b => b.PayoutAmount, ct);
 
         var refundedCount = await context.PaymentTransactions
@@ -802,5 +784,434 @@ public class AdminRepository(ApplicationDbContext context) : IAdminRepository
             : (bookingsThisMonth > 0 ? 100.0 : 0.0);
 
         return new GrowthIndicatorsDto(userGrowth, bookingGrowth, newUsersThisMonth, newUsersLastMonth, bookingsThisMonth, bookingsLastMonth);
+    }
+
+    // Custom Admin Panel Enhancements
+    public async Task<GetDetailedAccommodationResponse?> GetDetailedAccommodationByIdAsync(Guid id, CancellationToken ct)
+    {
+        var acc = await context.HousingUnits.FirstOrDefaultAsync(h => h.Id == id, ct);
+        if (acc == null) return null;
+
+        var owner = await context.Users.FirstOrDefaultAsync(u => u.Id == acc.OwnerId, ct);
+        var location = await context.Locations.FirstOrDefaultAsync(l => l.Id == acc.LocationId, ct);
+        var images = await context.HousingUnitImages
+            .Where(img => img.UnitId == id)
+            .Select(img => img.ImageUrl.Value)
+            .ToListAsync(ct);
+
+        var amenitiesList = new List<string>();
+        foreach (var val in Enum.GetValues<Amenities>())
+        {
+            if (acc.Amenities.HasFlag(val) && val != Amenities.None)
+            {
+                amenitiesList.Add(val.ToString());
+            }
+        }
+
+        return new GetDetailedAccommodationResponse(
+            acc.Id,
+            acc.OwnerId,
+            owner != null ? $"{owner.FirstName} {owner.LastName}" : "Unknown",
+            owner?.PrimaryEmail?.Value ?? "",
+            owner?.PhoneNumber?.Value ?? "",
+            acc.Title,
+            acc.Description,
+            acc.Type.ToString(),
+            acc.LocationId,
+            location?.Name ?? "Unknown",
+            acc.AddressDetails,
+            acc.Coordinates.Latitude,
+            acc.Coordinates.Longitude,
+            acc.NumberOfRooms,
+            acc.BedRooms,
+            acc.BathRooms,
+            acc.NumberOfBeds,
+            acc.MaxGuests,
+            acc.CheckInTime,
+            acc.CheckOutTime,
+            acc.PricePerNight,
+            acc.CommissionRate,
+            acc.Status.ToString(),
+            acc.Rating,
+            acc.ReviewCount,
+            acc.Views,
+            acc.MainImageUrl?.Value ?? "",
+            images,
+            amenitiesList,
+            acc.CreatedAt,
+            acc.AdminNotes
+        );
+    }
+
+    public async Task<GetUnitOwnerVerificationDetailsResponse?> GetUnitOwnerVerificationDetailsAsync(Guid id, CancellationToken ct)
+    {
+        var ownerProfile = await context.UnitOwners.FirstOrDefaultAsync(uo => uo.UserId == id, ct);
+        if (ownerProfile == null) return null;
+
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id, ct);
+        if (user == null) return null;
+
+        return new GetUnitOwnerVerificationDetailsResponse(
+            user.Id,
+            $"{user.FirstName} {user.LastName}",
+            user.PrimaryEmail?.Value,
+            user.PhoneNumber?.Value,
+            ownerProfile.OwnerType.ToString(),
+            ownerProfile.CommercialName,
+            ownerProfile.VerificationStatus.ToString(),
+            ownerProfile.VerifiedAt
+        );
+    }
+
+    public async Task<List<GetProvidersResponse>> GetProvidersAsync(string providerType, int pageNumber, int pageSize, string? searchQuery, CancellationToken ct)
+    {
+        var providers = new List<GetProvidersResponse>();
+
+        if (providerType.Equals("guides", StringComparison.OrdinalIgnoreCase))
+        {
+            var query = context.TourGuides.AsQueryable();
+            var list = await (from tg in query
+                              join u in context.Users on tg.UserId equals u.Id
+                              where string.IsNullOrWhiteSpace(searchQuery) || u.FirstName.Contains(searchQuery) || u.LastName.Contains(searchQuery)
+                              orderby u.CreatedAt descending
+                              select new { tg, u })
+                              .Skip((pageNumber - 1) * pageSize)
+                              .Take(pageSize)
+                              .ToListAsync(ct);
+
+            foreach (var item in list)
+            {
+                var packageCount = await context.GuideTourPackages.CountAsync(p => p.UserId == item.tg.UserId, ct);
+                providers.Add(new GetProvidersResponse(
+                    item.u.Id,
+                    $"{item.u.FirstName} {item.u.LastName}",
+                    item.u.PrimaryEmail?.Value ?? "",
+                    item.u.PhoneNumber?.Value ?? "",
+                    item.tg.Status.ToString(),
+                    item.u.CreatedAt,
+                    item.tg.AverageRating,
+                    packageCount
+                ));
+            }
+        }
+        else if (providerType.Equals("companies", StringComparison.OrdinalIgnoreCase))
+        {
+            var query = context.TourCompanies.AsQueryable();
+            var list = await (from tc in query
+                              join u in context.Users on tc.UserId equals u.Id
+                              where string.IsNullOrWhiteSpace(searchQuery) || u.FirstName.Contains(searchQuery) || u.LastName.Contains(searchQuery) || tc.CompanyName.Contains(searchQuery)
+                              orderby u.CreatedAt descending
+                              select new { tc, u })
+                              .Skip((pageNumber - 1) * pageSize)
+                              .Take(pageSize)
+                              .ToListAsync(ct);
+
+            foreach (var item in list)
+            {
+                var packageCount = await context.GuideTourPackages.CountAsync(p => p.UserId == item.tc.UserId, ct);
+                providers.Add(new GetProvidersResponse(
+                    item.u.Id,
+                    $"{item.u.FirstName} {item.u.LastName} ({item.tc.CompanyName})",
+                    item.u.PrimaryEmail?.Value ?? "",
+                    item.u.PhoneNumber?.Value ?? "",
+                    item.tc.Status.ToString(),
+                    item.u.CreatedAt,
+                    item.tc.AverageRating,
+                    packageCount
+                ));
+            }
+        }
+        else if (providerType.Equals("owners", StringComparison.OrdinalIgnoreCase))
+        {
+            var query = context.UnitOwners.AsQueryable();
+            var list = await (from uo in query
+                              join u in context.Users on uo.UserId equals u.Id
+                              where string.IsNullOrWhiteSpace(searchQuery) || u.FirstName.Contains(searchQuery) || u.LastName.Contains(searchQuery) || (uo.CommercialName != null && uo.CommercialName.Contains(searchQuery))
+                              orderby u.CreatedAt descending
+                              select new { uo, u })
+                              .Skip((pageNumber - 1) * pageSize)
+                              .Take(pageSize)
+                              .ToListAsync(ct);
+
+            foreach (var item in list)
+            {
+                var accCount = await context.HousingUnits.CountAsync(h => h.OwnerId == item.uo.UserId, ct);
+                providers.Add(new GetProvidersResponse(
+                    item.u.Id,
+                    $"{item.u.FirstName} {item.u.LastName}" + (item.uo.CommercialName != null ? $" ({item.uo.CommercialName})" : ""),
+                    item.u.PrimaryEmail?.Value ?? "",
+                    item.u.PhoneNumber?.Value ?? "",
+                    item.uo.VerificationStatus.ToString(),
+                    item.u.CreatedAt,
+                    (decimal)item.uo.OwnerRating,
+                    accCount
+                ));
+            }
+        }
+
+        return providers;
+    }
+
+    public async Task<bool> DeleteAccommodationAsync(Guid id, CancellationToken ct)
+    {
+        var acc = await context.HousingUnits.FirstOrDefaultAsync(h => h.Id == id, ct);
+        if (acc == null) return false;
+
+        // Rather than removing, let's reject/soft-delete by marking status to Rejected.
+        acc.Reject("Archived / Deleted by Administrator");
+        await context.SaveChangesAsync(ct);
+        return true;
+    }
+
+    public async Task<bool> DeleteTourPackageAsync(Guid id, CancellationToken ct)
+    {
+        var pkg = await context.GuideTourPackages.FirstOrDefaultAsync(p => p.Id == id, ct);
+        if (pkg == null) return false;
+
+        // Reject / Archive tour package.
+        pkg.Reject("Archived / Deleted by Administrator");
+        await context.SaveChangesAsync(ct);
+        return true;
+    }
+
+    public async Task<GetDetailedCompanyResponse?> GetDetailedCompanyByIdAsync(Guid id, CancellationToken ct)
+    {
+        var company = await context.TourCompanies.FirstOrDefaultAsync(tc => tc.UserId == id, ct);
+        if (company == null) return null;
+
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id, ct);
+        if (user == null) return null;
+
+        var packages = await context.GuideTourPackages
+            .Where(p => p.UserId == id && p.DeletedAt == null)
+            .OrderByDescending(p => p.CreatedAt)
+            .Select(p => new CompanyPackageDto(
+                p.Id,
+                p.Title,
+                p.AdultPrice,
+                p.ChildPrice,
+                p.PackageStatus.ToString(),
+                p.Views,
+                p.DurationHours,
+                p.MainImageUrl.Value
+            ))
+            .ToListAsync(ct);
+
+        return new GetDetailedCompanyResponse(
+            user.Id,
+            $"{user.FirstName} {user.LastName}",
+            user.PrimaryEmail != null ? user.PrimaryEmail.Value : "",
+            user.PhoneNumber != null ? user.PhoneNumber.Value : "",
+            company.CompanyName,
+            company.IsSuperCompany,
+            company.LicenseDocumentUrl != null ? company.LicenseDocumentUrl.Value : "",
+            company.LicenseClass.ToString(),
+            company.CurrencyCode,
+            company.AverageRating,
+            company.ReviewCount,
+            company.CompletedToursCount,
+            company.IsAvailableForBooking,
+            company.Views,
+            company.ResponseRate,
+            company.CancellationRate,
+            company.Status.ToString(),
+            user.CreatedAt,
+            company.AdminNotes,
+            packages
+        );
+    }
+
+    public async Task<GetDetailedGuideResponse?> GetDetailedGuideByIdAsync(Guid id, CancellationToken ct)
+    {
+        var guide = await context.TourGuides
+            .Include(tg => tg.GuideCities)
+                .ThenInclude(gc => gc.City)
+            .FirstOrDefaultAsync(tg => tg.UserId == id, ct);
+        if (guide == null) return null;
+
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id, ct);
+        if (user == null) return null;
+
+        var packages = await context.GuideTourPackages
+            .Where(p => p.UserId == id && p.DeletedAt == null)
+            .OrderByDescending(p => p.CreatedAt)
+            .Select(p => new CompanyPackageDto(
+                p.Id,
+                p.Title,
+                p.AdultPrice,
+                p.ChildPrice,
+                p.PackageStatus.ToString(),
+                p.Views,
+                p.DurationHours,
+                p.MainImageUrl.Value
+            ))
+            .ToListAsync(ct);
+
+        var coveredCities = guide.GuideCities.Select(gc => gc.City.Name).ToList();
+
+        return new GetDetailedGuideResponse(
+            user.Id,
+            $"{user.FirstName} {user.LastName}",
+            user.PrimaryEmail != null ? user.PrimaryEmail.Value : "",
+            user.PhoneNumber != null ? user.PhoneNumber.Value : "",
+            guide.BaseRate,
+            guide.PricingUnit != null ? guide.PricingUnit.ToString() : null,
+            guide.YearsOfExperience,
+            guide.LicenseNumber,
+            guide.LicenseExpiryDate,
+            guide.IsSuperGuide,
+            guide.ProfessionalLicenseUrl != null ? guide.ProfessionalLicenseUrl.Value : null,
+            guide.CancellationPolicy.ToString(),
+            guide.CurrencyCode,
+            guide.AverageRating,
+            guide.ReviewCount,
+            guide.CompletedToursCount,
+            guide.IsAvailableForBooking,
+            guide.Views,
+            guide.ResponseRate,
+            guide.CancellationRate,
+            guide.Status.ToString(),
+            user.CreatedAt,
+            guide.AdminNotes,
+            coveredCities,
+            packages
+        );
+    }
+
+    public async Task<GetDetailedLocationResponse?> GetDetailedLocationByIdAsync(int id, CancellationToken ct)
+    {
+        var location = await context.Locations
+            .FirstOrDefaultAsync(l => l.Id == id, ct);
+        if (location == null) return null;
+
+        var allPackages = await context.GuideTourPackages
+            .Where(p => p.DeletedAt == null)
+            .ToListAsync(ct);
+
+        var associatedPackages = new List<LocationPackageDto>();
+        var locationPackages = allPackages.Where(p => p.LocationIds.Contains(id)).ToList();
+
+        foreach (var p in locationPackages)
+        {
+            var provider = await context.Users.FirstOrDefaultAsync(u => u.Id == p.UserId, ct);
+            associatedPackages.Add(new LocationPackageDto(
+                p.Id,
+                p.Title,
+                p.UserId,
+                provider != null ? $"{provider.FirstName} {provider.LastName}" : "Unknown",
+                p.AdultPrice,
+                p.ChildPrice,
+                p.PackageStatus.ToString(),
+                p.MainImageUrl.Value
+            ));
+        }
+
+        var imageUrls = await context.LocationImages
+            .Where(img => img.LocationId == id)
+            .Select(img => img.ImageUrl.Value)
+            .ToListAsync(ct);
+
+        return new GetDetailedLocationResponse(
+            location.Id,
+            location.Name,
+            location.Description,
+            location.Rating,
+            location.Coordinates.Latitude,
+            location.Coordinates.Longitude,
+            location.Category.ToString(),
+            location.MainImageUrl != null ? location.MainImageUrl.Value : "",
+            imageUrls,
+            associatedPackages
+        );
+    }
+
+    public async Task<bool> UpdateCompanyDetailsAsync(Guid id, UpdateCompanyDetailsRequest request, CancellationToken ct)
+    {
+        var company = await context.TourCompanies.FirstOrDefaultAsync(tc => tc.UserId == id, ct);
+        if (company == null) return false;
+
+        if (!Enum.TryParse<LicenseClass>(request.LicenseClass, true, out var licenseClass))
+        {
+            licenseClass = LicenseClass.A;
+        }
+
+        if (!Enum.TryParse<ItemStatus>(request.Status, true, out var status))
+        {
+            status = ItemStatus.Pending;
+        }
+
+        company.AdminUpdate(
+            request.CompanyName,
+            request.IsSuperCompany,
+            licenseClass,
+            request.AverageRating,
+            request.ReviewCount,
+            request.CompletedToursCount,
+            request.IsAvailableForBooking,
+            request.ResponseRate,
+            request.CancellationRate
+        );
+
+        company.SetAdminStatusAndNotes(status, request.AdminNotes);
+
+        await context.SaveChangesAsync(ct);
+        return true;
+    }
+
+    public async Task<bool> UpdateGuideDetailsAsync(Guid id, UpdateGuideDetailsRequest request, CancellationToken ct)
+    {
+        var guide = await context.TourGuides.FirstOrDefaultAsync(tg => tg.UserId == id, ct);
+        if (guide == null) return false;
+
+        PricingUnit? pricingUnit = null;
+        if (!string.IsNullOrWhiteSpace(request.PricingUnit) && Enum.TryParse<PricingUnit>(request.PricingUnit, true, out var parsedPricingUnit))
+        {
+            pricingUnit = parsedPricingUnit;
+        }
+
+        if (!Enum.TryParse<ItemStatus>(request.Status, true, out var status))
+        {
+            status = ItemStatus.Pending;
+        }
+
+        guide.AdminUpdate(
+            request.BaseRate,
+            pricingUnit,
+            request.YearsOfExperience,
+            request.LicenseNumber,
+            request.LicenseExpiryDate,
+            request.IsSuperGuide,
+            request.AverageRating,
+            request.ReviewCount,
+            request.CompletedToursCount,
+            request.IsAvailableForBooking,
+            request.ResponseRate,
+            request.CancellationRate
+        );
+
+        guide.SetAdminStatusAndNotes(status, request.AdminNotes);
+
+        await context.SaveChangesAsync(ct);
+        return true;
+    }
+
+    public async Task<bool> DeleteCompanyAsync(Guid id, CancellationToken ct)
+    {
+        var company = await context.TourCompanies.FirstOrDefaultAsync(tc => tc.UserId == id, ct);
+        if (company == null) return false;
+
+        company.SetAdminStatusAndNotes(ItemStatus.Rejected, "Suspended / Rejected by Admin");
+        await context.SaveChangesAsync(ct);
+        return true;
+    }
+
+    public async Task<bool> DeleteGuideAsync(Guid id, CancellationToken ct)
+    {
+        var guide = await context.TourGuides.FirstOrDefaultAsync(tg => tg.UserId == id, ct);
+        if (guide == null) return false;
+
+        guide.SetAdminStatusAndNotes(ItemStatus.Rejected, "Suspended / Rejected by Admin");
+        await context.SaveChangesAsync(ct);
+        return true;
     }
 }
