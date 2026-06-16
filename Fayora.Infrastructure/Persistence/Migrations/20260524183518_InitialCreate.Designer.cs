@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fayora.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260522141548_InitialCreate")]
+    [Migration("20260524183518_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -991,9 +991,6 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsPhoneVerified")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsProfileComplete")
                         .HasColumnType("bit");
 
                     b.Property<DateTimeOffset?>("LastFailedLoginAt")

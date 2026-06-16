@@ -7,6 +7,7 @@ public interface IPaymentService
 {
     Task<Result<PaymentResponse>> GeneratePaymentUrlAsync(PaymentRequest request, CancellationToken cancellationToken = default);
     Result<WebhookResult> ValidateAndParseWebhook(IReadOnlyDictionary<string, string> webhookData, string receivedHmac);
+    Task<Result<Success>> RefundAsync(string gatewayTransactionId, decimal amountInEgp, CancellationToken cancellationToken = default);
 }
 
 public record PaymentRequest(

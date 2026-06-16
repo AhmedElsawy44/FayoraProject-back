@@ -40,7 +40,7 @@ public class Booking : BaseEntity<Guid>
         if (endDate <= startDate)
             return Error.Validation();
 
-        decimal depositAmount = isCashOnArrival? basePrice * BookingConstants.CashOnArrivalDepositRate : 0;
+        decimal depositAmount = isCashOnArrival ? basePrice * BookingConstants.CashOnArrivalDepositRate : 0;
 
         var booking = new Booking
         {
@@ -96,6 +96,15 @@ public class Booking : BaseEntity<Guid>
 
         return Result.Success;
     }
+    public Result<Success> MarkAsRefunded()
+    {
+        if (BookingStatus == BookingStatus.Refunded)
+            return Error.Validation("Booking.AlreadyRefunded", "Booking is already refunded.");
+
+        BookingStatus = BookingStatus.Refunded;
+        PaymentStatus = PaymentTransactionStatus.Refunded;
+        return Result.Success;
+    }
 
     public Result<Success> ConfirmCashReceived()
     {
@@ -126,13 +135,30 @@ public class Booking : BaseEntity<Guid>
         return Result.Success;
     }
 
+    // we need to handle it by domain event to apply cancellation policy and calculate refund amount
     public Result<Success> Cancel(string reason)
     {
         if (BookingStatus == BookingStatus.Completed)
             return Error.Validation("Cannot cancel a completed booking.");
 
-        BookingStatus = BookingStatus.Cancelled;
+        if (BookingStatus == BookingStatus.Cancelled)
+            return Error.Validation("Booking is already cancelled.");
 
+
+        if (AppliedCancelPolicy == CancellationPolicy.FreeCancellation48Hours)
+        {
+            var hoursUntilStart = (StartDate - DateTime.UtcNow).TotalHours;
+            if (hoursUntilStart < 48)
+                return Error.Validation("Booking.CancellationWindowPassed",
+                    "Cannot cancel. Cancellation is only allowed 48 hours before the trip.");
+        }
+        else if (AppliedCancelPolicy == CancellationPolicy.NonRefundable)
+        {
+            return Error.Validation("Booking.NonRefundable",
+                "This booking is non-refundable and cannot be cancelled.");
+        }
+
+        BookingStatus = BookingStatus.Cancelled;
         RaiseDomainEvent(new BookingCanceledEvent(Id));
 
         return Result.Success;

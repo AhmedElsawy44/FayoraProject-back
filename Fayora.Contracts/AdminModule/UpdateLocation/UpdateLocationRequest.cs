@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Fayora.Contracts.AdminModule.UpdateLocation;
 
 public record UpdateLocationRequest(

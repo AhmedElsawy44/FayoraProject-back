@@ -1,31 +1,26 @@
 using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
-using Fayora.Contracts.AdminModule.GetUsers;
+using Fayora.Application.Features.AdminModule.Queries.GetUserDetails;
+using Fayora.Contracts.AdminModule.ChatbotMonitoring;
+using Fayora.Contracts.AdminModule.Cities;
+using Fayora.Contracts.AdminModule.FinancialTransactions;
 using Fayora.Contracts.AdminModule.GetBookings;
 using Fayora.Contracts.AdminModule.GetDashboardSummary;
-using Fayora.Contracts.AdminModule.MasterInterests;
-using Fayora.Contracts.AdminModule.ChatbotMonitoring;
-using Fayora.Contracts.AdminModule.FinancialTransactions;
-using Fayora.Contracts.AdminModule.Cities;
+using Fayora.Contracts.AdminModule.GetUsers;
 using Fayora.Contracts.AdminModule.LiveChatMonitoring;
-using Fayora.Domain.Entities.IdentityModule;
-using Fayora.Domain.Entities.Booking;
+using Fayora.Contracts.AdminModule.MasterInterests;
+using Fayora.Contracts.AdminModule.UpdateAccommodation;
+using Fayora.Contracts.AdminModule.UpdateLocation;
+using Fayora.Contracts.AdminModule.UpdateTourPackage;
 using Fayora.Domain.Entities.AccommodationModule;
+using Fayora.Domain.Entities.Booking;
 using Fayora.Domain.Entities.GuideModule;
+using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.Entities.SharedModule;
 using Fayora.Domain.Entities.TouristModule;
-using Fayora.Contracts.AdminModule.UpdateAccommodation;
-using Fayora.Application.Features.AdminModule.Queries.GetUserDetails;
-using Fayora.Contracts.AdminModule.UpdateTourPackage;
-using Fayora.Contracts.AdminModule.UpdateLocation;
-using Fayora.Domain.Enums.IdentityModule;
 using Fayora.Domain.Enums.BookingModule;
+using Fayora.Domain.Enums.IdentityModule;
 using Fayora.Domain.Enums.TourGuideModule;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Fayora.Infrastructure.Persistence.Repositories.AdminModule;
 
@@ -40,6 +35,8 @@ public class AdminRepository(ApplicationDbContext context) : IAdminRepository
         {
             query = query.Where(u => u.FirstName.Contains(searchQuery) ||
                                      u.LastName.Contains(searchQuery) ||
+                                     Fayora.Infrastructure.Persistence.Repositories.ApplicationDbContext.Difference(u.FirstName, searchQuery) >= 3 ||
+                                     Fayora.Infrastructure.Persistence.Repositories.ApplicationDbContext.Difference(u.LastName, searchQuery) >= 3 ||
                                      (u.PrimaryEmail != null && u.PrimaryEmail.Value.Contains(searchQuery)) ||
                                      (u.PhoneNumber != null && u.PhoneNumber.Value.Contains(searchQuery)));
         }
@@ -530,7 +527,7 @@ public class AdminRepository(ApplicationDbContext context) : IAdminRepository
             if (s.UserId.HasValue)
             {
                 var user = await context.Users.FirstOrDefaultAsync(u => u.Id == s.UserId.Value, ct);
-                if (user != null) userName = $"{user.FirstName} {user.LastName}";
+                if (user != null) userName = $"{user.FullName}";
             }
 
             var messageCount = await context.ChatbotMessages.CountAsync(m => m.SessionId == s.Id, ct);

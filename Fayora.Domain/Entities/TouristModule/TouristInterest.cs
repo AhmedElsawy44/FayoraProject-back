@@ -11,5 +11,5 @@ public class TouristInterest : BaseEntity<int>
         InterestId = interestId;
     }
 
-    public TouristInterest() { }
+    private TouristInterest() { }
 }

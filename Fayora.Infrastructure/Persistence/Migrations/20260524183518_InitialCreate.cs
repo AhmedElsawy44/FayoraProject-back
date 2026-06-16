@@ -563,7 +563,6 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     LastLogin = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     DeletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     LastFailedLoginAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    IsProfileComplete = table.Column<bool>(type: "bit", nullable: false),
                     ViolationCount = table.Column<int>(type: "int", nullable: false),
                     AccessFailedCount = table.Column<int>(type: "int", nullable: false),
                     LastViolationDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),

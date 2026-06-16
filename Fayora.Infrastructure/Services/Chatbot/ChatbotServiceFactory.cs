@@ -1,4 +1,3 @@
-using System;
 using Fayora.Application.Common.Interfaces.Services.ChatbotModule;
 using Fayora.Infrastructure.Settings;
 using Microsoft.Extensions.DependencyInjection;

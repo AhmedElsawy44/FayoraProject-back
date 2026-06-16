@@ -990,9 +990,6 @@ namespace Fayora.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsPhoneVerified")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsProfileComplete")
-                        .HasColumnType("bit");
-
                     b.Property<DateTimeOffset?>("LastFailedLoginAt")
                         .HasColumnType("datetimeoffset");
 

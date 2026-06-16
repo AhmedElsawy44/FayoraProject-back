@@ -1,7 +1,8 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnit;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitCalendarBlock;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnitOwner;
+using Fayora.Application.Features.AccommodationModule.Queries.GetRecommendedUnits;
 using Fayora.Application.Features.AccommodationModule.Queries.GetUnitsByType;
 using Fayora.Contracts.AccommodationModule.Requests;
 using Fayora.Contracts.AccommodationModule.Responses;
@@ -158,6 +159,24 @@ public class AccommodationController(ISender sender, IMapper mapper) : ApiContro
 
         var result = await sender.Send(query, cancellationToken);
 
+        return result.Match(
+            value => Ok(value),
+            errors => Problem()
+        );
+    }
+
+    /// <summary>
+    /// Returns personalized housing unit recommendations for authenticated users,
+    /// or trending units for anonymous users.
+    /// Uses a multi-signal scoring engine (budget/travel-style matching, collaborative, popularity, recency).
+    /// </summary>
+    [HttpGet("recommended")]
+    public async Task<IActionResult> GetRecommendedUnits(
+        [FromQuery] int count = 10,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetRecommendedUnitsQuery(count);
+        var result = await sender.Send(query, cancellationToken);
         return result.Match(
             value => Ok(value),
             errors => Problem()

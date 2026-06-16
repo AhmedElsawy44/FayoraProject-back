@@ -1,14 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Fayora.Application.Common.Interfaces.Services.ChatbotModule;
 using Fayora.Infrastructure.Settings;
 using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace Fayora.Infrastructure.Services.Chatbot;
 
@@ -24,21 +19,21 @@ public class OpenAIChatbotService : IChatbotService
     }
 
     public async Task<ChatbotResponse> GenerateResponseAsync(
-        string userPrompt, 
-        List<(string Role, string Content)> history, 
+        string userPrompt,
+        List<(string Role, string Content)> history,
         List<ToolResponse>? toolResponses = null,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(_settings.ApiKey))
         {
-            return new ChatbotResponse 
-            { 
-                Text = "{\"text\": \"عذراً، لم يتم إعداد مفتاح API لخدمة OpenAI بشكل صحيح.\", \"cards\": [], \"suggestions\": [\"إعادة المحاولة\"], \"map\": null}" 
+            return new ChatbotResponse
+            {
+                Text = "{\"text\": \"عذراً، لم يتم إعداد مفتاح API لخدمة OpenAI بشكل صحيح.\", \"cards\": [], \"suggestions\": [\"إعادة المحاولة\"], \"map\": null}"
             };
         }
 
         var url = "https://api.openai.com/v1/chat/completions";
-        
+
         var requestMessage = new HttpRequestMessage(HttpMethod.Post, url);
         requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _settings.ApiKey);
 
@@ -145,7 +140,7 @@ Guidelines for JSON Fields:
 
                 // OpenAI expects the assistant message with tool_calls first
                 var callId = string.IsNullOrEmpty(toolResponse.Id) ? $"call_{Guid.NewGuid():N}" : toolResponse.Id;
-                
+
                 messages.Add(new
                 {
                     role = "assistant",
@@ -276,7 +271,7 @@ Guidelines for JSON Fields:
                 cloneRequest.Content = JsonContent.Create(requestBody);
 
                 response = await _httpClient.SendAsync(cloneRequest, cancellationToken);
-                
+
                 if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests && retry < maxRetries)
                 {
                     Console.WriteLine($"[OpenAI Request] Rate limit hit (429). Retrying in {delayMs}ms (Attempt {retry + 1}/{maxRetries})...");
@@ -301,7 +296,7 @@ Guidelines for JSON Fields:
         }
 
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        
+
         try
         {
             using var jsonDoc = JsonDocument.Parse(responseContent);

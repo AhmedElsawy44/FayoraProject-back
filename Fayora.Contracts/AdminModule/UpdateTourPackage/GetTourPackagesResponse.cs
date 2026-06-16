@@ -1,5 +1,3 @@
-using System;
-
 namespace Fayora.Contracts.AdminModule.UpdateTourPackage;
 
 public record GetTourPackagesResponse(

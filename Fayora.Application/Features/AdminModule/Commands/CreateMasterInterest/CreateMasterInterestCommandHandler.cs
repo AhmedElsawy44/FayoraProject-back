@@ -3,8 +3,6 @@ using Fayora.Application.Common.Interfaces.Persistences.AdminModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.TouristModule;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Fayora.Application.Features.AdminModule.Commands.CreateMasterInterest;
 

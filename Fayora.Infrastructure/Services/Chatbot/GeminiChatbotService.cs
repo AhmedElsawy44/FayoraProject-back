@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Fayora.Application.Common.Interfaces.Services.ChatbotModule;
 using Fayora.Infrastructure.Settings;
 using Microsoft.Extensions.Options;
+using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace Fayora.Infrastructure.Services.Chatbot;
 
@@ -24,8 +19,8 @@ public class GeminiChatbotService : IChatbotService
     }
 
     public async Task<ChatbotResponse> GenerateResponseAsync(
-        string userPrompt, 
-        List<(string Role, string Content)> history, 
+        string userPrompt,
+        List<(string Role, string Content)> history,
         List<ToolResponse>? toolResponses = null,
         CancellationToken cancellationToken = default)
     {
@@ -41,9 +36,9 @@ public class GeminiChatbotService : IChatbotService
 
         if (apiKeys.Count == 0)
         {
-            return new ChatbotResponse 
-            { 
-                Text = "{\"text\": \"عذراً، لم يتم إعداد مفتاح API لخدمة الذكاء الاصطناعي بشكل صحيح.\", \"cards\": [], \"suggestions\": [\"إعادة المحاولة\"], \"map\": null}" 
+            return new ChatbotResponse
+            {
+                Text = "{\"text\": \"عذراً، لم يتم إعداد مفتاح API لخدمة الذكاء الاصطناعي بشكل صحيح.\", \"cards\": [], \"suggestions\": [\"إعادة المحاولة\"], \"map\": null}"
             };
         }
 
@@ -358,7 +353,7 @@ Guidelines for JSON Fields:
 
         if (response == null || !response.IsSuccessStatusCode)
         {
-            var finalMsg = response != null 
+            var finalMsg = response != null
                 ? $"Gemini API error: {response.StatusCode} - {errContent}"
                 : "No response received from Gemini API after trying all keys.";
             throw new HttpRequestException(finalMsg, null, response?.StatusCode);
@@ -366,12 +361,12 @@ Guidelines for JSON Fields:
 
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
         Console.WriteLine($"[Gemini Success Response] Body: {responseContent}");
-        
+
         try
         {
             using var jsonDoc = JsonDocument.Parse(responseContent);
             var root = jsonDoc.RootElement;
-            if (root.TryGetProperty("candidates", out var candidates) && 
+            if (root.TryGetProperty("candidates", out var candidates) &&
                 candidates.GetArrayLength() > 0 &&
                 candidates[0].TryGetProperty("content", out var contentObj) &&
                 contentObj.TryGetProperty("parts", out var parts) &&
@@ -382,7 +377,7 @@ Guidelines for JSON Fields:
                 {
                     var name = functionCall.GetProperty("name").GetString() ?? string.Empty;
                     var args = functionCall.GetProperty("args").GetRawText();
-                    
+
                     string? callId = null;
                     if (functionCall.TryGetProperty("id", out var idProp))
                     {

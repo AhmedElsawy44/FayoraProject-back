@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Contracts.AdminModule.Notifications;
 using Fayora.Domain.Common.Results;

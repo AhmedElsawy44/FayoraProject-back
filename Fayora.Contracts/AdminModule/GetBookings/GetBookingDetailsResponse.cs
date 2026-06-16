@@ -1,5 +1,3 @@
-using System;
-
 namespace Fayora.Contracts.AdminModule.GetBookings;
 
 public record GetBookingDetailsResponse(

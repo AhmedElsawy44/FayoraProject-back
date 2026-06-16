@@ -1,5 +1,3 @@
-using System;
-
 namespace Fayora.Contracts.AdminModule.Notifications;
 
 public record RegisterDeviceTokenRequest(

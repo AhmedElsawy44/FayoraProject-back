@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Fayora.Contracts.AdminModule.GetDashboardSummary;
 
 public record GetDashboardSummaryResponse(

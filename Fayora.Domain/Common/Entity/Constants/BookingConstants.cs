@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fayora.Domain.Common.Entity.Constants
+﻿namespace Fayora.Domain.Common.Entity.Constants
 {
     public static class BookingConstants
     {

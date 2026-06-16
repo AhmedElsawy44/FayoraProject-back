@@ -2,12 +2,12 @@ using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Domain.Common.Interfaces.IdentityModule;
 using Fayora.Domain.Entities.AccommodationModule;
 using Fayora.Domain.Entities.Booking;
+using Fayora.Domain.Entities.ChatbotModule;
 using Fayora.Domain.Entities.ChatModule;
 using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.Entities.SharedModule;
 using Fayora.Domain.Entities.TouristModule;
-using Fayora.Domain.Entities.ChatbotModule;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -110,6 +110,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         httpContextAccessor.HttpContext!.Items["DomainEventsQueue"] = domainEventsQueue;
     }
+
+    [DbFunction("DIFFERENCE", IsBuiltIn = true)]
+    public static int Difference(string stringValue1, string stringValue2) => throw new NotImplementedException();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

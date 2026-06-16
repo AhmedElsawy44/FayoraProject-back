@@ -1,25 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Fayora.Contracts.AdminModule.GetUsers;
+using Fayora.Application.Features.AdminModule.Queries.GetUserDetails;
+using Fayora.Contracts.AdminModule.ChatbotMonitoring;
+using Fayora.Contracts.AdminModule.Cities;
+using Fayora.Contracts.AdminModule.FinancialTransactions;
 using Fayora.Contracts.AdminModule.GetBookings;
 using Fayora.Contracts.AdminModule.GetDashboardSummary;
-using Fayora.Contracts.AdminModule.MasterInterests;
-using Fayora.Contracts.AdminModule.ChatbotMonitoring;
-using Fayora.Contracts.AdminModule.FinancialTransactions;
-using Fayora.Contracts.AdminModule.Cities;
+using Fayora.Contracts.AdminModule.GetUsers;
 using Fayora.Contracts.AdminModule.LiveChatMonitoring;
-using Fayora.Domain.Entities.IdentityModule;
-using Fayora.Domain.Entities.Booking;
-using Fayora.Domain.Entities.AccommodationModule;
-using Fayora.Domain.Entities.GuideModule;
-using Fayora.Domain.Entities.SharedModule;
-using Fayora.Domain.Entities.TouristModule;
+using Fayora.Contracts.AdminModule.MasterInterests;
 using Fayora.Contracts.AdminModule.UpdateAccommodation;
-using Fayora.Application.Features.AdminModule.Queries.GetUserDetails;
 using Fayora.Contracts.AdminModule.UpdateLocation;
 using Fayora.Contracts.AdminModule.UpdateTourPackage;
+using Fayora.Domain.Entities.AccommodationModule;
+using Fayora.Domain.Entities.Booking;
+using Fayora.Domain.Entities.GuideModule;
+using Fayora.Domain.Entities.IdentityModule;
+using Fayora.Domain.Entities.SharedModule;
+using Fayora.Domain.Entities.TouristModule;
 
 namespace Fayora.Application.Common.Interfaces.Persistences.AdminModule;
 

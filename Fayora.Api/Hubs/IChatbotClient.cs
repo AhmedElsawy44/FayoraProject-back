@@ -1,6 +1,4 @@
 using Fayora.Contracts.ChatbotModule;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Fayora.Api.Hubs;
 
