@@ -85,7 +85,7 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
                 package.DurationHours,
                 package.NumOfDays,
                 package.NumOfNights,
-                package.MainImageUrl.Value,
+                package.MainImageUrl?.Value ?? "",
                 packageImages.Select(img => img.ImageUrl.Value).ToList(),
                 package.IncludedItemIds.ToList(),
                 package.ExcludedItemIds?.ToList(),
@@ -130,7 +130,7 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackagePreview
                     a.Id,
                     a.Description,
                     a.AdditionalPrice,
-                    a.ImageUrl.Value)).ToList());
+                    a.ImageUrl?.Value ?? "")).ToList());
         }
     }
 }

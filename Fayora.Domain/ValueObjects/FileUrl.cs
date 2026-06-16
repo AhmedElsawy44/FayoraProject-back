@@ -1,4 +1,5 @@
-﻿using Fayora.Domain.Common.Results;
+using System.Text.Json.Serialization;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Common.ValueObject;
 
 namespace Fayora.Domain.ValueObjects;
@@ -7,6 +8,7 @@ public class FileUrl : ValueObject
 {
     public string Value { get; init; }
 
+    [JsonConstructor]
     private FileUrl(string value)
     {
         Value = value;

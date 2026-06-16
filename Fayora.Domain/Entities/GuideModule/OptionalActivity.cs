@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.ValueObjects;
 
@@ -13,6 +14,7 @@ public class OptionalActivity
 
     private OptionalActivity() { }
 
+    [JsonConstructor]
     private OptionalActivity(Guid id, string description, decimal additionalPrice, FileUrl imageUrl)
     {
         Id = id;

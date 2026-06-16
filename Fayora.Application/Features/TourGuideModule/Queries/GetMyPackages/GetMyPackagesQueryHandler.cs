@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.TourGuideModule.Common;
@@ -34,7 +34,7 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetMyPackages
                     p.ChildPrice,
                     p.DurationHours,
                     p.MaxCapacity,
-                    p.MainImageUrl.Value,
+                    p.MainImageUrl?.Value ?? "",
                     p.TourTypes.ToString(),
                     p.PackageStatus.ToString())).ToList(),
                 totalCount,
