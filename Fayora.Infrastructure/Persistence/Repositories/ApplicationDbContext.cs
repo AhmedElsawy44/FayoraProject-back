@@ -12,6 +12,7 @@ using Fayora.Domain.Entities.TouristModule;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Fayora.Infrastructure.Persistence.Repositories;
 
@@ -123,6 +124,20 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     [DbFunction("DIFFERENCE", IsBuiltIn = true)]
     public static int Difference(string stringValue1, string stringValue2) => throw new NotImplementedException();
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+        ChangeTracker.Tracked += OnEntityTracked;
+    }
+
+    private void OnEntityTracked(object? sender, EntityTrackedEventArgs e)
+    {
+        if (!e.FromQuery && e.Entry.Entity is PackageOccurrence)
+        {
+            e.Entry.State = EntityState.Added;
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
