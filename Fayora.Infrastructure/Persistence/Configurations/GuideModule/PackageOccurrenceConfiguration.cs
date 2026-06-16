@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.GuideModule;
+using Fayora.Domain.Entities.GuideModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,6 +9,9 @@ public class PackageOccurrenceConfiguration : IEntityTypeConfiguration<PackageOc
     public void Configure(EntityTypeBuilder<PackageOccurrence> builder)
     {
         builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.Id)
+            .ValueGeneratedNever();
 
         builder.Property(x => x.AvailableSeats)
             .IsRequired()
