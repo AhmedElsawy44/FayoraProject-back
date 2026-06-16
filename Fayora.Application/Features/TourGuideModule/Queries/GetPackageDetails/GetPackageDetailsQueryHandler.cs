@@ -78,6 +78,7 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
                 package.ChildPrice,
                 discountedAdultPrice,
                 discountedChildPrice,
+                package.DurationHours,
                 package.NumOfDays,
                 package.NumOfNights,
                 package.MainImageUrl?.Value ?? "",

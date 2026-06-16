@@ -799,14 +799,7 @@ public class AdminRepository(ApplicationDbContext context) : IAdminRepository
             .Select(img => img.ImageUrl.Value)
             .ToListAsync(ct);
 
-        var amenitiesList = new List<string>();
-        foreach (var val in Enum.GetValues<Amenities>())
-        {
-            if (acc.Amenities.HasFlag(val) && val != Amenities.None)
-            {
-                amenitiesList.Add(val.ToString());
-            }
-        }
+        var amenitiesList = acc.Amenities.Select(a => a.Name).ToList();
 
         return new GetDetailedAccommodationResponse(
             acc.Id,
