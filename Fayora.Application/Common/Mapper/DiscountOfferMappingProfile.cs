@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Fayora.Contracts.SharedModule.Responses;
 using Fayora.Domain.Entities.SharedModule;
 using System;
@@ -22,7 +22,9 @@ namespace Fayora.Application.Common.Mapper
                 src.DiscountValue,
                 src.StartDate,
                 src.EndDate,
-                src.Status.ToString()
+                src.Status.ToString(),
+                src.UsageLimit,
+                src.UsageCount
                 ));
 
         }

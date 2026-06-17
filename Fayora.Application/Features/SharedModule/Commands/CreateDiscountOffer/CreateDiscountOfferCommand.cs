@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 
@@ -12,5 +12,6 @@ namespace Fayora.Application.Features.SharedModule.Commands.CreateDiscountOffer
         DiscountType DiscountType,
         decimal DiscountValue,
         DateTimeOffset StartDate,
-        DateTimeOffset EndDate) : ICommand<Result<string>>;
+        DateTimeOffset EndDate,
+        int? UsageLimit = null) : ICommand<Result<string>>;
 }

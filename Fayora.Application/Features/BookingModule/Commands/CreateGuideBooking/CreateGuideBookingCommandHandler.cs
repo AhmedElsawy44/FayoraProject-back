@@ -108,6 +108,12 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking
                     return discountResult.Errors;
                 }
 
+                var incrementResult = offer.IncrementUsage();
+                if (incrementResult.IsError)
+                {
+                    return incrementResult.Errors;
+                }
+
                 discountAmount = totalPrice - discountResult.Value;
                 appliedOfferId = offer.Id;
 
@@ -126,12 +132,16 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking
                     var discountResult = offer.ApplyTo(totalPrice);
                     if (!discountResult.IsError)
                     {
-                        discountAmount = totalPrice - discountResult.Value;
-                        appliedOfferId = offer.Id;
+                        var incrementResult = offer.IncrementUsage();
+                        if (!incrementResult.IsError)
+                        {
+                            discountAmount = totalPrice - discountResult.Value;
+                            appliedOfferId = offer.Id;
 
-                        var discountedBasePrice = discountResult.Value;
-                        serviceFee = discountedBasePrice * 0.2m;
-                        payoutAmount = discountedBasePrice - serviceFee;
+                            var discountedBasePrice = discountResult.Value;
+                            serviceFee = discountedBasePrice * 0.2m;
+                            payoutAmount = discountedBasePrice - serviceFee;
+                        }
                     }
                 }
             }

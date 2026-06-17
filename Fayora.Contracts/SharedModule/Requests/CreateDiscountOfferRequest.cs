@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,7 +12,8 @@ namespace Fayora.Contracts.SharedModule.Requests
         string DiscountType,    // "Percentage" | "FixedAmount"
         decimal DiscountValue,
         DateTimeOffset StartDate,
-        DateTimeOffset EndDate
+        DateTimeOffset EndDate,
+        int? UsageLimit = null
     );
 
 }

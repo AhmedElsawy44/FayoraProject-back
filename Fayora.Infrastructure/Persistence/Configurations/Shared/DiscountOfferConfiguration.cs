@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.SharedModule;
+using Fayora.Domain.Entities.SharedModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -52,6 +52,13 @@ namespace Fayora.Infrastructure.Persistence.Configurations.Shared
             builder.Property(o => o.EndDate).IsRequired();
             builder.Property(o => o.OwnerId).IsRequired();
             builder.Property(o => o.TargetId).IsRequired();
+
+            builder.Property(o => o.UsageLimit)
+                .IsRequired(false);
+
+            builder.Property(o => o.UsageCount)
+                .HasDefaultValue(0)
+                .IsRequired();
         }
     }
 }

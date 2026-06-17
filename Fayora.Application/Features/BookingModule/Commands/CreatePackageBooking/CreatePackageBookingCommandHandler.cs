@@ -84,6 +84,12 @@ public class CreatePackageBookingCommandHandler(
                 return discountResult.Errors;
             }
 
+            var incrementResult = offer.IncrementUsage();
+            if (incrementResult.IsError)
+            {
+                return incrementResult.Errors;
+            }
+
             discountAmount = totalPrice.Value - discountResult.Value;
             appliedOfferId = offer.Id;
 

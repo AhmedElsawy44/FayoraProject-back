@@ -96,7 +96,8 @@ namespace Fayora.Application.Features.SharedModule.Commands.CreateDiscountOffer
                 request.DiscountType,
                 request.DiscountValue,
                 request.StartDate,
-                request.EndDate);
+                request.EndDate,
+                request.UsageLimit);
 
             if (offerResult.IsError) return offerResult.Errors;
 

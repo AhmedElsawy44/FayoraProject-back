@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Entity;
+using Fayora.Domain.Common.Entity;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 using System;
@@ -22,6 +22,9 @@ namespace Fayora.Domain.Entities.SharedModule
         public DateTimeOffset StartDate { get; private set; }
         public DateTimeOffset EndDate { get; private set; }
 
+        public int? UsageLimit { get; private set; }
+        public int UsageCount { get; private set; }
+
         public DiscountOfferStatus Status { get; private set; }
 
         private DiscountOffer() { }
@@ -35,7 +38,8 @@ namespace Fayora.Domain.Entities.SharedModule
             DiscountType discountType,
             decimal discountValue,
             DateTimeOffset startDate,
-            DateTimeOffset endDate)
+            DateTimeOffset endDate,
+            int? usageLimit)
         {
             Id = Guid.CreateVersion7();
             OwnerId = ownerId;
@@ -47,6 +51,8 @@ namespace Fayora.Domain.Entities.SharedModule
             DiscountValue = discountValue;
             StartDate = startDate;
             EndDate = endDate;
+            UsageLimit = usageLimit;
+            UsageCount = 0;
             Status = DiscountOfferStatus.Active;
         }
 
@@ -59,7 +65,8 @@ namespace Fayora.Domain.Entities.SharedModule
             DiscountType discountType,
             decimal discountValue,
             DateTimeOffset startDate,
-            DateTimeOffset endDate)
+            DateTimeOffset endDate,
+            int? usageLimit = null)
         {
             if (ownerId == Guid.Empty)
                 return Error.Validation("DiscountOffer.OwnerId", "Owner ID is required.");
@@ -85,8 +92,11 @@ namespace Fayora.Domain.Entities.SharedModule
             if (endDate <= DateTimeOffset.UtcNow)
                 return Error.Validation("DiscountOffer.EndDate", "End date must be in the future.");
 
+            if (usageLimit.HasValue && usageLimit.Value <= 0)
+                return Error.Validation("DiscountOffer.UsageLimit", "Usage limit must be greater than zero.");
+
             return new DiscountOffer(ownerId, targetId, targetType, title, description,
-                discountType, discountValue, startDate, endDate);
+                discountType, discountValue, startDate, endDate, usageLimit);
         }
 
         public Result<decimal> ApplyTo(decimal originalPrice)
@@ -126,6 +136,17 @@ namespace Fayora.Domain.Entities.SharedModule
         public bool IsCurrentlyValid() =>
             Status == DiscountOfferStatus.Active &&
             DateTimeOffset.UtcNow >= StartDate &&
-            DateTimeOffset.UtcNow <= EndDate;
+            DateTimeOffset.UtcNow <= EndDate &&
+            (!UsageLimit.HasValue || UsageCount < UsageLimit.Value);
+
+        public Result<Success> IncrementUsage()
+        {
+            if (UsageLimit.HasValue && UsageCount >= UsageLimit.Value)
+                return Error.Validation("DiscountOffer.LimitReached", "This promo code has reached its usage limit.");
+
+            UsageCount++;
+            Updated();
+            return Result.Success;
+        }
     }
 }

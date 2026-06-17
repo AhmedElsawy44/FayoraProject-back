@@ -86,6 +86,12 @@ public class CreateAccommodationBookingCommandHandler(
                 return discountResult.Errors;
             }
 
+            var incrementResult = offer.IncrementUsage();
+            if (incrementResult.IsError)
+            {
+                return incrementResult.Errors;
+            }
+
             discountAmount = totalPrice - discountResult.Value;
             appliedOfferId = offer.Id;
 
@@ -104,12 +110,16 @@ public class CreateAccommodationBookingCommandHandler(
                 var discountResult = offer.ApplyTo(totalPrice);
                 if (!discountResult.IsError)
                 {
-                    discountAmount = totalPrice - discountResult.Value;
-                    appliedOfferId = offer.Id;
+                    var incrementResult = offer.IncrementUsage();
+                    if (!incrementResult.IsError)
+                    {
+                        discountAmount = totalPrice - discountResult.Value;
+                        appliedOfferId = offer.Id;
 
-                    var discountedBasePrice = discountResult.Value;
-                    serviceFee = discountedBasePrice * unit.CommissionRate;
-                    payoutAmount = discountedBasePrice - serviceFee;
+                        var discountedBasePrice = discountResult.Value;
+                        serviceFee = discountedBasePrice * unit.CommissionRate;
+                        payoutAmount = discountedBasePrice - serviceFee;
+                    }
                 }
             }
         }
