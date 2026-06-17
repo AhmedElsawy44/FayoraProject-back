@@ -15,5 +15,11 @@ public interface IPackageOccurrenceRepository
 
     Task<List<CalendarBookingItemDto>> GetCalendarPackagessAsync(int year, int month, CancellationToken cancellationToken);
 
+    Task<bool> HasOverlappingOccurrenceForGuideAsync(
+        Guid userId,
+        List<DateOnly> dates,
+        Guid? excludePackageId,
+        CancellationToken cancellationToken);
+
     void Remove(PackageOccurrence occurrence);
 }

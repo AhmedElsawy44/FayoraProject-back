@@ -77,6 +77,29 @@ public class PackageOccurrenceRepository(ApplicationDbContext context)
         occurrence?.ReleaseSeats(count);
     }
 
+    public async Task<bool> HasOverlappingOccurrenceForGuideAsync(
+        Guid userId,
+        List<DateOnly> dates,
+        Guid? excludePackageId,
+        CancellationToken cancellationToken)
+    {
+        var query = from occurrence in context.PackageOccurrences
+                    join package in context.GuideTourPackages
+                    on occurrence.PackageId equals package.Id
+                    where package.UserId == userId
+                       && dates.Contains(occurrence.Date)
+                       && occurrence.Status != OccurrenceStatus.Cancelled
+                       && package.DeletedAt == null
+                    select occurrence;
+
+        if (excludePackageId.HasValue)
+        {
+            query = query.Where(o => o.PackageId != excludePackageId.Value);
+        }
+
+        return await query.AnyAsync(cancellationToken);
+    }
+
     public void Remove(PackageOccurrence occurrence)
     {
         context.PackageOccurrences.Remove(occurrence);

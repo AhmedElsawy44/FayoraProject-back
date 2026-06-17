@@ -28,14 +28,8 @@ public class CreateGuidePackageCommandHandler(
 
         var providerType = clientContextProvider.GetContext().Roles.Contains("TourGuide") ? ProviderType.TourGuide : ProviderType.TourCompany;
 
-        if (providerType == ProviderType.TourGuide)
-        {
-            var hasCreatedToday = await packageRepository.HasPackageCreatedTodayAsync(tourGuideId, cancellationToken);
-            if (hasCreatedToday)
-            {
-                return TourGuideErrors.DailyPackageLimitExceeded;
-            }
-        }
+        // Daily package creation check disabled to allow multiple package creations per day.
+        // Differentiating between TourGuide and TourCompany is now done at occurrence scheduling instead.
 
         var mainImageUrlResult = FileUrl.Create(request.MainImageUrl);
         if (mainImageUrlResult.IsError) return mainImageUrlResult.Errors;

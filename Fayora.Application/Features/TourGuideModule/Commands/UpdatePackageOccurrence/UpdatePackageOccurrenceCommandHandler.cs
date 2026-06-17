@@ -6,6 +6,7 @@ using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Errors;
+using Fayora.Domain.Enums.TourGuideModule;
 
 namespace Fayora.Application.Features.TourGuideModule.Commands.UpdatePackageOccurrence;
 
@@ -45,6 +46,17 @@ public class UpdatePackageOccurrenceCommandHandler(
 
         if (occurrence.Date != request.NewDate)
         {
+            if (package.ProviderType == ProviderType.TourGuide)
+            {
+                var datesToCheck = new List<DateOnly> { request.NewDate };
+                var guideOverlap = await occurrenceRepository.HasOverlappingOccurrenceForGuideAsync(
+                    currentUserId, datesToCheck, request.PackageId, cancellationToken);
+                if (guideOverlap)
+                {
+                    return TourGuideErrors.GuideHasOverlappingOccurrence;
+                }
+            }
+
             var existingOccurrences = await occurrenceRepository.GetOccurrencesByPackageIdAsync(
                 request.PackageId, cancellationToken);
 

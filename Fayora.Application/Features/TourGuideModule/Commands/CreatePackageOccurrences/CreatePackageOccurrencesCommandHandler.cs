@@ -1,14 +1,16 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Features.TourGuideModule.Common;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Enums.TourGuideModule;
 
 namespace Fayora.Application.Features.TourGuideModule.Commands.CreatePackageOccurrences;
 
 public class CreatePackageOccurrencesCommandHandler(
     IPackageRepository packageRepository,
+    IPackageOccurrenceRepository occurrenceRepository,
     IClientContextProvider clientContextProvider,
     IUnitOfWork unitOfWork
 ) : ICommandHandler<CreatePackageOccurrencesCommand, Result<Success>>
@@ -24,6 +26,17 @@ public class CreatePackageOccurrencesCommandHandler(
 
         if (package is null || package.UserId != currentUserId)
             return TourGuideErrors.PackageNotFound;
+
+        if (package.ProviderType == ProviderType.TourGuide)
+        {
+            var datesToCheck = request.Occurrences.Select(x => x.Date).ToList();
+            var hasOverlap = await occurrenceRepository.HasOverlappingOccurrenceForGuideAsync(
+                currentUserId, datesToCheck, null, cancellationToken);
+            if (hasOverlap)
+            {
+                return TourGuideErrors.GuideHasOverlappingOccurrence;
+            }
+        }
 
         var occurrencesToAdd = request.Occurrences
             .Select(x => (x.Date, x.AvailableSeats))

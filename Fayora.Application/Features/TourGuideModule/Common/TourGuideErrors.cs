@@ -113,4 +113,9 @@ public static class TourGuideErrors
         "TourGuide.DailyPackageLimitExceeded",
         "A tour guide can only create one package per day."
     );
+
+    public static readonly Error GuideHasOverlappingOccurrence = Error.Conflict(
+        "TourGuide.GuideHasOverlappingOccurrence",
+        "A tour guide cannot schedule more than one trip on the same date."
+    );
 }
