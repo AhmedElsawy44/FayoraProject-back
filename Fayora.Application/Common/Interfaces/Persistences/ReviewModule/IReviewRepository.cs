@@ -1,5 +1,6 @@
 using Fayora.Domain.Entities.ReviewModule;
 using Fayora.Domain.Enums.ReviewModule;
+using Fayora.Application.Features.ReviewModule.Queries.GetPendingReports;
 
 namespace Fayora.Application.Common.Interfaces.Persistences.ReviewModule;
 
@@ -13,5 +14,6 @@ public interface IReviewRepository
     void AddReport(ReviewReport report);
     Task<bool> HasReportByUserAsync(Guid reviewId, Guid userId, CancellationToken ct = default);
     Task<List<ReviewReport>> GetPendingReportsAsync(CancellationToken ct = default);
+    Task<List<ReviewReportDto>> GetPendingReportsWithDetailsAsync(CancellationToken ct = default);
     Task<ReviewReport?> GetReportByIdAsync(Guid reportId, CancellationToken ct = default);
 }

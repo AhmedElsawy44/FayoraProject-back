@@ -48,6 +48,14 @@ namespace Fayora.Infrastructure.Persistence.Repositories.SharedModule
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<List<DiscountOffer>> GetAllOffersAsync(CancellationToken cancellationToken = default)
+        {
+            return await context.DiscountOffers
+                .AsNoTracking()
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync(cancellationToken);
+        }
+
         // check if the target has an active offer in the same date range
         public async Task<bool> HasActiveOfferForTargetAsync(
             Guid targetId,

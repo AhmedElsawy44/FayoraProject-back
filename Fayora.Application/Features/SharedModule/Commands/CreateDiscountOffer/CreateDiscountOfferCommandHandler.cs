@@ -27,7 +27,11 @@ namespace Fayora.Application.Features.SharedModule.Commands.CreateDiscountOffer
             CreateDiscountOfferCommand request,
             CancellationToken cancellationToken)
         {
-            var ownerId = clientContextProvider.GetContext().UserId;
+            var context = clientContextProvider.GetContext();
+            var ownerId = context.UserId;
+            var isAdmin = context.Roles.Contains("Admin");
+
+            Guid targetOwnerId = ownerId;
 
             // Verify existence of target and ownership/authorization
             switch (request.TargetType)
@@ -39,8 +43,9 @@ namespace Fayora.Application.Features.SharedModule.Commands.CreateDiscountOffer
                         cancellationToken);
                     if (unit is null)
                         return DiscountOfferErrors.TargetNotFound;
-                    if (unit.OwnerId != ownerId)
+                    if (unit.OwnerId != ownerId && !isAdmin)
                         return DiscountOfferErrors.Unauthorized;
+                    targetOwnerId = unit.OwnerId;
                     break;
 
                 case OfferTargetType.GuidePackage:
@@ -50,8 +55,9 @@ namespace Fayora.Application.Features.SharedModule.Commands.CreateDiscountOffer
                         cancellationToken);
                     if (package is null)
                         return DiscountOfferErrors.TargetNotFound;
-                    if (package.UserId != ownerId)
+                    if (package.UserId != ownerId && !isAdmin)
                         return DiscountOfferErrors.Unauthorized;
+                    targetOwnerId = package.UserId;
                     break;
 
                 case OfferTargetType.TourGuide:
@@ -61,8 +67,9 @@ namespace Fayora.Application.Features.SharedModule.Commands.CreateDiscountOffer
                         cancellationToken);
                     if (guide is null)
                         return DiscountOfferErrors.TargetNotFound;
-                    if (guide.UserId != ownerId)
+                    if (guide.UserId != ownerId && !isAdmin)
                         return DiscountOfferErrors.Unauthorized;
+                    targetOwnerId = guide.UserId;
                     break;
 
                 default:
@@ -81,7 +88,7 @@ namespace Fayora.Application.Features.SharedModule.Commands.CreateDiscountOffer
                 return DiscountOfferErrors.ActiveOfferAlreadyExists;
 
             var offerResult = DiscountOffer.Create(
-                ownerId,
+                targetOwnerId,
                 request.TargetId,
                 request.TargetType,
                 request.Title,

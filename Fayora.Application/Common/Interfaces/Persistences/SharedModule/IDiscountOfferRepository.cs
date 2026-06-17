@@ -11,6 +11,8 @@ namespace Fayora.Application.Common.Interfaces.Persistences.SharedModule
 
         Task<List<DiscountOffer>> GetByOwnerIdAsync(Guid ownerId, CancellationToken cancellationToken = default);
 
+        Task<List<DiscountOffer>> GetAllOffersAsync(CancellationToken cancellationToken = default);
+
         Task<List<DiscountOffer>> GetActiveByTargetAsync(
             Guid targetId,
             OfferTargetType targetType,
