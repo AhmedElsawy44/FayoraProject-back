@@ -1,7 +1,8 @@
-﻿using Fayora.Application.Features.SharedModule.Commands.CancelDiscountOffer;
+using Fayora.Application.Features.SharedModule.Commands.CancelDiscountOffer;
 using Fayora.Application.Features.SharedModule.Commands.CreateDiscountOffer;
 using Fayora.Application.Features.SharedModule.Queries.GetActiveOffersByTarget;
 using Fayora.Application.Features.SharedModule.Queries.GetMyOffers;
+using Fayora.Application.Features.SharedModule.Queries.ValidatePromoCode;
 using Fayora.Contracts.SharedModule.Requests;
 using Fayora.Domain.Enums.SharedModule;
 using MediatR;
@@ -72,6 +73,27 @@ namespace Fayora.Api.Controllers
                 return BadRequest("Invalid target type. Valid values: HousingUnit, GuidePackage, TourGuide.");
 
             var query = new GetActiveOffersByTargetQuery(targetId, parsedTargetType);
+
+            var result = await sender.Send(query, cancellationToken);
+
+            return result.Match(
+                value => Ok(value),
+                errors => Problem(errors)
+            );
+        }
+
+
+        [HttpGet("validate")]
+        public async Task<IActionResult> ValidatePromoCode(
+            [FromQuery] string code,
+            [FromQuery] Guid targetId,
+            [FromQuery] string targetType,
+            CancellationToken cancellationToken)
+        {
+            if (!Enum.TryParse<OfferTargetType>(targetType, true, out var parsedTargetType))
+                return BadRequest("Invalid target type. Valid values: HousingUnit, GuidePackage, TourGuide.");
+
+            var query = new ValidatePromoCodeQuery(code, targetId, parsedTargetType);
 
             var result = await sender.Send(query, cancellationToken);
 

@@ -23,6 +23,12 @@ namespace Fayora.Application.Common.Interfaces.Persistences.SharedModule
             DateTimeOffset endDate,
             CancellationToken cancellationToken = default);
 
+        Task<DiscountOffer?> GetActiveByCodeAndTargetAsync(
+            string code,
+            Guid targetId,
+            OfferTargetType targetType,
+            CancellationToken cancellationToken = default);
+
         Task CleanUpExpiredOrCancelledOffersAsync(CancellationToken cancellationToken = default);
     }
 }

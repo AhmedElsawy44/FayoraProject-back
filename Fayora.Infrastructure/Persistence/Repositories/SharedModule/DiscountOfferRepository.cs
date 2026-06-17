@@ -101,5 +101,21 @@ namespace Fayora.Infrastructure.Persistence.Repositories.SharedModule
                     .ExecuteDeleteAsync(cancellationToken);
             }
         }
+
+        public async Task<DiscountOffer?> GetActiveByCodeAndTargetAsync(
+            string code,
+            Guid targetId,
+            OfferTargetType targetType,
+            CancellationToken cancellationToken = default)
+        {
+            return await context.DiscountOffers
+                .FirstOrDefaultAsync(o => o.TargetId == targetId
+                                       && o.TargetType == targetType
+                                       && o.Status == DiscountOfferStatus.Active
+                                       && o.Title.ToLower() == code.ToLower()
+                                       && o.StartDate <= DateTimeOffset.UtcNow
+                                       && o.EndDate > DateTimeOffset.UtcNow,
+                                     cancellationToken);
+        }
     }
 }

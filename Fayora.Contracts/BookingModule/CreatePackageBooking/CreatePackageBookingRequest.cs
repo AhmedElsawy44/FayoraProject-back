@@ -9,5 +9,6 @@ public sealed record CreatePackageBookingRequest
     string? WalletNumber,
     bool IsCashOnArrival,
     List<Guid>? SelectedOptionalActivityIds,
-    Guid? SelectedMeetingPointId
+    Guid? SelectedMeetingPointId,
+    string? PromoCode
 );

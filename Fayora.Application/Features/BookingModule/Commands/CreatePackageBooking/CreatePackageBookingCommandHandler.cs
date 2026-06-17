@@ -68,22 +68,28 @@ public class CreatePackageBookingCommandHandler(
         Guid? appliedOfferId = null;
         decimal discountAmount = 0;
 
-        var activeOffers = await discountOfferRepository.GetActiveByTargetAsync(
-            package.Id, OfferTargetType.GuidePackage, cancellationToken);
-
-        var offer = activeOffers.FirstOrDefault();
-        if (offer is not null)
+        if (!string.IsNullOrWhiteSpace(request.PromoCode))
         {
-            var discountResult = offer.ApplyTo(totalPrice.Value);
-            if (!discountResult.IsError)
-            {
-                discountAmount = totalPrice.Value - discountResult.Value;
-                appliedOfferId = offer.Id;
+            var offer = await discountOfferRepository.GetActiveByCodeAndTargetAsync(
+                request.PromoCode, package.Id, OfferTargetType.GuidePackage, cancellationToken);
 
-                var discountedBasePrice = discountResult.Value;
-                serviceFee = discountedBasePrice * 0m;
-                payoutAmount = discountedBasePrice - serviceFee;
+            if (offer is null)
+            {
+                return Error.Validation("Booking.InvalidPromoCode", "The promo code is invalid, expired, or does not apply to this package.");
             }
+
+            var discountResult = offer.ApplyTo(totalPrice.Value);
+            if (discountResult.IsError)
+            {
+                return discountResult.Errors;
+            }
+
+            discountAmount = totalPrice.Value - discountResult.Value;
+            appliedOfferId = offer.Id;
+
+            var discountedBasePrice = discountResult.Value;
+            serviceFee = discountedBasePrice * 0m;
+            payoutAmount = discountedBasePrice - serviceFee;
         }
 
         var booking = Booking.Create(
