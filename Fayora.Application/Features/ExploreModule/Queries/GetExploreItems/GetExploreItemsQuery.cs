@@ -6,5 +6,6 @@ namespace Fayora.Application.Features.ExploreModule.Queries.GetExploreItems;
 
 public record GetExploreItemsQuery(
     int PageNumber,
-    int PageSize
+    int PageSize,
+    string? Search
 ) : IQuery<Result<List<ExploreItemDto>>>;

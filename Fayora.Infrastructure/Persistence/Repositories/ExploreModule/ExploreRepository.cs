@@ -13,6 +13,7 @@ public class ExploreRepository(ApplicationDbContext context) : IExploreRepositor
         Guid userId,
         int pageNumber,
         int pageSize,
+        string? search,
         CancellationToken cancellationToken)
     {
         // Clamp parameters
@@ -33,34 +34,50 @@ public class ExploreRepository(ApplicationDbContext context) : IExploreRepositor
                 .ToHashSetAsync(cancellationToken);
         }
 
+        var cleanSearch = search?.Trim().ToLower();
+
         // 1. Fetch Locations
-        var dbLocations = await context.Locations
-            .AsNoTracking()
+        var locationsQuery = context.Locations.AsNoTracking();
+        if (!string.IsNullOrEmpty(cleanSearch))
+        {
+            locationsQuery = locationsQuery.Where(l => l.Name.ToLower().Contains(cleanSearch) || (l.Description != null && l.Description.ToLower().Contains(cleanSearch)));
+        }
+        var dbLocations = await locationsQuery
             .OrderByDescending(l => l.Rating)
             .Skip(skip)
             .Take(take)
             .ToListAsync(cancellationToken);
 
         // 2. Fetch Active Packages
-        var dbPackages = await context.GuideTourPackages
+        var packagesQuery = context.GuideTourPackages
             .AsNoTracking()
-            .Where(p => p.PackageStatus == ItemStatus.Active && p.DeletedAt == null)
+            .Where(p => p.PackageStatus == ItemStatus.Active && p.DeletedAt == null);
+        if (!string.IsNullOrEmpty(cleanSearch))
+        {
+            packagesQuery = packagesQuery.Where(p => p.Title.ToLower().Contains(cleanSearch) || (p.Description != null && p.Description.ToLower().Contains(cleanSearch)));
+        }
+        var dbPackages = await packagesQuery
             .OrderByDescending(p => p.Views)
             .Skip(skip)
             .Take(take)
             .ToListAsync(cancellationToken);
 
         // 3. Fetch Active Housing Units
-        var dbHousing = await context.HousingUnits
+        var housingQuery = context.HousingUnits
             .AsNoTracking()
-            .Where(h => h.Status == ItemStatus.Active)
+            .Where(h => h.Status == ItemStatus.Active);
+        if (!string.IsNullOrEmpty(cleanSearch))
+        {
+            housingQuery = housingQuery.Where(h => h.Title.ToLower().Contains(cleanSearch) || (h.Description != null && h.Description.ToLower().Contains(cleanSearch)) || (h.AddressDetails != null && h.AddressDetails.ToLower().Contains(cleanSearch)));
+        }
+        var dbHousing = await housingQuery
             .OrderByDescending(h => h.Rating)
             .Skip(skip)
             .Take(take)
             .ToListAsync(cancellationToken);
 
         // 4. Fetch Active Tour Guides with User profile details and covered cities
-        var dbGuides = await context.TourGuides
+        var guidesQuery = context.TourGuides
             .AsNoTracking()
             .Include(g => g.GuideCities)
                 .ThenInclude(gc => gc.City)
@@ -68,7 +85,12 @@ public class ExploreRepository(ApplicationDbContext context) : IExploreRepositor
             .Join(context.Users.AsNoTracking(),
                 g => g.UserId,
                 u => u.Id,
-                (g, u) => new { Guide = g, User = u })
+                (g, u) => new { Guide = g, User = u });
+        if (!string.IsNullOrEmpty(cleanSearch))
+        {
+            guidesQuery = guidesQuery.Where(gu => gu.User.FirstName.ToLower().Contains(cleanSearch) || gu.User.LastName.ToLower().Contains(cleanSearch));
+        }
+        var dbGuides = await guidesQuery
             .OrderByDescending(gu => gu.Guide.AverageRating)
             .Skip(skip)
             .Take(take)

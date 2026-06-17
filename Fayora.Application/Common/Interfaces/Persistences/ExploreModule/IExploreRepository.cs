@@ -12,6 +12,7 @@ public interface IExploreRepository
         Guid userId,
         int pageNumber,
         int pageSize,
+        string? search,
         CancellationToken cancellationToken);
 
     Task<List<ExploreItemResponse>> GetExploreItemsAsync(

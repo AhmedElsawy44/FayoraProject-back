@@ -22,6 +22,7 @@ public class GetExploreItemsQueryHandler(
             userId,
             request.PageNumber,
             request.PageSize,
+            request.Search,
             cancellationToken);
 
         return items;

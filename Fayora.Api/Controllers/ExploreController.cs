@@ -12,9 +12,10 @@ public class ExploreController(ISender sender) : ApiController
     public async Task<IActionResult> GetExploreItems(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10,
+        [FromQuery] string? search = null,
         CancellationToken cancellationToken = default)
     {
-        var query = new GetExploreItemsQuery(pageNumber, pageSize);
+        var query = new GetExploreItemsQuery(pageNumber, pageSize, search);
         var result = await sender.Send(query, cancellationToken);
 
         return result.Match(
