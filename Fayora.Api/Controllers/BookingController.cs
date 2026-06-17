@@ -78,7 +78,8 @@ public class BookingController(ISender sender, IMapper mapper) : ApiController
             request.Children,
             paymentMethod,
             request.WalletNumber,
-            request.IsCashOnArrival
+            request.IsCashOnArrival,
+            request.PromoCode
         );
 
         var result = await sender.Send(command, cancellationToken);
@@ -104,7 +105,8 @@ public class BookingController(ISender sender, IMapper mapper) : ApiController
             request.Children,
             paymentMethod,
             request.WalletNumber,
-            request.IsCashOnArrival
+            request.IsCashOnArrival,
+            request.PromoCode
         );
 
         var result = await sender.Send(command, cancellationToken);

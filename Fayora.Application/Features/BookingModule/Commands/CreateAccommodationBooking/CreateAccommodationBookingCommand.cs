@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.BookingModule;
 
@@ -12,6 +12,7 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateAccommodation
         int Children,
         PaymentMethodType PaymentMethodType,
         string? WalletNumber,
-        bool IsCashOnArrival
+        bool IsCashOnArrival,
+        string? PromoCode = null
     ) : ICommand<Result<string>>;
 }

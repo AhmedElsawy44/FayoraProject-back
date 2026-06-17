@@ -6,6 +6,7 @@ namespace Fayora.Contracts.BookingModule.CreateGuideBooking
         int Children,
         string PaymentMethodType,
         string? WalletNumber,
-        bool IsCashOnArrival
+        bool IsCashOnArrival,
+        string? PromoCode = null
     );
 }

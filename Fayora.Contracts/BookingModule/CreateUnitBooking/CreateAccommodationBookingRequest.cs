@@ -1,4 +1,4 @@
-﻿namespace Fayora.Contracts.BookingModule.CreateUnitBooking
+namespace Fayora.Contracts.BookingModule.CreateUnitBooking
 {
     public record CreateAccommodationBookingRequest(
         DateOnly StartDate,
@@ -7,6 +7,7 @@
         int Children,
         string PaymentMethodType,
         string? WalletNumber,
-        bool IsCashOnArrival
+        bool IsCashOnArrival,
+        string? PromoCode = null
     );
 }

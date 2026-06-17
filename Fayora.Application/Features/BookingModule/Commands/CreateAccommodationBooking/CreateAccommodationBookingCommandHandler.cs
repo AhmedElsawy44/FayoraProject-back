@@ -70,21 +70,47 @@ public class CreateAccommodationBookingCommandHandler(
         Guid? appliedOfferId = null;
         decimal discountAmount = 0;
 
-        var activeOffers = await discountOfferRepository.GetActiveByTargetAsync(
-            unit.Id, OfferTargetType.HousingUnit, cancellationToken);
-
-        var offer = activeOffers.FirstOrDefault();
-        if (offer is not null)
+        if (!string.IsNullOrWhiteSpace(request.PromoCode))
         {
-            var discountResult = offer.ApplyTo(totalPrice);
-            if (!discountResult.IsError)
-            {
-                discountAmount = totalPrice - discountResult.Value;
-                appliedOfferId = offer.Id;
+            var offer = await discountOfferRepository.GetActiveByCodeAndTargetAsync(
+                request.PromoCode, unit.Id, OfferTargetType.HousingUnit, cancellationToken);
 
-                var discountedBasePrice = discountResult.Value;
-                serviceFee = discountedBasePrice * unit.CommissionRate;
-                payoutAmount = discountedBasePrice - serviceFee;
+            if (offer is null)
+            {
+                return Error.Validation("Booking.InvalidPromoCode", "The promo code is invalid, expired, or does not apply to this accommodation.");
+            }
+
+            var discountResult = offer.ApplyTo(totalPrice);
+            if (discountResult.IsError)
+            {
+                return discountResult.Errors;
+            }
+
+            discountAmount = totalPrice - discountResult.Value;
+            appliedOfferId = offer.Id;
+
+            var discountedBasePrice = discountResult.Value;
+            serviceFee = discountedBasePrice * unit.CommissionRate;
+            payoutAmount = discountedBasePrice - serviceFee;
+        }
+        else
+        {
+            var activeOffers = await discountOfferRepository.GetActiveByTargetAsync(
+                unit.Id, OfferTargetType.HousingUnit, cancellationToken);
+
+            var offer = activeOffers.FirstOrDefault();
+            if (offer is not null)
+            {
+                var discountResult = offer.ApplyTo(totalPrice);
+                if (!discountResult.IsError)
+                {
+                    discountAmount = totalPrice - discountResult.Value;
+                    appliedOfferId = offer.Id;
+
+                    var discountedBasePrice = discountResult.Value;
+                    serviceFee = discountedBasePrice * unit.CommissionRate;
+                    payoutAmount = discountedBasePrice - serviceFee;
+                }
             }
         }
 

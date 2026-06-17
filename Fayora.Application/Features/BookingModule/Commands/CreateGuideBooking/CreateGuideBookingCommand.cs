@@ -11,6 +11,7 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking
         int Children,
         PaymentMethodType PaymentMethodType,
         string? WalletNumber,
-        bool IsCashOnArrival
+        bool IsCashOnArrival,
+        string? PromoCode = null
     ) : ICommand<Result<string>>;
 }
