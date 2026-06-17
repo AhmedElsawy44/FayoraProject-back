@@ -1,4 +1,4 @@
-﻿namespace Fayora.Contracts.ChatModule.GetChats;
+namespace Fayora.Contracts.ChatModule.GetChats;
 
 public record GetChatsResponse(
     IEnumerable<ChatDto> Chats
@@ -11,5 +11,7 @@ public record ChatDto(
     string? OtherUserAvatarUrl,
     string? LastMessageSnippet,
     DateTimeOffset? LastMessageTimestamp,
-    int UnreadCount
+    int UnreadCount,
+    string ScopeType,
+    Guid ScopeId
 );

@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.ChatModule;
+using Fayora.Domain.Entities.ChatModule;
 using Fayora.Domain.Enums.ChatModule;
 
 namespace Fayora.Application.Common.Interfaces.Persistences.ChatModule;
@@ -22,6 +22,8 @@ public interface IChatRepository
         string? OtherUserAvatarUrl,
         string? LastMessageContent,
         DateTimeOffset? LastMessageTime,
-        int UnreadCount
+        int UnreadCount,
+        ChatScopeType ScopeType,
+        Guid ScopeId
     );
 }
