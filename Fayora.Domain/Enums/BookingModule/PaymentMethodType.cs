@@ -1,8 +1,9 @@
-﻿namespace Fayora.Domain.Enums.BookingModule;
+namespace Fayora.Domain.Enums.BookingModule;
 
 public enum PaymentMethodType
 {
     OnlineCard,
-    MobileWallet
+    MobileWallet,
+    Cash
 }
 
