@@ -27,9 +27,9 @@ public class CreatePackageBookingCommandHandler(
     IClientContextProvider clientContextProvider,
     IPaymentService paymentService,
     IUnitOfWork unitOfWork)
-    : ICommandHandler<CreatePackageBookingCommand, Result<string>>
+    : ICommandHandler<CreatePackageBookingCommand, Result<BookingResult>>
 {
-    public async Task<Result<string>> Handle(CreatePackageBookingCommand request, CancellationToken cancellationToken)
+    public async Task<Result<BookingResult>> Handle(CreatePackageBookingCommand request, CancellationToken cancellationToken)
     {
         var userId = clientContextProvider.GetContext().UserId;
 
@@ -106,6 +106,34 @@ public class CreatePackageBookingCommandHandler(
             request.SelectedMeetingPointId);
         if (booking.IsError) return booking.Errors;
 
+        var isDev = System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+        if (isDev)
+        {
+            if (booking.Value.IsCashOnArrival)
+            {
+                booking.Value.MarkDepositAsPaid();
+            }
+            else
+            {
+                booking.Value.MarkAsPaid();
+            }
+
+            bookingRepository.AddBooking(booking.Value);
+            await unitOfWork.CommitChangesAsync(cancellationToken);
+
+            decimal devAmountToPay = request.IsCashOnArrival
+                ? booking.Value.DepositAmount
+                : booking.Value.TotalPrice;
+
+            paymentTransactionRepository.AddPaymentTransaction(new PaymentTransaction(
+                booking.Value.Id,
+                "DEV-GATEWAY-ORDER-" + booking.Value.Id,
+                devAmountToPay,
+                request.PaymentMethodType));
+            await unitOfWork.CommitChangesAsync(cancellationToken);
+
+            return new BookingResult(booking.Value.Id, "https://fayora.app/mock-payment-success");
+        }
 
         bookingRepository.AddBooking(booking.Value);
         await unitOfWork.CommitChangesAsync(cancellationToken);
@@ -142,6 +170,6 @@ public class CreatePackageBookingCommandHandler(
         await unitOfWork.CommitChangesAsync(cancellationToken);
 
 
-        return paymentResult.Value.PaymentUrl;
+        return new BookingResult(booking.Value.Id, paymentResult.Value.PaymentUrl);
     }
 }

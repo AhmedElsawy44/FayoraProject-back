@@ -52,12 +52,12 @@ public class GetPackageOccurrenceDetailsQueryHandler(
                 b.PaymentStatus == PaymentTransactionStatus.PartiallyPaid)
             .ToList();
 
-        int totalBookedSeats = paidBookings.Sum(b => b.SeatsCount);
+        int totalBookedSeats = allBookings.Sum(b => b.SeatsCount);
         int totalActiveSeats = allBookings.Sum(b => b.SeatsCount);
         int maxCapacity = occurrence.AvailableSeats + totalActiveSeats;
         decimal totalRevenue = paidBookings.Sum(b => b.TotalPrice);
 
-        var userIds = paidBookings.Select(b => b.UserId).Distinct().ToList();
+        var userIds = allBookings.Select(b => b.UserId).Distinct().ToList();
         var users = await userRepository.GetUsersByIdsAsync(
             userIds,
             new UserQueryOptions { IsReadOnly = true },
@@ -65,7 +65,7 @@ public class GetPackageOccurrenceDetailsQueryHandler(
 
         var userMap = users.ToDictionary(u => u.Id);
 
-        var attendees = paidBookings.Select(b =>
+        var attendees = allBookings.Select(b =>
         {
             userMap.TryGetValue(b.UserId, out var user);
             var selectedMeetingPoint = b.SelectedMeetingPointId.HasValue

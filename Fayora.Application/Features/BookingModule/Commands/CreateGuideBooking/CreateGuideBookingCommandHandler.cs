@@ -138,6 +138,36 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking
                 BlockReason.Booked,
                 booking.Value.Id);
 
+            var isDev = System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+            if (isDev)
+            {
+                if (booking.Value.IsCashOnArrival)
+                {
+                    booking.Value.MarkDepositAsPaid();
+                }
+                else
+                {
+                    booking.Value.MarkAsPaid();
+                }
+
+                bookingRepository.AddBooking(booking.Value);
+                calendarBlockRepository.AddCalendarBlock(calendarBlock);
+                await unitOfWork.CommitChangesAsync(cancellationToken);
+
+                decimal devAmountToPay = request.IsCashOnArrival
+                      ? booking.Value.DepositAmount
+                      : booking.Value.TotalPrice;
+
+                paymentTransactionRepository.AddPaymentTransaction(new PaymentTransaction(
+                    booking.Value.Id,
+                    "DEV-GATEWAY-ORDER-" + booking.Value.Id,
+                    devAmountToPay,
+                    request.PaymentMethodType));
+                await unitOfWork.CommitChangesAsync(cancellationToken);
+
+                return "https://fayora.app/mock-payment-success";
+            }
+
             bookingRepository.AddBooking(booking.Value);
             calendarBlockRepository.AddCalendarBlock(calendarBlock);
             await unitOfWork.CommitChangesAsync(cancellationToken);
