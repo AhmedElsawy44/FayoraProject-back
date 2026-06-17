@@ -11,8 +11,8 @@ namespace Fayora.Domain.Entities.IdentityModule;
 public class User : AuditableEntity<Guid>
 {
     public static readonly TimeSpan OtpResendCooldown = TimeSpan.FromMinutes(2);
-    private static readonly int MaxSmsOtpPerDay = 5;
-    private static readonly int MaxEmailOtpPerDay = 10;
+    private static readonly int MaxSmsOtpPerDay = 100;
+    private static readonly int MaxEmailOtpPerDay = 100;
     private static readonly TimeSpan AccountLockoutDuration = TimeSpan.FromMinutes(15);
     private static readonly int MaxFailedAccessAttempts = 5;
     private static readonly TimeSpan FailedAccessAttemptWindow = TimeSpan.FromMinutes(15);
