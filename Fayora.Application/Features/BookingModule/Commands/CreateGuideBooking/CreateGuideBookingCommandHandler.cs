@@ -213,6 +213,31 @@ namespace Fayora.Application.Features.BookingModule.Commands.CreateGuideBooking
                   ? booking.Value.DepositAmount
                   : booking.Value.TotalPrice;
 
+            if (request.PaymentMethodType == PaymentMethodType.Cash || amountToPay == 0)
+            {
+                var transaction = new PaymentTransaction(
+                    booking.Value.Id,
+                    "CASH-ORDER-" + booking.Value.Id,
+                    amountToPay,
+                    request.PaymentMethodType);
+
+                if (booking.Value.IsCashOnArrival)
+                {
+                    booking.Value.MarkDepositAsPaid();
+                    transaction.MarkAsPartiallyPaid("CASH-TX-" + booking.Value.Id);
+                }
+                else
+                {
+                    booking.Value.MarkAsPaid();
+                    transaction.MarkAsPaid("CASH-TX-" + booking.Value.Id);
+                }
+
+                paymentTransactionRepository.AddPaymentTransaction(transaction);
+                await unitOfWork.CommitChangesAsync(cancellationToken);
+
+                return "https://fayora.app/mock-payment-success";
+            }
+
             var paymentResult = await paymentService.GeneratePaymentUrlAsync(new PaymentRequest(
                 booking.Value.Id,
                 amountToPay,

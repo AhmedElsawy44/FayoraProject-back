@@ -24,8 +24,18 @@ public class PaymobPaymentService(HttpClient httpClient, IOptions<PaymobSettings
 
             }, cancellationToken);
 
+        if (!authResponse.IsSuccessStatusCode)
+        {
+            var errorContent = await authResponse.Content.ReadAsStringAsync(cancellationToken);
+            return Error.Failure("Payment.AuthFailed", $"Paymob authentication failed: {errorContent}");
+        }
+
         var authData = await authResponse.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: cancellationToken);
-        string authToken = authData.GetProperty("token").GetString()!;
+        if (!authData.TryGetProperty("token", out var tokenProp))
+        {
+            return Error.Failure("Payment.AuthFailed", "Paymob authentication token not found in response.");
+        }
+        string authToken = tokenProp.GetString()!;
 
         var orderResponse = await httpClient.PostAsJsonAsync("ecommerce/orders",
             new
@@ -38,8 +48,18 @@ public class PaymobPaymentService(HttpClient httpClient, IOptions<PaymobSettings
                 items = Array.Empty<object>()
             }, cancellationToken);
 
+        if (!orderResponse.IsSuccessStatusCode)
+        {
+            var errorContent = await orderResponse.Content.ReadAsStringAsync(cancellationToken);
+            return Error.Failure("Payment.OrderCreationFailed", $"Paymob order creation failed: {errorContent}");
+        }
+
         var orderData = await orderResponse.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: cancellationToken);
-        var gatewayOrderId = orderData.GetProperty("id").GetRawText();
+        if (!orderData.TryGetProperty("id", out var idProp))
+        {
+            return Error.Failure("Payment.OrderCreationFailed", "Paymob order ID not found in response.");
+        }
+        var gatewayOrderId = idProp.GetRawText();
 
 
         var integrationId = request.MethodType == PaymentMethodType.MobileWallet
@@ -72,9 +92,18 @@ public class PaymobPaymentService(HttpClient httpClient, IOptions<PaymobSettings
                 integration_id = integrationId
             }, cancellationToken);
 
+        if (!paymentKeyResponse.IsSuccessStatusCode)
+        {
+            var errorContent = await paymentKeyResponse.Content.ReadAsStringAsync(cancellationToken);
+            return Error.Failure("Payment.KeyGenerationFailed", $"Paymob payment key generation failed: {errorContent}");
+        }
 
         var paymentKeyData = await paymentKeyResponse.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: cancellationToken);
-        string paymentToken = paymentKeyData.GetProperty("token").GetString()!;
+        if (!paymentKeyData.TryGetProperty("token", out var tokenPropKey))
+        {
+            return Error.Failure("Payment.KeyGenerationFailed", "Paymob payment token not found in response.");
+        }
+        string paymentToken = tokenPropKey.GetString()!;
 
 
         string paymentUrl;
@@ -92,9 +121,19 @@ public class PaymobPaymentService(HttpClient httpClient, IOptions<PaymobSettings
                     payment_token = paymentToken
                 }, cancellationToken);
 
+            if (!walletResponse.IsSuccessStatusCode)
+            {
+                var errorContent = await walletResponse.Content.ReadAsStringAsync(cancellationToken);
+                return Error.Failure("Payment.WalletPaymentFailed", $"Paymob wallet payment initiation failed: {errorContent}");
+            }
+
             var walletData = await walletResponse.Content
                 .ReadFromJsonAsync<JsonElement>(cancellationToken: cancellationToken);
-            paymentUrl = walletData.GetProperty("redirect_url").GetString()!;
+            if (!walletData.TryGetProperty("redirect_url", out var redirectUrlProp))
+            {
+                return Error.Failure("Payment.WalletPaymentFailed", "Paymob wallet redirect URL not found in response.");
+            }
+            paymentUrl = redirectUrlProp.GetString()!;
         }
         else
         {
