@@ -45,4 +45,6 @@ public interface IBookingRepository
         Guid packageId,
         DateOnly date,
         CancellationToken cancellationToken = default);
+
+    Task<List<Booking>> GetAllBookingsAsync(CancellationToken cancellationToken = default);
 }

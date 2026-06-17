@@ -397,4 +397,9 @@ public class BookingRepository(ApplicationDbContext context) : IBookingRepositor
                 b.StartDate <= endOfDay)
             .ToListAsync(cancellationToken);
     }
+
+    public Task<List<Booking>> GetAllBookingsAsync(CancellationToken cancellationToken = default)
+    {
+        return context.Bookings.AsNoTracking().ToListAsync(cancellationToken);
+    }
 }

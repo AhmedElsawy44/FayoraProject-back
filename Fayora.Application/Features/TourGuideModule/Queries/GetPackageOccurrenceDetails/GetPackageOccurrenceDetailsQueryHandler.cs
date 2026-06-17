@@ -46,6 +46,21 @@ public class GetPackageOccurrenceDetailsQueryHandler(
             occurrence.Date,
             cancellationToken);
 
+        System.Console.WriteLine($"[DEBUG] PackageId={request.PackageId}, Occurrence Date: {occurrence.Date:yyyy-MM-dd}");
+        try
+        {
+            var dbBookings = await bookingRepository.GetAllBookingsAsync(cancellationToken);
+            System.Console.WriteLine($"[DEBUG] Total bookings in DB: {dbBookings.Count}");
+            foreach (var b in dbBookings)
+            {
+                System.Console.WriteLine($"[DEBUG] Booking: Id={b.Id}, SvcId={b.ServiceId}, SvcType={b.ServiceType}, Start={b.StartDate:yyyy-MM-dd HH:mm:ss}, Status={b.BookingStatus}, Payment={b.PaymentStatus}");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            System.Console.WriteLine($"[DEBUG] Error querying debug bookings: {ex.Message}");
+        }
+
         var paidBookings = allBookings
             .Where(b =>
                 b.PaymentStatus == PaymentTransactionStatus.Paid ||
