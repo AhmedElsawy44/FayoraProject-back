@@ -83,7 +83,9 @@ public class AccommodationController(ISender sender, IMapper mapper) : ApiContro
             request.MainImageUrl,
             request.VerificationDocumentUrl,
             request.ImageUrls,
-            [.. request.AmenityIds]
+            [.. request.AmenityIds],
+            request.AvailableStartDate,
+            request.AvailableEndDate
         );
 
         var result = await sender.Send(command, cancellationToken);
@@ -124,7 +126,9 @@ public class AccommodationController(ISender sender, IMapper mapper) : ApiContro
             request.CheckOutTime,
             request.MainImageUrl,
             request.ImageUrls,
-            [.. request.AmenityIds]
+            [.. request.AmenityIds],
+            request.AvailableStartDate,
+            request.AvailableEndDate
         );
 
         var result = await sender.Send(command, cancellationToken);

@@ -58,7 +58,9 @@ public class CreateUnitCommandHandler(
             request.CheckOutTime,
             mainImageResult.Value,
             verificationDocumentResult.Value,
-            amenities);
+            amenities,
+            request.AvailableStartDate,
+            request.AvailableEndDate);
 
         if (housingUnitResult.IsError) return housingUnitResult.Errors;
         var housingUnit = housingUnitResult.Value;
