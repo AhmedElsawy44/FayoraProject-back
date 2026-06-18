@@ -26,5 +26,10 @@ public record GetUnitByIdResponse(
     List<Amenity> Amenities,
     DateTimeOffset CreatedAt,
     DateTime? AvailableStartDate,
-    DateTime? AvailableEndDate
+    DateTime? AvailableEndDate,
+    // Owner / Host info
+    string? OwnerName,
+    string? OwnerProfileImageUrl,
+    bool IsSuperHost,
+    int HostingSinceYear
 );
