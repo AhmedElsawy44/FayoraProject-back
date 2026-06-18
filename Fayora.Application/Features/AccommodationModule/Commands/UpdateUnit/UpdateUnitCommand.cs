@@ -23,4 +23,6 @@ public record UpdateUnitCommand(
     TimeSpan CheckOutTime,
     string MainImageUrl,
     HashSet<string> ImageUrls,
-    List<int> AmenityIds) : ICommand<Result<Guid>>;
+    List<int> AmenityIds,
+    DateTime? AvailableStartDate,
+    DateTime? AvailableEndDate) : ICommand<Result<Guid>>;

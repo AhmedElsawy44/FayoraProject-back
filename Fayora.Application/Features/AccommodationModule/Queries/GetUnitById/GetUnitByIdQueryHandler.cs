@@ -77,7 +77,9 @@ public class GetUnitByIdQueryHandler(
             unit.MainImageUrl.Value,
             imageUrls,
             amenitiesResult,
-            unit.CreatedAt
+            unit.CreatedAt,
+            unit.AvailableStartDate,
+            unit.AvailableEndDate
         );
     }
 }

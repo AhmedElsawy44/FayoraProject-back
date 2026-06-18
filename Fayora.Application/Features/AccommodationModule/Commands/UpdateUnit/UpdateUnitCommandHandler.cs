@@ -62,7 +62,9 @@ public class UpdateUnitCommandHandler(
             request.CheckOutTime,
             request.PricePerNight,
             mainImageResult.Value,
-            unit.Status);
+            unit.Status,
+            request.AvailableStartDate,
+            request.AvailableEndDate);
 
         // Sync amenities: remove old, add new
         foreach (var existing in unit.Amenities.ToList())

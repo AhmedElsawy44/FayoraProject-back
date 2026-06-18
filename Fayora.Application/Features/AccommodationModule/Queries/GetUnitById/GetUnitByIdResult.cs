@@ -28,5 +28,7 @@ public record GetUnitByIdResult(
     string? MainImageUrl,
     List<string> ImageUrls,
     List<Amenity> Amenities,
-    DateTimeOffset CreatedAt
+    DateTimeOffset CreatedAt,
+    DateTime? AvailableStartDate,
+    DateTime? AvailableEndDate
 );
