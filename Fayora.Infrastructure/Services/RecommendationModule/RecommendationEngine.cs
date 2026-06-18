@@ -98,7 +98,11 @@ public class RecommendationEngine(
                             p.TourTypes.ToString(),
                             p.Views,
                             1.0 - (index * 0.05),
-                            "✨ Recommended by AI"
+                            "✨ Recommended by AI",
+                            0,
+                            p.ProviderName,
+                            p.ProviderImageUrl,
+                            p.ProviderType
                         ))
                         .ToList();
 
@@ -215,7 +219,11 @@ public class RecommendationEngine(
                             p.TourTypes.ToString(),
                             p.Views,
                             1.0 - (index * 0.05),
-                            "🔥 Trending package"
+                            "🔥 Trending package",
+                            0,
+                            p.ProviderName,
+                            p.ProviderImageUrl,
+                            p.ProviderType
                         ))
                         .ToList();
 
@@ -643,7 +651,11 @@ public class RecommendationEngine(
                 s.Package.TourTypes.ToString(),
                 s.Package.Views,
                 Math.Round(s.Score, 4),
-                s.Reason))
+                s.Reason,
+                0,
+                s.Package.ProviderName,
+                s.Package.ProviderImageUrl,
+                s.Package.ProviderType))
             .ToList();
     }
 
