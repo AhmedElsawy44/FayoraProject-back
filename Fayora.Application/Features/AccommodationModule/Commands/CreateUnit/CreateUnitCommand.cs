@@ -23,4 +23,6 @@ public record CreateUnitCommand(
     string MainImageUrl,
     string VerificationDocumentUrl,
     HashSet<string> ImageUrls,
-    List<int> AmenityIds) : ICommand<Result<Guid>>;
+    List<int> AmenityIds,
+    DateTime? AvailableStartDate,
+    DateTime? AvailableEndDate) : ICommand<Result<Guid>>;
