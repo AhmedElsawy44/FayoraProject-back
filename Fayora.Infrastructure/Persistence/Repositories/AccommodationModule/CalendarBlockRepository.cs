@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
+using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Domain.Entities.Booking;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,5 +21,16 @@ public class CalendarBlockRepository(ApplicationDbContext context) : ICalendarBl
     public void RemoveCalendarBlock(CalendarBlock calendarBlock)
     {
         context.CalendarBlocks.Remove(calendarBlock);
+    }
+
+    public Task<bool> HasOverlapAsync(Guid serviceId, DateTime startDateTime, DateTime endDateTime, CancellationToken cancellationToken = default)
+    {
+        return context.CalendarBlocks
+            .AsNoTracking()
+            .AnyAsync(
+                b => b.ServiceId == serviceId
+                     && startDateTime < b.EndDate
+                     && endDateTime > b.StartDate,
+                cancellationToken);
     }
 }

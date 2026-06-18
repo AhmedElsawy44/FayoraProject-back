@@ -46,12 +46,22 @@ public class CreateAccommodationBookingCommandHandler(
         if (unit.Status != ItemStatus.Active)
             return AccommodationErrors.UnitNotAvailable;
 
+        if (unit.AvailableStartDate.HasValue && request.StartDate < DateOnly.FromDateTime(unit.AvailableStartDate.Value))
+            return Error.Validation("Booking.InvalidDates", "The booking start date is before the unit's available date range.");
+
+        if (unit.AvailableEndDate.HasValue && request.EndDate > DateOnly.FromDateTime(unit.AvailableEndDate.Value))
+            return Error.Validation("Booking.InvalidDates", "The booking end date is after the unit's available date range.");
+
         var startDateTime = request.StartDate.ToDateTime(TimeOnly.FromTimeSpan(unit.CheckInTime));
         var endDateTime = request.EndDate.ToDateTime(TimeOnly.FromTimeSpan(unit.CheckOutTime));
 
         var hasOverlap = await bookingRepository.HasOverlapAsync(
             unit.Id, startDateTime, endDateTime, cancellationToken);
         if (hasOverlap) return AccommodationErrors.UnitNotAvailable;
+
+        var hasBlockOverlap = await calendarBlockRepository.HasOverlapAsync(
+            unit.Id, startDateTime, endDateTime, cancellationToken);
+        if (hasBlockOverlap) return AccommodationErrors.UnitNotAvailable;
 
         int totalGuests = request.Adults + request.Children;
         if (totalGuests > unit.MaxGuests)
