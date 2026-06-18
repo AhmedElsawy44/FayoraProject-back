@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.AccommodationModule;
 
@@ -21,6 +21,6 @@ public record CreateUnitCommand(
     TimeSpan CheckInTime,
     TimeSpan CheckOutTime,
     string MainImageUrl,
-    Guid VerificationRequestId,
+    string VerificationDocumentUrl,
     HashSet<string> ImageUrls,
     List<int> AmenityIds) : ICommand<Result<Guid>>;
