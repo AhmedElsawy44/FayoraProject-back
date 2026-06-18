@@ -46,6 +46,14 @@ public class HousingUnitConfiguration : IEntityTypeConfiguration<HousingUnit>
                   .IsRequired(false);
               });
 
+              builder.OwnsOne(h => h.VerificationDocumentUrl, url =>
+              {
+                     url.Property(u => u.Value)
+                  .HasColumnName("VerificationDocumentUrl")
+                  .HasMaxLength(2048)
+                  .IsRequired(false);
+              });
+
               builder.Property(h => h.CheckInTime).HasColumnType("time");
               builder.Property(h => h.CheckOutTime).HasColumnType("time");
 
