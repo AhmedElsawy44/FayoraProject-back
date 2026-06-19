@@ -62,7 +62,7 @@ END";
         }
 
         // Seed Admin User if not exists
-        var adminExists = await dbContext.Users.AnyAsync(u => u.Id == AdminConstants.AdminId, cancellationToken: cancellationToken);
+        var adminExists = await dbContext.Users.AnyAsync(u => u.Id == AdminConstants.AdminId || u.Email == AdminConstants.AdminEmail, cancellationToken: cancellationToken);
 
         if (!adminExists)
         {
