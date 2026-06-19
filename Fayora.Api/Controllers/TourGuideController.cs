@@ -458,4 +458,31 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             value => Ok(mapper.Map<PackageOccurrenceDetailsResponse>(value)),
             Problem);
     }
+
+    [HttpGet("/api/TourGuide/{id:guid}")]
+    public async Task<IActionResult> GetTourGuideById(
+        [FromRoute] Guid id,
+        [FromServices] Fayora.Application.Common.Interfaces.Persistences.GuideModule.ITourGuideRepository tourGuideRepository,
+        CancellationToken ct)
+    {
+        var tourGuide = await tourGuideRepository.GetGuideByIdAsync(
+            id,
+            new Fayora.Application.Common.Interfaces.Persistences.GuideModule.ITourGuideRepository.GuideQueryOptions { ReadOnly = true },
+            ct);
+
+        if (tourGuide is null)
+        {
+            return NotFound("Tour guide not found");
+        }
+
+        var response = new {
+            id = tourGuide.UserId,
+            yearsOfExperience = tourGuide.YearsOfExperience,
+            baseRate = tourGuide.BaseRate,
+            pricingUnit = tourGuide.PricingUnit?.ToString(),
+            coveredCities = tourGuide.GuideCities.Select(gc => gc.CityId).ToList()
+        };
+
+        return Ok(response);
+    }
 }
