@@ -62,7 +62,8 @@ END";
         }
 
         // Seed Admin User if not exists
-        var adminExists = await dbContext.Users.AnyAsync(u => u.Id == AdminConstants.AdminId || u.Email == AdminConstants.AdminEmail, cancellationToken: cancellationToken);
+        var adminEmailResult = Fayora.Domain.ValueObjects.Email.Create(AdminConstants.AdminEmail);
+        var adminExists = await dbContext.Users.AnyAsync(u => u.Id == AdminConstants.AdminId || (adminEmailResult.IsSuccess && u.PrimaryEmail == adminEmailResult.Value), cancellationToken: cancellationToken);
 
         if (!adminExists)
         {
