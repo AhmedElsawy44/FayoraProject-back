@@ -29,6 +29,11 @@ public interface IBookingRepository
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken = default);
+    Task<List<Booking>> GetIncomingBookingsAsync(
+        Guid providerId,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default);
     Task<FinancialSummary> GetFinancialSummaryAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
     Task<List<MonthlyRevenueItem>> GetMonthlyRevenueItemsAsync(CancellationToken cancellationToken = default);
     Task<List<BookingMixItem>> GetBookingMixItemsAsync(CancellationToken cancellationToken = default);

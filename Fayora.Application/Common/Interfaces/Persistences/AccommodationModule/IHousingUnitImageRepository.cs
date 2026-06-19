@@ -7,5 +7,6 @@ public interface IHousingUnitImageRepository
     void AddImages(IEnumerable<HousingUnitImage> images);
     void RemoveImages(IEnumerable<HousingUnitImage> images);
     Task<List<HousingUnitImage>> GetByUnitIdAsync(Guid unitId, CancellationToken cancellationToken = default);
+    Task<List<HousingUnitImage>> GetByUnitIdsAsync(IEnumerable<Guid> unitIds, CancellationToken cancellationToken = default);
 
 }

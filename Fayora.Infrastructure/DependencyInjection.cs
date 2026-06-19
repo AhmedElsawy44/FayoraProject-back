@@ -192,6 +192,7 @@ public static class DependencyInjection
         services.AddHttpClient<ISocialAuthStrategy, FacebookAuthStrategy>();
         services.AddSingleton<ISocialAuthStrategy, GoogleAuthStrategy>();
         services.AddSingleton<ISocialAuthStrategy, MockAppleAuthService>();
+        services.AddSingleton<ISocialAuthStrategy, FirebasePhoneAuthStrategy>();
 
         services.AddScoped<IVerificationStrategy, TourGuideVerificationStrategy>();
         services.AddScoped<IVerificationStrategy, TourCompanyVerificationStrategy>();

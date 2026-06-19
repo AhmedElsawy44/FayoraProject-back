@@ -25,4 +25,14 @@ public class HousingUnitImageRepository(ApplicationDbContext context) : IHousing
             .Where(i => i.UnitId == unitId)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<List<HousingUnitImage>> GetByUnitIdsAsync(
+        IEnumerable<Guid> unitIds,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.HousingUnitImages
+            .AsNoTracking()
+            .Where(i => unitIds.Contains(i.UnitId))
+            .ToListAsync(cancellationToken);
+    }
 }
