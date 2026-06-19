@@ -17,6 +17,10 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
         BookingStatus Status,
         ServiceType ServiceType,
         string? QrToken, // nullable bec qr will generate only BookingStatus be paid 
+        Guid ServiceProviderId,
+        string ServiceProviderName,
+        string? ServiceProviderAvatar,
+        Guid ServiceId,
         List<SelectedOptionalActivityResult>? SelectedOptionalActivities = null,
         BookingMeetingPointResult? SelectedMeetingPoint = null
     );
