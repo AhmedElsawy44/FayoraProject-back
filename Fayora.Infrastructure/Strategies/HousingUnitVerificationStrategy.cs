@@ -4,6 +4,7 @@ using Fayora.Application.Common.Interfaces.Persistences.NotificationModule;
 using Fayora.Application.Common.Interfaces.Services.SharedModule;
 using Fayora.Application.Common.Strategies;
 using Fayora.Domain.Common.Results;
+using Fayora.Domain.Entities.NotificationModule;
 using Fayora.Domain.Enums.IdentityModule;
 using static Fayora.Application.Common.Interfaces.Persistences.AccommodationModule.IHousingUnitRepository;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
@@ -43,20 +44,30 @@ public class HousingUnitVerificationStrategy(
                 return rejectionResult;
         }
 
+        var userForNotify = await userRepository.GetUserByIdAsync(housingUnit.OwnerId, new UserQueryOptions { IsReadOnly = true }, ct);
+        bool isArabic = userForNotify?.PreferredLanguage == Language.Arabic;
+
+        string title = isApproved 
+            ? (isArabic ? "تم قبول الوحدة السكنية!" : "Housing Unit Approved!") 
+            : (isArabic ? "تم رفض الوحدة السكنية" : "Housing Unit Rejected");
+
+        string body = isApproved 
+            ? (isArabic ? $"تم قبول وحدتك السكنية '{housingUnit.Title}' بنجاح." : $"Your housing unit '{housingUnit.Title}' has been approved.") 
+            : (isArabic ? $"تم رفض وحدتك السكنية '{housingUnit.Title}'. السبب: {adminNotes}" : $"Your housing unit '{housingUnit.Title}' was rejected. Reason: {adminNotes}");
+
+        // Save In-App Notification in DB
+        var inAppNotification = InAppNotification.Create(
+            housingUnit.OwnerId,
+            title,
+            body,
+            "verification_update",
+            entityId.ToString()
+        );
+        await notificationRepository.AddInAppNotificationAsync(inAppNotification, ct);
+
         var tokens = await notificationRepository.GetTokensByUserIdAsync(housingUnit.OwnerId, ct);
         if (tokens.Any())
         {
-            var user = await userRepository.GetUserByIdAsync(housingUnit.OwnerId, new UserQueryOptions { IsReadOnly = true }, ct);
-            bool isArabic = user?.PreferredLanguage == Language.Arabic;
-
-            string title = isApproved 
-                ? (isArabic ? "تم قبول الوحدة السكنية!" : "Housing Unit Approved!") 
-                : (isArabic ? "تم رفض الوحدة السكنية" : "Housing Unit Rejected");
-
-            string body = isApproved 
-                ? (isArabic ? $"تم قبول وحدتك السكنية '{housingUnit.Title}' بنجاح." : $"Your housing unit '{housingUnit.Title}' has been approved.") 
-                : (isArabic ? $"تم رفض وحدتك السكنية '{housingUnit.Title}'. السبب: {adminNotes}" : $"Your housing unit '{housingUnit.Title}' was rejected. Reason: {adminNotes}");
-
             var dataPayload = new Dictionary<string, string>
             {
                 { "type", "verification_update" },
