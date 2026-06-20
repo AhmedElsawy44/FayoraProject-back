@@ -35,7 +35,8 @@ namespace Fayora.Api.Controllers
                 discountType,
                 request.DiscountValue,
                 request.StartDate,
-                request.EndDate);
+                request.EndDate,
+                request.UsageLimit);
 
             var result = await sender.Send(command, cancellationToken);
 
