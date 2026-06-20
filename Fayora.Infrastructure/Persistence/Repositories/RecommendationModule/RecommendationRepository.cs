@@ -21,16 +21,22 @@ public class RecommendationRepository(ApplicationDbContext context) : IRecommend
             .Where(p => p.IsActive
                         && p.PackageStatus == ItemStatus.Active
                         && p.DeletedAt == null)
-            .Select(p => new PackageScoringData(
-                p.Id,
-                p.Title,
-                p.AdultPrice,
-                p.DurationHours,
-                p.MainImageUrl.Value,
-                p.TourTypes,
-                p.Views,
-                p.CreatedAt,
-                p.LocationIds.ToList()))
+            .Join(context.Users.AsNoTracking(),
+                p => p.UserId,
+                u => u.Id,
+                (p, u) => new PackageScoringData(
+                    p.Id,
+                    p.Title,
+                    p.AdultPrice,
+                    p.DurationHours,
+                    p.MainImageUrl.Value,
+                    p.TourTypes,
+                    p.Views,
+                    p.CreatedAt,
+                    p.LocationIds.ToList(),
+                    u.FirstName + " " + u.LastName,
+                    u.ProfileImageUrl != null ? u.ProfileImageUrl.Value : null,
+                    (int)p.ProviderType))
             .ToListAsync(cancellationToken);
     }
 

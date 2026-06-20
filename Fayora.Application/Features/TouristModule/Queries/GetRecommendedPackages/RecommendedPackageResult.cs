@@ -14,4 +14,7 @@ public record RecommendedPackageResult(
     int Views,
     double RecommendationScore,
     string RecommendationReason,
-    decimal DiscountedAdultPrice = 0);
+    decimal DiscountedAdultPrice = 0,
+    string? ProviderName = null,
+    string? ProviderImageUrl = null,
+    int? ProviderType = null);

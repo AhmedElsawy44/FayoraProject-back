@@ -134,7 +134,10 @@ public record PackageScoringData(
     TourType TourTypes,
     int Views,
     DateTimeOffset CreatedAt,
-    List<int> LocationIds);
+    List<int> LocationIds,
+    string? ProviderName = null,
+    string? ProviderImageUrl = null,
+    int? ProviderType = null);
 
 public record HousingUnitScoringData(
     Guid Id,

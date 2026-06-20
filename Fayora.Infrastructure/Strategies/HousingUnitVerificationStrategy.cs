@@ -57,7 +57,14 @@ public class HousingUnitVerificationStrategy(
                 ? (isArabic ? $"تم قبول وحدتك السكنية '{housingUnit.Title}' بنجاح." : $"Your housing unit '{housingUnit.Title}' has been approved.") 
                 : (isArabic ? $"تم رفض وحدتك السكنية '{housingUnit.Title}'. السبب: {adminNotes}" : $"Your housing unit '{housingUnit.Title}' was rejected. Reason: {adminNotes}");
 
-            await firebaseNotificationService.SendBroadcastAsync(title, body, null, tokens, ct);
+            var dataPayload = new Dictionary<string, string>
+            {
+                { "type", "verification_update" },
+                { "entityType", "HousingUnit" },
+                { "isApproved", isApproved.ToString().ToLower() }
+            };
+
+            await firebaseNotificationService.SendBroadcastAsync(title, body, null, tokens, ct, dataPayload);
         }
 
         return Result.Success;

@@ -57,7 +57,14 @@ public class TourGuideVerificationStrategy(
                 ? (isArabic ? "تهانينا! تم قبول طلبك لتصبح مرشداً سياحياً." : "Congratulations! Your request to become a Tour Guide has been approved.") 
                 : (isArabic ? $"تم رفض طلب التحقق الخاص بك. السبب: {adminNotes}" : $"Your verification request was rejected. Reason: {adminNotes}");
 
-            await firebaseNotificationService.SendBroadcastAsync(title, body, null, tokens, ct);
+            var dataPayload = new Dictionary<string, string>
+            {
+                { "type", "verification_update" },
+                { "entityType", "TourGuide" },
+                { "isApproved", isApproved.ToString().ToLower() }
+            };
+
+            await firebaseNotificationService.SendBroadcastAsync(title, body, null, tokens, ct, dataPayload);
         }
 
         return Result.Success;
