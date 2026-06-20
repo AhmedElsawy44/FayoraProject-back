@@ -72,6 +72,7 @@ public class HousingUnit : BaseEntity<Guid>
         DateTime? availableStartDate,
         DateTime? availableEndDate)
     {
+        Id = Guid.NewGuid();
         OwnerId = ownerId;
         Title = title;
         Description = description;
