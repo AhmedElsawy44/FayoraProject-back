@@ -46,7 +46,9 @@ public class UpdateAccommodationCommandHandler(IAdminRepository adminRepository,
             request.CheckOutTime,
             request.PricePerNight,
             mainImageUrlResult.Value,
-            statusEnum
+            statusEnum,
+            accommodation.AvailableStartDate,
+            accommodation.AvailableEndDate
         );
 
         await unitOfWork.CommitChangesAsync(cancellationToken);

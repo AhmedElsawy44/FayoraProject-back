@@ -13,6 +13,10 @@ namespace Fayora.Contracts.BookingModule.GetBookingDetails
         string Status,
         string ServiceType,
         string? QrToken,
+        Guid ServiceProviderId,
+        string ServiceProviderName,
+        string? ServiceProviderAvatar,
+        Guid ServiceId,
         List<SelectedOptionalActivityResponse>? SelectedOptionalActivities,
         BookingMeetingPointResponse? SelectedMeetingPoint
     );

@@ -1,3 +1,4 @@
+using Fayora.Application.Features.AccommodationModule.Queries.GetMyHousingUnits;
 using AutoMapper;
 using Fayora.Application.Features.AccommodationModule.Commands.CreateUnit;
 using Fayora.Application.Features.AccommodationModule.Commands.UpdateUnit;
@@ -81,9 +82,11 @@ public class AccommodationController(ISender sender, IMapper mapper) : ApiContro
             request.CheckInTime,
             request.CheckOutTime,
             request.MainImageUrl,
-            request.VerificationRequestId,
+            request.VerificationDocumentUrl,
             request.ImageUrls,
-            [.. request.AmenityIds]
+            [.. request.AmenityIds],
+            request.AvailableStartDate,
+            request.AvailableEndDate
         );
 
         var result = await sender.Send(command, cancellationToken);
@@ -124,7 +127,9 @@ public class AccommodationController(ISender sender, IMapper mapper) : ApiContro
             request.CheckOutTime,
             request.MainImageUrl,
             request.ImageUrls,
-            [.. request.AmenityIds]
+            [.. request.AmenityIds],
+            request.AvailableStartDate,
+            request.AvailableEndDate
         );
 
         var result = await sender.Send(command, cancellationToken);
@@ -207,6 +212,17 @@ public class AccommodationController(ISender sender, IMapper mapper) : ApiContro
     //}
 
 
+
+    [HttpGet("my-housing-units")]
+    public async Task<IActionResult> GetMyHousingUnits(CancellationToken cancellationToken)
+    {
+        var query = new GetMyHousingUnitsQuery();
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(value),
+            errors => Problem(errors)
+        );
+    }
 
     [HttpGet("housing-units")]
     public async Task<IActionResult> GetUnitsAsync(

@@ -126,6 +126,19 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
                     booking.EndDate));
             }
 
+            string providerName = "Service Provider";
+            string? providerAvatar = null;
+
+            var providerUser = await userRepository.GetUserByIdAsync(
+                booking.ServiceProviderId,
+                new UserQueryOptions { IsReadOnly = true },
+                cancellationToken);
+            if (providerUser is not null)
+            {
+                providerName = $"{providerUser.FirstName} {providerUser.LastName}";
+                providerAvatar = providerUser.ProfileImageUrl?.Value;
+            }
+
             return new GetBookingDetailsResult(
                 booking.Id,
                 title,
@@ -141,6 +154,10 @@ namespace Fayora.Application.Features.BookingModule.Queries.GetBookingDetails
                 booking.BookingStatus,
                 booking.ServiceType,
                 qrToken,
+                booking.ServiceProviderId,
+                providerName,
+                providerAvatar,
+                booking.ServiceId,
                 selectedOptionalActivities,
                 selectedMeetingPoint);
         }

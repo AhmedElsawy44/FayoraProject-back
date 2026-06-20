@@ -5,6 +5,7 @@ using Fayora.Application.Features.AuthModule.Common;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.ValueObjects;
+using Fayora.Domain.Enums.IdentityModule;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
 namespace Fayora.Application.Features.AuthModule.Commands.LoginWithSocial;
@@ -42,23 +43,46 @@ public class LoginWithSocialCommandHandler(
         }
         else
         {
-            if (string.IsNullOrWhiteSpace(socialUser.Email))
-                return AuthErrors.EmailRequiredFromIdentityProvider;
+            if (request.IdentityProvider == IdentityProvider.Phone)
+            {
+                if (string.IsNullOrWhiteSpace(socialUser.PhoneNumber))
+                    return Error.Validation("Auth.PhoneRequired", "Phone number is required from the phone identity provider.");
 
-            var emailResult = Email.Create(socialUser.Email);
-            if (emailResult.IsError)
-                return emailResult.Errors;
+                var phoneResult = PhoneNumber.Create(socialUser.PhoneNumber);
+                if (phoneResult.IsError)
+                    return phoneResult.Errors;
 
-            var email = emailResult.Value;
+                var phone = phoneResult.Value;
 
-            user = await userRepository.GetUserByEmailAsync(email.Value, options, cancellationToken)
-                   ?? CreateAndAddUser(request, socialUser.Email, socialUser.FirstName, socialUser.LastName, socialUser.PictureUrl);
+                user = await userRepository.GetUserByPhoneAsync(phone.Value, options, cancellationToken)
+                       ?? CreateAndAddUserWithPhone(request, socialUser.PhoneNumber, socialUser.FirstName, socialUser.LastName, socialUser.PictureUrl);
 
-            userIdentityRepository.AddIdentity(new UserIdentity(
-                user.Id,
-                request.IdentityProvider,
-                socialUser.SubjectId,
-                email));
+                userIdentityRepository.AddIdentity(new UserIdentity(
+                    user.Id,
+                    request.IdentityProvider,
+                    socialUser.SubjectId,
+                    null));
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(socialUser.Email))
+                    return AuthErrors.EmailRequiredFromIdentityProvider;
+
+                var emailResult = Email.Create(socialUser.Email);
+                if (emailResult.IsError)
+                    return emailResult.Errors;
+
+                var email = emailResult.Value;
+
+                user = await userRepository.GetUserByEmailAsync(email.Value, options, cancellationToken)
+                       ?? CreateAndAddUser(request, socialUser.Email, socialUser.FirstName, socialUser.LastName, socialUser.PictureUrl);
+
+                userIdentityRepository.AddIdentity(new UserIdentity(
+                    user.Id,
+                    request.IdentityProvider,
+                    socialUser.SubjectId,
+                    email));
+            }
         }
 
         user.Login();
@@ -98,6 +122,20 @@ public class LoginWithSocialCommandHandler(
         var lastName = providerLastName ?? request.LastName ?? string.Empty;
 
         var user = User.CreateWithSocialLogin(firstName, lastName, email, pictureUrl);
+        userRepository.AddUser(user);
+        return user;
+    }
+
+    private User CreateAndAddUserWithPhone(LoginWithSocialCommand request, string phoneNumber, string? providerFirstName, string? providerLastName, string? pictureUrl)
+    {
+        var firstName = providerFirstName ?? request.FirstName ?? "User";
+        var lastName = providerLastName ?? request.LastName ?? string.Empty;
+
+        var user = User.CreateWithSocialLogin(firstName, lastName, null, pictureUrl);
+        
+        user.ChangePhoneNumber(phoneNumber);
+        user.VerifyPhone();
+
         userRepository.AddUser(user);
         return user;
     }

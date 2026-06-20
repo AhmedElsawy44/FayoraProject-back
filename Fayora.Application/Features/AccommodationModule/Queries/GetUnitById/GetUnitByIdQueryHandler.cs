@@ -1,4 +1,5 @@
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
 using Fayora.Application.Features.AccommodationModule.Common;
 using Fayora.Contracts.AccommodationModule.Responses;
@@ -11,7 +12,9 @@ namespace Fayora.Application.Features.AccommodationModule.Queries.GetUnitById;
 public class GetUnitByIdQueryHandler(
     IHousingUnitRepository housingUnitRepository,
     IHousingUnitImageRepository housingUnitImageRepository,
-    IDiscountOfferRepository discountOfferRepository)
+    IDiscountOfferRepository discountOfferRepository,
+    IUnitOwnerRepository unitOwnerRepository,
+    IUserRepository userRepository)
     : IRequestHandler<GetUnitByIdQuery, Result<GetUnitByIdResult>>
 {
     public async Task<Result<GetUnitByIdResult>> Handle(
@@ -53,6 +56,25 @@ public class GetUnitByIdQueryHandler(
                 discountedPricePerNight = discountResult.Value;
         }
 
+        // Fetch owner and user info for host details
+        string? ownerName = null;
+        string? ownerProfileImageUrl = null;
+        bool isSuperHost = false;
+        int hostingSinceYear = unit.CreatedAt.Year;
+
+        var owner = await unitOwnerRepository.GetOwnerByUserIdAsync(unit.OwnerId, true, cancellationToken);
+        if (owner is not null)
+        {
+            isSuperHost = owner.IsSuperHost;
+        }
+
+        var user = await userRepository.GetUserByIdAsync(unit.OwnerId, cancellationToken: cancellationToken);
+        if (user is not null)
+        {
+            ownerName = user.FullName;
+            ownerProfileImageUrl = user.ProfileImageUrl?.Value;
+        }
+
         return new GetUnitByIdResult(
             unit.Id,
             unit.OwnerId,
@@ -77,7 +99,13 @@ public class GetUnitByIdQueryHandler(
             unit.MainImageUrl.Value,
             imageUrls,
             amenitiesResult,
-            unit.CreatedAt
+            unit.CreatedAt,
+            unit.AvailableStartDate,
+            unit.AvailableEndDate,
+            ownerName,
+            ownerProfileImageUrl,
+            isSuperHost,
+            hostingSinceYear
         );
     }
 }

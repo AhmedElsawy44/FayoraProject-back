@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.AccommodationModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
@@ -25,6 +25,9 @@ public class CreateUnitCommandHandler(
 
         var mainImageResult = FileUrl.Create(request.MainImageUrl);
         if (mainImageResult.IsError) return mainImageResult.Errors;
+
+        var verificationDocumentResult = FileUrl.Create(request.VerificationDocumentUrl);
+        if (verificationDocumentResult.IsError) return verificationDocumentResult.Errors;
 
         var imageResults = request.ImageUrls.Select(FileUrl.Create).ToList();
         var failedImage = imageResults.FirstOrDefault(r => r.IsError);
@@ -54,7 +57,10 @@ public class CreateUnitCommandHandler(
             request.CheckInTime,
             request.CheckOutTime,
             mainImageResult.Value,
-            amenities);
+            verificationDocumentResult.Value,
+            amenities,
+            request.AvailableStartDate,
+            request.AvailableEndDate);
 
         if (housingUnitResult.IsError) return housingUnitResult.Errors;
         var housingUnit = housingUnitResult.Value;

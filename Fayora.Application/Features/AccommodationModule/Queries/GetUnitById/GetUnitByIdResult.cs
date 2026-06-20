@@ -28,5 +28,12 @@ public record GetUnitByIdResult(
     string? MainImageUrl,
     List<string> ImageUrls,
     List<Amenity> Amenities,
-    DateTimeOffset CreatedAt
+    DateTimeOffset CreatedAt,
+    DateTime? AvailableStartDate,
+    DateTime? AvailableEndDate,
+    // Owner / Host info
+    string? OwnerName,
+    string? OwnerProfileImageUrl,
+    bool IsSuperHost,
+    int HostingSinceYear
 );

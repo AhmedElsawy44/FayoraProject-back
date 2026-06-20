@@ -832,7 +832,8 @@ public class AdminRepository(ApplicationDbContext context) : IAdminRepository
             images,
             amenitiesList,
             acc.CreatedAt,
-            acc.AdminNotes
+            acc.AdminNotes,
+            acc.VerificationDocumentUrl?.Value
         );
     }
 

@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Abstractions.Messaging;
+using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.ChatModule;
 using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
@@ -42,7 +42,9 @@ public class GetChatsQueryHandler(
                 otherUser?.ProfileImageUrl?.Value,
                 chat.LastMessageContent,
                 chat.LastMessageTime,
-                chat.UnreadCount
+                chat.UnreadCount,
+                chat.ScopeType.ToString(),
+                chat.ScopeId
             );
         }).ToList();
 

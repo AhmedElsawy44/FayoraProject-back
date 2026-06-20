@@ -15,6 +15,8 @@ public interface IHousingUnitRepository
 
     Task<List<HousingUnit>> GetUnitsByIdsAsync(IEnumerable<Guid> unitIds, CancellationToken cancellationToken = default);
 
+    Task<List<HousingUnit>> GetUnitsByOwnerIdAsync(Guid ownerId, CancellationToken cancellationToken = default);
+
     Task<int> GetLiveListingsStatsAsync(CancellationToken cancellationToken = default);
 
     Task<int> GetPendingReviewStatsAsync(CancellationToken cancellationToken = default);

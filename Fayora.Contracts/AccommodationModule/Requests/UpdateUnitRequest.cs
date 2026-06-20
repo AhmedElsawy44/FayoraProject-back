@@ -18,5 +18,7 @@ public record UpdateUnitRequest(
     TimeSpan CheckOutTime,
     string MainImageUrl,
     HashSet<string> ImageUrls,
-    HashSet<int> AmenityIds
+    HashSet<int> AmenityIds,
+    DateTime? AvailableStartDate,
+    DateTime? AvailableEndDate
 );

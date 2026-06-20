@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Enums.IdentityModule;
+using Fayora.Domain.Enums.IdentityModule;
 
 namespace Fayora.Application.Common.Interfaces.Services.AuthModule;
 
@@ -14,5 +14,6 @@ public record SocialUserInfo(
     string? Email,
     string? FirstName,
     string? LastName,
-    string? PictureUrl
+    string? PictureUrl,
+    string? PhoneNumber = null
 );

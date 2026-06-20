@@ -11,6 +11,7 @@ using Fayora.Application.Features.TouristModule.Queries.GetRecommendedPackages;
 using Fayora.Application.Features.TouristModule.Queries.GetAllRecommendations;
 using Fayora.Application.Features.TouristModule.Queries.GetRecommendedPackagesSeeAll;
 using Fayora.Application.Features.TouristModule.Queries.GetSimilarPackages;
+using Fayora.Application.Features.TouristModule.Queries.GetMapPlaces;
 using Fayora.Contracts.AdminModule.CreateLocation;
 using Fayora.Contracts.TouristModule;
 using Fayora.Domain.Enums.SharedModule;
@@ -115,6 +116,16 @@ public class TouristController(ISender sender, IMapper mapper) : ApiController
 
         return result.Match(
             value => Ok(mapper.Map<GetAllLocationsResponse>(value)),
+            Problem);
+    }
+
+    [HttpGet("map-places")]
+    public async Task<IActionResult> GetMapPlaces(CancellationToken cancellationToken)
+    {
+        var query = new GetMapPlacesQuery();
+        var result = await sender.Send(query, cancellationToken);
+        return result.Match(
+            value => Ok(value),
             Problem);
     }
 

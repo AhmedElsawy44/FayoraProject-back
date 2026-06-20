@@ -1,3 +1,4 @@
+using Fayora.Application.Features.BookingModule.Queries.GetIncomingRequests;
 using AutoMapper;
 using Fayora.Application.Features.BookingModule.Commands.ConfirmCashReceived;
 using Fayora.Application.Features.BookingModule.Commands.CreateAccommodationBooking;
@@ -156,6 +157,18 @@ public class BookingController(ISender sender, IMapper mapper) : ApiController
         var command = new ScanBookingQrCommand(request.Token);
         var result = await sender.Send(command, cancellationToken);
         return result.Match(Ok, Problem);
+    }
+
+    [HttpGet("incoming-requests")]
+    public async Task<IActionResult> GetIncomingRequests(
+        [FromQuery] BookingStatus? status,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetIncomingRequestsQuery(status, page, pageSize);
+        var result = await sender.Send(query, cancellationToken);
+        return Ok(result);
     }
 
     [HttpGet("my-bookings")]

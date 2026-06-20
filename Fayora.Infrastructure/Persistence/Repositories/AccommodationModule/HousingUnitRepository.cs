@@ -38,8 +38,21 @@ public class HousingUnitRepository(ApplicationDbContext context) : IHousingUnitR
         if (options?.IsReadOnly == true)
             query = query.AsNoTracking();
 
+        if (options?.IncludeAmenties == true)
+            query = query.Include(u => u.Amenities);
 
         return await query.FirstOrDefaultAsync(u => u.Id == unitId, cancellationToken);
+    }
+
+    public async Task<List<HousingUnit>> GetUnitsByOwnerIdAsync(
+        Guid ownerId,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.HousingUnits
+            .AsNoTracking()
+            .Include(u => u.Amenities)
+            .Where(u => u.OwnerId == ownerId)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<List<HousingUnit>> GetUnitsByIdsAsync(

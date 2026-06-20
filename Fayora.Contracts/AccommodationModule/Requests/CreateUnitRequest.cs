@@ -1,4 +1,4 @@
-﻿namespace Fayora.Contracts.AccommodationModule.Requests;
+namespace Fayora.Contracts.AccommodationModule.Requests;
 
 public record CreateUnitRequest(
     string Title,
@@ -17,7 +17,9 @@ public record CreateUnitRequest(
     TimeSpan CheckInTime,
     TimeSpan CheckOutTime,
     string MainImageUrl,
-    Guid VerificationRequestId,
+    string VerificationDocumentUrl,
     HashSet<string> ImageUrls,
-    HashSet<int> AmenityIds
+    HashSet<int> AmenityIds,
+    DateTime? AvailableStartDate,
+    DateTime? AvailableEndDate
 );

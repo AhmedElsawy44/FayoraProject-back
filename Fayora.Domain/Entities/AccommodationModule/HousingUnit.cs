@@ -35,7 +35,11 @@ public class HousingUnit : BaseEntity<Guid>
     public int ReviewCount { get; private set; }
     public int Views { get; private set; }
 
+    public DateTime? AvailableStartDate { get; private set; }
+    public DateTime? AvailableEndDate { get; private set; }
+
     public FileUrl MainImageUrl { get; private set; } = null!;
+    public FileUrl? VerificationDocumentUrl { get; private set; }
 
     private readonly List<Guid> _imageIds = [];
     public IReadOnlyCollection<Guid> ImageIds => _imageIds.AsReadOnly();
@@ -63,7 +67,10 @@ public class HousingUnit : BaseEntity<Guid>
         TimeSpan checkInTime,
         TimeSpan checkOutTime,
         FileUrl mainImageUrl,
-        List<MasterAmenity> amenities)
+        FileUrl? verificationDocumentUrl,
+        List<MasterAmenity> amenities,
+        DateTime? availableStartDate,
+        DateTime? availableEndDate)
     {
         OwnerId = ownerId;
         Title = title;
@@ -81,6 +88,9 @@ public class HousingUnit : BaseEntity<Guid>
         CheckInTime = checkInTime;
         CheckOutTime = checkOutTime;
         MainImageUrl = mainImageUrl;
+        VerificationDocumentUrl = verificationDocumentUrl;
+        AvailableStartDate = availableStartDate;
+        AvailableEndDate = availableEndDate;
 
         Status = ItemStatus.Pending;
         Rating = 0m;
@@ -106,7 +116,10 @@ public class HousingUnit : BaseEntity<Guid>
         TimeSpan checkInTime,
         TimeSpan checkOutTime,
         FileUrl mainImageUrl,
-        List<MasterAmenity> amenities)
+        FileUrl? verificationDocumentUrl,
+        List<MasterAmenity> amenities,
+        DateTime? availableStartDate,
+        DateTime? availableEndDate)
     {
         if (ownerId == Guid.Empty)
             return Error.Validation("HousingUnit.OwnerId", "Owner ID is required.");
@@ -144,6 +157,9 @@ public class HousingUnit : BaseEntity<Guid>
         if (string.IsNullOrWhiteSpace(addressDetails))
             return Error.Validation("HousingUnit.AddressDetails", "Address details are required.");
 
+        if (availableStartDate.HasValue && availableEndDate.HasValue && availableStartDate.Value > availableEndDate.Value)
+            return Error.Validation("HousingUnit.AvailableDates", "Available start date must be before or equal to available end date.");
+
         amenities ??= [];
 
         return new HousingUnit(
@@ -163,7 +179,10 @@ public class HousingUnit : BaseEntity<Guid>
             checkInTime,
             checkOutTime,
             mainImageUrl,
-            amenities);
+            verificationDocumentUrl,
+            amenities,
+            availableStartDate,
+            availableEndDate);
     }
 
     public Result<Success> Approve()
@@ -241,7 +260,9 @@ public class HousingUnit : BaseEntity<Guid>
         TimeSpan checkOutTime,
         decimal pricePerNight,
         FileUrl mainImageUrl,
-        ItemStatus status)
+        ItemStatus status,
+        DateTime? availableStartDate,
+        DateTime? availableEndDate)
     {
         Title = title;
         Description = description;
@@ -259,6 +280,8 @@ public class HousingUnit : BaseEntity<Guid>
         PricePerNight = pricePerNight;
         MainImageUrl = mainImageUrl;
         Status = status;
+        AvailableStartDate = availableStartDate;
+        AvailableEndDate = availableEndDate;
     }
 
     public record PricingResult(decimal TotalPrice, decimal ServiceFee, decimal PayoutAmount);

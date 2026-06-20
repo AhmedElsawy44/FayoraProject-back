@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Persistences.ChatModule;
+using Fayora.Application.Common.Interfaces.Persistences.ChatModule;
 using Fayora.Domain.Entities.ChatModule;
 using Fayora.Domain.Enums.ChatModule;
 using Microsoft.EntityFrameworkCore;
@@ -64,7 +64,9 @@ public class ChatRepository(ApplicationDbContext context) : IChatRepository
                 c.Messages.OrderByDescending(m => m.CreatedAt).Select(m => m.Content).FirstOrDefault(),
                 c.Messages.OrderByDescending(m => m.CreatedAt).Select(m => m.CreatedAt).FirstOrDefault(),
 
-                c.Messages.Count(m => m.SenderId != userId && !m.ReadAt.HasValue)
+                c.Messages.Count(m => m.SenderId != userId && !m.ReadAt.HasValue),
+                c.ScopeType,
+                c.ScopeId
             ))
             .ToListAsync(cancellationToken);
 

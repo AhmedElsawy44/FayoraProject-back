@@ -31,5 +31,6 @@ public record GetDetailedAccommodationResponse(
     List<string> ImageUrls,
     List<string> Amenities,
     DateTimeOffset CreatedAt,
-    string? AdminNotes
+    string? AdminNotes,
+    string? VerificationDocumentUrl
 );
