@@ -72,21 +72,21 @@ public class PaymobPaymentService(HttpClient httpClient, IOptions<PaymobSettings
                 amount_cents = amountInCents,
                 expiration = 3600,
                 order_id = gatewayOrderId,
-                billing_date = new
+                billing_data = new
                 {
                     apartment = "NA",
-                    email = request.CustomerEmail,
+                    email = string.IsNullOrWhiteSpace(request.CustomerEmail) ? "customer@email.com" : request.CustomerEmail,
                     floor = "NA",
-                    first_name = request.CustomerFirstName,
+                    first_name = string.IsNullOrWhiteSpace(request.CustomerFirstName) ? "NA" : request.CustomerFirstName,
                     street = "NA",
                     building = "NA",
-                    phone_number = request.CustomerPhoneNumber,
+                    phone_number = string.IsNullOrWhiteSpace(request.CustomerPhoneNumber) ? "NA" : request.CustomerPhoneNumber,
                     shipping_method = "NA",
                     postal_code = "NA",
-                    city = "NA",
+                    city = "Cairo",
                     country = "EG",
-                    last_name = request.CustomerLastName,
-                    state = "NA"
+                    last_name = string.IsNullOrWhiteSpace(request.CustomerLastName) ? "NA" : request.CustomerLastName,
+                    state = "Cairo"
                 },
                 currency = "EGP",
                 integration_id = integrationId
