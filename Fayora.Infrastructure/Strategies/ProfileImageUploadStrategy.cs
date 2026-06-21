@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Models;
 using Fayora.Application.Common.Strategies;
 using Fayora.Domain.Common.Results;
@@ -14,8 +14,8 @@ public class ProfileImageUploadStrategy(IStorageService storageService, IDailyUp
 
     protected override UploadLimits Limits => new(
         MaxFileCountPerRequest: 1,
-        MaxFileSizeInBytes: 2 * 1024 * 1024,
-        AllowedExtensions: [".jpg", ".jpeg", ".png"],
+        MaxFileSizeInBytes: 10 * 1024 * 1024,
+        AllowedExtensions: [".jpg", ".jpeg", ".png", ".webp"],
         MaxFilesPerDay: 5
     );
 
