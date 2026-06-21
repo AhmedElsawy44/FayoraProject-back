@@ -16,6 +16,9 @@ namespace Fayora.Contracts.TouristModule
         string MainImageUrl,
         string TourTypes,
         decimal GuideRating,
-        int Views
+        int Views,
+        string? ProviderName = null,
+        string? ProviderImageUrl = null,
+        int? ProviderType = null
     );
 }

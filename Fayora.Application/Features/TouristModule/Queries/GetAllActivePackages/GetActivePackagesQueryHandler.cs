@@ -1,6 +1,7 @@
 using Fayora.Application.Common.Abstractions.Messaging;
 using Fayora.Application.Common.Interfaces.Persistences.GuideModule;
 using Fayora.Application.Common.Interfaces.Persistences.SharedModule;
+using Fayora.Application.Common.Interfaces.Persistences.IdentityModule;
 using Fayora.Domain.Common.Results;
 using Fayora.Domain.Enums.SharedModule;
 
@@ -9,7 +10,8 @@ namespace Fayora.Application.Features.TouristModule.Queries.GetAllActivePackages
 
     public class GetActivePackagesQueryHandler(
         IPackageRepository packageRepository,
-        IDiscountOfferRepository discountOfferRepository)
+        IDiscountOfferRepository discountOfferRepository,
+        IUserRepository userRepository)
         : IQueryHandler<GetActivePackagesQuery, Result<GetActivePackagesResult>>
     {
         public async Task<Result<GetActivePackagesResult>> Handle(
@@ -31,16 +33,32 @@ namespace Fayora.Application.Features.TouristModule.Queries.GetAllActivePackages
                 request.PageSize,
                 cancellationToken);
 
-            var summaryItems = items.Select(p => new ActivePackageSummaryResult(
-                p.Id,
-                p.Title,
-                p.AdultPrice,
-                p.AdultPrice,
-                p.DurationHours,
-                p.MainImageUrl?.Value ?? "",
-                p.TourTypes.ToString(),
-                0m,
-                p.Views)).ToList();
+            var userIds = items.Select(p => p.UserId).Distinct().ToList();
+            var users = await userRepository.GetUsersByIdsAsync(
+                userIds,
+                new IUserRepository.UserQueryOptions(IsReadOnly: true),
+                cancellationToken);
+            var userMap = users.ToDictionary(u => u.Id);
+
+            var summaryItems = items.Select(p =>
+            {
+                userMap.TryGetValue(p.UserId, out var u);
+                return new ActivePackageSummaryResult(
+                    p.Id,
+                    p.Title,
+                    p.AdultPrice,
+                    p.AdultPrice,
+                    p.DurationHours,
+                    p.MainImageUrl?.Value ?? "",
+                    p.TourTypes.ToString(),
+                    p.AverageRating,
+                    p.Views,
+                    u != null ? (u.FirstName + " " + u.LastName) : null,
+                    (u != null && u.ProfileImageUrl != null) ? u.ProfileImageUrl.Value : null,
+                    (int)p.ProviderType
+                );
+            }).ToList();
+
 
             for (int i = 0; i < summaryItems.Count; i++)
             {
