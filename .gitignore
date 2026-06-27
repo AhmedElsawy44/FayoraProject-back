@@ -362,6 +362,7 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /Fayora.Contracts/ChatModule/GetChats/ChatDto.cs
-/.gitignore
 /fayora-app-firebase-adminsdk-fbsvc-b841a1bd04.json
+Fayora.Api/fayora-app-firebase-adminsdk-fbsvc-b841a1bd04.json
+**/fayora-app-firebase-adminsdk-*.json
 
