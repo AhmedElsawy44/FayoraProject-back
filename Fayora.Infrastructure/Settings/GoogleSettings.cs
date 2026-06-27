@@ -1,7 +1,9 @@
-﻿namespace Fayora.Infrastructure.Settings;
+using System.Collections.Generic;
+
+namespace Fayora.Infrastructure.Settings;
 
 public class GoogleSettings
 {
     public static string SectionName => "GoogleSettings";
-    public string ClientId { get; set; } = string.Empty;
+    public List<string> ClientIds { get; set; } = new();
 }

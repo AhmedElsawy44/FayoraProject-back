@@ -1,4 +1,4 @@
-﻿using Fayora.Application.Common.Interfaces.Services.AuthModule;
+using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Application.Common.Strategies;
 using Fayora.Domain.Enums.IdentityModule;
 using Fayora.Infrastructure.Settings;
@@ -20,7 +20,7 @@ public class GoogleAuthStrategy(
         {
             var settings = new GoogleJsonWebSignature.ValidationSettings
             {
-                Audience = [_settings.ClientId]
+                Audience = _settings.ClientIds
             };
 
             var payload = await GoogleJsonWebSignature.ValidateAsync(token, settings);
