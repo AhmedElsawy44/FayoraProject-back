@@ -9,6 +9,7 @@ using Fayora.Domain.Enums.SharedModule;
 using Fayora.Contracts.TourGuideModule.GetPackageDetails;
 using Fayora.Application.Common.Interfaces.Services.AuthModule;
 using Fayora.Domain.Enums.TourGuideModule;
+using Fayora.Domain.Entities.GuideModule;
 using static Fayora.Application.Common.Interfaces.Persistences.GuideModule.ITourGuideRepository;
 using static Fayora.Application.Common.Interfaces.Persistences.IdentityModule.IUserRepository;
 
@@ -17,6 +18,7 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
     public class GetPackageDetailsQueryHandler(
         IPackageRepository packageRepository,
         ITourGuideRepository tourGuideRepository,
+        ITourCompanyRepository tourCompanyRepository,
         IPackageNightRepository packageNightRepository,
         IUserRepository userRepository,
         IDiscountOfferRepository discountOfferRepository,
@@ -53,10 +55,19 @@ namespace Fayora.Application.Features.TourGuideModule.Queries.GetPackageDetails
             var packageImages = await packageImageRepository.GetPackageImages(
                 package.Id, cancellationToken);
 
-            var guide = await tourGuideRepository.GetGuideByIdAsync(
+            GuideAccountBase? guide = await tourGuideRepository.GetGuideByIdAsync(
                 package.UserId,
                 new GuideQueryOptions(ReadOnly: true),
                 cancellationToken);
+
+            if (guide is null)
+            {
+                guide = await tourCompanyRepository.GetTourCompanyByIdAsync(
+                    package.UserId,
+                    new GuideQueryOptions(ReadOnly: true),
+                    cancellationToken);
+            }
+
             if (guide is null) return TourGuideErrors.GuideNotFound;
 
             var user = await userRepository.GetUserByIdAsync(
