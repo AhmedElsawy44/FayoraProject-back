@@ -190,7 +190,7 @@ public static class DependencyInjection
 
         services.AddSingleton<ISocialAuthService, SocialAuthService>();
         services.AddHttpClient<ISocialAuthStrategy, FacebookAuthStrategy>();
-        services.AddSingleton<ISocialAuthStrategy, GoogleAuthStrategy>();
+        services.AddHttpClient<ISocialAuthStrategy, GoogleAuthStrategy>();
         services.AddSingleton<ISocialAuthStrategy, MockAppleAuthService>();
         services.AddSingleton<ISocialAuthStrategy, FirebasePhoneAuthStrategy>();
 
