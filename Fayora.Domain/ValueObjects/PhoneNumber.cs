@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Common.ValueObject;
 using System.Text.RegularExpressions;
 
@@ -12,6 +12,8 @@ public class PhoneNumber : ValueObject
     public string Value { get; }
 
     private PhoneNumber(string value) => Value = value;
+
+    public static PhoneNumber Restore(string value) => new(value);
 
     public static Result<PhoneNumber> Create(string value)
     {

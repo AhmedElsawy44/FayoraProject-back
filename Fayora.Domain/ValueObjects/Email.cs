@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Common.Results;
+using Fayora.Domain.Common.Results;
 using Fayora.Domain.Common.ValueObject;
 using Fayora.Domain.Errors;
 using System.Text.RegularExpressions;
@@ -12,6 +12,8 @@ public sealed class Email : ValueObject
     public string Value { get; }
 
     private Email(string value) => Value = value.ToLowerInvariant().Trim();
+
+    public static Email Restore(string value) => new(value);
 
     public static Result<Email> Create(string? email)
     {

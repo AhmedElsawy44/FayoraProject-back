@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.IdentityModule;
+using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -29,7 +29,7 @@ public class UserIdentityConfigurations : IEntityTypeConfiguration<UserIdentity>
             .IsRequired(false)
             .HasConversion(
                 u => u == null ? null : u.Value,
-                v => v == null ? null : Email.Create(v).Value)
+                v => !string.IsNullOrWhiteSpace(v) ? Email.Restore(v) : null)
             .HasMaxLength(255);
 
         builder.HasIndex(u => u.Email);

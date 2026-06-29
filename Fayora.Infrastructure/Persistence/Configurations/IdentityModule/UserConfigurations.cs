@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.IdentityModule;
+using Fayora.Domain.Entities.IdentityModule;
 using Fayora.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -65,7 +65,7 @@ internal sealed class UserConfigurations : IEntityTypeConfiguration<User>
         builder.Property(u => u.PrimaryEmail)
             .HasConversion(
                 email => email != null ? email.Value : null,
-                value => value != null ? Email.Create(value).Value : null)
+                value => !string.IsNullOrWhiteSpace(value) ? Email.Restore(value) : null)
             .HasColumnName("Email")
             .HasMaxLength(255);
 
@@ -77,7 +77,7 @@ internal sealed class UserConfigurations : IEntityTypeConfiguration<User>
         builder.Property(u => u.PhoneNumber)
             .HasConversion(
                 phone => phone != null ? phone.Value : null,
-                value => value != null ? PhoneNumber.Create(value).Value : null)
+                value => !string.IsNullOrWhiteSpace(value) ? PhoneNumber.Restore(value) : null)
             .HasColumnName("PhoneNumber")
             .HasMaxLength(20);
 
@@ -89,7 +89,7 @@ internal sealed class UserConfigurations : IEntityTypeConfiguration<User>
         builder.Property(u => u.ProfileImageUrl)
             .HasConversion(
                 url => url != null ? url.ToString() : null,
-                value => value != null ? FileUrl.Create(value).Value : null)
+                value => !string.IsNullOrWhiteSpace(value) ? FileUrl.Restore(value) : null)
             .HasColumnName("ProfileImageUrl")
             .HasColumnType("NVARCHAR(2048)");
 

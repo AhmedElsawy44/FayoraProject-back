@@ -1,4 +1,4 @@
-﻿using Fayora.Domain.Entities.GuideModule;
+using Fayora.Domain.Entities.GuideModule;
 using Fayora.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -53,7 +53,7 @@ public class TourGuideConfiguration : IEntityTypeConfiguration<TourGuide>
             .HasColumnName("ProfessionalLicenseUrl")
             .HasConversion(
                 fileUrl => fileUrl != null ? fileUrl.Value : null,
-                str => str != null ? FileUrl.Create(str).Value : null
+                str => !string.IsNullOrWhiteSpace(str) ? FileUrl.Restore(str) : null
             )
             .IsRequired(false);
 

@@ -14,6 +14,8 @@ public class FileUrl : ValueObject
         Value = value;
     }
 
+    public static FileUrl Restore(string value) => new(value);
+
     public static Result<FileUrl> Create(string? url)
     {
         if (string.IsNullOrWhiteSpace(url))
