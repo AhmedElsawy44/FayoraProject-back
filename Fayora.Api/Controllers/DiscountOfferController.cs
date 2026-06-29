@@ -57,7 +57,7 @@ namespace Fayora.Api.Controllers
             var result = await sender.Send(command, cancellationToken);
 
             return result.Match(
-                _ => (IActionResult)Ok(new { Message = "Offer cancelled successfully." }),  
+                _ => (IActionResult)Ok(new { Message = "Offer cancelled successfully." }),
                 errors => Problem(errors)
             );
 

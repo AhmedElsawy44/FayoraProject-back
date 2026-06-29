@@ -29,7 +29,7 @@ public class CloudinaryStorageService : IStorageService
         using var stream = file.OpenReadStream();
 
         var isImage = file.ContentType.StartsWith("image/");
-        var isVideo = file.ContentType.StartsWith("video/") || 
+        var isVideo = file.ContentType.StartsWith("video/") ||
                       new[] { ".mp4", ".mov", ".avi", ".mkv", ".webm" }.Contains(Path.GetExtension(file.FileName).ToLowerInvariant());
 
         var uploadParams = new RawUploadParams

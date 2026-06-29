@@ -132,7 +132,7 @@ public class LoginWithSocialCommandHandler(
         var lastName = providerLastName ?? request.LastName ?? string.Empty;
 
         var user = User.CreateWithSocialLogin(firstName, lastName, null, pictureUrl);
-        
+
         user.ChangePhoneNumber(phoneNumber);
         user.VerifyPhone();
 

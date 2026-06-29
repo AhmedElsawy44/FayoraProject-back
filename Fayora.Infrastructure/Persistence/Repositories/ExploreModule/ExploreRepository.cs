@@ -142,17 +142,18 @@ public class ExploreRepository(ApplicationDbContext context) : IExploreRepositor
             Rating: (double)h.Rating
         )).ToList();
 
-        var guides = dbGuides.Select(gu => {
+        var guides = dbGuides.Select(gu =>
+        {
             var cityNames = gu.Guide.GuideCities
                 .Select(gc => gc.City?.Name)
                 .Where(name => !string.IsNullOrEmpty(name))
                 .ToList();
-            var locationLabel = cityNames.Count > 0 
-                ? string.Join(", ", cityNames) 
+            var locationLabel = cityNames.Count > 0
+                ? string.Join(", ", cityNames)
                 : "Local Guide";
 
-            var baseRateLabel = gu.Guide.BaseRate.HasValue 
-                ? $"EGP {gu.Guide.BaseRate.Value}/h" 
+            var baseRateLabel = gu.Guide.BaseRate.HasValue
+                ? $"EGP {gu.Guide.BaseRate.Value}/h"
                 : "Negotiable";
 
             return new ExploreItemDto(
@@ -225,8 +226,8 @@ public class ExploreRepository(ApplicationDbContext context) : IExploreRepositor
 
             if (!string.IsNullOrEmpty(cleanSearch))
             {
-                locationsQuery = locationsQuery.Where(l => 
-                    l.Name.ToLower().Contains(cleanSearch) || 
+                locationsQuery = locationsQuery.Where(l =>
+                    l.Name.ToLower().Contains(cleanSearch) ||
                     (l.Description != null && l.Description.ToLower().Contains(cleanSearch)));
             }
 
@@ -256,8 +257,8 @@ public class ExploreRepository(ApplicationDbContext context) : IExploreRepositor
 
             if (!string.IsNullOrEmpty(cleanSearch))
             {
-                packagesQuery = packagesQuery.Where(p => 
-                    p.Title.ToLower().Contains(cleanSearch) || 
+                packagesQuery = packagesQuery.Where(p =>
+                    p.Title.ToLower().Contains(cleanSearch) ||
                     p.Description.ToLower().Contains(cleanSearch));
             }
 
@@ -287,9 +288,9 @@ public class ExploreRepository(ApplicationDbContext context) : IExploreRepositor
 
             if (!string.IsNullOrEmpty(cleanSearch))
             {
-                accommodationsQuery = accommodationsQuery.Where(h => 
-                    h.Title.ToLower().Contains(cleanSearch) || 
-                    (h.Description != null && h.Description.ToLower().Contains(cleanSearch)) || 
+                accommodationsQuery = accommodationsQuery.Where(h =>
+                    h.Title.ToLower().Contains(cleanSearch) ||
+                    (h.Description != null && h.Description.ToLower().Contains(cleanSearch)) ||
                     h.AddressDetails.ToLower().Contains(cleanSearch));
             }
 
@@ -318,14 +319,14 @@ public class ExploreRepository(ApplicationDbContext context) : IExploreRepositor
                 .Where(g => g.Status == ItemStatus.Active);
 
             var guidesList = await (from guide in guidesQuery
-                                   join user in context.Users.AsNoTracking() on guide.UserId equals user.Id
-                                   select new { guide, user })
+                                    join user in context.Users.AsNoTracking() on guide.UserId equals user.Id
+                                    select new { guide, user })
                                    .ToListAsync(cancellationToken);
 
             if (!string.IsNullOrEmpty(cleanSearch))
             {
-                guidesList = guidesList.Where(x => 
-                    x.user.FirstName.ToLower().Contains(cleanSearch) || 
+                guidesList = guidesList.Where(x =>
+                    x.user.FirstName.ToLower().Contains(cleanSearch) ||
                     x.user.LastName.ToLower().Contains(cleanSearch))
                     .ToList();
             }

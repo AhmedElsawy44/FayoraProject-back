@@ -54,7 +54,7 @@ internal sealed class UserConfigurations : IEntityTypeConfiguration<User>
             .HasMaxLength(3);
 
         builder.Ignore(u => u.IsProfileComplete);
-            
+
         builder.Property<string>("_passwordHash")
             .HasField("_passwordHash")
             .HasColumnName("PasswordHash")

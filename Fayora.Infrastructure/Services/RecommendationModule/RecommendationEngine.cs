@@ -86,7 +86,7 @@ public class RecommendationEngine(
                 {
                     var packageIds = items.Select(i => Guid.Parse(i.PackageId)).ToHashSet();
                     var candidates = await repository.GetCandidatePackagesAsync(cancellationToken);
-                    
+
                     var results = candidates
                         .Where(p => packageIds.Contains(p.Id))
                         .Select((p, index) => new RecommendedPackageResult(
@@ -207,7 +207,7 @@ public class RecommendationEngine(
                 {
                     var packageIds = trending.Packages.Select(i => Guid.Parse(i.PackageId)).ToHashSet();
                     var candidates = await repository.GetCandidatePackagesAsync(cancellationToken);
-                    
+
                     var results = candidates
                         .Where(p => packageIds.Contains(p.Id))
                         .Select((p, index) => new RecommendedPackageResult(
@@ -758,7 +758,7 @@ public class RecommendationEngine(
                 {
                     var unitIds = items.Select(i => Guid.Parse(i.UnitId)).ToHashSet();
                     var candidates = await repository.GetCandidateUnitsAsync(cancellationToken);
-                    
+
                     var results = candidates
                         .Where(u => unitIds.Contains(u.Id))
                         .Select((u, index) => new RecommendedUnitResult(
@@ -885,7 +885,7 @@ public class RecommendationEngine(
                 {
                     var unitIds = trending.Housing.Select(i => Guid.Parse(i.UnitId)).ToHashSet();
                     var candidates = await repository.GetCandidateUnitsAsync(cancellationToken);
-                    
+
                     var results = candidates
                         .Where(u => unitIds.Contains(u.Id))
                         .Select((u, index) => new RecommendedUnitResult(
@@ -1090,7 +1090,7 @@ public class RecommendationEngine(
                 {
                     var guideIds = items.Select(i => Guid.Parse(i.GuideId)).ToHashSet();
                     var candidates = await repository.GetCandidateGuidesAsync(cancellationToken);
-                    
+
                     var results = candidates
                         .Where(g => guideIds.Contains(g.UserId))
                         .Select((g, index) => new RecommendedGuideResult(
@@ -1223,7 +1223,7 @@ public class RecommendationEngine(
                 {
                     var guideIds = trending.Guides.Select(i => Guid.Parse(i.GuideId)).ToHashSet();
                     var candidates = await repository.GetCandidateGuidesAsync(cancellationToken);
-                    
+
                     var results = candidates
                         .Where(g => guideIds.Contains(g.UserId))
                         .Select((g, index) => new RecommendedGuideResult(
@@ -1381,7 +1381,7 @@ public class RecommendationEngine(
                 {
                     var packageIds = items.Select(i => Guid.Parse(i.PackageId)).ToHashSet();
                     var candidates = await repository.GetCandidatePackagesAsync(cancellationToken);
-                    
+
                     return candidates
                         .Where(p => packageIds.Contains(p.Id))
                         .Select((p, index) => new RecommendedPackageResult(
@@ -1416,7 +1416,7 @@ public class RecommendationEngine(
                 {
                     var unitIds = items.Select(i => Guid.Parse(i.UnitId)).ToHashSet();
                     var candidates = await repository.GetCandidateUnitsAsync(cancellationToken);
-                    
+
                     return candidates
                         .Where(u => unitIds.Contains(u.Id))
                         .Select((u, index) => new RecommendedUnitResult(
@@ -1451,7 +1451,7 @@ public class RecommendationEngine(
                 {
                     var guideIds = items.Select(i => Guid.Parse(i.GuideId)).ToHashSet();
                     var candidates = await repository.GetCandidateGuidesAsync(cancellationToken);
-                    
+
                     return candidates
                         .Where(g => guideIds.Contains(g.UserId))
                         .Select((g, index) => new RecommendedGuideResult(
@@ -1486,7 +1486,7 @@ public class RecommendationEngine(
                 {
                     var unitIds = items.Select(i => Guid.Parse(i.UnitId)).ToHashSet();
                     var candidates = await repository.GetCandidateUnitsAsync(cancellationToken);
-                    
+
                     return candidates
                         .Where(u => unitIds.Contains(u.Id))
                         .Select((u, index) => new RecommendedUnitResult(
@@ -1515,7 +1515,8 @@ public class RecommendationEngine(
 
         return candidatesFallback
             .Where(u => u.Id != unitId)
-            .Select(u => {
+            .Select(u =>
+            {
                 double score = 0.0;
                 if (u.LocationId == source.LocationId) score += 0.5;
                 double priceDiff = (double)Math.Abs(u.PricePerNight - source.PricePerNight);
@@ -1548,7 +1549,7 @@ public class RecommendationEngine(
                 {
                     var packageIds = items.Select(i => Guid.Parse(i.PackageId)).ToHashSet();
                     var candidates = await repository.GetCandidatePackagesAsync(cancellationToken);
-                    
+
                     return candidates
                         .Where(p => packageIds.Contains(p.Id))
                         .Select((p, index) => new RecommendedPackageResult(
@@ -1577,7 +1578,8 @@ public class RecommendationEngine(
 
         return candidatesFallback
             .Where(p => p.Id != packageId)
-            .Select(p => {
+            .Select(p =>
+            {
                 double score = 0.0;
                 var sourceTypes = DecomposeTourTypes(source.TourTypes);
                 var pTypes = DecomposeTourTypes(p.TourTypes);
@@ -1619,7 +1621,7 @@ public class RecommendationEngine(
                 {
                     var guideIds = items.Select(i => Guid.Parse(i.GuideId)).ToHashSet();
                     var candidates = await repository.GetCandidateGuidesAsync(cancellationToken);
-                    
+
                     return candidates
                        .Where(g => guideIds.Contains(g.UserId))
                        .Select((g, index) => new RecommendedGuideResult(
@@ -1648,7 +1650,8 @@ public class RecommendationEngine(
 
         return candidatesFallback
             .Where(g => g.UserId != guideId)
-            .Select(g => {
+            .Select(g =>
+            {
                 double score = 0.0;
                 var sourceTypes = DecomposeTourTypes(source.TourTypes);
                 var gTypes = DecomposeTourTypes(g.TourTypes);

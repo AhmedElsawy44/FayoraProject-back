@@ -206,7 +206,7 @@ public class CreateGuidePackageCommandHandler(
                         if (accommodationResult.IsError) return accommodationResult.Errors;
 
                         accommodationId = accommodationResult.Value.Id;
-                        createdAccommodations[key] = accommodationId.Value; 
+                        createdAccommodations[key] = accommodationId.Value;
                         packageAccommodationRepository.Add(accommodationResult.Value);
                     }
                 }

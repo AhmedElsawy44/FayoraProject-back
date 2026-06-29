@@ -48,7 +48,7 @@ public record ActivityDto(decimal? Latitude,
     decimal? Longitude,
     string Description,
     TimeOnly ActivityTime,
-    bool IsOptional, 
+    bool IsOptional,
     int? LocationId);
 
 public record NightDto(

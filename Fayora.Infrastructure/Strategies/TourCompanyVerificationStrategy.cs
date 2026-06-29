@@ -48,12 +48,12 @@ public class TourCompanyVerificationStrategy(
         var userForNotify = await userRepository.GetUserByIdAsync(tourCompany.UserId, new UserQueryOptions { IsReadOnly = true }, ct);
         bool isArabic = userForNotify?.PreferredLanguage == Language.Arabic;
 
-        string title = isApproved 
-            ? (isArabic ? "تم قبول طلب التحقق!" : "Verification Approved!") 
+        string title = isApproved
+            ? (isArabic ? "تم قبول طلب التحقق!" : "Verification Approved!")
             : (isArabic ? "تم رفض طلب التحقق" : "Verification Rejected");
 
-        string body = isApproved 
-            ? (isArabic ? "تهانينا! تم قبول طلب تسجيل شركتك السياحية." : "Congratulations! Your request to register your Tour Company has been approved.") 
+        string body = isApproved
+            ? (isArabic ? "تهانينا! تم قبول طلب تسجيل شركتك السياحية." : "Congratulations! Your request to register your Tour Company has been approved.")
             : (isArabic ? $"تم رفض طلب التحقق لشركتك. السبب: {adminNotes}" : $"Your company verification request was rejected. Reason: {adminNotes}");
 
         // Save In-App Notification in DB

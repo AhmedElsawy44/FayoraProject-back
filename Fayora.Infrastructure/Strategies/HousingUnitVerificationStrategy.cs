@@ -47,12 +47,12 @@ public class HousingUnitVerificationStrategy(
         var userForNotify = await userRepository.GetUserByIdAsync(housingUnit.OwnerId, new UserQueryOptions { IsReadOnly = true }, ct);
         bool isArabic = userForNotify?.PreferredLanguage == Language.Arabic;
 
-        string title = isApproved 
-            ? (isArabic ? "تم قبول الوحدة السكنية!" : "Housing Unit Approved!") 
+        string title = isApproved
+            ? (isArabic ? "تم قبول الوحدة السكنية!" : "Housing Unit Approved!")
             : (isArabic ? "تم رفض الوحدة السكنية" : "Housing Unit Rejected");
 
-        string body = isApproved 
-            ? (isArabic ? $"تم قبول وحدتك السكنية '{housingUnit.Title}' بنجاح." : $"Your housing unit '{housingUnit.Title}' has been approved.") 
+        string body = isApproved
+            ? (isArabic ? $"تم قبول وحدتك السكنية '{housingUnit.Title}' بنجاح." : $"Your housing unit '{housingUnit.Title}' has been approved.")
             : (isArabic ? $"تم رفض وحدتك السكنية '{housingUnit.Title}'. السبب: {adminNotes}" : $"Your housing unit '{housingUnit.Title}' was rejected. Reason: {adminNotes}");
 
         // Save In-App Notification in DB

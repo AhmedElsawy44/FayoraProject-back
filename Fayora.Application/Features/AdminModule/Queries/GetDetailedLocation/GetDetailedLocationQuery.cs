@@ -4,5 +4,5 @@ using Fayora.Domain.Common.Results;
 
 namespace Fayora.Application.Features.AdminModule.Queries.GetDetailedLocation;
 
-public record GetDetailedLocationQuery(int Id) 
+public record GetDetailedLocationQuery(int Id)
     : IQuery<Result<GetDetailedLocationResponse>>;

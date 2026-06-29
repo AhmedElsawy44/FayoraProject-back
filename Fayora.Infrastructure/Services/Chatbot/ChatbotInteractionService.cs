@@ -264,7 +264,7 @@ public class ChatbotInteractionService(
 
             string systemPrompt = ChatbotPrompts.BuildRespondPrompt(userName, currentMonth, currentSeason, dbContextText, userPreferencesContext);
             var responseResult = await openRouterService.RespondAsync(content, history, systemPrompt, cancellationToken);
-            
+
             botResponseText = responseResult.Text;
             suggestions = responseResult.Suggestions;
         }
@@ -438,7 +438,7 @@ public class ChatbotInteractionService(
             return new List<string> { "طبيعة وهدوء 🌿", "تاريخ وآثار 🏛️", "مغامرة وسفاري 🐪", "مزيج من الكل" };
         if (q.Contains("مين") || q.Contains("مع") || q.Contains("عيلة") || q.Contains("كابل"))
             return new List<string> { "لوحدي 🎒", "كابل 💑", "عيلة 👨‍👩‍👧", "أصحاب 👫" };
-        
+
         return new List<string> { "فنادق في الفيوم 🏨", "أماكن سياحية 🏛️", "مرشد سياحي 🗺️", "خطة رحلة 📅" };
     }
 

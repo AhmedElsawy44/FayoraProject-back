@@ -4,5 +4,5 @@ using Fayora.Domain.Common.Results;
 
 namespace Fayora.Application.Features.AdminModule.Queries.GetDetailedGuide;
 
-public record GetDetailedGuideQuery(Guid Id) 
+public record GetDetailedGuideQuery(Guid Id)
     : IQuery<Result<GetDetailedGuideResponse>>;

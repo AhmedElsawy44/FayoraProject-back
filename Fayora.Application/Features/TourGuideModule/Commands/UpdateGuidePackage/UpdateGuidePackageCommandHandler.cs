@@ -105,7 +105,7 @@ public class UpdateGuidePackageCommandHandler(
         package.UpdateIncludedItems(request.IncludedIds ?? []);
         package.UpdateExcludedItems(request.ExcludedIds ?? []);
 
- 
+
         package.UpdateLocations(request.LocationIds);
 
         // 12. Replace activities — delete old, create new

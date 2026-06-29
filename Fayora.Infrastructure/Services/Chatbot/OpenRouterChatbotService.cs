@@ -32,7 +32,7 @@ public class OpenRouterChatbotService
         CancellationToken cancellationToken = default)
     {
         var systemPrompt = ChatbotPrompts.ThinkSystemPrompt;
-        
+
         var messages = new List<object>
         {
             new { role = "system", content = systemPrompt }
@@ -226,14 +226,14 @@ public class OpenRouterChatbotService
     private static string CleanReasoningTags(string text)
     {
         if (string.IsNullOrEmpty(text)) return text;
-        
+
         // Remove </think> and anything before it
         if (text.Contains("</think>"))
         {
             text = text.Split("</think>", 2)[1];
             if (text.StartsWith(">")) text = text.Substring(1);
         }
-        
+
         text = Regex.Replace(text, @"<think\b[^>]*>.*?</think\s*>", "", RegexOptions.Singleline | RegexOptions.IgnoreCase);
         text = Regex.Replace(text, @"<think\b[^>]*>.*", "", RegexOptions.Singleline | RegexOptions.IgnoreCase);
         return text.Trim();

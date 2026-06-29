@@ -41,9 +41,9 @@ public class OptionalActivity
     public override bool Equals(object? obj)
     {
         if (obj is not OptionalActivity other) return false;
-        return Id == other.Id 
-            && Description == other.Description 
-            && AdditionalPrice == other.AdditionalPrice 
+        return Id == other.Id
+            && Description == other.Description
+            && AdditionalPrice == other.AdditionalPrice
             && ImageUrl.Value == other.ImageUrl.Value;
     }
 

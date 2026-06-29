@@ -174,7 +174,7 @@ public class PaymobPaymentService(HttpClient httpClient, IOptions<PaymobSettings
         {
             using var document = JsonDocument.Parse(jsonPayload);
             var root = document.RootElement;
-            
+
             if (!root.TryGetProperty("obj", out var objElement))
             {
                 return Error.Failure("Webhook.InvalidPayload", "Missing obj element in Paymob payload.");
@@ -193,7 +193,7 @@ public class PaymobPaymentService(HttpClient httpClient, IOptions<PaymobSettings
             var is_refunded = GetStringOrRaw(objElement, "is_refunded");
             var is_standalone_payment = GetStringOrRaw(objElement, "is_standalone_payment");
             var is_voided = GetStringOrRaw(objElement, "is_voided");
-            
+
             string order = "";
             string merchantOrderId = "";
             if (objElement.TryGetProperty("order", out var orderElement))

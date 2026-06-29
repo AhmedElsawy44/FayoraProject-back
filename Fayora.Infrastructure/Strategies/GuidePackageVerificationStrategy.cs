@@ -45,12 +45,12 @@ public class GuidePackageVerificationStrategy(
         var userForNotify = await userRepository.GetUserByIdAsync(guidePackage.UserId, new UserQueryOptions { IsReadOnly = true }, ct);
         bool isArabic = userForNotify?.PreferredLanguage == Language.Arabic;
 
-        string title = isApproved 
-            ? (isArabic ? "تم قبول باقة الرحلة!" : "Tour Package Approved!") 
+        string title = isApproved
+            ? (isArabic ? "تم قبول باقة الرحلة!" : "Tour Package Approved!")
             : (isArabic ? "تم رفض باقة الرحلة" : "Tour Package Rejected");
 
-        string body = isApproved 
-            ? (isArabic ? $"تم قبول باقة الرحلة الخاصة بك '{guidePackage.Title}' بنجاح." : $"Your tour package '{guidePackage.Title}' has been approved.") 
+        string body = isApproved
+            ? (isArabic ? $"تم قبول باقة الرحلة الخاصة بك '{guidePackage.Title}' بنجاح." : $"Your tour package '{guidePackage.Title}' has been approved.")
             : (isArabic ? $"تم رفض باقة الرحلة الخاصة بك '{guidePackage.Title}'. السبب: {adminNotes}" : $"Your tour package '{guidePackage.Title}' was rejected. Reason: {adminNotes}");
 
         // Save In-App Notification in DB

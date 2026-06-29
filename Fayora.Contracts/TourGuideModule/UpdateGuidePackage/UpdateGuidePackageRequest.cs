@@ -7,7 +7,7 @@ public record UpdateGuidePackageRequest(
     string Description,
     string TourType,
     int DurationHours,
-    int NumOfDays,   
+    int NumOfDays,
     List<NightDto>? Nights,
     List<MeetingPointDto> MeetingPoints,
     string TransportType,

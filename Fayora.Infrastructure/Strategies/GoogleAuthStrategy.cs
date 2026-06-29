@@ -21,7 +21,7 @@ public class GoogleAuthStrategy(
 
     public async Task<SocialUserInfo?> LoginWithSocialAsync(string token, CancellationToken cancellationToken)
     {
-        logger.LogInformation("GoogleAuthStrategy: LoginWithSocialAsync called. Token length: {Length}. Prefix: {Prefix}", 
+        logger.LogInformation("GoogleAuthStrategy: LoginWithSocialAsync called. Token length: {Length}. Prefix: {Prefix}",
             token?.Length ?? 0, token?.Length > 10 ? token[..10] : token);
 
         try
@@ -56,7 +56,7 @@ public class GoogleAuthStrategy(
             {
                 logger.LogInformation("GoogleAuthStrategy: Token detected as Access Token. Validating via Google UserInfo API...");
                 var response = await httpClient.GetAsync($"https://www.googleapis.com/oauth2/v3/userinfo?access_token={token}", cancellationToken);
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var errBody = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -66,7 +66,7 @@ public class GoogleAuthStrategy(
 
                 var json = await response.Content.ReadAsStringAsync(cancellationToken);
                 logger.LogInformation("GoogleAuthStrategy: UserInfo API response: {Body}", json);
-                
+
                 var payload = JsonSerializer.Deserialize<GoogleUserInfoResponse>(json);
 
                 if (payload is null)

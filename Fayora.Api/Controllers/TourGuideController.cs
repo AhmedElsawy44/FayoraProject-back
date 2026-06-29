@@ -475,7 +475,8 @@ public class GuideController(ISender sender, IMapper mapper) : ApiController
             return NotFound("Tour guide not found");
         }
 
-        var response = new {
+        var response = new
+        {
             id = tourGuide.UserId,
             yearsOfExperience = tourGuide.YearsOfExperience,
             baseRate = tourGuide.BaseRate,

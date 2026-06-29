@@ -115,8 +115,8 @@ public class ReviewRepository(ApplicationDbContext context) : IReviewRepository
                 continue;
             }
 
-            var authorName = review.Reviewer != null 
-                ? (review.Reviewer.FirstName + " " + review.Reviewer.LastName) 
+            var authorName = review.Reviewer != null
+                ? (review.Reviewer.FirstName + " " + review.Reviewer.LastName)
                 : "Unknown User";
 
             // Resolve target name
