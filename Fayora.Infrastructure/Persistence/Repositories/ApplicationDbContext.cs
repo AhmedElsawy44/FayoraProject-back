@@ -101,14 +101,7 @@ public class ApplicationDbContext : DbContext, IUnitOfWork
             .SelectMany(x => x.Entity.GetDomainEvents())
             .ToList();
 
-        if (IsUserWaitingOnline())
-        {
-            AddDomainEventsToOfflineProcessingQueue(domainEvents);
-        }
-        else
-        {
-            await PublishDomainEvents(_publisher, domainEvents);
-        }
+        await PublishDomainEvents(_publisher, domainEvents);
 
         await SaveChangesAsync(cancellationToken);
     }

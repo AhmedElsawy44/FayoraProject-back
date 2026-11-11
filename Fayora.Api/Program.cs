@@ -90,9 +90,9 @@ public class Program
 
             app.UseStaticFiles();
 
-            app.UseHttpsRedirection();
-
             app.UseCors("AllowAll");
+
+            app.UseHttpsRedirection();
 
             app.UseSerilogRequestLogging();
 
