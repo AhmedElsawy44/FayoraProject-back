@@ -20,7 +20,7 @@ public class LoginWithEmailCommandHandler(
 {
     public async Task<Result<LoginWithEmailResult>> Handle(LoginWithEmailCommand request, CancellationToken cancellationToken)
     {
-        var isAdmin = string.Equals(request.Email, "Fayoratravel@gmail.com", StringComparison.OrdinalIgnoreCase);
+        var isAdmin = string.Equals(request.Email, Fayora.Domain.Common.Constants.AdminConstants.AdminEmail, StringComparison.OrdinalIgnoreCase);
 
         var queryOptions = new UserQueryOptions(IsReadOnly: false, IncludeVerificationCodes: isAdmin);
         var user = await userRepository.GetUserByEmailAsync(request.Email, queryOptions, cancellationToken);

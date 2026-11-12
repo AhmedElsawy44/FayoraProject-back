@@ -20,7 +20,7 @@ public class VerifyAdminLoginCommandHandler(
 {
     public async Task<Result<VerifyAdminLoginResult>> Handle(VerifyAdminLoginCommand request, CancellationToken cancellationToken)
     {
-        var isAdmin = string.Equals(request.Email, "Fayoratravel@gmail.com", StringComparison.OrdinalIgnoreCase);
+        var isAdmin = string.Equals(request.Email, Fayora.Domain.Common.Constants.AdminConstants.AdminEmail, StringComparison.OrdinalIgnoreCase);
         if (!isAdmin) return AuthErrors.InvalidCredentials;
 
         var user = await userRepository.GetUserByEmailAsync(
